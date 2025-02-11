@@ -1,0 +1,33 @@
+package org.greenthread.whatsinmycloset.app
+
+import kotlinx.serialization.Serializable
+
+sealed interface Routes {
+    @Serializable
+    data object HomeGraph : Routes
+    @Serializable
+    data object ProfileGraph : Routes
+    @Serializable
+    data object SwapGraph : Routes
+    @Serializable
+    data object SocialGraph : Routes
+
+    @Serializable
+    data object HomeTab : Routes
+    @Serializable
+    data object ProfileTab : Routes
+    @Serializable
+    data object SwapTab : Routes
+    @Serializable
+    data object SocialTab : Routes
+
+    @Serializable
+    data object ProfileDetailsScreen : Routes
+    @Serializable
+    data object SwapDetailsScreen : Routes
+    @Serializable
+    data object SocialDetailsScreen : Routes
+
+    @Serializable
+    data class WardrobeItemsScreen(val id: String) : Routes
+}
