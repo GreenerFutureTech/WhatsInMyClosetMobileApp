@@ -2,19 +2,15 @@ package org.greenthread.whatsinmycloset.swap
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import org.greenthread.whatsinmycloset.features.tabs.swap.SwapItemScreen
-import org.greenthread.whatsinmycloset.features.tabs.swap.SwapScreenRoot
+import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import org.greenthread.whatsinmycloset.features.tabs.swap.dto.SwapDto
+import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SwapScreen
+import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SwapScreenRoot
+import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 
-// Preview Composable
-@Preview(showSystemUi = true, showBackground = true)
-@Composable
-fun PreviewSwapItem() {
-    SwapItemScreen()
-}
 
-// Preview Composable
-@Preview(showSystemUi = true, showBackground = true)
-@Composable
-fun PreviewSwapScreen() {
-    SwapScreenRoot()
-}
+
+
+
