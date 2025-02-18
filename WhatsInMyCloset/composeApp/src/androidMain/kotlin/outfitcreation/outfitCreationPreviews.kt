@@ -18,21 +18,12 @@ import org.greenthread.whatsinmycloset.features.tabs.home.CreateNewOutfitFolder
 import org.greenthread.whatsinmycloset.core.repositories.OutfitRepository
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
+import org.greenthread.whatsinmycloset.core.domain.models.generateSampleClothingItems
 import org.greenthread.whatsinmycloset.features.tabs.home.CalendarDialog
 import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItemsScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.ConfirmationDialog
 import org.greenthread.whatsinmycloset.features.tabs.home.DiscardConfirmationDialog
 import org.greenthread.whatsinmycloset.features.tabs.home.DiscardSavingDialog
-
-fun generateSampleClothingItems(): List<ClothingItem>
-{
-    return listOf(
-        ClothingItem(id = "1", name = "Blue Jeans", pictureUrl = null, tags = setOf("Casual", "Bottom")),
-        ClothingItem(id = "2", name = "Red T-Shirt", pictureUrl = null, tags = setOf("Casual", "Top")),
-        ClothingItem(id = "3", name = "Black Sneakers", pictureUrl = null, tags = setOf("Casual", "Shoes"))
-
-    )
-}
 
 
 @Preview(showSystemUi = true, showBackground = true)

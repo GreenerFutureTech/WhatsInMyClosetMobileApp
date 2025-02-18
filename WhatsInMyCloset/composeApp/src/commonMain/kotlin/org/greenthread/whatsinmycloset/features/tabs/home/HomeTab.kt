@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import org.greenthread.whatsinmycloset.core.domain.models.Account
+import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.LazyGridColourBox
@@ -51,8 +52,10 @@ fun HomeTabScreen(
     val user = Account("user123", "Test")
 
     // Add some clothing items to the wardrobe
-    val redDress = ClothingItem("item1", "Red Dress", "url_to_red_dress.jpg", setOf("red", "fancy"))
-    val jeans = ClothingItem("item2", "Blue Jeans", "url_to_jeans.jpg", setOf("blue", "casual"))
+    val redDress = ClothingItem("item1", "Red Dress",
+        ClothingCategory.TOPS, null, setOf("red", "fancy"))
+    val jeans = ClothingItem("item2", "Blue Jeans",
+        ClothingCategory.BOTTOMS, null, setOf("blue", "casual"))
 
     val wardrobe = Wardrobe("Waterloo Wardrobe", "wardrobe1")
     wardrobe.addItem(redDress)
