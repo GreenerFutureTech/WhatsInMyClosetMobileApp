@@ -1,18 +1,23 @@
 package org.greenthread.whatsinmycloset.core.ui.components.listItems
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -65,6 +70,52 @@ fun LazyGridColourBox(items: List<ListItem>) {
         Box(modifier = Modifier.fillMaxSize()) {
             Text("No items to display")
         }
+    }
+}
+
+@Composable
+fun LazyGridCalendarUI(items: List<Int>, selectedDay: Int, onDayClick: (Int) -> Unit) {
+    if (items.isNotEmpty()) {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(7),  // 7 days in a row
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(8.dp)
+        ) {
+            items(items) { item ->
+                DayCell(
+                    day = item,
+                    isSelected = item == selectedDay,
+                    onClick = { onDayClick(item) }
+                )
+            }
+        }
+    } else {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("No items to display")
+        }
+    }
+}
+
+// **Day Cell UI**
+@Composable
+fun DayCell(day: Int, isSelected: Boolean, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .padding(4.dp)
+            .size(50.dp) // Ensures rectangular shape
+            .background(
+                if (isSelected) MaterialTheme.colorScheme.primary else Color.LightGray,
+                shape = RoundedCornerShape(4.dp)
+            )
+            .border(1.dp, Color.Gray, shape = RoundedCornerShape(4.dp))
+            .clickable { onClick() }, // Click to select a date
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = day.toString(),
+            style = MaterialTheme.typography.bodyMedium,
+            color = if (isSelected) Color.White else Color.Black
+        )
     }
 }
 
