@@ -33,6 +33,7 @@ import androidx.navigation.toRoute
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginScreenRoot
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginViewModel
 import org.greenthread.whatsinmycloset.features.screens.signup.SignupScreenRoot
+import org.greenthread.whatsinmycloset.features.tabs.home.AddItemScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.HomeTabScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTab
 import org.greenthread.whatsinmycloset.features.tabs.social.SocialTab
@@ -71,10 +72,16 @@ fun App() {
                 navigation<Routes.HomeGraph>(startDestination = Routes.HomeTab) {
                     composable<Routes.HomeTab> {
                         HomeTabScreenRoot(
-                            onWardrobeDetailsClick = { wardrobeAction ->
-                                navController.navigate(Routes.WardrobeItemsScreen(wardrobeAction))
+                            onWardrobeDetailsClick = { homeTabAction ->
+                                navController.navigate(Routes.WardrobeItemsScreen(homeTabAction))
+                            },
+                            onAddItemClick = {
+                                navController.navigate(Routes.AddItemScreen)
                             }
                         )
+                    }
+                    composable<Routes.AddItemScreen> {
+                        AddItemScreen(null)
                     }
                     composable<Routes.WardrobeItemsScreen> {
                         Text("Made it to wardrobe items screen")
