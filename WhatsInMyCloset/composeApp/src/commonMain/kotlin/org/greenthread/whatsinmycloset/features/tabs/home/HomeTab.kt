@@ -51,8 +51,8 @@ fun HomeTabScreen(
     val user = Account("user123", "Test")
 
     // Add some clothing items to the wardrobe
-    val redDress = ClothingItem("item1", "Red Dress", "url_to_red_dress.jpg","mediaurl", listOf("red", "fancy"),"20202020")
-    val jeans = ClothingItem("item2", "Blue Jeans", "url_to_jeans.jpg", "mediaUrl", listOf("blue", "casual"), "20202020")
+    val redDress = ClothingItem("item1", "Red Dress", "1", "url_to_red_dress.jpg","mediaurl", listOf("red", "fancy"),"20202020")
+    val jeans = ClothingItem("item2", "Blue Jeans", "1", "url_to_jeans.jpg", "mediaUrl", listOf("blue", "casual"), "20202020")
 
     val wardrobe = Wardrobe("Waterloo Wardrobe", "wardrobe1")
     wardrobe.addItem(redDress)
