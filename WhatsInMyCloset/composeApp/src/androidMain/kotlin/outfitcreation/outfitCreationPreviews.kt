@@ -27,9 +27,9 @@ import org.greenthread.whatsinmycloset.features.tabs.home.DiscardSavingDialog
 fun generateSampleClothingItems(): List<ClothingItem>
 {
     return listOf(
-        ClothingItem(id = "1", name = "Blue Jeans", pictureUrl = null, tags = setOf("Casual", "Bottom")),
-        ClothingItem(id = "2", name = "Red T-Shirt", pictureUrl = null, tags = setOf("Casual", "Top")),
-        ClothingItem(id = "3", name = "Black Sneakers", pictureUrl = null, tags = setOf("Casual", "Shoes"))
+        ClothingItem(id = "1", name = "Blue Jeans", mediaUrl = null, tags = listOf("Casual", "Bottom")),
+        ClothingItem(id = "2", name = "Red T-Shirt", mediaUrl = null, tags = listOf("Casual", "Top")),
+        ClothingItem(id = "3", name = "Black Sneakers", mediaUrl = null, tags = listOf("Casual", "Shoes"))
 
     )
 }

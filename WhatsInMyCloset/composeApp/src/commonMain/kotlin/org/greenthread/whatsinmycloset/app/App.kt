@@ -1,5 +1,7 @@
 package org.greenthread.whatsinmycloset.app
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
@@ -12,7 +14,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavBackStackEntry
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -20,6 +27,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.selects.select
+import org.greenthread.whatsinmycloset.core.repository.SwapRepository
 import androidx.navigation.toRoute
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginScreenRoot
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginViewModel
@@ -27,8 +36,11 @@ import org.greenthread.whatsinmycloset.features.screens.signup.SignupScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.home.HomeTabScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTab
 import org.greenthread.whatsinmycloset.features.tabs.social.SocialTab
-import org.greenthread.whatsinmycloset.features.tabs.swap.SwapTab
+import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SelectedSwapViewModel
+import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SwapScreenRoot
+import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 @Preview
@@ -71,7 +83,7 @@ fun App() {
                 }
                 navigation<Routes.ProfileGraph>(startDestination = Routes.ProfileTab) {
                     composable<Routes.ProfileTab> {
-                        ProfileTab {  }
+                        ProfileTab { }
                     }
                     composable<Routes.ProfileDetailsScreen> {
                         //ProfileDetailsScreen()
@@ -79,15 +91,40 @@ fun App() {
                 }
                 navigation<Routes.SwapGraph>(startDestination = Routes.SwapTab) {
                     composable<Routes.SwapTab> {
-                        SwapTab {  }
+                        val viewModel:  SwapViewModel = koinViewModel()
+                        val selectedSwapViewModel =
+                            it.sharedKoinViewModel<SelectedSwapViewModel>(navController)
+
+                        LaunchedEffect(true) {
+                            selectedSwapViewModel.onSelectSwap(null)
+                        }
+
+                        SwapScreenRoot(
+                            viewModel = viewModel,
+                            onSwapClick = { swap ->
+                                selectedSwapViewModel.onSelectSwap(swap.itemId)
+                                navController.navigate(
+                                    Routes.SwapDetailsScreen(swap.itemId)
+                                )
+                            }
+                        )
                     }
                     composable<Routes.SwapDetailsScreen> {
-                        //SwapDetailsScreen()
+                        val selectedSwapViewModel =
+                            it.sharedKoinViewModel<SelectedSwapViewModel>(navController)
+                        val selectedSwap by selectedSwapViewModel.selectedSwap.collectAsStateWithLifecycle()
+
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("Swap Detail Screen for " + "${selectedSwap}" )
+                        }
                     }
                 }
                 navigation<Routes.SocialGraph>(startDestination = Routes.SocialTab) {
                     composable<Routes.SocialTab> {
-                        SocialTab {  }
+                        SocialTab { }
                     }
                     composable<Routes.SocialDetailsScreen> {
                         //SocialDetailsScreen()
@@ -101,7 +138,8 @@ fun App() {
 @Composable
 fun BottomNavigationBar(navController: NavController) {
     BottomNavigation {
-        val currentDestination = navController.currentBackStackEntryAsState().value?.destination?.route
+        val currentDestination =
+            navController.currentBackStackEntryAsState().value?.destination?.route
         listOf(
             Routes.HomeTab to Icons.Default.Home,
             Routes.ProfileTab to Icons.Default.Person,
@@ -118,4 +156,17 @@ fun BottomNavigationBar(navController: NavController) {
             )
         }
     }
+}
+
+@Composable
+private inline fun <reified T: ViewModel> NavBackStackEntry.sharedKoinViewModel(
+    navController: NavController
+): T {
+    val navGraphRoute = destination.parent?.route ?: return koinViewModel<T>()
+    val parentEntry = remember(this) {
+        navController.getBackStackEntry(navGraphRoute)
+    }
+    return koinViewModel (
+        viewModelStoreOwner = parentEntry
+    )
 }

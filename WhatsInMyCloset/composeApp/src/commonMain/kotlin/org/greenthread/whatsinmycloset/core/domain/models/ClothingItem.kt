@@ -1,10 +1,16 @@
 package org.greenthread.whatsinmycloset.core.domain.models
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class ClothingItem(
-    val id: String, // Unique identifier for the item
+    val id: String = "",
     val name: String, // Name of the item (e.g., "Red Dress")
-    val pictureUrl: String? = null, // URL or path to the picture (nullable)
-    val tags: Set<String>? = null // Tags for characteristics (e.g., "red", "fancy", "rainy")
+    val wardrobeId: String = "",
+    val itemType: String = "",
+    val mediaUrl: String? = "",
+    val tags: List<String> = listOf(""),
+    val createdAt: String = ""
 )
 
 // for testing
