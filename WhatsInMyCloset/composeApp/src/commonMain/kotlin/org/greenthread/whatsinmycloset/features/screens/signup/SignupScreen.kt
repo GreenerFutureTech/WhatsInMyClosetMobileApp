@@ -1,0 +1,181 @@
+package org.greenthread.whatsinmycloset.features.screens.signup
+
+import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginViewModel
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material.Text
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import kotlinx.coroutines.launch
+import org.greenthread.whatsinmycloset.app.Routes
+import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginScreen
+import org.greenthread.whatsinmycloset.core.ui.components.controls.CustomTextField
+import org.greenthread.whatsinmycloset.features.screens.login.data.LoginState
+import org.greenthread.whatsinmycloset.features.screens.login.domain.LoginAction
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.ui.tooling.preview.Preview
+import whatsinmycloset.composeapp.generated.resources.Res
+import whatsinmycloset.composeapp.generated.resources.logo
+
+@Composable
+@Preview
+fun SignupScreenRoot(
+    viewModel: LoginViewModel,
+    navController: NavController
+) {
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+
+    viewModel.onSignupSuccess = {
+        coroutineScope.launch {
+            snackbarHostState.showSnackbar("Sign Up Success")
+            navController.navigate(Routes.HomeTab)
+        }
+    }
+    Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState)}
+    ){
+        SignupScreen(
+            state = viewModel.state,
+            onAction = viewModel::onAction,
+            navController = navController
+        )
+    }
+
+}
+@Composable
+fun SignupScreen(
+    state: LoginState,
+    onAction: (LoginAction) -> Unit,
+    navController: NavController
+) {
+    var username by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    val focusManager = LocalFocusManager.current
+    val color = Color(0xFFF2E1D0)
+
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(Color.White),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(0.8f)
+        ) {
+            Image(
+                painter = painterResource(Res.drawable.logo),
+                contentDescription = null
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Text(
+                text = "Create an Account",
+                fontSize = 20.sp
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            CustomTextField(
+                label = "Name",
+                value = username,
+                onValueChange = { username = it },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions { focusManager.moveFocus(FocusDirection.Down) }
+            )
+
+            CustomTextField(
+                label = "Email",
+                value = email,
+                onValueChange = { email = it },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions { focusManager.moveFocus(FocusDirection.Down) }
+            )
+
+            CustomTextField(
+                label = "Password",
+                value = password,
+                onValueChange = { password = it },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password,
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions { focusManager.clearFocus() }
+            )
+
+            if (state.errorMessage != null) {
+                Text(
+                    text = state.errorMessage,
+                    fontSize = 12.sp,
+                    color = Color.Red
+                )
+            }
+
+            Spacer(modifier = Modifier.height(30.dp))
+
+            FilledTonalButton(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = {
+                    onAction(LoginAction.SignUp(email, password))
+                    username = ""
+                    email = ""
+                    password = ""
+                },
+                colors = ButtonDefaults.filledTonalButtonColors(containerColor = color)
+            ) {
+                Text("Sign Up")
+            } // FIX NEEDED!
+//            TextButton(
+//                modifier = Modifier.align(Alignment.CenterHorizontally),
+//                onClick = { navController.navigate()}
+//            ) {
+//                Text(
+//                    text = "Already have an account? Sign In",
+//                    fontSize = 12.sp
+//                )
+//            }
+        }
+        if (state.isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0x88000000))
+                    .align(Alignment.Center)
+            ) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            }
+        }
+    }
+}

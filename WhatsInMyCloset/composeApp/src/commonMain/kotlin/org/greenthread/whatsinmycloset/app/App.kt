@@ -13,6 +13,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -20,6 +21,9 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginScreenRoot
+import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginViewModel
+import org.greenthread.whatsinmycloset.features.screens.signup.SignupScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.home.HomeTabScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTab
 import org.greenthread.whatsinmycloset.features.tabs.social.SocialTab
@@ -41,6 +45,17 @@ fun App() {
                 startDestination = Routes.HomeGraph,
                 modifier = Modifier.padding(innerPadding)
             ) {
+                // NEED TO UPDATE TO KoinViewModel
+//                navigation<Routes.LoginGraph>(startDestination = Routes.LoginTab) {
+//                    composable<Routes.LoginTab> {
+//                        val loginViewModel: LoginViewModel = viewModel()
+//                        LoginScreenRoot(viewModel = loginViewModel, navController = navController)
+//                    }
+//                    composable<Routes.SignUpTab> {
+//                        val loginViewModel: LoginViewModel = viewModel()
+//                        SignupScreenRoot(viewModel = loginViewModel, navController = navController)
+//                    }
+//                }
                 navigation<Routes.HomeGraph>(startDestination = Routes.HomeTab) {
                     composable<Routes.HomeTab> {
                         HomeTabScreenRoot(

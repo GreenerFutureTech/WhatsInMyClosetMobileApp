@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "909859965656",
+    "project_id": "whatsinmycloset-3ddf2",
+    "storage_bucket": "whatsinmycloset-3ddf2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:909859965656:android:2ed907d04a16c0ec5925ad",
+        "android_client_info": {
+          "package_name": "org.greenthread.whatsinmycloset"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "909859965656-gqttaifbtr51pbd7t41g17sji0rtjrhn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.greenthread.whatsinmycloset",
+            "certificate_hash": "1fbaf46428d898b449d97c29a6c44836f4d7884b"
+          }
+        },
+        {
+          "client_id": "909859965656-2b6hru6q8ir8jbi1oam562nj7jemmcqo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDpn-vpLl_0a2PzpzoA_dhwy1G8UKkeQ4Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "909859965656-2b6hru6q8ir8jbi1oam562nj7jemmcqo.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "909859965656-f7e09mkpgv13bp64m3r4057r3qoliqv8.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.company.whatsinmyappiOS"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
