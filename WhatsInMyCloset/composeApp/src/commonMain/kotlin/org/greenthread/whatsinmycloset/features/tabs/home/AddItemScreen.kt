@@ -24,9 +24,10 @@ import org.greenthread.whatsinmycloset.CameraManager
 import org.greenthread.whatsinmycloset.toImageBitmap
 
 @Composable
-fun AddItemScreen(cameraManager: CameraManager) {
+fun AddItemScreen(cameraManager: CameraManager, onBack: () -> Unit) {
     var itemName by remember { mutableStateOf("") }
     var itemImage by remember { mutableStateOf<ByteArray?>(null) }
+    var bitmap : ImageBitmap
 
     Column(
         modifier = Modifier
@@ -51,7 +52,7 @@ fun AddItemScreen(cameraManager: CameraManager) {
         Spacer(modifier = Modifier.height(16.dp))
 
         itemImage?.let { imageBytes ->
-            val bitmap = imageBytes.toImageBitmap()
+            bitmap = imageBytes.toImageBitmap()
             Image(
                 bitmap = bitmap,
                 contentDescription = "Captured Image",
@@ -62,7 +63,7 @@ fun AddItemScreen(cameraManager: CameraManager) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = {
-            // Handle adding the item (e.g., save to a repository)
+            onBack()
         }) {
             Text("Add Item")
         }

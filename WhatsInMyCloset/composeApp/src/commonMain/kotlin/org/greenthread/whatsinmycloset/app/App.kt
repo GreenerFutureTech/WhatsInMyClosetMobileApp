@@ -83,7 +83,7 @@ fun App(cameraManager: CameraManager?) {
                     }
                     composable<Routes.AddItemScreen> {
                         if (cameraManager != null) {
-                            AddItemScreen(cameraManager = cameraManager)
+                            AddItemScreen(cameraManager = cameraManager, onBack = {navController.navigate(Routes.HomeTab)})
                         }
                     }
                     composable<Routes.WardrobeItemsScreen> {
