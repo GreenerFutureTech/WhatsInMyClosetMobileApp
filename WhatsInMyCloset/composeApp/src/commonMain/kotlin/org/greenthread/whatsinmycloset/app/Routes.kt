@@ -1,6 +1,7 @@
 package org.greenthread.whatsinmycloset.app
 
 import kotlinx.serialization.Serializable
+import org.greenthread.whatsinmycloset.features.tabs.swap.dto.SwapDto
 
 sealed interface Routes {
     @Serializable
@@ -11,7 +12,13 @@ sealed interface Routes {
     data object SwapGraph : Routes
     @Serializable
     data object SocialGraph : Routes
+    @Serializable
+    data object LoginGraph : Routes
 
+    @Serializable
+    data object LoginTab : Routes
+    @Serializable
+    data object SignUpTab : Routes
     @Serializable
     data object HomeTab : Routes
     @Serializable
@@ -24,7 +31,7 @@ sealed interface Routes {
     @Serializable
     data object ProfileDetailsScreen : Routes
     @Serializable
-    data object SwapDetailsScreen : Routes
+    data class SwapDetailsScreen(val swap: String) : Routes
     @Serializable
     data object SocialDetailsScreen : Routes
 
