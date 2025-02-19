@@ -16,6 +16,8 @@ import androidx.compose.runtime.Composable
 import androidx.core.content.ContextCompat
 import java.io.ByteArrayOutputStream
 import android.Manifest
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 
 class AndroidPlatform : Platform {
     override val name: String = "Android ${Build.VERSION.SDK_INT}"
@@ -23,7 +25,6 @@ class AndroidPlatform : Platform {
 
 actual fun getPlatform(): Platform = AndroidPlatform()
 
-// androidMain/src/.../CameraManager.kt
 actual class CameraManager(private val context: Context) {
     private var onPhotoTakenCallback: ((ByteArray) -> Unit)? = null
 
@@ -71,3 +72,7 @@ actual class CameraManager(private val context: Context) {
     }
 }
 
+actual fun ByteArray.toImageBitmap(): ImageBitmap {
+    val bitmap = android.graphics.BitmapFactory.decodeByteArray(this, 0, this.size)
+    return bitmap.asImageBitmap()
+}

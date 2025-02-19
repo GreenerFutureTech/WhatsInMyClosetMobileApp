@@ -3,7 +3,9 @@ package org.greenthread.whatsinmycloset
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.ImageBitmap
 import platform.UIKit.UIDevice
+import platform.UIKit.*
 
 class IOSPlatform: Platform {
     override val name: String = UIDevice.currentDevice.systemName() + " " + UIDevice.currentDevice.systemVersion
@@ -25,4 +27,10 @@ actual class CameraManager {
             Text("Take Photo")
         }
     }
+}
+
+actual fun ByteArray.toImageBitmap(): ImageBitmap {
+    val nsData = this.toNSData()
+    val uiImage = UIImage(data = nsData)
+    return uiImage.toImageBitmap()
 }

@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.dp
 import org.greenthread.whatsinmycloset.CameraManager
+import org.greenthread.whatsinmycloset.toImageBitmap
 
 @Composable
 fun AddItemScreen(cameraManager: CameraManager) {
@@ -50,11 +51,11 @@ fun AddItemScreen(cameraManager: CameraManager) {
         Spacer(modifier = Modifier.height(16.dp))
 
         itemImage?.let { imageBytes ->
-            val bitmap = ImageBitmap.imageFromBytes(imageBytes)
+            val bitmap = imageBytes.toImageBitmap()
             Image(
                 bitmap = bitmap,
                 contentDescription = "Captured Image",
-                modifier = Modifier.size(100.dp)
+                modifier = Modifier.size(300.dp)
             )
         }
 
@@ -68,9 +69,16 @@ fun AddItemScreen(cameraManager: CameraManager) {
     }
 }
 
+/*
+fun ImageBitmap.Companion.imageFromBytes(bytes: ByteArray): ImageBitmap {
+    val bitmap = BitMap.decodeByteArray(bytes, 0, bytes.size)
+    return bitmap.asImageBitmap()
+}
+
+
 // Helper function to convert ByteArray to ImageBitmap
 fun ImageBitmap.Companion.imageFromBytes(bytes: ByteArray): ImageBitmap {
-/*    val inputStream = ByteArrayInputStream(bytes)
+    val inputStream = ByteArrayInputStream(bytes)
     val bufferedImage = ImageIO.read(inputStream)
     val raster = bufferedImage.raster
     val width = bufferedImage.width
@@ -78,6 +86,8 @@ fun ImageBitmap.Companion.imageFromBytes(bytes: ByteArray): ImageBitmap {
     val bitmap = ImageBitmap(width, height)
     val buffer = IntArray(width * height)
     raster.getPixels(0, 0, width, height, buffer)
-    bitmap.writePixels(buffer)*/
+    bitmap.readPixels(buffer)
+
     return ImageBitmap(100,100)
 }
+*/
