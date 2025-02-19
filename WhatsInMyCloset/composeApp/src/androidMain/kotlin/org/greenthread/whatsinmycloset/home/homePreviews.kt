@@ -53,6 +53,6 @@ fun PreviewWardrobeScreen() {
 fun PreviewAddItemScreen() {
 
     androidx.compose.material.MaterialTheme {
-        AddItemScreen(null)
+        //AddItemScreen(null)
     }
 }

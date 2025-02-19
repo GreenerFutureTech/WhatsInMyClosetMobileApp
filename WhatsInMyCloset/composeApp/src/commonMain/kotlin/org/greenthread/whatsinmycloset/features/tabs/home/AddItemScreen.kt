@@ -20,9 +20,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.dp
+import org.greenthread.whatsinmycloset.CameraManager
 
 @Composable
-fun AddItemScreen(cameraManager: Any?) {
+fun AddItemScreen(cameraManager: CameraManager) {
     var itemName by remember { mutableStateOf("") }
     var itemImage by remember { mutableStateOf<ByteArray?>(null) }
 
@@ -41,13 +42,9 @@ fun AddItemScreen(cameraManager: Any?) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(onClick = {
-            // Trigger the camera capture
-/*            cameraManager.takePhoto { imageBytes ->
-                itemImage = imageBytes
-            }*/
-        }) {
-            Text("Take Photo")
+        // Use the TakePhotoButton composable
+        cameraManager.TakePhotoButton { imageBytes ->
+            itemImage = imageBytes
         }
 
         Spacer(modifier = Modifier.height(16.dp))

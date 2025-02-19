@@ -30,6 +30,7 @@ import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.selects.select
 import org.greenthread.whatsinmycloset.core.repository.SwapRepository
 import androidx.navigation.toRoute
+import org.greenthread.whatsinmycloset.CameraManager
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginScreenRoot
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginViewModel
 import org.greenthread.whatsinmycloset.features.screens.signup.SignupScreenRoot
@@ -45,7 +46,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 @Preview
-fun App() {
+fun App(cameraManager: CameraManager?) {
     MaterialTheme {
         val navController = rememberNavController()
         Scaffold(
@@ -81,7 +82,9 @@ fun App() {
                         )
                     }
                     composable<Routes.AddItemScreen> {
-                        AddItemScreen(null)
+                        if (cameraManager != null) {
+                            AddItemScreen(cameraManager = cameraManager)
+                        }
                     }
                     composable<Routes.WardrobeItemsScreen> {
                         Text("Made it to wardrobe items screen")
