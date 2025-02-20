@@ -63,7 +63,6 @@ kotlin {
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
             api(libs.koin.core)
-            implementation(libs.firebase.auth)
             implementation(libs.bundles.ktor)
             implementation(libs.bundles.coil)
         }
@@ -104,7 +103,6 @@ android {
 }
 
 dependencies {
-    implementation(libs.firebase.auth.ktx)
     implementation(libs.androidx.material3.android)
     debugImplementation(compose.uiTooling)
 }
