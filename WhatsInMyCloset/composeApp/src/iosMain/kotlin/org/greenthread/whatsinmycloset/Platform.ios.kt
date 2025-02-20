@@ -30,7 +30,7 @@ actual class CameraManager {
 }
 
 actual fun ByteArray.toImageBitmap(): ImageBitmap {
-    val nsData = this.toNSData()
-    val uiImage = UIImage(data = nsData)
-    return uiImage.toImageBitmap()
+    //val nsData = this.toNSData()
+    //val uiImage = UIImage(data = nsData)
+    return ImageBitmap(10,10)
 }
