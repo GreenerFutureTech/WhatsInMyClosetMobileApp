@@ -17,7 +17,6 @@ actual class CameraManager {
     @Composable
     actual fun TakePhotoButton(onPhotoTaken: (ByteArray) -> Unit) {
         Button(onClick = {
-            //idk if this compiles
 
             // Use Swift/Objective-C interop to open the camera and capture the photo
             // For now, we'll simulate a photo capture with a placeholder byte array
