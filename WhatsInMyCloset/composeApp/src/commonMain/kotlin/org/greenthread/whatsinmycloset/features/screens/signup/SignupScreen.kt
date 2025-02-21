@@ -37,7 +37,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import org.greenthread.whatsinmycloset.app.Routes
-import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginScreen
 import org.greenthread.whatsinmycloset.core.ui.components.controls.CustomTextField
 import org.greenthread.whatsinmycloset.features.screens.login.data.LoginState
 import org.greenthread.whatsinmycloset.features.screens.login.domain.LoginAction
@@ -59,7 +58,7 @@ fun SignupScreenRoot(
     viewModel.onSignupSuccess = {
         coroutineScope.launch {
             snackbarHostState.showSnackbar("Sign Up Success")
-            navController.navigate(Routes.HomeTab)
+            navController.navigate(Routes.LoginTab)
         }
     }
     Scaffold(
@@ -134,10 +133,10 @@ fun SignupScreen(
                 ),
                 keyboardActions = KeyboardActions { focusManager.clearFocus() }
             )
-
-            if (state.errorMessage != null) {
+            val errorMessage = state.errorMessage
+            if (errorMessage != null) {
                 Text(
-                    text = state.errorMessage,
+                    text = errorMessage,
                     fontSize = 12.sp,
                     color = Color.Red
                 )
@@ -156,16 +155,17 @@ fun SignupScreen(
                 colors = ButtonDefaults.filledTonalButtonColors(containerColor = color)
             ) {
                 Text("Sign Up")
-            } // FIX NEEDED!
-//            TextButton(
-//                modifier = Modifier.align(Alignment.CenterHorizontally),
-//                onClick = { navController.navigate()}
-//            ) {
-//                Text(
-//                    text = "Already have an account? Sign In",
-//                    fontSize = 12.sp
-//                )
-//            }
+            }
+
+            TextButton(
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                onClick = { navController.navigate(Routes.LoginTab)}
+            ) {
+                Text(
+                    text = "Already have an account? Sign In",
+                    fontSize = 12.sp
+                )
+            }
         }
         if (state.isLoading) {
             Box(
