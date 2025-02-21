@@ -18,9 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -31,8 +29,10 @@ import kotlinx.coroutines.selects.select
 import org.greenthread.whatsinmycloset.core.repository.SwapRepository
 import androidx.navigation.toRoute
 import org.greenthread.whatsinmycloset.CameraManager
+import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginScreen
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginScreenRoot
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginViewModel
+import org.greenthread.whatsinmycloset.features.screens.signup.SignupScreen
 import org.greenthread.whatsinmycloset.features.screens.signup.SignupScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.home.AddItemScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.HomeTabScreenRoot
@@ -56,20 +56,19 @@ fun App(cameraManager: CameraManager?) {
         ) { innerPadding ->
             NavHost(
                 navController = navController,
-                startDestination = Routes.HomeGraph,
+                startDestination = Routes.LoginGraph,
                 modifier = Modifier.padding(innerPadding)
             ) {
-                // NEED TO UPDATE TO KoinViewModel
-//                navigation<Routes.LoginGraph>(startDestination = Routes.LoginTab) {
-//                    composable<Routes.LoginTab> {
-//                        val loginViewModel: LoginViewModel = viewModel()
-//                        LoginScreenRoot(viewModel = loginViewModel, navController = navController)
-//                    }
-//                    composable<Routes.SignUpTab> {
-//                        val loginViewModel: LoginViewModel = viewModel()
-//                        SignupScreenRoot(viewModel = loginViewModel, navController = navController)
-//                    }
-//                }
+                navigation<Routes.LoginGraph>(startDestination = Routes.LoginTab) {
+                    composable<Routes.LoginTab> {
+                        val loginViewModel : LoginViewModel = LoginViewModel()
+                        LoginScreenRoot(loginViewModel, navController)
+                    }
+                    composable<Routes.SignUpTab> {
+                        val viewModel: LoginViewModel = LoginViewModel()
+                        SignupScreenRoot(viewModel, navController)
+                    }
+                }
                 navigation<Routes.HomeGraph>(startDestination = Routes.HomeTab) {
                     composable<Routes.HomeTab> {
                         HomeTabScreenRoot(

@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
+    id("com.google.gms.google-services")
 }
 
 kotlin {
@@ -65,6 +66,8 @@ kotlin {
             api(libs.koin.core)
             implementation(libs.bundles.ktor)
             implementation(libs.bundles.coil)
+            implementation(libs.firebase.auth)
+
         }
         nativeMain.dependencies {
             implementation(libs.ktor.client.darwin)
@@ -103,6 +106,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.firebase.auth.ktx)
     implementation(libs.androidx.material3.android)
     implementation(libs.androidx.ui.graphics.android)
     debugImplementation(compose.uiTooling)
