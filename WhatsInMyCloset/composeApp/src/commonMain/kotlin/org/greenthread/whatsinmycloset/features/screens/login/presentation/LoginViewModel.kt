@@ -9,6 +9,7 @@ import org.greenthread.whatsinmycloset.features.screens.login.data.LoginState
 import org.greenthread.whatsinmycloset.features.screens.login.domain.LoginAction
 
 class LoginViewModel(): ViewModel() {
+    //private val auth = Firebase.auth
     private val _state = mutableStateOf(LoginState())
     val state by _state
     var onLoginSuccess: (() -> Unit)? = null
