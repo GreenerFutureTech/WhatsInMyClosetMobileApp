@@ -25,11 +25,16 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.selects.select
+import org.greenthread.whatsinmycloset.core.repository.SwapRepository
+import androidx.navigation.toRoute
+import org.greenthread.whatsinmycloset.CameraManager
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginScreen
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginScreenRoot
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginViewModel
 import org.greenthread.whatsinmycloset.features.screens.signup.SignupScreen
 import org.greenthread.whatsinmycloset.features.screens.signup.SignupScreenRoot
+import org.greenthread.whatsinmycloset.features.tabs.home.AddItemScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.HomeTabScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTab
 import org.greenthread.whatsinmycloset.features.tabs.social.SocialTab
@@ -41,7 +46,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 @Preview
-fun App() {
+fun App(cameraManager: CameraManager?) {
     MaterialTheme {
         val navController = rememberNavController()
         Scaffold(
@@ -67,10 +72,18 @@ fun App() {
                 navigation<Routes.HomeGraph>(startDestination = Routes.HomeTab) {
                     composable<Routes.HomeTab> {
                         HomeTabScreenRoot(
-                            onWardrobeDetailsClick = { wardrobeAction ->
-                                navController.navigate(Routes.WardrobeItemsScreen(wardrobeAction))
+                            onWardrobeDetailsClick = { homeTabAction ->
+                                navController.navigate(Routes.WardrobeItemsScreen(homeTabAction))
+                            },
+                            onAddItemClick = {
+                                navController.navigate(Routes.AddItemScreen)
                             }
                         )
+                    }
+                    composable<Routes.AddItemScreen> {
+                        if (cameraManager != null) {
+                            AddItemScreen(cameraManager = cameraManager, onBack = {navController.navigate(Routes.HomeTab)})
+                        }
                     }
                     composable<Routes.WardrobeItemsScreen> {
                         Text("Made it to wardrobe items screen")

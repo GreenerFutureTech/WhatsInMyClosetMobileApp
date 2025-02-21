@@ -8,4 +8,7 @@ fun MainViewController() = ComposeUIViewController(
     configure = {
         initKoin()
     }
-) { App() }
+) {
+    val cameraManager = CameraManager()
+    App(cameraManager)
+}

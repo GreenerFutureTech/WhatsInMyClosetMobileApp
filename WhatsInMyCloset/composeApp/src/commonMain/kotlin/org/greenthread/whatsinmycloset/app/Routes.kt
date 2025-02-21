@@ -37,4 +37,7 @@ sealed interface Routes {
 
     @Serializable
     data class WardrobeItemsScreen(val id: String) : Routes
+
+    @Serializable
+    data object AddItemScreen : Routes
 }

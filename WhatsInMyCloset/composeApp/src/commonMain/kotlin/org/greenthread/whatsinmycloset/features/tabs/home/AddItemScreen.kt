@@ -1,0 +1,94 @@
+package org.greenthread.whatsinmycloset.features.tabs.home
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.unit.dp
+import org.greenthread.whatsinmycloset.CameraManager
+import org.greenthread.whatsinmycloset.toImageBitmap
+
+@Composable
+fun AddItemScreen(cameraManager: CameraManager, onBack: () -> Unit) {
+    var itemName by remember { mutableStateOf("") }
+    var itemImage by remember { mutableStateOf<ByteArray?>(null) }
+    var bitmap : ImageBitmap
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        TextField(
+            value = itemName,
+            onValueChange = { itemName = it },
+            label = { Text("Item Name") }
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Use the TakePhotoButton composable
+        cameraManager.TakePhotoButton { imageBytes ->
+            itemImage = imageBytes
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        itemImage?.let { imageBytes ->
+            bitmap = imageBytes.toImageBitmap()
+            Image(
+                bitmap = bitmap,
+                contentDescription = "Captured Image",
+                modifier = Modifier.size(300.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(onClick = {
+            onBack()
+        }) {
+            Text("Add Item")
+        }
+    }
+}
+
+/*
+fun ImageBitmap.Companion.imageFromBytes(bytes: ByteArray): ImageBitmap {
+    val bitmap = BitMap.decodeByteArray(bytes, 0, bytes.size)
+    return bitmap.asImageBitmap()
+}
+
+
+// Helper function to convert ByteArray to ImageBitmap
+fun ImageBitmap.Companion.imageFromBytes(bytes: ByteArray): ImageBitmap {
+    val inputStream = ByteArrayInputStream(bytes)
+    val bufferedImage = ImageIO.read(inputStream)
+    val raster = bufferedImage.raster
+    val width = bufferedImage.width
+    val height = bufferedImage.height
+    val bitmap = ImageBitmap(width, height)
+    val buffer = IntArray(width * height)
+    raster.getPixels(0, 0, width, height, buffer)
+    bitmap.readPixels(buffer)
+
+    return ImageBitmap(100,100)
+}
+*/
