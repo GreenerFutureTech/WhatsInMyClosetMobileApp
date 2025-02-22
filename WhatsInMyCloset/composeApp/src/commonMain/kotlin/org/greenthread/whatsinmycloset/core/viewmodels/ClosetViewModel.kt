@@ -1,5 +1,6 @@
 package org.greenthread.whatsinmycloset.core.viewmodels
 
+import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,12 +17,8 @@ class ClosetViewModel : ViewModel() {
     // Public immutable StateFlow to observe clothing items
     val clothingItems: StateFlow<List<ClothingItem>> = _clothingItems.asStateFlow()
 
-    // Load some sample clothing items
-    fun loadClothingItems() {
-        _clothingItems.value = generateSampleClothingItems() // Generates a list of sample items
-    }
-
     // Filter clothing items by category
+    @Composable
     fun filterItems(category: String) {
         val categoryEnum = try {
             enumValueOf<ClothingCategory>(category)

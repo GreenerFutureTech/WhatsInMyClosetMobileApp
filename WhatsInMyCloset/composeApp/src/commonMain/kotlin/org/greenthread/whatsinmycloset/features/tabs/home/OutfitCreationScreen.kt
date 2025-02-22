@@ -1,6 +1,8 @@
 package org.greenthread.whatsinmycloset.features.tabs.home
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -17,14 +19,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.material3.Text
-import org.greenthread.whatsinmycloset.core.ui.components.listItems.LazyGridCalendarUI
-import org.greenthread.whatsinmycloset.core.ui.components.listItems.LazyGridColourBox
-import org.greenthread.whatsinmycloset.core.ui.components.listItems.generateRandomItems
+import androidx.compose.ui.draw.clip
+import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
+import org.jetbrains.compose.resources.painterResource
+import whatsinmycloset.composeapp.generated.resources.Res
+import whatsinmycloset.composeapp.generated.resources.top1
+
 
 
 @Composable
@@ -32,8 +38,7 @@ fun OutfitScreen(
     onDone: () -> Unit,
     selectedClothingItems: List<ClothingItem>
 ) {
-    var selectedCategory by remember { mutableStateOf<String?>(null) }
-    var categoryItems by remember { mutableStateOf<List<ClothingItem>>(emptyList()) }
+
 
     Column(
         modifier = Modifier
@@ -54,18 +59,71 @@ fun OutfitScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Category selection
-        ClothingCategorySelection { category ->
-            selectedCategory = category
-            categoryItems = generateRandomClothingItems(category, 15) // Load sample items when category changes
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
         // Footer with Done button
         OutfitScreenFooter(onDone = onDone, isDoneEnabled = selectedClothingItems.isNotEmpty())
     }
 }
+
+
+@Composable
+fun DisplayCategoryItems(
+    categoryItems: List<ClothingItem>,
+    onItemClick: (ClothingItem) -> Unit
+) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(3),
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(8.dp)
+    ) {
+        items(categoryItems.size) { item ->
+
+            val item = categoryItems[item % categoryItems.size]
+
+            if (item.category == ClothingCategory.TOPS)
+            {
+                Image(
+                    painter = painterResource(Res.drawable.top1),
+                    contentDescription = item.name,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onItemClick(item) } // Handle click
+                )
+            }
+            else if (item.category == ClothingCategory.BOTTOMS)
+            {
+                Image(
+                    painter = painterResource(Res.drawable.top1),
+                    contentDescription = item.name,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onItemClick(item) } // Handle click
+                )
+            }
+            else if (item.category == ClothingCategory.FOOTWEAR)
+            {
+                Image(
+                    painter = painterResource(Res.drawable.top1),
+                    contentDescription = item.name,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onItemClick(item) } // Handle click
+                )
+            }
+            else if (item.category == ClothingCategory.ACCESSORIES)
+            {
+                Image(
+                    painter = painterResource(Res.drawable.top1),
+                    contentDescription = item.name,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onItemClick(item) } // Handle click
+                )
+            }
+        }
+    }
+}
+
+
 
 
 @Composable
@@ -226,11 +284,15 @@ fun ClothingCategorySelection(onSelectCategory: (String) -> Unit) {
     }
 }
 
+// highlight selected clothing items
+// more than 1 items more the same category can be selected by the user
 @Composable
 fun CategoryItemsScreen(
     category: String,
-    selectedItemIds: MutableSet<String>, // Track selected item IDs
-    onDone: () -> Unit) {
+    onDone: () -> Unit
+) {
+    // Track selected item IDs
+    val selectedItemIds = remember { mutableStateOf(mutableSetOf<String>()) }
 
     Column(
         modifier = Modifier
@@ -247,40 +309,46 @@ fun CategoryItemsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        //val items = generateRandomItems(8) // Generate or fetch items for the category
-        //LazyGridColourBox(items)
-
+        // Generate or fetch items for the category
         val items = generateRandomClothingItems(category, 18)
 
-        // Display category items in a LazyVerticalGrid
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(3),
-            modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(8.dp)
+        // Use a Box with a Modifier.weight(1f) to allow scrolling within the grid
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)  // This makes the grid scrollable
         ) {
-            items(items.size) { index ->
-                CategoryItemBox(
-                    item = items[index],
-                    isSelected = selectedItemIds.contains(items[index].id), // Compare by item ID
-                    onItemSelected = { selectedItem ->
-                        // Toggle selection based on ID
-                        if (selectedItemIds.contains(selectedItem.id)) {
-                            selectedItemIds.remove(selectedItem.id)
-                        } else {
-                            selectedItemIds.add(selectedItem.id)
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                contentPadding = PaddingValues(8.dp)
+            ) {
+                items(items.size) { index ->
+                    val item = items[index]
+                    CategoryItemBox(
+                        item = item,
+                        isSelected = selectedItemIds.value.contains(item.id),
+                        onItemSelected = { selectedItem ->
+                            // Toggle selection based on ID
+                            if (selectedItemIds.value.contains(selectedItem.id)) {
+                                selectedItemIds.value.remove(selectedItem.id)
+                            } else {
+                                selectedItemIds.value.add(selectedItem.id)
+                            }
+                            // Update state to trigger recomposition
+                            selectedItemIds.value = selectedItemIds.value.toMutableSet()
                         }
-                    }
-                )
+                    )
+                }
             }
-
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         // Footer with Done button
-        OutfitScreenFooter(onDone = onDone, isDoneEnabled = selectedItemIds.isNotEmpty())
+        OutfitScreenFooter(onDone = onDone, isDoneEnabled = selectedItemIds.value.isNotEmpty())
     }
 }
+
 
 
 @Composable
@@ -289,26 +357,33 @@ fun CategoryItemBox(
     isSelected: Boolean,
     onItemSelected: (ClothingItem) -> Unit
 ) {
+    // Border color based on selection status
+    val borderColor = if (isSelected) Color.Red else Color.Transparent
+
     Box(
         modifier = Modifier
+            .padding(4.dp)
+            .border(2.dp, borderColor, shape = RoundedCornerShape(8.dp))
+            .clickable { onItemSelected(item) } // Toggle selection
             .padding(8.dp)
-            .fillMaxWidth()
-            .height(75.dp) // Set item box height
-            .background(
-                if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
-                else MaterialTheme.colorScheme.surface,
-                shape = MaterialTheme.shapes.medium
-            )
-            .clickable {
-                onItemSelected(item)
-            }
     ) {
-        Text(
-            text = item.name,
-            modifier = Modifier.align(Alignment.Center)
+        Image(
+            painter = when (item.category)
+            {
+                ClothingCategory.TOPS -> painterResource(Res.drawable.top1)
+                ClothingCategory.BOTTOMS -> painterResource(Res.drawable.top1)
+                ClothingCategory.FOOTWEAR -> painterResource(Res.drawable.top1)
+                ClothingCategory.ACCESSORIES -> painterResource(Res.drawable.top1)
+            },
+            contentDescription = item.name,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(100.dp)
+                .clip(RoundedCornerShape(8.dp))
         )
     }
 }
+
 
 @Composable
 fun SelectClothingItem(

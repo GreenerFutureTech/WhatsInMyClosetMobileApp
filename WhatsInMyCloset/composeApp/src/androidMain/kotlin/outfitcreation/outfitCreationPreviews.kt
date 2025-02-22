@@ -39,22 +39,14 @@ fun PreviewOutfitScreen() {
     )
 }
 
-
 @Composable
 @Preview
 fun PreviewCategoryItemsScreen() {
     val onDone: () -> Unit = { /* Handle When User is Done Creating the Outfit */ }
 
-    val selectedItemIds = remember { mutableSetOf<String>() }
-
-    // Add sample items to selected list for testing if highlighting works
-    selectedItemIds.add("1") // Select the first "Jeans"
-    selectedItemIds.add("6") // Select the second "Jeans"
-    selectedItemIds.add("11") // Select the second "Jeans"
-
+    // show all items in the category selected
     CategoryItemsScreen(
-        category = "Bottoms",
-        selectedItemIds = selectedItemIds,
+        category = "Tops",
         onDone = onDone
     )
 }
