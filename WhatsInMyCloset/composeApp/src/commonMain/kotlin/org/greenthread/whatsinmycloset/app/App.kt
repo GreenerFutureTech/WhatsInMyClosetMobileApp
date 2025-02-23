@@ -34,6 +34,7 @@ import org.greenthread.whatsinmycloset.features.screens.login.presentation.Login
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginViewModel
 import org.greenthread.whatsinmycloset.features.screens.signup.SignupScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.home.HomeTabScreenRoot
+import org.greenthread.whatsinmycloset.features.tabs.home.OutfitScreen
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTab
 import org.greenthread.whatsinmycloset.features.tabs.social.SocialTab
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SelectedSwapViewModel
@@ -71,14 +72,34 @@ fun App() {
                 navigation<Routes.HomeGraph>(startDestination = Routes.HomeTab) {
                     composable<Routes.HomeTab> {
                         HomeTabScreenRoot(
-                            onWardrobeDetailsClick = { wardrobeAction ->
+                            navController = navController,
+                            onWardrobeDetailsClick =
+                            { wardrobeAction ->
                                 navController.navigate(Routes.WardrobeItemsScreen(wardrobeAction))
+                            },
+                            onCreateOutfitClick =
+                            {
+                                if (navController.currentBackStackEntry != null) {
+                                    navController.navigate(Routes.CreateOutfitScreen)
+                                }
                             }
                         )
                     }
                     composable<Routes.WardrobeItemsScreen> {
                         Text("Made it to wardrobe items screen")
                         //WardrobeItemsScreen()
+                    }
+                    // add CreateOutfitScreen Route to separate composable in nav graph
+                    composable<Routes.CreateOutfitScreen> {
+
+                        Text("Outfit Creation Screen")
+
+                        OutfitScreen(
+                            onDone = {
+                                navController.popBackStack() // Go back to the Home Tab when done
+                            },
+                            selectedClothingItems = listOf()
+                        )
                     }
                 }
                 navigation<Routes.ProfileGraph>(startDestination = Routes.ProfileTab) {

@@ -23,7 +23,7 @@ data class ClothingItem(
     val tags: Set<String>? = null // Tags for characteristics (e.g., "red", "fancy", "rainy")
 )
 
-// Function to load an image from the resources folder
+// Function to give dummy set of clothing to create a test outfit
 fun generateSampleClothingItems(): List<ClothingItem> {
     return listOf(
         ClothingItem(

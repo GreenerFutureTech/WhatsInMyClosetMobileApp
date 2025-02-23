@@ -21,6 +21,10 @@ sealed interface Routes {
     data object SignUpTab : Routes
     @Serializable
     data object HomeTab : Routes
+
+    @Serializable
+    data object CreateOutfitScreen : Routes
+
     @Serializable
     data object ProfileTab : Routes
     @Serializable

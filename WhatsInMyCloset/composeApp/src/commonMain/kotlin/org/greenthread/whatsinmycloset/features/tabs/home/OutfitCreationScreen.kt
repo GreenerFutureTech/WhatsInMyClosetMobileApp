@@ -55,7 +55,7 @@ fun OutfitScreen(
         )
 
         // Outfit collage preview - Displaying a blank area
-        OutfitCollageArea(selectedClothingItems)
+        //OutfitCollageArea(selectedClothingItems)
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -192,11 +192,12 @@ fun OutfitComplete(
     }
 }
 
-
+// show the items user selected to create an outfit
 @Composable
 fun OutfitCollageArea(selectedClothingItems: List<ClothingItem>) {
     // To track the position of each item
     val itemPositions = remember { mutableStateListOf<OffsetData>() }
+    //selectedClothingItems: List<ClothingItem>
 
     Box(
         modifier = Modifier

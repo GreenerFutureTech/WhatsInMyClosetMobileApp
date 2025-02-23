@@ -1,5 +1,6 @@
 package org.greenthread.whatsinmycloset.features.tabs.home
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,10 +24,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import org.greenthread.whatsinmycloset.app.Routes
 import org.greenthread.whatsinmycloset.core.domain.models.Account
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
+import org.greenthread.whatsinmycloset.core.domain.models.generateSampleClothingItems
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.LazyGridColourBox
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.generateRandomItems
 import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
@@ -34,19 +39,29 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 @Preview
-fun HomeTabScreenRoot(onWardrobeDetailsClick: (String) -> Unit) {
+fun HomeTabScreenRoot(
+    navController: NavController,
+    onWardrobeDetailsClick: (String) -> Unit = {},
+    onCreateOutfitClick: () -> Unit = {},
+) {
     MaterialTheme {
         var showContent by remember { mutableStateOf(false) }
         Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-            HomeTabScreen(null) {}
+            HomeTabScreen(
+                navController = navController,
+                onWardrobeDetailsClick = onWardrobeDetailsClick,
+                onCreateOutfitClick = onCreateOutfitClick
+            )
         }
     }
 }
 
 @Composable
 fun HomeTabScreen(
-    viewModel: Any?,
-    onWardrobeDetailsClick: (String) -> Unit
+    navController: NavController,
+    viewModel: Any? = null,
+    onWardrobeDetailsClick: (String) -> Unit,
+    onCreateOutfitClick: () -> Unit
 ){
     // Create a user profile
     val user = Account("user123", "Test")
@@ -72,7 +87,15 @@ fun HomeTabScreen(
     var wardrobeRepository = null
     var favouriteOutfits = null
     var outfitCalendarContents = null
-    WardrobeScreen(user)
+    WardrobeScreen(account = user, navController = navController)
+
+    Button(
+        onClick = onCreateOutfitClick,
+        modifier = Modifier.padding(16.dp)
+    ) {
+        Text("Create Outfit")
+    }
+
 }
 
 @Composable
@@ -115,7 +138,7 @@ fun CategoriesSection() {
 }
 
 @Composable
-fun BottomButtonsRow() {
+fun BottomButtonsRow(navController: NavController) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -125,7 +148,12 @@ fun BottomButtonsRow() {
         // Tops Category
         CategoryItem(
             icon = Icons.Default.ShoppingCart, // Icon for Tops
-            text = "Create outfit"
+            text = "Create outfit",
+            onClick = {
+                if (navController.currentBackStackEntry != null) {
+                    navController.navigate(Routes.CreateOutfitScreen)
+                }
+            }
         )
         // Bottoms Category
         CategoryItem(
@@ -141,10 +169,11 @@ fun BottomButtonsRow() {
 }
 
 @Composable
-fun CategoryItem(icon: ImageVector?, text: String?) {
+fun CategoryItem(icon: ImageVector?, text: String?, onClick: (() -> Unit)? = null) {
     Column(
         modifier = Modifier
-            .padding(8.dp),
+            .padding(8.dp)
+            .clickable(enabled = onClick != null) { onClick?.invoke() },
         horizontalAlignment = Alignment.CenterHorizontally // Center the icon and text
     ) {
         // Icon
@@ -219,7 +248,7 @@ fun FavouriteOutfitsRow() {
 }
 
 @Composable
-fun WardrobeScreen(account: Account) {
+fun WardrobeScreen(account: Account, navController: NavController) {
     val wardrobe = account.getWardrobe("wardrobe1")
     Column {
         WardrobeHeader(itemCount = wardrobe?.getAllItems()?.count() ?: 0)
@@ -236,7 +265,7 @@ fun WardrobeScreen(account: Account) {
         val randomItems = generateRandomItems(account.getAllOutfits().size) // Generate 10 random items for the preview
         LazyGridColourBox(items = randomItems)
 
-        BottomButtonsRow()
+        BottomButtonsRow(navController)
         //SeeAllButton(onClick = onSeeAllClicked)
         //ActionButtonRow(outfit = outfitOfTheDay)
 
