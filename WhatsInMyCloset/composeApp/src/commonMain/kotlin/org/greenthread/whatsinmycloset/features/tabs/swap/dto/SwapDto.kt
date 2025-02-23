@@ -5,11 +5,12 @@ import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 
 @Serializable
 data class SwapDto(
-    val id: Int,
+    val id: String,
     val itemId: String,
-    val userId: String,
-    val mediaUrl: String,
+    val userId: Int,
     val status: String,
+    val condition: String,
+    val brand: String,
     val registeredAt: String,
     val updatedAt: String,
 )

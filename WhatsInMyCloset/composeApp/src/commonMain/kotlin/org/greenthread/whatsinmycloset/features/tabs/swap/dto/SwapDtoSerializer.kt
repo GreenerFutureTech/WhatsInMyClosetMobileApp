@@ -17,33 +17,36 @@ import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 object SwapDtoSerializer : KSerializer<SwapDto> {
 
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("SwapDto") {
-        element<Int>("id")
+        element<String>("id")
         element<String>("itemId")
-        element<String>("userId")
-        element<String>("mediaUrl")
+        element<Int>("userId")
         element<String>("status")
+        element<String>("condition")
+        element<String>("brand")
         element<String>("registeredAt")
         element<String>("updatedAt")
     }
 
     override fun deserialize(decoder: Decoder): SwapDto = decoder.decodeStructure(descriptor) {
-        var id: Int? = null
+        var id: String? = null
         var itemId: String? = null
-        var userId: String? = null
-        var mediaUrl: String? = null
+        var userId: Int? = null
         var status: String? = null
+        var condition: String? = null
+        var brand: String? = null
         var registeredAt: String? = null
         var updatedAt: String? = null
 
         while (true) {
             when (val index = decodeElementIndex(descriptor)) {
-                0 -> id = decodeIntElement(descriptor, index)
+                0 -> id = decodeStringElement(descriptor, index)
                 1 -> itemId = decodeStringElement(descriptor, index)
-                2 -> userId = decodeStringElement(descriptor, index)
-                3 -> mediaUrl = decodeStringElement(descriptor, index)
-                4 -> status = decodeStringElement(descriptor, index)
-                5 -> registeredAt = decodeStringElement(descriptor, index)
-                6 -> updatedAt = decodeStringElement(descriptor, index)
+                2 -> userId = decodeIntElement(descriptor, index)
+                3 -> status = decodeStringElement(descriptor, index)
+                4 -> condition = decodeStringElement(descriptor, index)
+                5 -> brand = decodeStringElement(descriptor, index)
+                6 -> registeredAt = decodeStringElement(descriptor, index)
+                7 -> updatedAt = decodeStringElement(descriptor, index)
 
                 CompositeDecoder.DECODE_DONE -> break
                 else -> throw SerializationException("Unexpected index $index")
@@ -55,20 +58,22 @@ object SwapDtoSerializer : KSerializer<SwapDto> {
             id ?: throw SerializationException("Missing id"),
             itemId ?: throw SerializationException("Missing itemId"),
             userId ?: throw SerializationException("Missing userId"),
-            mediaUrl ?: throw SerializationException("Missing mediaUrl"),
             status ?: throw SerializationException("Missing status"),
+            condition ?: throw SerializationException("Missing condition"),
+            brand ?: throw SerializationException("Missing brand"),
             registeredAt ?: throw SerializationException("Missing registeredAt"),
             updatedAt ?: throw SerializationException("Missing updatedAt"),
         )
     }
 
     override fun serialize(encoder: Encoder, value: SwapDto) = encoder.encodeStructure(descriptor) {
-        encodeIntElement(descriptor, 0, value.id)
+        encodeStringElement(descriptor, 0, value.id)
         encodeStringElement(descriptor, 1, value.itemId)
-        encodeStringElement(descriptor, 2, value.userId)
-        encodeStringElement(descriptor, 3, value.mediaUrl)
-        encodeStringElement(descriptor, 4, value.status)
-        encodeStringElement(descriptor, 5, value.registeredAt)
-        encodeStringElement(descriptor, 6, value.updatedAt)
+        encodeIntElement(descriptor, 2, value.userId)
+        encodeStringElement(descriptor, 3, value.status)
+        encodeStringElement(descriptor, 4, value.condition)
+        encodeStringElement(descriptor, 5, value.brand)
+        encodeStringElement(descriptor, 6, value.registeredAt)
+        encodeStringElement(descriptor, 7, value.updatedAt)
     }
 }

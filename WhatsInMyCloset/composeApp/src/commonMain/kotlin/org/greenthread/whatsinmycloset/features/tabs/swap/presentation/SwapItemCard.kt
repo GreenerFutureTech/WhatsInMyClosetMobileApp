@@ -11,6 +11,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import org.greenthread.whatsinmycloset.features.tabs.swap.dto.SwapDto
+import whatsinmycloset.composeapp.generated.resources.Res
+import whatsinmycloset.composeapp.generated.resources.default
 
 @Composable
 fun SwapItemCard(swapItem: SwapDto, onClick: () -> Unit) {
@@ -23,7 +25,7 @@ fun SwapItemCard(swapItem: SwapDto, onClick: () -> Unit) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             AsyncImage(
-                model = swapItem.mediaUrl,
+                model = Res.drawable.default,
                 contentDescription = "Clothing Image",
                 modifier = Modifier
                     .fillMaxWidth()

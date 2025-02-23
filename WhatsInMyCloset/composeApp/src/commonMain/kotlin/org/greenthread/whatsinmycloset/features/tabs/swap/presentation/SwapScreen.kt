@@ -1,6 +1,7 @@
 package org.greenthread.whatsinmycloset.features.tabs.swap.presentation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -18,6 +19,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -25,13 +27,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.LazyGridColourBox
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.generateRandomItems
 import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.Action.SwapAction
 import org.greenthread.whatsinmycloset.features.tabs.swap.dto.SwapDto
+import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.koin.compose.viewmodel.koinViewModel
+import whatsinmycloset.composeapp.generated.resources.Res
+import whatsinmycloset.composeapp.generated.resources.default
 
 
 @Composable
@@ -122,7 +128,6 @@ fun SwapScreen(
         ) {
             itemsIndexed(state.getResults) { index, item ->
                 SwapImageCard(
-                    imageUrl = item.mediaUrl,
                     onSwapClick = {
                         onAction(SwapAction.OnSwapClick(item.itemId))
                     }
@@ -161,25 +166,27 @@ fun SwapScreen(
     }
 }
 
-
 @Composable
-fun SwapImageCard(imageUrl: String, onSwapClick: () -> Unit) {
+fun SwapImageCard(onSwapClick: () -> Unit) {
     Box(
         modifier = Modifier
-            .width(200.dp)
-            .height(100.dp)
+            .width(150.dp)
+            .height(125.dp)
             .padding(8.dp)
-            .background(Color.LightGray, shape = RoundedCornerShape(10.dp))
             .clickable { onSwapClick() }
+            .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
     ) {
-        Text(
-            text = imageUrl,
+        @OptIn(ExperimentalResourceApi::class) // TEMP for /drawble image
+        AsyncImage(
+            model = Res.getUri("drawable/default.png"), // NEED TO UPDATE: = mediaURL from Item entity
+            contentDescription = "Clothing Image",
             modifier = Modifier
-                .align(Alignment.Center),
-            fontWeight = FontWeight.SemiBold
+                .matchParentSize()
+                .clip(RoundedCornerShape(8.dp))
         )
     }
 }
+
 
 
 
