@@ -2,6 +2,7 @@ package org.greenthread.whatsinmycloset.features.tabs.profile
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,6 +14,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,6 +27,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import org.greenthread.whatsinmycloset.core.domain.models.Account
+import org.greenthread.whatsinmycloset.core.domain.models.Outfit
+import org.greenthread.whatsinmycloset.core.ui.components.listItems.LazyGridColourBox
+import org.greenthread.whatsinmycloset.core.ui.components.listItems.LazyRowColourBox
+import org.greenthread.whatsinmycloset.core.ui.components.listItems.generateRandomItems
+import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItem
+import org.greenthread.whatsinmycloset.features.tabs.home.SeeAllButton
 import org.greenthread.whatsinmycloset.getScreenWidthDp
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -35,6 +45,18 @@ import whatsinmycloset.composeapp.generated.resources.profileUser
 fun ProfileTab(onNavigate: (String) -> Unit) {
     MaterialTheme {
         var showContent by remember { mutableStateOf(false) }
+
+        // Create a user profile
+        val user = Account("user123", "Test")
+
+        // Generate outfits
+        for (i in 0 until 10) {
+            val newLook =  Outfit("outfit${i}", "Look${i}", setOf("item1", "item2"))
+            user.addOutfit(newLook)
+        }
+        val randomItems = generateRandomItems(user.getAllOutfits().size) // Generate 10 random items for the preview
+        val swapItems = generateRandomItems(10)
+
         Column(Modifier
             .fillMaxWidth()
             .padding(50.dp),
@@ -50,7 +72,7 @@ fun ProfileTab(onNavigate: (String) -> Unit) {
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    Row() {
+                    Row {
                         FriendsCount(12)
 
                         Spacer(modifier = Modifier.width(16.dp))
@@ -58,7 +80,20 @@ fun ProfileTab(onNavigate: (String) -> Unit) {
                         SwapsCount(10)
                     }
                 }
+
+                CategoryItem(
+                    icon = Icons.Default.Menu,
+                    text = "Menu"
+                )
             }
+
+            SwapTitle()
+
+            LazyRowColourBox(items = swapItems)
+
+            MyOutfitsTitle()
+
+            LazyGridColourBox(items = randomItems)
         }
     }
 }
@@ -103,4 +138,40 @@ fun SwapsCount(swapsCount: Int) {
         text = "$swapsCount swaps",
         style = MaterialTheme.typography.caption
     )
+}
+
+@Composable
+fun MyOutfitsTitle() {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "My Outfits",
+            style = MaterialTheme.typography.body1,
+            fontWeight = FontWeight.Bold
+        )
+    }
+}
+
+@Composable
+private fun SwapTitle() {
+    Row(
+        Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "Available for Swap",
+            style = MaterialTheme.typography.body1,
+            fontWeight = FontWeight.Bold
+        )
+
+        SeeAllButton(
+            onClick = {}
+        )
+    }
 }
