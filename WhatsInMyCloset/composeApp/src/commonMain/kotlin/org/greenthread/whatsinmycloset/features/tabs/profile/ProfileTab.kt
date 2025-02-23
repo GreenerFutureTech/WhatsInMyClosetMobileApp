@@ -12,10 +12,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import org.greenthread.whatsinmycloset.core.domain.models.Account
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
@@ -86,6 +90,8 @@ fun ProfileTab(onNavigate: (String) -> Unit) {
                     text = "Menu"
                 )
             }
+
+            SearchBar()
 
             SwapTitle()
 
@@ -174,4 +180,24 @@ private fun SwapTitle() {
             onClick = {}
         )
     }
+}
+
+@Composable
+private fun SearchBar() {
+    TextField(
+        value = "SEARCH ...",
+        onValueChange = { },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        placeholder = { Text(text = "hint") },
+        singleLine = true,
+        keyboardOptions = KeyboardOptions.Default.copy(
+            imeAction = ImeAction.Search
+        ),
+        keyboardActions = KeyboardActions(
+            onSearch = {
+            }
+        ),
+    )
 }
