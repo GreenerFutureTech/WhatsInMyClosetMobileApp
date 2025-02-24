@@ -39,6 +39,7 @@ import org.greenthread.whatsinmycloset.features.tabs.home.HomeTabScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTab
 import org.greenthread.whatsinmycloset.features.tabs.social.SocialTab
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SelectedSwapViewModel
+import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SwapDetailScreen
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SwapScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -100,35 +101,28 @@ fun App(cameraManager: CameraManager?) {
                 }
                 navigation<Routes.SwapGraph>(startDestination = Routes.SwapTab) {
                     composable<Routes.SwapTab> {
-                        val viewModel:  SwapViewModel = koinViewModel()
-                        val selectedSwapViewModel =
-                            it.sharedKoinViewModel<SelectedSwapViewModel>(navController)
+                        val viewModel: SwapViewModel = koinViewModel()
+                        val selectedSwapViewModel = it.sharedKoinViewModel<SelectedSwapViewModel>(navController)
 
                         LaunchedEffect(true) {
-                            selectedSwapViewModel.onSelectSwap(null)
+                            selectedSwapViewModel.onSelectSwap(null) // 초기화
                         }
 
                         SwapScreenRoot(
                             viewModel = viewModel,
                             onSwapClick = { swap ->
                                 selectedSwapViewModel.onSelectSwap(swap)
-                                navController.navigate(
-                                    Routes.SwapDetailsScreen(swap.itemId.id)
-                                )
+                                navController.navigate(Routes.SwapDetailsScreen(swap.itemId.id))
+
                             }
                         )
                     }
+
                     composable<Routes.SwapDetailsScreen> {
-                        val selectedSwapViewModel =
-                            it.sharedKoinViewModel<SelectedSwapViewModel>(navController)
+                        val selectedSwapViewModel = it.sharedKoinViewModel<SelectedSwapViewModel>(navController)
                         val selectedSwap by selectedSwapViewModel.selectedSwap.collectAsStateWithLifecycle()
 
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text("Swap Detail Screen for " + "${selectedSwap}" )
-                        }
+                        SwapDetailScreen(selectedSwap)
                     }
                 }
                 navigation<Routes.SocialGraph>(startDestination = Routes.SocialTab) {
