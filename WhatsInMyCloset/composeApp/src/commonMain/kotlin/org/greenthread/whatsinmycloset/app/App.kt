@@ -111,9 +111,9 @@ fun App(cameraManager: CameraManager?) {
                         SwapScreenRoot(
                             viewModel = viewModel,
                             onSwapClick = { swap ->
-                                selectedSwapViewModel.onSelectSwap(swap.itemId)
+                                selectedSwapViewModel.onSelectSwap(swap)
                                 navController.navigate(
-                                    Routes.SwapDetailsScreen(swap.itemId)
+                                    Routes.SwapDetailsScreen(swap.itemId.id)
                                 )
                             }
                         )

@@ -5,7 +5,6 @@ import io.ktor.client.request.get
 import org.greenthread.whatsinmycloset.core.data.safeCall
 import org.greenthread.whatsinmycloset.core.domain.DataError
 import org.greenthread.whatsinmycloset.core.domain.Result
-import org.greenthread.whatsinmycloset.core.dto.OtherUserSwapDto
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.dto.UserDto
 import org.greenthread.whatsinmycloset.getPlatform
@@ -26,7 +25,7 @@ class KtorRemoteDataSource(
         }
     }
 
-    override suspend fun getOtherUsersSwaps(currentUserId: String): Result<List<OtherUserSwapDto>, DataError.Remote> {
+    override suspend fun getOtherUsersSwaps(currentUserId: String): Result<List<SwapDto>, DataError.Remote> {
         return safeCall {
             httpClient.get(
                 urlString = "$BASE_URL/swaps/others/$currentUserId"

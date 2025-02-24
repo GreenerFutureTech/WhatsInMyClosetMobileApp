@@ -1,15 +1,11 @@
 package org.greenthread.whatsinmycloset.features.tabs.swap.presentation
 
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.MaterialTheme
@@ -20,24 +16,20 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.compose.AsyncImage
 import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.Action.SwapAction
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
-import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.greenthread.whatsinmycloset.core.ui.components.listItems.SwapImageCard
+import org.greenthread.whatsinmycloset.core.ui.components.listItems.SwapOtherImageCard
 import org.koin.compose.viewmodel.koinViewModel
-import whatsinmycloset.composeapp.generated.resources.Res
-
 
 @Composable
 fun SwapScreenRoot(
@@ -67,7 +59,7 @@ fun SwapScreenRoot(
         onAction = { action ->
             when (action) {
                 is SwapAction.OnSwapClick -> {
-                    val selectedItem = state.getAllSwapResults.find { it.itemId == action.itemId }
+                    val selectedItem = state.getAllSwapResults.find { it.itemId.id == action.itemId }
                     if (selectedItem != null) {
                         onSwapClick(selectedItem)
                     }
@@ -135,7 +127,7 @@ fun SwapScreen(
             itemsIndexed(state.getUserSwapResults) { index, item ->
                 SwapImageCard(
                     onSwapClick = {
-                        onAction(SwapAction.OnSwapClick(item.itemId))
+                        onAction(SwapAction.OnSwapClick(item.itemId.id))
                     }
                 )
             }
@@ -183,82 +175,4 @@ fun SwapScreen(
         }
     }
 }
-
-@Composable
-fun SwapImageCard(onSwapClick: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .width(125.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(100.dp)
-                .padding(8.dp)
-                .clickable { onSwapClick() }
-                .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
-        ) {
-            @OptIn(ExperimentalResourceApi::class) // TEMP for /drawble image
-            AsyncImage(
-                model = Res.getUri("drawable/default.png"), // NEED TO UPDATE: = mediaURL from Item entity
-                contentDescription = "Clothing Image",
-                modifier = Modifier
-                    .matchParentSize()
-                    .clip(RoundedCornerShape(8.dp))
-            )
-        }
-    }
-    Spacer(modifier = Modifier.width(15.dp))
-}
-@Composable
-fun SwapOtherImageCard(onSwapClick: () -> Unit, imageUrl: String, username: String) {
-    Column(
-        modifier = Modifier
-            .width(125.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .width(125.dp)
-                .height(100.dp)
-                .padding(8.dp)
-                .clickable { onSwapClick() }
-                .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
-        ) {
-            @OptIn(ExperimentalResourceApi::class) // TEMP for /drawble image
-            AsyncImage(
-                model = Res.getUri("drawable/default.png"), // NEED TO UPDATE : imageUrl
-                contentDescription = "Clothing Image",
-                modifier = Modifier
-                    .matchParentSize()
-                    .clip(RoundedCornerShape(8.dp))
-            )
-        }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp)
-        ) {
-            @OptIn(ExperimentalResourceApi::class) // TEMP for /drawble image
-            AsyncImage(
-                model = Res.getUri("drawable/defaultUser.png"),// NEED TO UPDATE : UserProfileUrl
-                contentDescription = "User Image",
-                modifier = Modifier
-                    .size(20.dp)
-                    .clip(CircleShape)
-                    .border(1.dp, Color.Gray, CircleShape)
-            )
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Text(
-                text = username,
-                fontSize = 14.sp,
-                color = Color.Black,
-                modifier = Modifier.align(Alignment.CenterVertically)
-            )
-        }
-    }
-}
-
 

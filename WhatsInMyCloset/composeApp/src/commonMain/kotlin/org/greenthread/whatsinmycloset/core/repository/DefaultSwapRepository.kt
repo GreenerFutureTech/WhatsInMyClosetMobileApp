@@ -2,7 +2,6 @@ package org.greenthread.whatsinmycloset.core.repository
 
 import org.greenthread.whatsinmycloset.core.domain.DataError
 import org.greenthread.whatsinmycloset.core.domain.Result
-import org.greenthread.whatsinmycloset.core.dto.OtherUserSwapDto
 import org.greenthread.whatsinmycloset.core.network.RemoteSwapDataSource
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
 
@@ -13,7 +12,7 @@ class DefaultSwapRepository(
         return remoteSwapDataSource.getSwaps(userId)
     }
 
-    override suspend fun getOtherUsersSwaps(currentUserId: String): Result<List<OtherUserSwapDto>, DataError.Remote> {
+    override suspend fun getOtherUsersSwaps(currentUserId: String): Result<List<SwapDto>, DataError.Remote> {
         return remoteSwapDataSource.getOtherUsersSwaps(currentUserId)
     }
 
