@@ -31,14 +31,15 @@ fun SwapImageCard(onSwapClick: () -> Unit) {
     Column(
         modifier = Modifier
             .width(125.dp)
+            .height(100.dp)
+            .padding(8.dp)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(100.dp)
-                .padding(8.dp)
                 .clickable { onSwapClick() }
-                .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
+                .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
         ) {
             @OptIn(ExperimentalResourceApi::class) // TEMP for /drawble image
             (AsyncImage(
@@ -50,13 +51,13 @@ fun SwapImageCard(onSwapClick: () -> Unit) {
     ))
         }
     }
-    Spacer(modifier = Modifier.width(15.dp))
 }
 @Composable
 fun SwapOtherImageCard(onSwapClick: () -> Unit, imageUrl: String, username: String) {
     Column(
         modifier = Modifier
             .width(125.dp)
+            .height(135.dp)
     ) {
         Box(
             modifier = Modifier
@@ -64,32 +65,32 @@ fun SwapOtherImageCard(onSwapClick: () -> Unit, imageUrl: String, username: Stri
                 .height(100.dp)
                 .padding(8.dp)
                 .clickable { onSwapClick() }
-                .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
+                .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
         ) {
             @OptIn(ExperimentalResourceApi::class) // TEMP for /drawble image
             (AsyncImage(
-        model = Res.getUri("drawable/default.png"), // NEED TO UPDATE : imageUrl
-        contentDescription = "Clothing Image",
-        modifier = Modifier
-            .matchParentSize()
-            .clip(RoundedCornerShape(8.dp))
-    ))
+                model = Res.getUri("drawable/default.png"), // NEED TO UPDATE : imageUrl
+                contentDescription = "Clothing Image",
+                modifier = Modifier
+                    .matchParentSize()
+                    .clip(RoundedCornerShape(8.dp))
+            ))
         }
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp)
+                .padding(8.dp)
         ) {
             @OptIn(ExperimentalResourceApi::class) // TEMP for /drawble image
             (AsyncImage(
-        model = Res.getUri("drawable/defaultUser.png"),// NEED TO UPDATE : UserProfileUrl
-        contentDescription = "User Image",
-        modifier = Modifier
-            .size(20.dp)
-            .clip(CircleShape)
-            .border(1.dp, Color.Gray, CircleShape)
-    ))
+                model = Res.getUri("drawable/defaultUser.png"),// NEED TO UPDATE : UserProfileUrl
+                contentDescription = "User Image",
+                modifier = Modifier
+                    .size(20.dp)
+                    .clip(CircleShape)
+                    .border(1.dp, Color.Black, CircleShape)
+            ))
 
             Spacer(modifier = Modifier.width(8.dp))
 

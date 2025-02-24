@@ -6,6 +6,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,7 +21,22 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import whatsinmycloset.composeapp.generated.resources.Res
 
 @Composable
-fun SwapDetailScreen(swap: SwapDto?) = swap?.let {
+fun SwapDetailScreen(swap: SwapDto?, onBackClick: () -> Unit) = swap?.let {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Start
+    ) {
+        TextButton(
+            onClick = onBackClick,
+            modifier = Modifier.padding(8.dp)
+        ) {
+            Text(text = "Back")
+        }
+    }
+
+    Spacer(modifier = Modifier.height(10.dp))
+
+
     Box(
         modifier = Modifier
             .padding(20.dp)

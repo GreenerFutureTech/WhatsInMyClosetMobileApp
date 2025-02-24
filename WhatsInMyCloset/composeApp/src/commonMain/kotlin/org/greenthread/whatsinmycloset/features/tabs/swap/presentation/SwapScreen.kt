@@ -16,8 +16,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,6 +37,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun SwapScreenRoot(
     viewModel: SwapViewModel = koinViewModel(),
     onSwapClick: (SwapDto) -> Unit,
+    onAllSwapClick: () -> Unit
 ) {
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val state by viewModel.state.collectAsStateWithLifecycle(
@@ -77,15 +80,21 @@ fun SwapScreen(
     onAction: (SwapAction) -> Unit,
 ) {
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(10.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(modifier = Modifier.height(48.dp), fontSize = 30.sp, text = "SWAP")
+            Text(
+                modifier = Modifier.height(48.dp),
+                fontSize = 30.sp,
+                fontWeight = FontWeight.Bold,
+                text = "SWAP"
+            )
 
             Icon(
                 imageVector = Icons.Default.MailOutline,
@@ -98,12 +107,14 @@ fun SwapScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+                .padding(5.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                modifier = Modifier.height(25.dp),
-                fontSize = 25.sp,
+                modifier = Modifier,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
                 text = "My Swap Items"
             )
 
@@ -111,7 +122,7 @@ fun SwapScreen(
                 onClick = {
                     println("Button clicked!")
                 },
-                modifier = Modifier.height(50.dp)
+                modifier = Modifier
             ) {
                 Text(
                     text = "All Swaps",
@@ -122,7 +133,9 @@ fun SwapScreen(
         }
 
         LazyRow(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
         ) {
             itemsIndexed(state.getUserSwapResults) { index, item ->
                 SwapImageCard(
@@ -130,6 +143,7 @@ fun SwapScreen(
                         onAction(SwapAction.OnSwapClick(item.itemId.id))
                     }
                 )
+               Spacer(modifier = Modifier.width(10.dp))
             }
         }
 
@@ -137,7 +151,8 @@ fun SwapScreen(
 
         Text(
             modifier = Modifier.height(30.dp),
-            fontSize = 25.sp,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
             text = "Followers and Nearby Items"
         )
 
@@ -145,8 +160,7 @@ fun SwapScreen(
             value = "SEARCH ...",
             onValueChange = { },
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
+                .fillMaxWidth(),
             placeholder = { Text(text = "hint") },
             singleLine = true,
             keyboardOptions = KeyboardOptions.Default.copy(
@@ -158,6 +172,8 @@ fun SwapScreen(
                 }
             ),
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         LazyVerticalGrid(
             columns = GridCells.Fixed(3), // Set the number of columns to 3
