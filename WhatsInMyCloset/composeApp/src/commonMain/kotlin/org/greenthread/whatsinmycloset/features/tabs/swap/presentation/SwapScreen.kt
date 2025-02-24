@@ -70,7 +70,8 @@ fun SwapScreenRoot(
                 else -> Unit
             }
             viewModel.onAction(action)
-        }
+        },
+        onAllSwapClick = onAllSwapClick
     )
 }
 
@@ -78,6 +79,7 @@ fun SwapScreenRoot(
 fun SwapScreen(
     state: SwapListState,
     onAction: (SwapAction) -> Unit,
+    onAllSwapClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -119,9 +121,7 @@ fun SwapScreen(
             )
 
             TextButton(
-                onClick = {
-                    println("Button clicked!")
-                },
+                onClick = {onAllSwapClick()},
                 modifier = Modifier
             ) {
                 Text(

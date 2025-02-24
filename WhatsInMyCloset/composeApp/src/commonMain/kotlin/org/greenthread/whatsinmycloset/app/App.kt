@@ -1,5 +1,6 @@
 package org.greenthread.whatsinmycloset.app
 
+import AllSwapsScreen
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -105,7 +106,7 @@ fun App(cameraManager: CameraManager?) {
                         val selectedSwapViewModel = it.sharedKoinViewModel<SelectedSwapViewModel>(navController)
 
                         LaunchedEffect(true) {
-                            selectedSwapViewModel.onSelectSwap(null) // 초기화
+                            selectedSwapViewModel.onSelectSwap(null)
                         }
 
                         SwapScreenRoot(
@@ -113,7 +114,21 @@ fun App(cameraManager: CameraManager?) {
                             onSwapClick = { swap ->
                                 selectedSwapViewModel.onSelectSwap(swap)
                                 navController.navigate(Routes.SwapDetailsScreen(swap.itemId.id))
+                            },
+                            onAllSwapClick = { navController.navigate(Routes.AllSwapScreen) }
+                        )
+                    }
 
+                    composable<Routes.AllSwapScreen> {
+                        val viewModel: SwapViewModel = koinViewModel()
+                        val selectedSwapViewModel = it.sharedKoinViewModel<SelectedSwapViewModel>(navController)
+
+                        AllSwapsScreen(
+                            viewModel = viewModel,
+                            navController = navController,
+                            onSwapClick = { swap ->
+                                selectedSwapViewModel.onSelectSwap(swap)
+                                navController.navigate(Routes.SwapDetailsScreen(swap.itemId.id))
                             }
                         )
                     }
@@ -122,7 +137,7 @@ fun App(cameraManager: CameraManager?) {
                         val selectedSwapViewModel = it.sharedKoinViewModel<SelectedSwapViewModel>(navController)
                         val selectedSwap by selectedSwapViewModel.selectedSwap.collectAsStateWithLifecycle()
 
-                        SwapDetailScreen(selectedSwap)
+                        SwapDetailScreen(swap = selectedSwap, onBackClick = { navController.popBackStack() } )
                     }
                 }
                 navigation<Routes.SocialGraph>(startDestination = Routes.SocialTab) {
