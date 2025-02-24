@@ -33,7 +33,7 @@ import org.greenthread.whatsinmycloset.core.ui.components.listItems.generateRand
 import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.Action.SwapAction
-import org.greenthread.whatsinmycloset.features.tabs.swap.dto.SwapDto
+import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.koin.compose.viewmodel.koinViewModel
 import whatsinmycloset.composeapp.generated.resources.Res

@@ -5,7 +5,7 @@ import io.ktor.client.request.get
 import org.greenthread.whatsinmycloset.core.data.safeCall
 import org.greenthread.whatsinmycloset.core.domain.DataError
 import org.greenthread.whatsinmycloset.core.domain.Result
-import org.greenthread.whatsinmycloset.features.tabs.swap.dto.SwapDto
+import org.greenthread.whatsinmycloset.core.dto.SwapDto
 
 private const val BASE_URL = "http://10.0.2.2:13000"
 

@@ -1,4 +1,4 @@
-package org.greenthread.whatsinmycloset.features.tabs.swap.dto
+package org.greenthread.whatsinmycloset.core.dto
 
 import kotlinx.serialization.Serializable
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem

@@ -3,7 +3,7 @@ package org.greenthread.whatsinmycloset.features.tabs.swap.presentation
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import org.greenthread.whatsinmycloset.features.tabs.swap.dto.SwapDto
+import org.greenthread.whatsinmycloset.core.dto.SwapDto
 
 class SelectedSwapViewModel: ViewModel() {
 

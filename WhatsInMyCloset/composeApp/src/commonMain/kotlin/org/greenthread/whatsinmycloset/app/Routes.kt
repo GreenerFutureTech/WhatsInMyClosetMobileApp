@@ -1,7 +1,7 @@
 package org.greenthread.whatsinmycloset.app
 
 import kotlinx.serialization.Serializable
-import org.greenthread.whatsinmycloset.features.tabs.swap.dto.SwapDto
+import org.greenthread.whatsinmycloset.core.dto.SwapDto
 
 sealed interface Routes {
     @Serializable

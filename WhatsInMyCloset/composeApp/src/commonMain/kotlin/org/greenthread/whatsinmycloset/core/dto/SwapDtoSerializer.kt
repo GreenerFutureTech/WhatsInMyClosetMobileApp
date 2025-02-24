@@ -1,4 +1,4 @@
-package org.greenthread.whatsinmycloset.features.tabs.swap.dto
+package org.greenthread.whatsinmycloset.core.dto
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
