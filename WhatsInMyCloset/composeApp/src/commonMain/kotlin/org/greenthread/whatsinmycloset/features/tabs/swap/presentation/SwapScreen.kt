@@ -6,21 +6,17 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -29,6 +25,7 @@ import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.Action.SwapAction
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
+import org.greenthread.whatsinmycloset.core.ui.components.controls.SearchBar
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.SwapImageCard
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.SwapOtherImageCard
 import org.koin.compose.viewmodel.koinViewModel
@@ -81,6 +78,8 @@ fun SwapScreen(
     onAction: (SwapAction) -> Unit,
     onAllSwapClick: () -> Unit
 ) {
+    var searchString by remember { mutableStateOf("") }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -109,7 +108,7 @@ fun SwapScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(5.dp),
+                .padding(10.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -121,7 +120,7 @@ fun SwapScreen(
             )
 
             TextButton(
-                onClick = {onAllSwapClick()},
+                onClick = { onAllSwapClick() },
                 modifier = Modifier
             ) {
                 Text(
@@ -135,7 +134,8 @@ fun SwapScreen(
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp),
+                .padding(8.dp)
+                .height(80.dp)
         ) {
             itemsIndexed(state.getUserSwapResults) { index, item ->
                 SwapImageCard(
@@ -143,50 +143,65 @@ fun SwapScreen(
                         onAction(SwapAction.OnSwapClick(item.itemId.id))
                     }
                 )
-               Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier.width(10.dp))
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text(
-            modifier = Modifier.height(30.dp),
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            text = "Followers and Nearby Items"
-        )
-
-        TextField(
-            value = "SEARCH ...",
-            onValueChange = { },
+        Column(
             modifier = Modifier
-                .fillMaxWidth(),
-            placeholder = { Text(text = "hint") },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions.Default.copy(
-                imeAction = ImeAction.Search
-            ),
-            keyboardActions = KeyboardActions(
-                onSearch = {
+                .fillMaxWidth()
+                .padding(10.dp),
+        ) {
+            Text(
+                modifier = Modifier.height(30.dp),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                text = "Followers and Nearby Items"
+            )
 
-                }
-            ),
-        )
+            SearchBar(
+                searchString = searchString,
+                onSearchStringChange = { searchString = it },
+                onSearch = {
+                    // TODO : implement search feature
+                    println("Search button clicked!")
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(3), // Set the number of columns to 3
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            itemsIndexed(state.getOtherUserSwapResults) { index, item ->
-                SwapOtherImageCard(
-                    onSwapClick = {
-                        onAction(SwapAction.OnSwapClick(item.itemId.id))
-                    },
-                    imageUrl = item.itemId.mediaUrl,
-                    username = "user${item.userId}" // NEED TO UPDATE : username
+        if (state.getOtherUserSwapResults.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(300.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "No items found",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.Gray
                 )
+            }
+        } else {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                itemsIndexed(state.getOtherUserSwapResults) { index, item ->
+                    SwapOtherImageCard(
+                        onSwapClick = {
+                            onAction(SwapAction.OnSwapClick(item.itemId.id))
+                        },
+                        imageUrl = item.itemId.mediaUrl,
+                        username = "user${item.userId}"
+                    )
+                }
             }
         }
     }

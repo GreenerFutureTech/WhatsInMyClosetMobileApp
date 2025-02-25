@@ -56,24 +56,33 @@ fun AllSwapsScreen(
             )
         }
 
-        Text(
-            fontSize = 25.sp,
-            fontWeight = FontWeight.Bold,
-            text = "All Swap Items"
-        )
-
         Spacer(modifier = Modifier.height(16.dp))
 
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(3),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            itemsIndexed(state.getUserSwapResults) { _, item ->
-                SwapImageCard(
-                    onSwapClick = {
-                        onSwapClick(item)
-                    }
+        if (state.getUserSwapResults.isEmpty()) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
+                verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
+            ) {
+                Text(
+                    text = "No Swap Item",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.Gray
                 )
+            }
+        } else {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                itemsIndexed(state.getUserSwapResults) { _, item ->
+                    SwapImageCard(
+                        onSwapClick = {
+                            onSwapClick(item)
+                        }
+                    )
+                }
             }
         }
     }

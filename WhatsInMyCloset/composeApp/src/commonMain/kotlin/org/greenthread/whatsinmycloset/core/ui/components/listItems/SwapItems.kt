@@ -31,7 +31,7 @@ fun SwapImageCard(onSwapClick: () -> Unit) {
     Column(
         modifier = Modifier
             .width(125.dp)
-            .height(100.dp)
+            .height(110.dp)
             .padding(8.dp)
     ) {
         Box(
@@ -62,7 +62,7 @@ fun SwapOtherImageCard(onSwapClick: () -> Unit, imageUrl: String, username: Stri
         Box(
             modifier = Modifier
                 .width(125.dp)
-                .height(100.dp)
+                .height(110.dp)
                 .padding(8.dp)
                 .clickable { onSwapClick() }
                 .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
@@ -80,7 +80,7 @@ fun SwapOtherImageCard(onSwapClick: () -> Unit, imageUrl: String, username: Stri
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp)
+                .padding(horizontal = 8.dp)
         ) {
             @OptIn(ExperimentalResourceApi::class) // TEMP for /drawble image
             (AsyncImage(
