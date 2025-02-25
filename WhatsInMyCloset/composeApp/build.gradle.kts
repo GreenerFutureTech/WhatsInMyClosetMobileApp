@@ -109,6 +109,9 @@ dependencies {
     implementation(libs.androidx.ui.graphics.android)
     implementation(libs.androidx.ui.android)
     implementation(libs.androidx.media3.common.ktx)
+    implementation(libs.androidx.navigation.testing)
+    implementation(libs.core.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
     debugImplementation(compose.uiTooling)
 }
 

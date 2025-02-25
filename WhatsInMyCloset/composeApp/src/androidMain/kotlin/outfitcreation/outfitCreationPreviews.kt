@@ -9,8 +9,6 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Modifier
-import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
-import org.greenthread.whatsinmycloset.features.tabs.home.OutfitComplete
 import org.greenthread.whatsinmycloset.features.tabs.home.OutfitScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.OutfitSaveScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.OutfitSaved
@@ -18,15 +16,28 @@ import org.greenthread.whatsinmycloset.features.tabs.home.CreateNewOutfitFolder
 import org.greenthread.whatsinmycloset.core.repositories.OutfitRepository
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
+import androidx.navigation.NavController
 import org.greenthread.whatsinmycloset.core.domain.models.generateSampleClothingItems
 import org.greenthread.whatsinmycloset.features.tabs.home.CalendarDialog
 import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItemsScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.ConfirmationDialog
 import org.greenthread.whatsinmycloset.features.tabs.home.DiscardConfirmationDialog
 import org.greenthread.whatsinmycloset.features.tabs.home.DiscardSavingDialog
+import android.content.Context
+import androidx.compose.runtime.remember
+import androidx.navigation.NavHostController
+import androidx.navigation.NavOptions
+import androidx.navigation.Navigator
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.testing.TestNavHostController
+import androidx.test.core.app.ApplicationProvider
+import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
+import org.greenthread.whatsinmycloset.core.domain.models.generateRandomClothingItems
+import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
+import org.greenthread.whatsinmycloset.core.viewmodels.MockClothingItemViewModel
 
 
-@Preview(showSystemUi = true, showBackground = true)
+/*@Preview(showSystemUi = true, showBackground = true)
 @Composable
 fun PreviewOutfitScreen() {
     val onDone: () -> Unit = { /* Handle When User is Done Creating the Outfit */ }
@@ -37,34 +48,56 @@ fun PreviewOutfitScreen() {
         onDone = onDone,
         selectedClothingItems = sampleItems // dummy items
     )
-}
+}*/
 
 @Composable
-@Preview
+@Preview(showSystemUi = true, showBackground = true)
 fun PreviewCategoryItemsScreen() {
-    val onDone: () -> Unit = { /* Handle When User is Done Creating the Outfit */ }
+    val onDone: (List<ClothingItem>) -> Unit = { selectedItems ->
+        // Handle when user is done selecting items
+        println("Selected Items: $selectedItems")
+    }
+    val onBack: () -> Unit = {
+        // Handle back navigation
+        println("Navigating back")
+    }
 
-    // show all items in the category selected
+    val mockViewModel = MockClothingItemViewModel()
+
+    // Show all items in the selected category
     CategoryItemsScreen(
         category = "Tops",
-        onDone = onDone
+        onDone = onDone,
+        onBack = onBack,
+        viewModel = mockViewModel
     )
 }
 
 
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
-fun PreviewOutfitCreationDone() {
-    val onSave: () -> Unit = { /* Handle Saving Outfit */ }
-    val onCreateNew: () -> Unit = {/* When User wants to get out of the outfit creation screen*/}
+fun PreviewOutfitCreationScreen() {
+    val onSave: () -> Unit = {
+        // Handle saving the outfit
+        println("Outfit saved")
+    }
+    val onCreateNew: () -> Unit = {
+        // Handle creating a new outfit
+        println("Creating new outfit")
+    }
+    val onAddToCalendar: (String) -> Unit = { date ->
+        // Handle adding outfit to calendar
+        println("Outfit added to calendar on $date")
+    }
+    val mockNavController = rememberNavController()
+    val mockViewModel = MockClothingItemViewModel()
 
-    val sampleItems = generateSampleClothingItems()
-
-    OutfitComplete(
+    OutfitScreen(
+        navController = mockNavController,  // for testing preview
         onSave = onSave,
-        onAddToCalendar = { _ -> },
+        onAddToCalendar = onAddToCalendar,
         onCreateNew = onCreateNew,
-        selectedClothingItems = sampleItems
+        viewModel = mockViewModel
     )
 }
 

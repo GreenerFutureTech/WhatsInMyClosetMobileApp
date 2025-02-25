@@ -1,5 +1,6 @@
 package org.greenthread.whatsinmycloset.app
 
+
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -20,19 +21,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
-import kotlinx.coroutines.selects.select
-import org.greenthread.whatsinmycloset.core.repository.SwapRepository
-import androidx.navigation.toRoute
-import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginScreenRoot
-import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginViewModel
-import org.greenthread.whatsinmycloset.features.screens.signup.SignupScreenRoot
+import androidx.navigation.navArgument
+import coil3.util.Logger
+import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
+import org.greenthread.whatsinmycloset.core.domain.models.generateSampleClothingItems
+import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
+import org.greenthread.whatsinmycloset.core.viewmodels.MockClothingItemViewModel
+import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItemsScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.HomeTabScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.home.OutfitScreen
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTab
@@ -91,17 +93,50 @@ fun App() {
                     }
                     // add CreateOutfitScreen Route to separate composable in nav graph
                     composable<Routes.CreateOutfitScreen> {
-
-                        Text("Outfit Creation Screen")
-
                         OutfitScreen(
-                            onDone = {
-                                navController.popBackStack() // Go back to the Home Tab when done
-                            },
-                            selectedClothingItems = listOf()
+                            navController = navController,
+                            onSave = { /* Handle save */ },
+                            onAddToCalendar = { date -> /* Handle add to calendar */ },
+                            onCreateNew = { /* Handle create new */ },
+                            viewModel = MockClothingItemViewModel()
                         )
                     }
-                }
+
+                    // Navigation graph setup
+                    composable<Routes.CategoryItemScreen>
+                    { backStackEntry ->
+                        val category = backStackEntry.arguments?.getString("category") ?: ""
+
+                        println("Category: $category")  // Log the category string
+
+                        val categoryEnum = ClothingCategory.fromString(category)
+                        val viewModel: ClothingItemViewModel = viewModel()
+
+                        // open screen for category selected.
+                        // for example, if user selected "Bottom", open screen to show all Bottoms
+                        if (categoryEnum != null) {
+
+                            CategoryItemsScreen(
+                                category = categoryEnum.categoryName,
+                                onDone = { selectedItems ->
+                                    // Update the ViewModel with the selected items
+                                    viewModel.addClothingItems(selectedItems)
+                                    // Navigate back to the previous screen (OutfitScreen)
+                                    navController.popBackStack()
+                                },
+                                onBack = {
+                                    // Handle back navigation (e.g., without saving selected items)
+                                    navController.popBackStack()
+                                },
+                                viewModel = viewModel
+                            )
+                        } else {
+                            // Handle invalid category (e.g., show an error message)
+                            Text("Invalid category: $category")
+                        }
+                    }
+                }   // end of Home Graph
+
                 navigation<Routes.ProfileGraph>(startDestination = Routes.ProfileTab) {
                     composable<Routes.ProfileTab> {
                         ProfileTab { }
