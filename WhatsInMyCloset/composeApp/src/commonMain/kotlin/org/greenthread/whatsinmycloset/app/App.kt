@@ -1,5 +1,6 @@
 package org.greenthread.whatsinmycloset.app
 
+import AllSwapsScreen
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -39,6 +40,7 @@ import org.greenthread.whatsinmycloset.features.tabs.home.HomeTabScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTab
 import org.greenthread.whatsinmycloset.features.tabs.social.SocialTab
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SelectedSwapViewModel
+import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SwapDetailScreen
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SwapScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -100,9 +102,8 @@ fun App(cameraManager: CameraManager?) {
                 }
                 navigation<Routes.SwapGraph>(startDestination = Routes.SwapTab) {
                     composable<Routes.SwapTab> {
-                        val viewModel:  SwapViewModel = koinViewModel()
-                        val selectedSwapViewModel =
-                            it.sharedKoinViewModel<SelectedSwapViewModel>(navController)
+                        val viewModel: SwapViewModel = koinViewModel()
+                        val selectedSwapViewModel = it.sharedKoinViewModel<SelectedSwapViewModel>(navController)
 
                         LaunchedEffect(true) {
                             selectedSwapViewModel.onSelectSwap(null)
@@ -111,24 +112,32 @@ fun App(cameraManager: CameraManager?) {
                         SwapScreenRoot(
                             viewModel = viewModel,
                             onSwapClick = { swap ->
-                                selectedSwapViewModel.onSelectSwap(swap.itemId)
-                                navController.navigate(
-                                    Routes.SwapDetailsScreen(swap.itemId)
-                                )
+                                selectedSwapViewModel.onSelectSwap(swap)
+                                navController.navigate(Routes.SwapDetailsScreen(swap.itemId.id))
+                            },
+                            onAllSwapClick = { navController.navigate(Routes.AllSwapScreen) }
+                        )
+                    }
+
+                    composable<Routes.AllSwapScreen> {
+                        val viewModel: SwapViewModel = koinViewModel()
+                        val selectedSwapViewModel = it.sharedKoinViewModel<SelectedSwapViewModel>(navController)
+
+                        AllSwapsScreen(
+                            viewModel = viewModel,
+                            navController = navController,
+                            onSwapClick = { swap ->
+                                selectedSwapViewModel.onSelectSwap(swap)
+                                navController.navigate(Routes.SwapDetailsScreen(swap.itemId.id))
                             }
                         )
                     }
+
                     composable<Routes.SwapDetailsScreen> {
-                        val selectedSwapViewModel =
-                            it.sharedKoinViewModel<SelectedSwapViewModel>(navController)
+                        val selectedSwapViewModel = it.sharedKoinViewModel<SelectedSwapViewModel>(navController)
                         val selectedSwap by selectedSwapViewModel.selectedSwap.collectAsStateWithLifecycle()
 
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text("Swap Detail Screen for " + "${selectedSwap}" )
-                        }
+                        SwapDetailScreen(swap = selectedSwap, onBackClick = { navController.popBackStack() } )
                     }
                 }
                 navigation<Routes.SocialGraph>(startDestination = Routes.SocialTab) {
