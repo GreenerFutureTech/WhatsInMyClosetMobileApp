@@ -93,7 +93,8 @@ fun ProfileTab() {
 
                 CategoryItem(
                     icon = Icons.Default.Menu,
-                    text = "Menu"
+                    text = "Menu",
+                    onClick = {}
                 )
             }
 

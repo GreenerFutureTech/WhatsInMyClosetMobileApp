@@ -87,7 +87,8 @@ fun ProfileTab(onNavigate: (String) -> Unit) {
 
                 CategoryItem(
                     icon = Icons.Default.Menu,
-                    text = "Menu"
+                    text = "Menu",
+                    onClick = {}
                 )
             }
 
