@@ -11,6 +11,7 @@ data class SwapDto(
     val status: String,
     val condition: String,
     val brand: String,
+    val size: String,
     val registeredAt: String,
     val updatedAt: String
 )

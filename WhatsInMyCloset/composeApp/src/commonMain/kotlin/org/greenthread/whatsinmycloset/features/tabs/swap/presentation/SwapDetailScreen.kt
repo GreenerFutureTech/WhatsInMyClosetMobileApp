@@ -105,7 +105,7 @@ fun SwapDetailScreen(swap: SwapDto?, onBackClick: () -> Unit) = swap?.let {
                 Spacer(modifier = Modifier.height(10.dp))
 
                 Text(
-                    text = "Size: ", // need size column
+                    text = "Size: ${swap.size}",
                     fontSize = 20.sp
                 )
 

@@ -64,9 +64,6 @@ fun SwapScreenRoot(
                         onSwapClick(selectedItem)
                     }
                 }
-                is SwapAction.OnSearch -> {
-                    viewModel.fetchSearchResults(action.query)
-                }
                 else -> Unit
             }
            // viewModel.onAction(action)
@@ -176,9 +173,7 @@ fun SwapScreen(
             SearchBar(
                 searchString = searchString,
                 onSearchStringChange = { searchString = it },
-                onSearch = {
-                    onAction(SwapAction.OnSearch(searchString))
-                },
+                onSearch = {},
                 modifier = Modifier.fillMaxWidth()
             )
         }
