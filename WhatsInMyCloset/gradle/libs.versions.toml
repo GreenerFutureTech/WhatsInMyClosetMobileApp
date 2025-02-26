@@ -32,6 +32,7 @@ media3CommonKtx = "1.5.1"
 navigationTesting = "2.8.7"
 coreKtx = "1.6.1"
 lifecycleViewmodelCompose = "2.9.0-alpha10"
+identityJvm = "202411.1"
 
 [libraries]
 firebase-auth = { module = "dev.gitlive:firebase-auth", version.ref = "firebaseAuth" }
@@ -83,6 +84,7 @@ androidx-media3-common-ktx = { group = "androidx.media3", name = "media3-common-
 androidx-navigation-testing = { group = "androidx.navigation", name = "navigation-testing", version.ref = "navigationTesting" }
 core-ktx = { group = "androidx.test", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
+identity-jvm = { group = "com.android.identity", name = "identity-jvm", version.ref = "identityJvm" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

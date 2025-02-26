@@ -90,6 +90,7 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "META-INF/versions/9/OSGI-INF/MANIFEST.MF"
         }
     }
     buildTypes {
@@ -112,6 +113,7 @@ dependencies {
     implementation(libs.androidx.navigation.testing)
     implementation(libs.core.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.identity.jvm)
     debugImplementation(compose.uiTooling)
 }
 

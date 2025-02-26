@@ -8,12 +8,9 @@ import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 
 // used to manage clothing items selected when creating an outfit
 open class ClothingItemViewModel : ViewModel() {
+
     private val _clothingItems = MutableStateFlow<List<ClothingItem>>(emptyList())
     val clothingItems: StateFlow<List<ClothingItem>> = _clothingItems
-
-    fun addClothingItem(item: ClothingItem) {
-        _clothingItems.value = _clothingItems.value + item
-    }
 
     fun addClothingItems(items: List<ClothingItem>) {
         _clothingItems.value = _clothingItems.value + items
@@ -21,5 +18,14 @@ open class ClothingItemViewModel : ViewModel() {
 
     fun removeClothingItem(item: ClothingItem) {
         _clothingItems.value = _clothingItems.value - item
+    }
+
+    fun clearClothingItems() {
+        _clothingItems.value = emptyList()
+    }
+
+    // Function to initialize clothing items for testing routing
+    fun initializeClothingItems(items: List<ClothingItem>) {
+        _clothingItems.value = items
     }
 }

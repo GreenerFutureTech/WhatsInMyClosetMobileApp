@@ -37,6 +37,7 @@ import org.greenthread.whatsinmycloset.app.Routes
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.generateSampleClothingItems
 import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
+import org.greenthread.whatsinmycloset.core.viewmodels.OutfitViewModel
 import org.jetbrains.compose.resources.painterResource
 import whatsinmycloset.composeapp.generated.resources.Res
 import whatsinmycloset.composeapp.generated.resources.top1
@@ -138,15 +139,14 @@ fun DisplayCategoryItems(
 @Composable
 fun OutfitScreen(
     navController: NavController,
-    onSave: () -> Unit,
-    onAddToCalendar: (String) -> Unit, // Pass date as String
-    onCreateNew: () -> Unit,
-    viewModel: ClothingItemViewModel // Inject the ClothingItemViewModel
+    clothingItemViewModel: ClothingItemViewModel,
+    outfitViewModel: OutfitViewModel
 ) {
-    // keep track of the clothing items user selects
-    // Initialize selectedClothingItems with sample data
-    // Collect the selected clothing items from the ViewModel
-    val selectedClothingItems by viewModel.clothingItems.collectAsState()
+    // Collect state from the ViewModel
+    val selectedClothingItems by clothingItemViewModel.clothingItems.collectAsState()   // ClothingItemViewModel
+    val isCreateNewOutfit by outfitViewModel.isCreateNewOutfit.collectAsState()
+    val isOutfitSaved by outfitViewModel.isOutfitSaved.collectAsState()
+    val currentOutfit by outfitViewModel.currentOutfit.collectAsState()
 
     // Show calendar dialog
     var showCalendarDialog by remember { mutableStateOf(false) }
@@ -194,47 +194,71 @@ fun OutfitScreen(
                         modifier = Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
+                        // Save Outfit button
                         Button(
-                            onClick = onSave,
+                            onClick = {
+                                // Save the current outfit
+                                if (currentOutfit != null) {
+                                    outfitViewModel.createOutfit(selectedClothingItems)
+                                    outfitViewModel.saveOutfit(currentOutfit!!)
+                                }
+                            },
                             modifier = Modifier.fillMaxWidth(),
-                            enabled = selectedClothingItems.isNotEmpty())
-                        {
+                            enabled = selectedClothingItems.isNotEmpty()
+                        ) {
                             Text("Save Outfit")
                         }
 
                         // Add to Calendar button
                         Button(
                             onClick = { showCalendarDialog = true },
-                            modifier = Modifier
-                                .fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth(),
                             enabled = selectedClothingItems.isNotEmpty()
                         ) {
                             Text("Add to Calendar")
                         }
 
+                        // Create New Outfit button
                         Button(
-                            onClick = onCreateNew,
+                            onClick = {
+                                // Discard the current outfit and create a new one
+                                outfitViewModel.discardCurrentOutfit()
+                                      },
                             modifier = Modifier.fillMaxWidth(),
-                            enabled = selectedClothingItems.isNotEmpty())
-                        {
+                            enabled = selectedClothingItems.isNotEmpty()
+                        ) {
                             Text("Create New Outfit")
                         }
                     }
                 }
             }
 
-        }
+        }   // end of Column
 
-        // Show Calendar Dialog
-        if (showCalendarDialog) {
-            CalendarDialog(
-                onDismiss = { showCalendarDialog = false },
-                onDateSelected = { selectedDate ->
-                    onAddToCalendar(selectedDate) // Pass the selected date to the callback
-                    showCalendarDialog = false // Close the dialog
+    // Show Calendar Dialog
+    if (showCalendarDialog) {
+        CalendarDialog(
+            onDismiss = { showCalendarDialog = false },
+            onDateSelected = { selectedDate ->
+                outfitViewModel.addOutfitToCalendar(selectedDate) // Pass the selected date to the callback
+                showCalendarDialog = false // Close the dialog
+            }
+        )
+    }
+
+    // Show Outfit Saved Dialog
+    if (isOutfitSaved) {
+        OutfitSaved(
+            navController = navController,
+            onDismiss = {
+                navController.navigate("home") {
+                    popUpTo("home") { inclusive = true }
                 }
-            )
-        }
+            },
+            viewModel = outfitViewModel
+        )
+    }
+
 }
 
 // show the items user selected to create an outfit

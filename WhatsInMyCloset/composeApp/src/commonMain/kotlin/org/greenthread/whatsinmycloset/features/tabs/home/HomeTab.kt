@@ -80,7 +80,26 @@ fun HomeTabScreen(
 
 
     // Create an outfit
-    val summerLook = Outfit("outfit1", "Summer Look", setOf("item1", "item2"))
+    val summerLook = Outfit(
+        id = "outfit1",
+        name = "Summer Look",
+        itemIds = listOf(
+            ClothingItem(
+                id = "1",
+                name = "Blue Top",
+                category = ClothingCategory.TOPS,
+                clothingImage = null,
+                tags = setOf("casual", "summer")
+            ),
+            ClothingItem(
+                id = "2",
+                name = "Denim Jeans",
+                category = ClothingCategory.BOTTOMS,
+                clothingImage = null,
+                tags = setOf("casual", "summer")
+            ),
+        )
+    )
     user.addOutfit(summerLook)
 
 

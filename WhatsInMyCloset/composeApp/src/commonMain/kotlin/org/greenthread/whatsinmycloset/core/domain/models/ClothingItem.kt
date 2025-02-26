@@ -1,5 +1,7 @@
 package org.greenthread.whatsinmycloset.core.domain.models
 
+import kotlinx.serialization.Serializable
+
 enum class ClothingCategory(val categoryName: String) {
     TOPS("Tops"),
     BOTTOMS("Bottoms"),
@@ -13,7 +15,7 @@ enum class ClothingCategory(val categoryName: String) {
     }
 }
 
-
+@Serializable
 data class ClothingItem(
     val id: String, // Unique identifier for the item
     val name: String, // Name of the item (e.g., "Red Dress")
