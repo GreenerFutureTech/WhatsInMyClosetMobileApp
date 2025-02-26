@@ -7,7 +7,7 @@ import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 class OutfitRepository {
 
     private val _outfitFolders = MutableStateFlow(
-        listOf("Business Casuals", "Fancy", "Formals", "Casuals", "My Public Outfits")
+        listOf("Business Casuals", "Formals", "Casuals", "My Public Outfits")
     )
     val outfitFolders: StateFlow<List<String>> = _outfitFolders
 

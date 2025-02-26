@@ -19,7 +19,11 @@ isPublic state (when user wants the outfit to be public)
 
 This ViewModel manages outfit creation, saving, and calendar events
 */
-open class OutfitViewModel(savedStateHandle: SavedStateHandle? = null) : ViewModel() {
+open class OutfitViewModel
+    (
+        savedStateHandle: SavedStateHandle? = null
+
+    ) : ViewModel() {
     private var outfitCounter = 0
 
     private val selectedCategoryKey = "selected_category"
@@ -58,7 +62,7 @@ open class OutfitViewModel(savedStateHandle: SavedStateHandle? = null) : ViewMod
     open val isOutfitSaved: StateFlow<Boolean> = _isOutfitSaved.asStateFlow()
 
     // For tracking the current outfit being created
-    private val _currentOutfit = MutableStateFlow<Outfit?>(null)
+    private val _currentOutfit = MutableStateFlow<Outfit?>(null)  // current outfit user wants to save
     val currentOutfit: StateFlow<Outfit?> = _currentOutfit.asStateFlow()
 
     init {

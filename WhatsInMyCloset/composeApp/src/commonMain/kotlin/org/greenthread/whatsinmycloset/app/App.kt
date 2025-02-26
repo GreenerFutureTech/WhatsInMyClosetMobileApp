@@ -18,7 +18,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.createSavedStateHandle
+import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
@@ -32,6 +35,7 @@ import androidx.navigation.navArgument
 import coil3.util.Logger
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
+import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.domain.models.generateSampleClothingItems
 import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.MockClothingItemViewModel
@@ -47,6 +51,7 @@ import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SwapScree
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
+import kotlin.reflect.KClass
 
 @Composable
 @Preview
@@ -141,6 +146,7 @@ fun App() {
                         if (categoryEnum != null) {
 
                             CategoryItemsScreen(
+                                navController = navController,
                                 category = categoryEnum.categoryName,
                                 onDone = { selectedItems ->
                                     // Update the ViewModel with the selected items
@@ -164,22 +170,18 @@ fun App() {
                     // -- opens repository screen
                     // -- where user can see the outfit folders to save outfit in
                     // -- or create a new folder
-                    /*composable<Routes.OutfitSaveScreen>
+                    composable<Routes.OutfitSaveScreen>
                     {
-                        val viewModel: OutfitViewModel = viewModel()
+                        // Initialize the ViewModel with the outfit
+                        val outfitViewModel: OutfitViewModel = viewModel()
 
                         OutfitSaveScreen(
+                            navController = navController,
                             onExit = { },
                             onDone = { },
-                            //selectedClothingItems: List<ClothingItem>,
-                            onCreateNewFolder = { },
-                            //onSaveToFolder: (String, Boolean) -> Unit,
-                            //previewSelectedFolder = { },
-                            //previewSelectedFolders = { },
-                            previewIsPublic = false,
-                            viewModel = viewModel
+                            viewModel = outfitViewModel
                         )
-                    }*/
+                    }
 
                 }   // end of Home Graph
 

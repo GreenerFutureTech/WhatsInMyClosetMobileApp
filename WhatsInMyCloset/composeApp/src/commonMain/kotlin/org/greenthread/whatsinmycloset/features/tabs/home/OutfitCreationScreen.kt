@@ -146,7 +146,7 @@ fun OutfitScreen(
     val selectedClothingItems by clothingItemViewModel.clothingItems.collectAsState()   // ClothingItemViewModel
     val isCreateNewOutfit by outfitViewModel.isCreateNewOutfit.collectAsState()
     val isOutfitSaved by outfitViewModel.isOutfitSaved.collectAsState()
-    val currentOutfit by outfitViewModel.currentOutfit.collectAsState()
+    var showExitDialog by remember { mutableStateOf(false) } // Exit screen
 
     // Show calendar dialog
     var showCalendarDialog by remember { mutableStateOf(false) }
@@ -160,7 +160,7 @@ fun OutfitScreen(
         // Header
         OutfitScreenHeader(
             onGoBack = { navController.popBackStack() }, // Navigate back to Home Tab,
-            onExit = { /* Handle exit action */ },  // Discard Outfit Creation -- pop up
+            onExit = { showExitDialog = true },  // Discard Outfit Creation -- pop up
             title = "Create Your Outfit"
         )
 
@@ -197,11 +197,13 @@ fun OutfitScreen(
                         // Save Outfit button
                         Button(
                             onClick = {
-                                // Save the current outfit
-                                if (currentOutfit != null) {
-                                    outfitViewModel.createOutfit(selectedClothingItems)
-                                    outfitViewModel.saveOutfit(currentOutfit!!)
-                                }
+                                // Create the outfit
+                                outfitViewModel.createOutfit(selectedClothingItems)
+
+                                // Navigate to the OutfitSaveScreen
+                                navController.navigate(
+                                    Routes.OutfitSaveScreen
+                                )
                             },
                             modifier = Modifier.fillMaxWidth(),
                             enabled = selectedClothingItems.isNotEmpty()
@@ -246,19 +248,52 @@ fun OutfitScreen(
         )
     }
 
+    // Show Exit Dialog
+    if (showExitDialog) {
+        DiscardOutfitDialog(
+            onConfirm = {
+                showExitDialog = false
+                navController.navigate(Routes.HomeTab) // Navigate to Home Tab
+            },
+            onDismiss = { showExitDialog = false }
+        )
+    }
+
     // Show Outfit Saved Dialog
     if (isOutfitSaved) {
         OutfitSaved(
             navController = navController,
             onDismiss = {
-                navController.navigate("home") {
-                    popUpTo("home") { inclusive = true }
+                navController.navigate(Routes.HomeTab) {
+                    popUpTo(Routes.HomeTab) { inclusive = true }
                 }
             },
             viewModel = outfitViewModel
         )
     }
 
+}
+
+@Composable
+fun DiscardOutfitDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Cancel creating outfit") },
+        text = { Text("Are you sure you want to cancel the outfit?") },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text("Yes")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("No")
+            }
+        }
+    )
 }
 
 // show the items user selected to create an outfit
@@ -357,6 +392,7 @@ fun ClothingCategorySelection(onSelectCategory: (ClothingCategory) -> Unit) {
 // more than 1 items more the same category can be selected by the user
 @Composable
 fun CategoryItemsScreen(
+    navController: NavController,
     category: String,
     onDone: (List<ClothingItem>) -> Unit, // Callback to return selected items
     onBack: () -> Unit,
@@ -373,8 +409,8 @@ fun CategoryItemsScreen(
     ) {
         // Heading for the selected category
         OutfitScreenHeader(
-            onGoBack = onBack,
-            onExit = { /* Handle exit action */ },
+            onGoBack = {navController.popBackStack()},
+            onExit = {navController.navigate(Routes.HomeTab)},
             title = "Select $category"
         )
 
@@ -479,8 +515,7 @@ fun SelectClothingItem(
 fun OutfitScreenHeader(
     onGoBack: () -> Unit,
     onExit: () -> Unit,
-    title: String,
-    onDone: (() -> Unit)? = null // optional
+    title: String
 
 ) {
     // Go Back and Exit buttons

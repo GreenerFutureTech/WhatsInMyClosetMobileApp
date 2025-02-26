@@ -15,19 +15,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
+import org.greenthread.whatsinmycloset.app.Routes
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.repositories.OutfitRepository
 import org.greenthread.whatsinmycloset.core.viewmodels.OutfitViewModel
 
-
+// Save outfit to selected folder(s)
 @Composable
 fun OutfitSaveScreen(
     navController: NavController,
     onExit: () -> Unit,
     onDone: () -> Unit,
-    outfit: Outfit, // the outfit user wants to save
     /* this viewmodel handles the following:
+    currentOutfit
     creating new folders (updating the outfit repository)
     selectedFolder state
     selectedFolders state (when user wants to save outfit in more than 1 folder)
@@ -40,6 +41,9 @@ fun OutfitSaveScreen(
     val selectedFolder by viewModel.selectedFolder.collectAsState()
     val selectedFolders by viewModel.selectedFolders.collectAsState()
     val isPublic by viewModel.isPublic.collectAsState()
+
+    // retrieve the current outfit user wants to save
+    val currentOutfit by viewModel.currentOutfit.collectAsState()
 
     var showCreateFolderDialog by remember { mutableStateOf(false) }
     var showDiscardDialog by remember { mutableStateOf(false) }
@@ -68,7 +72,7 @@ fun OutfitSaveScreen(
             // Heading for the selected category
             OutfitScreenHeader(
                 onGoBack = { navController.popBackStack() },
-                onExit = { /* Handle exit action */ },
+                onExit = { showDiscardDialog = true },
                 title = "Save Your Outfit"
             )
 
@@ -130,9 +134,16 @@ fun OutfitSaveScreen(
 
             // Footer with Done button
             OutfitScreenFooter(
-                onDone = onDone,
-                isDoneEnabled = if (selectedFolders != null) selectedFolders.isNotEmpty()
-                else selectedFolder != null)
+                onDone = {
+                    // Get current outfit from the viewmodel
+                    // Save the current outfit
+                    currentOutfit?.let { outfit ->
+                        viewModel.saveOutfit(outfit)
+                    }
+                    onDone()
+                         },
+                    isDoneEnabled = selectedFolders.isNotEmpty() || selectedFolder != null
+            )
 
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -157,10 +168,11 @@ fun OutfitSaveScreen(
 
             // Show discard confirmation dialog when "x" is clicked
             if (showDiscardDialog) {
+
                 DiscardSavingDialog(
                     onConfirm = {
                         showDiscardDialog = false
-                        onExit() // Exit screen
+                        navController.navigate(Routes.HomeTab) // Navigate to Home Tab
                     },
                     onDismiss = { showDiscardDialog = false }
                 )
@@ -281,7 +293,7 @@ fun OutfitSaved(
             confirmButton = {
                 Button(onClick = {
                     showDialog = false // Close dialog
-                    onDismiss() // Go to ***Home Tab*** or another screen
+                    navController.navigate(Routes.HomeTab) // Navigate to Home
                 }) {
                     Text("OK")
                 }

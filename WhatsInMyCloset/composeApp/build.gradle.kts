@@ -114,6 +114,7 @@ dependencies {
     implementation(libs.core.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.identity.jvm)
+    implementation(libs.androidx.core.ktx)
     debugImplementation(compose.uiTooling)
 }
 

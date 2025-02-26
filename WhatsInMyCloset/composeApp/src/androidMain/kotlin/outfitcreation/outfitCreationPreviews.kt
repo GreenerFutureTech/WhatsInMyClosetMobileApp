@@ -5,7 +5,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Modifier
@@ -13,29 +12,14 @@ import org.greenthread.whatsinmycloset.features.tabs.home.OutfitScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.OutfitSaveScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.OutfitSaved
 import org.greenthread.whatsinmycloset.features.tabs.home.CreateNewOutfitFolder
-import org.greenthread.whatsinmycloset.core.repositories.OutfitRepository
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.mutableStateOf
-import androidx.navigation.NavController
-import org.greenthread.whatsinmycloset.core.domain.models.generateSampleClothingItems
 import org.greenthread.whatsinmycloset.features.tabs.home.CalendarDialog
 import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItemsScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.ConfirmationDialog
 import org.greenthread.whatsinmycloset.features.tabs.home.DiscardConfirmationDialog
 import org.greenthread.whatsinmycloset.features.tabs.home.DiscardSavingDialog
-import android.content.Context
-import androidx.compose.runtime.remember
-import androidx.navigation.NavHostController
-import androidx.navigation.NavOptions
-import androidx.navigation.Navigator
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.testing.TestNavHostController
-import androidx.test.core.app.ApplicationProvider
-import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
+import androidx.navigation.navArgument
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
-import org.greenthread.whatsinmycloset.core.domain.models.Outfit
-import org.greenthread.whatsinmycloset.core.domain.models.generateRandomClothingItems
-import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.MockClothingItemViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.MockOutfitViewModel
 
@@ -65,10 +49,12 @@ fun PreviewCategoryItemsScreen() {
         println("Navigating back")
     }
 
+    val mockNavController = rememberNavController()
     val mockViewModel = MockClothingItemViewModel()
 
     // Show all items in the selected category
     CategoryItemsScreen(
+        navController = mockNavController,
         category = "Tops",
         onDone = onDone,
         onBack = onBack,
@@ -102,33 +88,10 @@ fun OutfitSaveScreenPreview() {
     val mockNavController = rememberNavController()
     val mockViewModel = MockOutfitViewModel()
 
-    // Mock Outfit data
-    val mockOutfit = Outfit(
-        id = "outfit1",
-        name = "Summer Look",
-        itemIds = listOf(
-            ClothingItem(
-                id = "1",
-                name = "Blue Top",
-                category = ClothingCategory.TOPS,
-                clothingImage = null,
-                tags = setOf("casual", "summer")
-            ),
-            ClothingItem(
-                id = "2",
-                name = "Denim Jeans",
-                category = ClothingCategory.BOTTOMS,
-                clothingImage = null,
-                tags = setOf("casual", "summer")
-            ),
-        )
-    )
-
     OutfitSaveScreen(
         navController = mockNavController,
         onExit = onExit,
         onDone = onDone,
-        outfit = mockOutfit,
         viewModel = mockViewModel
     )
 }
@@ -137,28 +100,6 @@ fun OutfitSaveScreenPreview() {
 @Preview
 @Composable
 fun PreviewSingleFolderSelected() {
-
-    // Mock Outfit data
-    val mockOutfit = Outfit(
-        id = "outfit1",
-        name = "Summer Look",
-        itemIds = listOf(
-            ClothingItem(
-                id = "1",
-                name = "Blue Top",
-                category = ClothingCategory.TOPS,
-                clothingImage = null,
-                tags = setOf("casual", "summer")
-            ),
-            ClothingItem(
-                id = "2",
-                name = "Denim Jeans",
-                category = ClothingCategory.BOTTOMS,
-                clothingImage = null,
-                tags = setOf("casual", "summer")
-            ),
-        )
-    )
 
     val mockNavController = rememberNavController()
     val mockViewModel = MockOutfitViewModel(
@@ -170,7 +111,6 @@ fun PreviewSingleFolderSelected() {
         navController = mockNavController,
         onExit = {},
         onDone = {},
-        outfit = mockOutfit, // Provide mock outfit data
         viewModel = mockViewModel
     )
 
@@ -179,28 +119,6 @@ fun PreviewSingleFolderSelected() {
 @Preview
 @Composable
 fun PreviewPublicChecked() {
-
-    // Mock Outfit data
-    val mockOutfit = Outfit(
-        id = "outfit1",
-        name = "Summer Look",
-        itemIds = listOf(
-            ClothingItem(
-                id = "1",
-                name = "Blue Top",
-                category = ClothingCategory.TOPS,
-                clothingImage = null,
-                tags = setOf("casual", "summer")
-            ),
-            ClothingItem(
-                id = "2",
-                name = "Denim Jeans",
-                category = ClothingCategory.BOTTOMS,
-                clothingImage = null,
-                tags = setOf("casual", "summer")
-            ),
-        )
-    )
 
     val mockNavController = rememberNavController()
     val mockViewModel = MockOutfitViewModel(
@@ -212,7 +130,6 @@ fun PreviewPublicChecked() {
         navController = mockNavController,
         onExit = {},
         onDone = {},
-        outfit = mockOutfit, // Provide mock outfit data
         viewModel = mockViewModel
     )
 }
@@ -220,27 +137,6 @@ fun PreviewPublicChecked() {
 @Preview
 @Composable
 fun PreviewMultipleFoldersSelected() {
-    // Mock Outfit data
-    val mockOutfit = Outfit(
-        id = "outfit1",
-        name = "Summer Look",
-        itemIds = listOf(
-            ClothingItem(
-                id = "1",
-                name = "Blue Top",
-                category = ClothingCategory.TOPS,
-                clothingImage = null,
-                tags = setOf("casual", "summer")
-            ),
-            ClothingItem(
-                id = "2",
-                name = "Demin Jeans",
-                category = ClothingCategory.BOTTOMS,
-                clothingImage = null,
-                tags = setOf("casual", "summer")
-            ),
-        )
-    )
 
     val mockNavController = rememberNavController()
     val mockViewModel = MockOutfitViewModel(
@@ -252,7 +148,6 @@ fun PreviewMultipleFoldersSelected() {
         navController = mockNavController,
         onExit = {},
         onDone = {},
-        outfit = mockOutfit, // Provide mock outfit data
         viewModel = mockViewModel
     )
 }

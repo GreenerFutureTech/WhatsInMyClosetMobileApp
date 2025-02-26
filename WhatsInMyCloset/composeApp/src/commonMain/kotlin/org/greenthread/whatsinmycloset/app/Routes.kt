@@ -29,8 +29,8 @@ sealed interface Routes {
     data object CreateOutfitScreen : Routes
     @Serializable
     data class CategoryItemScreen(val category: String) : Routes
-    /*@Serializable
-    data class OutfitSaveScreen(val outfit: Outfit) : Routes*/
+    @Serializable
+    data object OutfitSaveScreen: Routes
 
     @Serializable
     data object ProfileTab : Routes
