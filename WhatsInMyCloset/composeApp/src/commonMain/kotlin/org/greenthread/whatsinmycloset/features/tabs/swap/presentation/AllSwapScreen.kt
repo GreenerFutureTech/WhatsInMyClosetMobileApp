@@ -58,6 +58,15 @@ fun AllSwapsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        Text(
+            text = "All",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(start = 8.dp)
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         if (state.getUserSwapResults.isEmpty()) {
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -65,7 +74,7 @@ fun AllSwapsScreen(
                 verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
             ) {
                 Text(
-                    text = "No Swap Item",
+                    text = "No items found",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color.Gray

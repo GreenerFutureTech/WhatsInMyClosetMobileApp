@@ -64,11 +64,14 @@ fun SwapScreenRoot(
                         onSwapClick(selectedItem)
                     }
                 }
+                is SwapAction.OnSearch -> {
+                    viewModel.fetchSearchResults(action.query)
+                }
                 else -> Unit
             }
-            viewModel.onAction(action)
+           // viewModel.onAction(action)
         },
-        onAllSwapClick = onAllSwapClick
+        onAllSwapClick = onAllSwapClick,
     )
 }
 
@@ -76,9 +79,18 @@ fun SwapScreenRoot(
 fun SwapScreen(
     state: SwapListState,
     onAction: (SwapAction) -> Unit,
-    onAllSwapClick: () -> Unit
+    onAllSwapClick: () -> Unit,
 ) {
     var searchString by remember { mutableStateOf("") }
+
+    val matchingSwaps = state.getOtherUserSwapResults.filter { swap ->
+        val query = searchString.lowercase()
+        swap.brand.lowercase().contains(query) ||
+                swap.itemId.itemType.lowercase().contains(query) ||
+                swap.itemId.tags.any { it.lowercase().contains(query) }
+    }
+
+    println("HOHOHO: ${matchingSwaps}")
 
     Column(
         modifier = Modifier
@@ -135,7 +147,7 @@ fun SwapScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
-                .height(80.dp)
+                .height(100.dp)
         ) {
             itemsIndexed(state.getUserSwapResults) { index, item ->
                 SwapImageCard(
@@ -165,8 +177,7 @@ fun SwapScreen(
                 searchString = searchString,
                 onSearchStringChange = { searchString = it },
                 onSearch = {
-                    // TODO : implement search feature
-                    println("Search button clicked!")
+                    onAction(SwapAction.OnSearch(searchString))
                 },
                 modifier = Modifier.fillMaxWidth()
             )
@@ -189,11 +200,13 @@ fun SwapScreen(
                 )
             }
         } else {
+            val displayedSwaps = if (searchString.isEmpty()) state.getOtherUserSwapResults else matchingSwaps
+
             LazyVerticalGrid(
                 columns = GridCells.Fixed(3),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                itemsIndexed(state.getOtherUserSwapResults) { index, item ->
+                itemsIndexed(displayedSwaps) { index, item ->
                     SwapOtherImageCard(
                         onSwapClick = {
                             onAction(SwapAction.OnSwapClick(item.itemId.id))
