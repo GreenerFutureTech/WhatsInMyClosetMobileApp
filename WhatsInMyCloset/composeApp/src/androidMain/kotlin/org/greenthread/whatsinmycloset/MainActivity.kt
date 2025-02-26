@@ -10,9 +10,9 @@ import org.greenthread.whatsinmycloset.app.App
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContent {
-            App()
+            val cameraManager = CameraManager(this)
+            App(cameraManager)
         }
     }
 }
@@ -20,5 +20,5 @@ class MainActivity : ComponentActivity() {
 @Preview
 @Composable
 fun AppAndroidPreview() {
-    App()
+    App(null)
 }

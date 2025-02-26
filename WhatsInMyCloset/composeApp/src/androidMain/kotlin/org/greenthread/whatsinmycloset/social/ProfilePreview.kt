@@ -1,4 +1,4 @@
-package org.greenthread.whatsinmycloset.features.tabs.profile
+package org.greenthread.whatsinmycloset.social
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -28,8 +28,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.greenthread.whatsinmycloset.core.domain.models.Account
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
@@ -38,15 +40,13 @@ import org.greenthread.whatsinmycloset.core.ui.components.listItems.LazyRowColou
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.generateRandomItems
 import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItem
 import org.greenthread.whatsinmycloset.features.tabs.home.SeeAllButton
-import org.greenthread.whatsinmycloset.getScreenWidthDp
 import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import whatsinmycloset.composeapp.generated.resources.Res
 import whatsinmycloset.composeapp.generated.resources.profileUser
 
 @Composable
-@Preview
-fun ProfileTab(onNavigate: (String) -> Unit) {
+@Preview(showSystemUi = true, showBackground = true)
+fun ProfileTab() {
     MaterialTheme {
         var showContent by remember { mutableStateOf(false) }
 
@@ -58,15 +58,21 @@ fun ProfileTab(onNavigate: (String) -> Unit) {
             val newLook =  Outfit("outfit${i}", "Look${i}", setOf("item1", "item2"))
             user.addOutfit(newLook)
         }
+
         val randomItems = generateRandomItems(user.getAllOutfits().size) // Generate 10 random items for the preview
-        val swapItems = generateRandomItems(10)
+        val swapItems = generateRandomItems(0)
 
-        Column(Modifier
-            .fillMaxWidth()
-            .padding(50.dp),
-            horizontalAlignment = Alignment.Start) {
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(50.dp),
+            horizontalAlignment = Alignment.Start
+        ) {
+            Row(
+                Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 // Profile Image
                 ProfilePicture()
 
@@ -96,7 +102,7 @@ fun ProfileTab(onNavigate: (String) -> Unit) {
 
             SwapTitle()
 
-            LazyRowColourBox(items = swapItems)
+            LazyRowColourBox(items = randomItems)
 
             MyOutfitsTitle()
 
@@ -106,44 +112,22 @@ fun ProfileTab(onNavigate: (String) -> Unit) {
 }
 
 @Composable
-fun ProfilePicture() {
-    // Set profile picture proportional to the phone screen size
-    val screenWidth = getScreenWidthDp()
-    var imageSize = screenWidth * 0.2f // Adjust the percentage as needed
-
-    Image(
-        painter = painterResource(resource = Res.drawable.profileUser),
-        contentDescription = "Profile Image",
+private fun SearchBar() {
+    TextField(
+        value = "SEARCH ...",
+        onValueChange = { },
         modifier = Modifier
-            .size(imageSize)
-            .clip(CircleShape)
-            .border(2.dp, MaterialTheme.colors.primary, CircleShape),
-        contentScale = ContentScale.Crop
-    )
-}
-
-@Composable
-fun Username(user: String) {
-    Text(
-        text = user,
-        style = MaterialTheme.typography.h5,
-        fontWeight = FontWeight.Bold
-    )
-}
-
-@Composable
-fun FriendsCount(friendsCount: Int) {
-    Text(
-        text = "$friendsCount friends",
-        style = MaterialTheme.typography.caption
-    )
-}
-
-@Composable
-fun SwapsCount(swapsCount: Int) {
-    Text(
-        text = "$swapsCount swaps",
-        style = MaterialTheme.typography.caption
+            .fillMaxWidth()
+            .padding(8.dp),
+        placeholder = { Text(text = "hint") },
+        singleLine = true,
+        keyboardOptions = KeyboardOptions.Default.copy(
+            imeAction = ImeAction.Search
+        ),
+        keyboardActions = KeyboardActions(
+            onSearch = {
+            }
+        ),
     )
 }
 
@@ -184,21 +168,43 @@ private fun SwapTitle() {
 }
 
 @Composable
-private fun SearchBar() {
-    TextField(
-        value = "SEARCH ...",
-        onValueChange = { },
+fun ProfilePicture() {
+    // Set profile picture proportional to the phone screen size
+    var screenWidth = LocalConfiguration.current.screenWidthDp.dp
+    var imageSize = screenWidth * 0.2f // Adjust the percentage as needed
+
+    Image(
+        painter = painterResource(resource = Res.drawable.profileUser),
+        contentDescription = "Profile Image",
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        placeholder = { Text(text = "hint") },
-        singleLine = true,
-        keyboardOptions = KeyboardOptions.Default.copy(
-            imeAction = ImeAction.Search
-        ),
-        keyboardActions = KeyboardActions(
-            onSearch = {
-            }
-        ),
+            .size(imageSize)
+            .clip(CircleShape)
+            .border(2.dp, MaterialTheme.colors.primary, CircleShape),
+        contentScale = ContentScale.Crop
+    )
+}
+
+@Composable
+fun Username(user: String) {
+    Text(
+        text = user,
+        style = MaterialTheme.typography.h5,
+        fontWeight = FontWeight.Bold
+    )
+}
+
+@Composable
+fun FriendsCount(friendsCount: Int) {
+    Text(
+        text = "$friendsCount friends",
+        style = MaterialTheme.typography.caption
+    )
+}
+
+@Composable
+fun SwapsCount(swapsCount: Int) {
+    Text(
+        text = "$swapsCount swaps",
+        style = MaterialTheme.typography.caption
     )
 }

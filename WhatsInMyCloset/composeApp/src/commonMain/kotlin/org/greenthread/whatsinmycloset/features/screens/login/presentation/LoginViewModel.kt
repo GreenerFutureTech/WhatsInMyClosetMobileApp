@@ -32,7 +32,7 @@ class LoginViewModel(): ViewModel() {
                 val result = auth.signInWithEmailAndPassword(email, password)
                 _state.value = state.copy(
                     isAuthenticated = true,
-                    currentUserId = result.user?.uid?: "",
+                    //currentUserId = result.user?.uid?: "",
                     isLoading = false
                 )
                 onLoginSuccess?.invoke()

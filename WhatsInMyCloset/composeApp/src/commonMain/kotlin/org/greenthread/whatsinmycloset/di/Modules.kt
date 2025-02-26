@@ -5,6 +5,7 @@ import org.greenthread.whatsinmycloset.core.network.KtorRemoteDataSource
 import org.greenthread.whatsinmycloset.core.network.RemoteSwapDataSource
 import org.greenthread.whatsinmycloset.core.repository.DefaultSwapRepository
 import org.greenthread.whatsinmycloset.core.repository.SwapRepository
+import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SelectedSwapViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.koin.core.module.Module
@@ -25,6 +26,7 @@ val sharedModule = module {
 
     viewModelOf(::SelectedSwapViewModel)
     viewModelOf(::SwapViewModel)
+    //viewModelOf(::LoginViewModel)
 
 }
 

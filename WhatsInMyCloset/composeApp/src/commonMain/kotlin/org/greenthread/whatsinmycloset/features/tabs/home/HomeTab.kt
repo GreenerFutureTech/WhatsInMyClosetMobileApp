@@ -43,13 +43,58 @@ fun HomeTabScreenRoot(
     navController: NavController,
     onWardrobeDetailsClick: (String) -> Unit = {},
     onCreateOutfitClick: () -> Unit = {},
+    onAddItemClick: () -> Unit
 ) {
     MaterialTheme {
         var showContent by remember { mutableStateOf(false) }
+
+        // Create a user profile
+        val user = Account("user123", "Test")
+
+        // Add some clothing items to the wardrobe
+        val redDress = ClothingItem("item1", "Red Dress",
+            ClothingCategory.TOPS, null, setOf("red", "fancy"))
+        val jeans = ClothingItem("item2", "Blue Jeans",
+            ClothingCategory.BOTTOMS, null, setOf("blue", "casual"))
+
+        val wardrobe = Wardrobe("Waterloo Wardrobe", "wardrobe1")
+        wardrobe.addItem(redDress)
+        wardrobe.addItem(jeans)
+
+        user.addWardrobe(wardrobe)
+
+        // Create an outfit
+        val summerLook = Outfit(
+            id = "outfit1",
+            name = "Summer Look",
+            itemIds = listOf(
+                ClothingItem(
+                    id = "1",
+                    name = "Blue Top",
+                    category = ClothingCategory.TOPS,
+                    clothingImage = null,
+                    tags = setOf("casual", "summer")
+                ),
+                ClothingItem(
+                    id = "2",
+                    name = "Denim Jeans",
+                    category = ClothingCategory.BOTTOMS,
+                    clothingImage = null,
+                    tags = setOf("casual", "summer")
+                ),
+            )
+        )
+        user.addOutfit(summerLook)
+
+        var wardrobeRepository = null
+        var favouriteOutfits = null
+        var outfitCalendarContents = null
+
         Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
             HomeTabScreen(
                 navController = navController,
-                onWardrobeDetailsClick = onWardrobeDetailsClick,
+                user,
+                onAddItemClick,
                 onCreateOutfitClick = onCreateOutfitClick
             )
         }
@@ -59,54 +104,31 @@ fun HomeTabScreenRoot(
 @Composable
 fun HomeTabScreen(
     navController: NavController,
-    viewModel: Any? = null,
-    onWardrobeDetailsClick: (String) -> Unit,
+    account: Account,
+    onAddItemClick: () -> Unit,
     onCreateOutfitClick: () -> Unit
 ){
-    // Create a user profile
-    val user = Account("user123", "Test")
+    val wardrobe = account.getWardrobe("wardrobe1")
+    Column {
+        WardrobeHeader(itemCount = wardrobe?.getAllItems()?.count() ?: 0)
+        CategoriesSection({})
 
-    // Add some clothing items to the wardrobe
-    val redDress = ClothingItem("item1", "Red Dress",
-        ClothingCategory.TOPS, null, setOf("red", "fancy"))
-    val jeans = ClothingItem("item2", "Blue Jeans",
-        ClothingCategory.BOTTOMS, null, setOf("blue", "casual"))
+        Text(
+            wardrobe?.name ?: "No wardrobe found!",
+            modifier = Modifier.align(Alignment.CenterHorizontally))
 
-    val wardrobe = Wardrobe("Waterloo Wardrobe", "wardrobe1")
-    wardrobe.addItem(redDress)
-    wardrobe.addItem(jeans)
+        Spacer(modifier = Modifier.height(25.dp))
 
-    user.addWardrobe(wardrobe)
+        FavouriteOutfitsRow()
 
+        val randomItems = generateRandomItems(account.getAllOutfits().size) // Generate 10 random items for the preview
+        LazyGridColourBox(items = randomItems)
 
-    // Create an outfit
-    val summerLook = Outfit(
-        id = "outfit1",
-        name = "Summer Look",
-        itemIds = listOf(
-            ClothingItem(
-                id = "1",
-                name = "Blue Top",
-                category = ClothingCategory.TOPS,
-                clothingImage = null,
-                tags = setOf("casual", "summer")
-            ),
-            ClothingItem(
-                id = "2",
-                name = "Denim Jeans",
-                category = ClothingCategory.BOTTOMS,
-                clothingImage = null,
-                tags = setOf("casual", "summer")
-            ),
-        )
-    )
-    user.addOutfit(summerLook)
+        BottomButtonsRow(navController, onAddItemClick)
+        //SeeAllButton(onClick = onSeeAllClicked)
+        //ActionButtonRow(outfit = outfitOfTheDay)
 
-
-    var wardrobeRepository = null
-    var favouriteOutfits = null
-    var outfitCalendarContents = null
-    WardrobeScreen(account = user, navController = navController)
+    }
 
     Button(
         onClick = onCreateOutfitClick,
@@ -131,7 +153,7 @@ fun WardrobeHeader(itemCount: Int) {
 }
 
 @Composable
-fun CategoriesSection() {
+fun CategoriesSection(onCategoryClick: (String) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -140,24 +162,29 @@ fun CategoriesSection() {
     ) {
         // Tops Category
         CategoryItem(
-            icon = Icons.Default.Home, // Icon for Tops
-            text = "Tops"
+            icon = Icons.Default.Home,
+            text = "Tops",
+            onClick = { onCategoryClick("Tops") }
         )
         // Bottoms Category
         CategoryItem(
-            icon = Icons.Default.Add, // Icon for Bottoms
-            text = "Bottoms"
+            icon = Icons.Default.Add,
+            text = "Bottoms",
+            onClick = { onCategoryClick("Bottoms") }
         )
         // Accessories Category
         CategoryItem(
-            icon = Icons.Default.PlayArrow, // Icon for Accessories
-            text = "Accessories"
+            icon = Icons.Default.PlayArrow,
+            text = "Accessories",
+            onClick = { onCategoryClick("Accessories") }
         )
     }
 }
 
 @Composable
-fun BottomButtonsRow(navController: NavController) {
+fun BottomButtonsRow(
+    navController: NavController,
+    launchAddItemScreen: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -177,12 +204,14 @@ fun BottomButtonsRow(navController: NavController) {
         // Bottoms Category
         CategoryItem(
             icon = null, // Icon for Bottoms
-            text = "Outfit of the Day"
+            text = "Outfit of the Day",
+            onClick = {  }
         )
         // Accessories Category
         CategoryItem(
             icon = Icons.Default.Add, // Icon for Accessories
-            text = "Add item to wardrobe"
+            text = "Add item to wardrobe",
+            onClick = { launchAddItemScreen() }
         )
     }
 }
@@ -220,8 +249,8 @@ fun SeeAllButton(onClick: () -> Unit) {
     Button(
         onClick = onClick,
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
+//            .fillMaxWidth()
+            .padding(4.dp)
     ) {
         Text(text = "See All")
     }
@@ -263,30 +292,5 @@ fun FavouriteOutfitsRow() {
         ) {
             Text(text = "See all")
         }
-    }
-}
-
-@Composable
-fun WardrobeScreen(account: Account, navController: NavController) {
-    val wardrobe = account.getWardrobe("wardrobe1")
-    Column {
-        WardrobeHeader(itemCount = wardrobe?.getAllItems()?.count() ?: 0)
-        CategoriesSection()
-
-        Text(
-            wardrobe?.name ?: "No wardrobe found!",
-            modifier = Modifier.align(Alignment.CenterHorizontally))
-
-        Spacer(modifier = Modifier.height(25.dp))
-
-        FavouriteOutfitsRow()
-
-        val randomItems = generateRandomItems(account.getAllOutfits().size) // Generate 10 random items for the preview
-        LazyGridColourBox(items = randomItems)
-
-        BottomButtonsRow(navController)
-        //SeeAllButton(onClick = onSeeAllClicked)
-        //ActionButtonRow(outfit = outfitOfTheDay)
-
     }
 }

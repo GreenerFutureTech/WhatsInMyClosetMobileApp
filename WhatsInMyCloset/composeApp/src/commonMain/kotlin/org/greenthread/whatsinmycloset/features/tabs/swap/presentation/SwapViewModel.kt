@@ -17,7 +17,9 @@ class SwapViewModel(
     private val _state = MutableStateFlow(SwapListState())
     val state =_state
         .onStart {
+            // NEED TO UPDATE : to current user id
             fetchSwapData("1")
+            fetchOtherSwapData("1")
         }
 
     fun onAction(action: SwapAction) {
@@ -27,6 +29,38 @@ class SwapViewModel(
             }
         }
     }
+
+    fun fetchAllSwapData() {
+        viewModelScope.launch {
+            println("FETCHALLSWAP : Fetching All Swap data")
+            _state.update {
+                it.copy(
+                    isLoading = true
+                )
+            }
+            swapRepository
+                .getAllSwaps()
+                .onSuccess { getResults ->
+                    println("FETCHALLSWAP API success: $getResults")
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            getAllSwapResults = getResults
+                        )
+                    }
+                }
+                .onError { error ->
+                    println("FETCHALLSWAP API ERROR ${error}")
+                    _state.update {
+                        it.copy(
+                            getAllSwapResults = emptyList(),
+                            isLoading = false
+                        )
+                    }
+                }
+        }
+    }
+
     fun fetchSwapData(userId: String) {
         viewModelScope.launch {
             println("FETCHSWAP : Fetching data for user: $userId")
@@ -42,7 +76,7 @@ class SwapViewModel(
                     _state.update {
                         it.copy(
                             isLoading = false,
-                            getResults = getResults
+                            getUserSwapResults = getResults
                         )
                     }
                 }
@@ -50,7 +84,38 @@ class SwapViewModel(
                     println("FETCHSWAP API ERROR ${error}")
                     _state.update {
                         it.copy(
-                            getResults = emptyList(),
+                            getUserSwapResults = emptyList(),
+                            isLoading = false
+                        )
+                    }
+                }
+        }
+    }
+
+    fun fetchOtherSwapData(userId: String) {
+        viewModelScope.launch {
+            println("FETCHOTHERSWAP : Fetching other users' swap data for user: $userId")
+            _state.update {
+                it.copy(
+                    isLoading = true
+                )
+            }
+            swapRepository
+                .getOtherUsersSwaps(userId)
+                .onSuccess { getResults ->
+                    println("FETCHOTHERSWAP API success: $getResults")
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            getOtherUserSwapResults = getResults
+                        )
+                    }
+                }
+                .onError { error ->
+                    println("FETCHOTHERSWAP API ERROR ${error}")
+                    _state.update {
+                        it.copy(
+                            getOtherUserSwapResults = emptyList(),
                             isLoading = false
                         )
                     }

@@ -110,9 +110,10 @@ fun LoginScreen(
                 }
             )
 
-            if (state.errorMessage != null) {
+            val errorMessage = state.errorMessage
+            if (errorMessage != null) {
                 Text(
-                    text = state.errorMessage,
+                    text = errorMessage,
                     fontSize = 12.sp,
                     color = Color.Red
                 )
@@ -129,16 +130,16 @@ fun LoginScreen(
             ) {
                 Text("Sign In")
             }
-//  FIX NEED!
-//            TextButton(
-//                modifier = Modifier.align(Alignment.CenterHorizontally),
-//               // onClick = { navController.navigate(Login.Signup.route) }
-//            ) {
-//                Text(
-//                    text = "Don't have an account? Sign Up",
-//                    fontSize = 12.sp
-//                )
-//            }
+
+            TextButton(
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                onClick = { navController.navigate(Routes.SignUpTab) }
+            ) {
+                Text(
+                    text = "Don't have an account? Sign Up",
+                    fontSize = 12.sp
+                )
+            }
         }
     }
 }
