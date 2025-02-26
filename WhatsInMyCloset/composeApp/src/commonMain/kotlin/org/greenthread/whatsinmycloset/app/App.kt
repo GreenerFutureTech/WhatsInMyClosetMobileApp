@@ -18,9 +18,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.createSavedStateHandle
+import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -36,7 +41,19 @@ import org.greenthread.whatsinmycloset.features.screens.login.presentation.Login
 import org.greenthread.whatsinmycloset.features.screens.signup.SignupScreen
 import org.greenthread.whatsinmycloset.features.screens.signup.SignupScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.home.AddItemScreen
+import androidx.navigation.navArgument
+import coil3.util.Logger
+import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
+import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
+import org.greenthread.whatsinmycloset.core.domain.models.Outfit
+import org.greenthread.whatsinmycloset.core.domain.models.generateSampleClothingItems
+import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
+import org.greenthread.whatsinmycloset.core.viewmodels.MockClothingItemViewModel
+import org.greenthread.whatsinmycloset.core.viewmodels.OutfitViewModel
+import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItemsScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.HomeTabScreenRoot
+import org.greenthread.whatsinmycloset.features.tabs.home.OutfitSaveScreen
+import org.greenthread.whatsinmycloset.features.tabs.home.OutfitScreen
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTab
 import org.greenthread.whatsinmycloset.features.tabs.social.SocialTab
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SelectedSwapViewModel
@@ -45,6 +62,7 @@ import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SwapScree
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
+import kotlin.reflect.KClass
 
 @Composable
 @Preview
@@ -74,11 +92,18 @@ fun App(cameraManager: CameraManager?) {
                 navigation<Routes.HomeGraph>(startDestination = Routes.HomeTab) {
                     composable<Routes.HomeTab> {
                         HomeTabScreenRoot(
+                            navController = navController,
                             onWardrobeDetailsClick = { homeTabAction ->
                                 navController.navigate(Routes.WardrobeItemsScreen(homeTabAction))
                             },
                             onAddItemClick = {
                                 navController.navigate(Routes.AddItemScreen)
+                            },
+                            onCreateOutfitClick =
+                            {
+                                if (navController.currentBackStackEntry != null) {
+                                    navController.navigate(Routes.CreateOutfitScreen)
+                                }
                             }
                         )
                     }
@@ -91,7 +116,92 @@ fun App(cameraManager: CameraManager?) {
                         Text("Made it to wardrobe items screen")
                         //WardrobeItemsScreen()
                     }
-                }
+
+                    // -- Create Outfit Screens Routes below -- //
+
+                    // add CreateOutfitScreen Route to separate composable in nav graph
+                    composable<Routes.CreateOutfitScreen> {
+                        val clothingItemViewModel: ClothingItemViewModel = viewModel()
+                        val outfitViewModel: OutfitViewModel = viewModel()
+
+                        // to test the Save Outfit, Add to Calendar and Create New Outfit buttons
+                        clothingItemViewModel.initializeClothingItems(
+                            listOf(
+                            ClothingItem(
+                                id = "1",
+                                name = "Blue Top",
+                                category = ClothingCategory.TOPS,
+                                clothingImage = null,
+                                tags = setOf("casual", "summer")
+                            ),
+                            ClothingItem(
+                                id = "2",
+                                name = "Denim Jeans",
+                                category = ClothingCategory.BOTTOMS,
+                                clothingImage = null,
+                                tags = setOf("casual", "summer")
+                            )))
+
+                        OutfitScreen(
+                            navController = navController,
+                            clothingItemViewModel = clothingItemViewModel,
+                            outfitViewModel = outfitViewModel,
+                        )
+                    }
+
+                    // open screen for category selected.
+                    // for example, if user selected "Bottom", open screen to show all Bottoms
+                    composable<Routes.CategoryItemScreen>
+                    { backStackEntry ->
+                        val category = backStackEntry.arguments?.getString("category") ?: ""
+
+                        println("Category: $category")  // Log the category string
+
+                        val categoryEnum = ClothingCategory.fromString(category)
+                        val viewModel: ClothingItemViewModel = viewModel()
+
+                        if (categoryEnum != null) {
+
+                            CategoryItemsScreen(
+                                navController = navController,
+                                category = categoryEnum.categoryName,
+                                onDone = { selectedItems ->
+                                    // Update the ViewModel with the selected items
+                                    viewModel.addClothingItems(selectedItems)
+                                    // Navigate back to the previous screen (OutfitScreen)
+                                    navController.popBackStack()
+                                },
+                                onBack = {
+                                    // Handle back navigation (e.g., without saving selected items)
+                                    navController.popBackStack()
+                                },
+                                viewModel = viewModel
+                            )
+                        } else {
+                            // Handle invalid category (e.g., show an error message)
+                            Text("Invalid category: $category")
+                        }
+                    }
+
+                    // Save Outfit Screen
+                    // -- opens repository screen
+                    // -- where user can see the outfit folders to save outfit in
+                    // -- or create a new folder
+                    composable<Routes.OutfitSaveScreen>
+                    {
+                        // Initialize the ViewModel with the outfit
+                        val outfitViewModel: OutfitViewModel = viewModel()
+
+                        OutfitSaveScreen(
+                            navController = navController,
+                            onExit = { },
+                            onDone = { },
+                            viewModel = outfitViewModel
+                        )
+                    }
+
+                }   // end of Home Graph
+
                 navigation<Routes.ProfileGraph>(startDestination = Routes.ProfileTab) {
                     composable<Routes.ProfileTab> {
                         ProfileTab { }

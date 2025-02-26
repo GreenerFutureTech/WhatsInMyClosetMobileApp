@@ -2,6 +2,8 @@ package org.greenthread.whatsinmycloset.app
 
 import kotlinx.serialization.Serializable
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
+import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
+import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 
 sealed interface Routes {
     @Serializable
@@ -21,6 +23,15 @@ sealed interface Routes {
     data object SignUpTab : Routes
     @Serializable
     data object HomeTab : Routes
+
+    // Routes for outfit creation screens
+    @Serializable
+    data object CreateOutfitScreen : Routes
+    @Serializable
+    data class CategoryItemScreen(val category: String) : Routes
+    @Serializable
+    data object OutfitSaveScreen: Routes
+
     @Serializable
     data object ProfileTab : Routes
     @Serializable

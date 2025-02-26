@@ -5,37 +5,26 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Modifier
-import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
-import org.greenthread.whatsinmycloset.features.tabs.home.OutfitComplete
 import org.greenthread.whatsinmycloset.features.tabs.home.OutfitScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.OutfitSaveScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.OutfitSaved
 import org.greenthread.whatsinmycloset.features.tabs.home.CreateNewOutfitFolder
-import org.greenthread.whatsinmycloset.core.repositories.OutfitRepository
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.mutableStateOf
 import org.greenthread.whatsinmycloset.features.tabs.home.CalendarDialog
 import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItemsScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.ConfirmationDialog
 import org.greenthread.whatsinmycloset.features.tabs.home.DiscardConfirmationDialog
 import org.greenthread.whatsinmycloset.features.tabs.home.DiscardSavingDialog
-
-fun generateSampleClothingItems(): List<ClothingItem>
-{
-    return listOf(
-        ClothingItem(id = "1", name = "Blue Jeans", mediaUrl = null, tags = listOf("Casual", "Bottom")),
-        ClothingItem(id = "2", name = "Red T-Shirt", mediaUrl = null, tags = listOf("Casual", "Top")),
-        ClothingItem(id = "3", name = "Black Sneakers", mediaUrl = null, tags = listOf("Casual", "Shoes"))
-
-    )
-}
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
+import org.greenthread.whatsinmycloset.core.viewmodels.MockClothingItemViewModel
+import org.greenthread.whatsinmycloset.core.viewmodels.MockOutfitViewModel
 
 
-@Preview(showSystemUi = true, showBackground = true)
+/*@Preview(showSystemUi = true, showBackground = true)
 @Composable
 fun PreviewOutfitScreen() {
     val onDone: () -> Unit = { /* Handle When User is Done Creating the Outfit */ }
@@ -46,67 +35,64 @@ fun PreviewOutfitScreen() {
         onDone = onDone,
         selectedClothingItems = sampleItems // dummy items
     )
-}
-
+}*/
 
 @Composable
-@Preview
+@Preview(showSystemUi = true, showBackground = true)
 fun PreviewCategoryItemsScreen() {
-    val onDone: () -> Unit = { /* Handle When User is Done Creating the Outfit */ }
+    val onDone: (List<ClothingItem>) -> Unit = { selectedItems ->
+        // Handle when user is done selecting items
+        println("Selected Items: $selectedItems")
+    }
+    val onBack: () -> Unit = {
+        // Handle back navigation
+        println("Navigating back")
+    }
 
-    val selectedItemIds = remember { mutableSetOf<String>() }
+    val mockNavController = rememberNavController()
+    val mockViewModel = MockClothingItemViewModel()
 
-    // Add sample items to selected list for testing if highlighting works
-    selectedItemIds.add("1") // Select the first "Jeans"
-    selectedItemIds.add("6") // Select the second "Jeans"
-    selectedItemIds.add("11") // Select the second "Jeans"
-
+    // Show all items in the selected category
     CategoryItemsScreen(
-        category = "Bottoms",
-        selectedItemIds = selectedItemIds,
-        onDone = onDone
+        navController = mockNavController,
+        category = "Tops",
+        onDone = onDone,
+        onBack = onBack,
+        viewModel = mockViewModel
     )
 }
 
 
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
-fun PreviewOutfitCreationDone() {
-    val onSave: () -> Unit = { /* Handle Saving Outfit */ }
-    val onCreateNew: () -> Unit = {/* When User wants to get out of the outfit creation screen*/}
+fun PreviewOutfitCreationScreen() {
 
-    val sampleItems = generateSampleClothingItems()
+    val mockNavController = rememberNavController()
+    val mockClothingViewModel = MockClothingItemViewModel()
+    val mockOutfitViewModel = MockOutfitViewModel()
 
-    OutfitComplete(
-        onSave = onSave,
-        onAddToCalendar = { _ -> },
-        onCreateNew = onCreateNew,
-        selectedClothingItems = sampleItems
+    OutfitScreen(
+        navController = mockNavController,  // for testing preview
+        clothingItemViewModel = mockClothingViewModel,
+        outfitViewModel = mockOutfitViewModel
+
     )
 }
 
 @Preview
 @Composable
 fun OutfitSaveScreenPreview() {
-    val onGoBack: () -> Unit = { /* Handle Go Back */ }
     val onExit: () -> Unit = { /* Handle Exiting to Home Page */ }
     val onDone: () -> Unit = { /* Handle When User is Done Saving the Outfit */ }
-    val onCreateNewFolder: (String) -> Unit = { /* Handle Creating New Folder */ }
-    val onSaveToFolder: (String, Boolean) -> Unit = { folderName, isPublic ->
-        /* Handle Saving Outfit to folderName with public flag */
-    }
 
-    // Initialize repository
-    val outfitRepository = remember { OutfitRepository() }
-
-    val sampleItems = generateSampleClothingItems()
+    val mockNavController = rememberNavController()
+    val mockViewModel = MockOutfitViewModel()
 
     OutfitSaveScreen(
+        navController = mockNavController,
         onExit = onExit,
-        selectedClothingItems = sampleItems,
-        onCreateNewFolder = onCreateNewFolder,
         onDone = onDone,
-        onSaveToFolder = onSaveToFolder
+        viewModel = mockViewModel
     )
 }
 
@@ -114,45 +100,55 @@ fun OutfitSaveScreenPreview() {
 @Preview
 @Composable
 fun PreviewSingleFolderSelected() {
-    val selectedFolder = remember { mutableStateOf("Business Casuals") }
+
+    val mockNavController = rememberNavController()
+    val mockViewModel = MockOutfitViewModel(
+        initialSelectedFolder = "Business Casuals", // Initialize with a selected folder
+        initialIsPublic = false
+    )
 
     OutfitSaveScreen(
+        navController = mockNavController,
         onExit = {},
         onDone = {},
-        selectedClothingItems = emptyList(),
-        onCreateNewFolder = {},
-        onSaveToFolder = { _, _ -> },
-        previewSelectedFolder = selectedFolder.value,
-        previewIsPublic = false
+        viewModel = mockViewModel
     )
+
 }
 
 @Preview
 @Composable
 fun PreviewPublicChecked() {
+
+    val mockNavController = rememberNavController()
+    val mockViewModel = MockOutfitViewModel(
+        initialSelectedFolders = listOf("Business Casuals", "My Public Outfits"), // Initialize with a selected folder
+        initialIsPublic = true
+    )
+
     OutfitSaveScreen(
+        navController = mockNavController,
         onExit = {},
         onDone = {},
-        selectedClothingItems = emptyList(),
-        onCreateNewFolder = {},
-        onSaveToFolder = { _, _ -> },
-        previewSelectedFolder = "My Public Outfits",
-        previewIsPublic = true
+        viewModel = mockViewModel
     )
 }
 
 @Preview
 @Composable
 fun PreviewMultipleFoldersSelected() {
-    val selectedFolders = remember { mutableStateListOf("Business Casuals", "Fancy") }
+
+    val mockNavController = rememberNavController()
+    val mockViewModel = MockOutfitViewModel(
+        initialSelectedFolders = listOf("Business Casuals", "Formals"), // Initialize with a selected folder
+        initialIsPublic = true
+    )
 
     OutfitSaveScreen(
+        navController = mockNavController,
         onExit = {},
         onDone = {},
-        selectedClothingItems = emptyList(),
-        onCreateNewFolder = {},
-        onSaveToFolder = { _, _ -> },
-        previewSelectedFolders = selectedFolders
+        viewModel = mockViewModel
     )
 }
 
@@ -160,12 +156,19 @@ fun PreviewMultipleFoldersSelected() {
 @Preview
 @Composable
 fun OutfitSavedPreview() {
+    val mockNavController = rememberNavController()
+    val mockViewModel = MockOutfitViewModel(
+        initialSelectedFolders = listOf("Business Casuals", "Formals"), // Initialize with a selected folder
+        initialIsPublic = true
+    )
+
     OutfitSaved(
-        folderNames = listOf("Business Casuals", "Fancy"), // Pass a list of folder names
-        isPublic = true, // Set whether the outfit is public or not
-        onDismiss = { println("Outfit saved in folder: Business Casuals") }
+        navController = mockNavController,
+        onDismiss = { println("Outfit saved in folder: Business Casuals") },
+        viewModel = mockViewModel
     )
 }
+
 @Preview
 @Composable
 fun DiscardSaveOutfitPreview() {
