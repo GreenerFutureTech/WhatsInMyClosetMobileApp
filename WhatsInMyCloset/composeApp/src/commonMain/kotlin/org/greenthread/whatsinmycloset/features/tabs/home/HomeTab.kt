@@ -193,8 +193,8 @@ fun SeeAllButton(onClick: () -> Unit) {
     Button(
         onClick = onClick,
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
+//            .fillMaxWidth()
+            .padding(4.dp)
     ) {
         Text(text = "See All")
     }
