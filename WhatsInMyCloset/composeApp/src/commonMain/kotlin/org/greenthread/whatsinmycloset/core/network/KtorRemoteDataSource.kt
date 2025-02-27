@@ -2,6 +2,10 @@ package org.greenthread.whatsinmycloset.core.network
 
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import org.greenthread.whatsinmycloset.core.data.safeCall
 import org.greenthread.whatsinmycloset.core.domain.DataError
 import org.greenthread.whatsinmycloset.core.domain.Result
@@ -15,7 +19,7 @@ private val BASE_URL = if (platform.name == "iOS") "http://127.0.0.1:13000" else
 
 class KtorRemoteDataSource(
     private val httpClient: HttpClient
-): RemoteSwapDataSource {
+): RemoteClosetDataSource {
 
     override suspend fun getSwaps(userId: String): Result<List<SwapDto>, DataError.Remote> {
         return safeCall {
@@ -40,6 +44,18 @@ class KtorRemoteDataSource(
             )
         }
     }
+
+    override suspend fun createUser(user: UserDto): Result<UserDto, DataError.Remote> {
+        return safeCall {
+            httpClient.post(
+                urlString = "$BASE_URL/users"
+            ) {
+                contentType(ContentType.Application.Json)
+                setBody(user)
+            }
+        }
+    }
+
 
 //    override suspend fun getUser(userEmail: String): Result<UserDto, DataError.Remote> {
 //        return safeCall {

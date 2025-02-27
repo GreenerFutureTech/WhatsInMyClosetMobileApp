@@ -26,9 +26,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
-import kotlinx.coroutines.selects.select
-import org.greenthread.whatsinmycloset.core.repository.SwapRepository
-import androidx.navigation.toRoute
 import org.greenthread.whatsinmycloset.CameraManager
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginScreen
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginScreenRoot
@@ -63,11 +60,11 @@ fun App(cameraManager: CameraManager?) {
             ) {
                 navigation<Routes.LoginGraph>(startDestination = Routes.LoginTab) {
                     composable<Routes.LoginTab> {
-                        val loginViewModel : LoginViewModel = LoginViewModel()
+                        val loginViewModel : LoginViewModel = koinViewModel()
                         LoginScreenRoot(loginViewModel, navController)
                     }
                     composable<Routes.SignUpTab> {
-                        val viewModel: LoginViewModel = LoginViewModel()
+                        val viewModel: LoginViewModel = koinViewModel()
                         SignupScreenRoot(viewModel, navController)
                     }
                 }

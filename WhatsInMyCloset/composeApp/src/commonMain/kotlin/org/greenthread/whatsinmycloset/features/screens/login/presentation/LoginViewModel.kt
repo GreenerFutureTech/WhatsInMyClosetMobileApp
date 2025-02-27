@@ -7,20 +7,32 @@ import androidx.lifecycle.viewModelScope
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.launch
+import org.greenthread.whatsinmycloset.core.domain.onError
+import org.greenthread.whatsinmycloset.core.domain.onSuccess
+import org.greenthread.whatsinmycloset.core.dto.UserDto
+import org.greenthread.whatsinmycloset.core.repository.ClosetRepository
 import org.greenthread.whatsinmycloset.features.screens.login.data.LoginState
 import org.greenthread.whatsinmycloset.features.screens.login.domain.LoginAction
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 
-class LoginViewModel(): ViewModel() {
+
+class LoginViewModel(
+    private val userRepository: ClosetRepository
+): ViewModel() {
     private val auth = Firebase.auth
     private val _state = mutableStateOf(LoginState())
     val state by _state
     var onLoginSuccess: (() -> Unit)? = null
     var onSignupSuccess: (() -> Unit)? = null
 
+    val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+
     fun onAction(action: LoginAction){
         when(action) {
             is LoginAction.SignIn -> signIn(action.email, action.password)
-            is LoginAction.SignUp -> signUp(action.email, action.password)
+            is LoginAction.SignUp -> signUp(action.email, action.password, action.username, action.name)
         }
     }
 
@@ -29,10 +41,10 @@ class LoginViewModel(): ViewModel() {
 
         viewModelScope.launch {
             try {
-                val result = auth.signInWithEmailAndPassword(email, password)
+                auth.signInWithEmailAndPassword(email, password)
+
                 _state.value = state.copy(
                     isAuthenticated = true,
-                    //currentUserId = result.user?.uid?: "",
                     isLoading = false
                 )
                 onLoginSuccess?.invoke()
@@ -45,15 +57,27 @@ class LoginViewModel(): ViewModel() {
         }
     }
 
-    private fun signUp(email: String, password: String) {
+    private fun signUp(email: String, password: String, username:String, name:String) {
         _state.value = state.copy(isLoading = true)
 
         viewModelScope.launch {
             try {
                 val result = auth.createUserWithEmailAndPassword(email, password)
+
+                val userDto = UserDto(
+                    username = username,
+                    email = email,
+                    name = name,
+                    profilePicture = "",
+                    registeredAt = now.toString(),
+                    updatedAt = now.toString(),
+                    lastLogin = now.toString(),
+                )
+
+                createUser(userDto)
+
                 _state.value = state.copy(
                     isAuthenticated = true,
-                    currentUserId = result.user?.uid?: "",
                 )
                 onSignupSuccess?.invoke()
             } catch (e: Exception) {
@@ -62,6 +86,31 @@ class LoginViewModel(): ViewModel() {
                     isLoading = false
                 )
             }
+        }
+    }
+
+    fun createUser(user: UserDto) {
+        viewModelScope.launch {
+            println("CREATE USER : Create user")
+            _state.value = state.copy(
+                isLoading = true
+            )
+            userRepository
+                .createUser(user)
+                .onSuccess { getResults ->
+                    println("CREATE USER  API success: $getResults")
+                    _state.value = state.copy(
+                            isLoading = false,
+                        //    getOtherUserSwapResults = getResults
+                    )
+                }
+                .onError { error ->
+                    println("CREATE USER  API ERROR ${error}")
+                    _state.value = state.copy(
+                        isLoading = false,
+                        //    getOtherUserSwapResults = emptlyList()
+                    )
+                }
         }
     }
 }

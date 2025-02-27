@@ -6,12 +6,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.*
 import org.greenthread.whatsinmycloset.core.domain.onError
 import org.greenthread.whatsinmycloset.core.domain.onSuccess
-import org.greenthread.whatsinmycloset.core.repository.SwapRepository
+import org.greenthread.whatsinmycloset.core.repository.ClosetRepository
 import org.greenthread.whatsinmycloset.features.tabs.swap.Action.SwapAction
 import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
 
 class SwapViewModel(
-    private val swapRepository: SwapRepository
+    private val swapRepository: ClosetRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(SwapListState())

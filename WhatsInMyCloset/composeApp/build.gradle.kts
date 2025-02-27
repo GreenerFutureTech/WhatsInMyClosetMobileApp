@@ -67,6 +67,7 @@ kotlin {
             implementation(libs.bundles.ktor)
             implementation(libs.bundles.coil)
             implementation(libs.firebase.auth)
+            implementation(libs.kotlinx.datetime)
 
         }
         nativeMain.dependencies {

@@ -79,6 +79,7 @@ fun SignupScreen(
     navController: NavController
 ) {
     var username by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
@@ -108,9 +109,17 @@ fun SignupScreen(
             Spacer(modifier = Modifier.height(20.dp))
 
             CustomTextField(
-                label = "Name",
+                label = "Username",
                 value = username,
                 onValueChange = { username = it },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions { focusManager.moveFocus(FocusDirection.Down) }
+            )
+
+            CustomTextField(
+                label = "Name",
+                value = name,
+                onValueChange = { name = it },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 keyboardActions = KeyboardActions { focusManager.moveFocus(FocusDirection.Down) }
             )
@@ -147,8 +156,9 @@ fun SignupScreen(
             FilledTonalButton(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
-                    onAction(LoginAction.SignUp(email, password))
+                    onAction(LoginAction.SignUp(email, password, username, name))
                     username = ""
+                    name = ""
                     email = ""
                     password = ""
                 },
