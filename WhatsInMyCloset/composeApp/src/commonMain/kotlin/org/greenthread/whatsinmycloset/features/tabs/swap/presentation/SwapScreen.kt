@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.Action.SwapAction
@@ -42,15 +43,17 @@ fun SwapScreenRoot(
         lifecycle = lifecycle
     )
 
+    val currentUser = UserManager.currentUser?:return
+
     LaunchedEffect(state) {
         if (state.getAllSwapResults.isEmpty()) {
             viewModel.fetchAllSwapData()
         }
         if (state.getUserSwapResults.isEmpty()) {
-            viewModel.fetchSwapData("1") // NEED TO UPDATE : current user id
+            viewModel.fetchSwapData(currentUser.id.toString())
         }
         if (state.getOtherUserSwapResults.isEmpty()) {
-            viewModel.fetchOtherSwapData("1") // NEED TO UPDATE : current user id
+            viewModel.fetchOtherSwapData(currentUser.id.toString())
         }
 
     }
@@ -86,8 +89,6 @@ fun SwapScreen(
                 swap.itemId.itemType.lowercase().contains(query) ||
                 swap.itemId.tags.any { it.lowercase().contains(query) }
     }
-
-    println("HOHOHO: ${matchingSwaps}")
 
     Column(
         modifier = Modifier
@@ -167,7 +168,7 @@ fun SwapScreen(
                 modifier = Modifier.height(30.dp),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                text = "Followers and Nearby Items"
+                text = "Friends Items"
             )
 
             SearchBar(

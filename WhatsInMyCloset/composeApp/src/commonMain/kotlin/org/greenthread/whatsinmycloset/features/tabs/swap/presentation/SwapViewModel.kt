@@ -4,22 +4,23 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.*
+import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.domain.onError
 import org.greenthread.whatsinmycloset.core.domain.onSuccess
-import org.greenthread.whatsinmycloset.core.repository.SwapRepository
+import org.greenthread.whatsinmycloset.core.repository.ClosetRepository
 import org.greenthread.whatsinmycloset.features.tabs.swap.Action.SwapAction
 import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
 
 class SwapViewModel(
-    private val swapRepository: SwapRepository
+    private val swapRepository: ClosetRepository
 ) : ViewModel() {
+    val currentUser = UserManager.currentUser
 
     private val _state = MutableStateFlow(SwapListState())
     val state =_state
         .onStart {
-            // NEED TO UPDATE : to current user id
-            fetchSwapData("1")
-            fetchOtherSwapData("1")
+            fetchSwapData(currentUser?.id.toString())
+            fetchOtherSwapData(currentUser?.id.toString())
         }
 
     fun onAction(action: SwapAction) {
