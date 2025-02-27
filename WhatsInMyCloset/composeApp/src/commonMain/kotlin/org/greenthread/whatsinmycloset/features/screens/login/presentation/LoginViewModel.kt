@@ -71,10 +71,10 @@ class LoginViewModel(
                     username = username,
                     email = email,
                     name = name,
-                    profilePicture = "",
+                    firebaseUid = result.user?.uid?:"",
                     registeredAt = now.toString(),
                     updatedAt = now.toString(),
-                    lastLogin = now.toString(),
+                    lastLogin = now.toString()
                 )
 
                 createUser(userDto)
