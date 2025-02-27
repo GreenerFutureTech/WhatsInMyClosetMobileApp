@@ -3,6 +3,7 @@ package org.greenthread.whatsinmycloset.core.network
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.post
+import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
@@ -20,7 +21,7 @@ private val BASE_URL = if (platform.name == "iOS") "http://127.0.0.1:13000" else
 class KtorRemoteDataSource(
     private val httpClient: HttpClient
 ): RemoteClosetDataSource {
-
+    //============================= Swap ==================================
     override suspend fun getSwaps(userId: String): Result<List<SwapDto>, DataError.Remote> {
         return safeCall {
             httpClient.get(
@@ -45,6 +46,7 @@ class KtorRemoteDataSource(
         }
     }
 
+    //============================= User ==================================
     override suspend fun createUser(user: UserDto): Result<UserDto, DataError.Remote> {
         return safeCall {
             httpClient.post(
@@ -56,12 +58,22 @@ class KtorRemoteDataSource(
         }
     }
 
+    override suspend fun getUser(userEmail: String): Result<UserDto, DataError.Remote> {
+        return safeCall {
+            httpClient.get(
+                urlString = "$BASE_URL/users/email/${userEmail}"
+            )
+        }
+    }
 
-//    override suspend fun getUser(userEmail: String): Result<UserDto, DataError.Remote> {
-//        return safeCall {
-//            httpClient.get(
-//                urlString = "$BASE_URL/user/$userEmail"
-//            )
-//        }
-//    }
+    override suspend fun updateUser(user: UserDto): Result<UserDto, DataError.Remote> {
+        return safeCall {
+            httpClient.put(
+                urlString = "$BASE_URL/users/${user.id}"
+            ) {
+                contentType(ContentType.Application.Json)
+                setBody(user)
+            }
+        }
+    }
 }

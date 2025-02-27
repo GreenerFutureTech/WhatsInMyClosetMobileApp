@@ -16,6 +16,7 @@ import org.greenthread.whatsinmycloset.features.screens.login.domain.LoginAction
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 
 
 class LoginViewModel(
@@ -26,8 +27,6 @@ class LoginViewModel(
     val state by _state
     var onLoginSuccess: (() -> Unit)? = null
     var onSignupSuccess: (() -> Unit)? = null
-
-    val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 
     fun onAction(action: LoginAction){
         when(action) {
@@ -41,7 +40,9 @@ class LoginViewModel(
 
         viewModelScope.launch {
             try {
-                auth.signInWithEmailAndPassword(email, password)
+                val result = auth.signInWithEmailAndPassword(email, password)
+
+                getUser(email)
 
                 _state.value = state.copy(
                     isAuthenticated = true,
@@ -58,6 +59,8 @@ class LoginViewModel(
     }
 
     private fun signUp(email: String, password: String, username:String, name:String) {
+        val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+
         _state.value = state.copy(isLoading = true)
 
         viewModelScope.launch {
@@ -101,14 +104,66 @@ class LoginViewModel(
                     println("CREATE USER  API success: $getResults")
                     _state.value = state.copy(
                             isLoading = false,
-                        //    getOtherUserSwapResults = getResults
                     )
                 }
                 .onError { error ->
                     println("CREATE USER  API ERROR ${error}")
                     _state.value = state.copy(
                         isLoading = false,
-                        //    getOtherUserSwapResults = emptlyList()
+                    )
+                }
+        }
+    }
+
+    fun getUser(email: String) {
+        viewModelScope.launch {
+            println("GET USER : Get user")
+            _state.value = state.copy(
+                isLoading = true
+            )
+            userRepository
+                .getUser(email)
+                .onSuccess { user ->
+                    println("GET USER ${user.id} SUCCESS")
+
+                    UserManager.currentUser = user
+
+                    val updatedUser = user.copy(
+                        lastLogin = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).toString()
+                    )
+                    updateUser(updatedUser)
+
+                    _state.value = state.copy(
+                        isLoading = false,
+                    )
+                }
+                .onError { error ->
+                    println("GET USER API ERROR ${error}")
+                    _state.value = state.copy(
+                        isLoading = false,
+                    )
+                }
+        }
+    }
+
+    fun updateUser(user: UserDto) {
+        viewModelScope.launch {
+            println("UPDATE USER : Updated user ${user.id}")
+            _state.value = state.copy(
+                isLoading = true
+            )
+            userRepository
+                .updateUser(user)
+                .onSuccess { getResults ->
+                    println("UPDATE USER  API SUCCESS: $getResults")
+                    _state.value = state.copy(
+                        isLoading = false,
+                    )
+                }
+                .onError { error ->
+                    println("UPDATE USER  API ERROR ${error}")
+                    _state.value = state.copy(
+                        isLoading = false,
                     )
                 }
         }

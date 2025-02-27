@@ -7,26 +7,32 @@ import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.dto.UserDto
 
 class DefaultClosetRepository(
-    private val remoteSwapDataSource: RemoteClosetDataSource
+    private val remoteClosetDataSource: RemoteClosetDataSource
 ): ClosetRepository {
+    //============================= Swap ==================================
     override suspend fun getSwaps(userId: String): Result<List<SwapDto>, DataError.Remote> {
-        return remoteSwapDataSource.getSwaps(userId)
+        return remoteClosetDataSource.getSwaps(userId)
     }
 
     override suspend fun getOtherUsersSwaps(currentUserId: String): Result<List<SwapDto>, DataError.Remote> {
-        return remoteSwapDataSource.getOtherUsersSwaps(currentUserId)
+        return remoteClosetDataSource.getOtherUsersSwaps(currentUserId)
     }
 
     override suspend fun getAllSwaps(): Result<List<SwapDto>, DataError.Remote> {
-        return remoteSwapDataSource.getAllSwaps()
+        return remoteClosetDataSource.getAllSwaps()
     }
 
+    //============================= User ==================================
     override suspend fun createUser(user: UserDto): Result<UserDto, DataError.Remote> {
-        return remoteSwapDataSource.createUser(user)
+        return remoteClosetDataSource.createUser(user)
     }
 
-//    override suspend fun getUser(userEmail: String): Result<UserDto, DataError.Remote> {
-//       return remoteSwapDataSource.getUser(userEmail)
-//    }
+    override suspend fun getUser(userEmail: String): Result<UserDto, DataError.Remote> {
+       return remoteClosetDataSource.getUser(userEmail)
+    }
+
+    override suspend fun updateUser(user: UserDto): Result<UserDto, DataError.Remote> {
+        return remoteClosetDataSource.updateUser(user)
+    }
 }
 
