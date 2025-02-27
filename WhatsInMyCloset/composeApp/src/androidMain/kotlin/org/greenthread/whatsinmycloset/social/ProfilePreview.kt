@@ -34,7 +34,9 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.greenthread.whatsinmycloset.core.domain.models.Account
+import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
+import org.greenthread.whatsinmycloset.core.domain.models.generateSampleClothingItems
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.LazyGridColourBox
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.LazyRowColourBox
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.generateRandomItems
@@ -54,10 +56,17 @@ fun ProfileTab() {
         val user = Account("user123", "Test")
 
         // Generate outfits
-        for (i in 0 until 10) {
-            val newLook =  Outfit("outfit${i}", "Look${i}", setOf("item1", "item2"))
-            user.addOutfit(newLook)
+        val numberOfOutfits = 10
+        val outfits = List(numberOfOutfits) { i ->
+            Outfit(
+                id = "outfit$i",
+                name = "Look$i",
+                itemIds = generateSampleClothingItems()
+            )
         }
+
+        // Add generated outfits to the user
+        outfits.forEach { user.addOutfit(it) }
 
         val randomItems = generateRandomItems(user.getAllOutfits().size) // Generate 10 random items for the preview
         val swapItems = generateRandomItems(0)
