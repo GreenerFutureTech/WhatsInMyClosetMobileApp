@@ -1,5 +1,7 @@
 package org.greenthread.whatsinmycloset.features.tabs.swap.presentation
 
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -147,6 +149,18 @@ fun SwapScreen(
                 .padding(8.dp)
                 .height(100.dp)
         ) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .size(80.dp)
+                        .border(1.dp, Color.Transparent)
+                        .clickable { println("Add Swap Clicked!") },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("+", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                }
+                Spacer(modifier = Modifier.width(10.dp))
+            }
             itemsIndexed(state.getUserSwapResults) { index, item ->
                 SwapImageCard(
                     onSwapClick = {
