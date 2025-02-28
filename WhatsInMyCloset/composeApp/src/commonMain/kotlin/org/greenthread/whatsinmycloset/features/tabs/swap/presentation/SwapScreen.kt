@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MailOutline
@@ -28,6 +29,7 @@ import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.Action.SwapAction
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
+import org.greenthread.whatsinmycloset.core.dto.UserDto
 import org.greenthread.whatsinmycloset.core.ui.components.controls.SearchBar
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.SwapImageCard
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.SwapOtherImageCard
@@ -74,6 +76,7 @@ fun SwapScreenRoot(
            // viewModel.onAction(action)
         },
         onAllSwapClick = onAllSwapClick,
+        user = currentUser
     )
 }
 
@@ -82,6 +85,7 @@ fun SwapScreen(
     state: SwapListState,
     onAction: (SwapAction) -> Unit,
     onAllSwapClick: () -> Unit,
+    user: UserDto
 ) {
     var searchString by remember { mutableStateOf("") }
 
@@ -112,8 +116,8 @@ fun SwapScreen(
             Icon(
                 imageVector = Icons.Default.MailOutline,
                 contentDescription = "Messages",
-                modifier = Modifier.size(48.dp),
-                tint = MaterialTheme.colors.primary
+                modifier = Modifier.size(40.dp),
+                tint = Color.Black
             )
         }
 
@@ -147,19 +151,25 @@ fun SwapScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
-                .height(100.dp)
+                .height(120.dp)
         ) {
             item {
                 Box(
                     modifier = Modifier
-                        .size(80.dp)
-                        .border(1.dp, Color.Transparent)
-                        .clickable { println("Add Swap Clicked!") },
+                        .padding(8.dp)
+                        .width(80.dp)
+                        .height(95.dp)
+                        .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
+                        .clickable { println("Add button clicked") },
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("+", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                    Text(
+                        "+",
+                        fontSize = 30.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.LightGray
+                    )
                 }
-                Spacer(modifier = Modifier.width(10.dp))
             }
             itemsIndexed(state.getUserSwapResults) { index, item ->
                 SwapImageCard(
