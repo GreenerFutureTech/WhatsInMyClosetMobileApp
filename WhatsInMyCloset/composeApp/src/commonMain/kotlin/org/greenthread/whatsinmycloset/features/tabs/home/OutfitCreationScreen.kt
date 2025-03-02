@@ -300,8 +300,29 @@ fun DiscardOutfitDialog(
 @Composable
 fun OutfitCollageArea(selectedClothingItems: List<ClothingItem>) {
     // To track the position of each item
-    val itemPositions = remember { mutableStateListOf<OffsetData>() }
-    //selectedClothingItems: List<ClothingItem>
+    // Initialize itemPositions with the same size as selectedClothingItems
+    val itemPositions = remember {
+        mutableStateListOf<OffsetData>().apply {
+            // Calculate initial positions to avoid overlap
+            selectedClothingItems.forEachIndexed { index, _ ->
+                val x = 100f + (index * 200f) // Spacing of 120f between items on the x-axis
+                val y = 100f + (index * 100f) // Same y-coordinate for all items
+                add(OffsetData(x, y))
+            }
+        }
+    }
+
+    // Use LaunchedEffect to dynamically update itemPositions when selectedClothingItems changes
+    LaunchedEffect(selectedClothingItems.size) {
+        while (itemPositions.size < selectedClothingItems.size) {
+            val x = 100f + (itemPositions.size * 120f) // Spacing of 120f between items on the x-axis
+            val y = 100f // Same y-coordinate for all items (or adjust as needed)
+            itemPositions.add(OffsetData(x, y))
+        }
+        while (itemPositions.size > selectedClothingItems.size) {
+            itemPositions.removeAt(itemPositions.size - 1) // Remove extra positions
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -322,7 +343,6 @@ fun OutfitCollageArea(selectedClothingItems: List<ClothingItem>) {
                 )
             }
         }
-
     }
 }
 
@@ -332,7 +352,8 @@ fun DraggableClothingItem(
     itemIndex: Int,
     itemPositions: MutableList<OffsetData>
 ) {
-    val position = remember { mutableStateOf(OffsetData(100f, 100f)) }
+    // Use the position from itemPositions
+    val position = remember { mutableStateOf(itemPositions[itemIndex]) }
 
     Box(
         modifier = Modifier
@@ -340,8 +361,10 @@ fun DraggableClothingItem(
             .pointerInput(Unit) {
                 detectDragGestures { _, dragAmount ->
                     // Update the position based on the drag gesture
-                    position.value = OffsetData(position.value.x + dragAmount.x, position.value.y + dragAmount.y)
-                    itemPositions[itemIndex] = position.value
+                    val newX = position.value.x + dragAmount.x
+                    val newY = position.value.y + dragAmount.y
+                    position.value = OffsetData(newX, newY)
+                    itemPositions[itemIndex] = position.value // Update the shared state
                 }
             }
             .size(100.dp) // Define the size of the clothing item
