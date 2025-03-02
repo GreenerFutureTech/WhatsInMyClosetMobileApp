@@ -29,7 +29,6 @@ val sharedModule = module {
     viewModelOf(::SwapViewModel)
     viewModelOf(::LoginViewModel)
 
-    viewModelOf(::OutfitViewModel)
     viewModelOf(::ClothingItemViewModel)
 
 }

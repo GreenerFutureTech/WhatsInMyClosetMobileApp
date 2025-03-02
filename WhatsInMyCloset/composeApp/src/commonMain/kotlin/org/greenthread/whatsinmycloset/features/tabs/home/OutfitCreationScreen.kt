@@ -536,13 +536,6 @@ fun CategoryItemDetailScreen(
         return
     }
 
-    // Heading for the selected category
-    OutfitScreenHeader(
-        onGoBack = {navController.popBackStack()},
-        onExit = {navController.navigate(Routes.HomeTab)},
-        title = selectedItem!!.name
-    )
-
     // Display the item details
     Column(
         modifier = Modifier
@@ -551,31 +544,43 @@ fun CategoryItemDetailScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        // Display the clothing item image
-        /*selectedItem?.clothingImage?.let { imageResId ->
+        // Heading for the selected category
+        OutfitScreenHeader(
+            onGoBack = {navController.popBackStack()},
+            onExit = {navController.navigate(Routes.HomeTab)},
+            title = selectedItem!!.name
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        Box(
+            modifier = Modifier
+                .size(300.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .border(2.dp, Color.Black, RoundedCornerShape(12.dp))
+                .padding(2.dp)
+        ) {
+            // Display the clothing item image
+            //selectedItem?.clothingImage?.let { imageResId ->
             Image(
-                painter = painterResource(id = imageResId),
-                contentDescription = selectedItem!!.name,
+                painter = painterResource(Res.drawable.top1), // Using dynamic resource
+                contentDescription = selectedItem.name,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp)
-                    .clip(RoundedCornerShape(8.dp))
+                    .fillMaxSize()
+                    .fillMaxHeight()
+                    .align(Alignment.Center) // Use Alignment.Center to center the image
             )
-        }*/
+            //}
+        }
 
-        // Display the clothing item name
-        Text(
-            text = selectedItem!!.name,
-            modifier = Modifier.padding(top = 16.dp),
-            fontSize = 20.sp,
-            color = Color.Black
-        )
+        Spacer(modifier = Modifier.height(4.dp))
 
         // Display the clothing item category
         Text(
             text = "Category: ${selectedItem!!.category}",
             modifier = Modifier.padding(top = 8.dp),
-            fontSize = 16.sp,
+            fontSize = 20.sp,
             color = Color.Gray
         )
 
@@ -584,17 +589,9 @@ fun CategoryItemDetailScreen(
             Text(
                 text = "Tags: ${selectedItem!!.tags?.joinToString(", ")}",
                 modifier = Modifier.padding(top = 8.dp),
-                fontSize = 16.sp,
+                fontSize = 20.sp,
                 color = Color.Gray
             )
-        }
-
-        // Back button
-        Button(
-            onClick = onBack,
-            modifier = Modifier.padding(top = 16.dp)
-        ) {
-            Text("Back")
         }
     }
 }
