@@ -377,6 +377,10 @@ fun CategoryItemsScreen(
         Button(
             onClick = {
                 isSelectionMode.value = !isSelectionMode.value
+                if (!isSelectionMode.value) {
+                    // Reset selection when leaving selection mode
+                    selectedItemIds.value.clear()
+                }
             },
             modifier = if (isSelectionMode.value) {
                 Modifier.background(color = buttonBackgroundColor) // Highlight the button when selection mode is ON
@@ -384,7 +388,8 @@ fun CategoryItemsScreen(
                 Modifier // Default modifier when selection mode is OFF
             }
         ) {
-            Text("Select Item(s)")
+            Text("Select Item(s) ${selectedItemIds.value.size}")
+
         }
 
         Box(
@@ -404,14 +409,13 @@ fun CategoryItemsScreen(
                         isSelectionMode = isSelectionMode.value,
 
                         onItemSelected = { selectedItem ->
-                            // Toggle selection based on ID
-                            if (selectedItemIds.value.contains(selectedItem.id)) {
-                                selectedItemIds.value.remove(selectedItem.id)
+                            val updatedSelection = selectedItemIds.value.toMutableSet()
+                            if (updatedSelection.contains(selectedItem.id)) {
+                                updatedSelection.remove(selectedItem.id)
                             } else {
-                                selectedItemIds.value.add(selectedItem.id)
+                                updatedSelection.add(selectedItem.id)
                             }
-                            // Update state to trigger recomposition
-                            selectedItemIds.value = selectedItemIds.value.toMutableSet()
+                            selectedItemIds.value = updatedSelection
                         },
 
                         onItemClicked = { clickedItem ->
@@ -428,7 +432,7 @@ fun CategoryItemsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Footer with Done button
+        // Done button shows up when user selects 1 or more items to add to canvas
         if (isSelectionMode.value) {
             OutfitScreenFooter(
                 onDone = {
@@ -443,6 +447,7 @@ fun CategoryItemsScreen(
     }
 }
 
+// this function displays all items in the selected category on screen
 @Composable
 fun CategoryItem(
     item: ClothingItem,
@@ -451,13 +456,16 @@ fun CategoryItem(
     onItemSelected: (ClothingItem) -> Unit, // For selection mode
     onItemClicked: (ClothingItem) -> Unit // For detail mode
 ) {
-    // Border color based on selection status
-    val borderColor = if (isSelected) Color.Red else Color.Transparent
+
+    // Log the isSelected state for debugging
+    println("CategoryItem: ${item.name}, isSelected: $isSelected")
+
 
     Box(
         modifier = Modifier
             .padding(4.dp)
-            .border(2.dp, borderColor, shape = RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(8.dp))
+            .border(2.dp, if (isSelected) Color.Green else Color.Transparent, RoundedCornerShape(8.dp))
             .clickable {
                 if (isSelectionMode) {
                     onItemSelected(item) // Handle selection
@@ -484,14 +492,6 @@ fun CategoryItem(
                     .fillMaxWidth()
                     .height(100.dp)
                     .clip(RoundedCornerShape(8.dp))
-            )
-
-            // Display the clothing item name
-            Text(
-                text = item.name,
-                modifier = Modifier.padding(top = 8.dp),
-                fontSize = 14.sp,
-                color = Color.Black
             )
         }
     }
