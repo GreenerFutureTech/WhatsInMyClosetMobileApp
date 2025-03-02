@@ -21,7 +21,7 @@ data class ClothingItem(
     val name: String, // Name of the item (e.g., "Red Dress")
     val category: ClothingCategory, // Category the item belongs to
     // Image of the clothing item from resources folder -- Stores drawables resource ID
-    val clothingImage: Unit? = null,
+    val clothingImage: Int? = null, // Stores drawable resource ID (for testing)
     val tags: Set<String>? = null // Tags for characteristics (e.g., "red", "fancy", "rainy")
 )
 
