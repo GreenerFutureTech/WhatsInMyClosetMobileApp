@@ -27,7 +27,7 @@ sealed interface Routes {
 
     // Routes for outfit creation screens
     @Serializable
-    data object CreateOutfitScreen : Routes
+    data object CreateOutfitScreen: Routes
     @Serializable
     data class CategoryItemScreen(
         val category: String) : Routes    // shows all items in that category, for example "Tops"

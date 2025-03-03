@@ -164,16 +164,8 @@ fun App(cameraManager: CameraManager?) {
                             CategoryItemsScreen(
                                 navController = navController,
                                 category = categoryEnum.categoryName,
-                                onDone = { selectedItems ->
-                                    // Update the ViewModel with the selected items
-                                    sharedClothingItemViewModel.addClothingItems(selectedItems)
-                                    // Navigate back to the previous screen (OutfitScreen)
-                                    navController.popBackStack()
-                                },
-                                onBack = {
-                                    // Handle back navigation (e.g., without saving selected items)
-                                    navController.popBackStack()
-                                },
+                                onBack = { navController.popBackStack() },
+                                onDone = {Routes.CreateOutfitScreen },
                                 viewModel = sharedClothingItemViewModel
                             )
                         } else {

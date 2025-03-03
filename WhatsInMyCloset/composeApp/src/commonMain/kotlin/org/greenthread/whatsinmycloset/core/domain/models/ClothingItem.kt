@@ -15,6 +15,19 @@ enum class ClothingCategory(val categoryName: String) {
     }
 }
 
+/*
+* @Serializable
+data class ClothingItem(
+    val id: String = "",
+    val name: String, // Name of the item (e.g., "Red Dress")
+    val wardrobeId: String = "",
+    val itemType: String = "",
+    val mediaUrl: String? = "",
+    val tags: List<String> = listOf(""),
+    val createdAt: String = ""
+)
+* */
+
 @Serializable
 data class ClothingItem(
     val id: String, // Unique identifier for the item

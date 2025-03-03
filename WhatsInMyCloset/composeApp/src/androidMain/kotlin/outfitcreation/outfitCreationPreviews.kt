@@ -40,9 +40,9 @@ fun PreviewOutfitScreen() {
 @Composable
 @Preview(showSystemUi = true, showBackground = true)
 fun PreviewCategoryItemsScreen() {
-    val onDone: (List<ClothingItem>) -> Unit = { selectedItems ->
+    val onDone: () -> Unit = {
         // Handle when user is done selecting items
-        println("Selected Items: $selectedItems")
+        println("Going back to outfit screen")
     }
     val onBack: () -> Unit = {
         // Handle back navigation
@@ -56,8 +56,8 @@ fun PreviewCategoryItemsScreen() {
     CategoryItemsScreen(
         navController = mockNavController,
         category = "Tops",
-        onDone = onDone,
         onBack = onBack,
+        onDone = onDone,
         viewModel = mockViewModel
     )
 }
