@@ -444,7 +444,7 @@ fun CategoryItemsScreen(
                 items(categoryItems.size)
                 { thisItem ->
                     val item = categoryItems[thisItem]
-                    val itemKey = item.id to item.category
+                    val itemKey = item.id to item.itemType
 
                     CategoryItem(
                         item = item,
@@ -459,7 +459,7 @@ fun CategoryItemsScreen(
                         onItemClicked = { clickedItem ->
                             navController.navigate(
                                 Routes.CategoryItemDetailScreen(
-                                    clickedItem.id, clickedItem.category.toString()
+                                    clickedItem.id, clickedItem.itemType.toString()
                                 )
                             )
                         }
@@ -476,7 +476,7 @@ fun CategoryItemsScreen(
                 onDone = {
                     // Update the ViewModel with the selected items
                     val selectedItems = categoryItems.filter {
-                        selectedItemKeys.contains(it.id to it.category)
+                        selectedItemKeys.contains(it.id to it.itemType)
                     }
 
                     viewModel.addSelectedItems(selectedItems) // Add selected items to the ViewModel
@@ -523,7 +523,7 @@ fun CategoryItem(
         ) {
             // Display the clothing item image
             Image(
-                painter = when (item.category) {
+                painter = when (item.itemType) {
                     ClothingCategory.TOPS -> painterResource(Res.drawable.top1)
                     ClothingCategory.BOTTOMS -> painterResource(Res.drawable.top1)
                     ClothingCategory.FOOTWEAR -> painterResource(Res.drawable.top1)
@@ -617,7 +617,7 @@ fun CategoryItemDetailScreen(
 
         // Display the clothing item category
         Text(
-            text = "Category: ${selectedItem!!.category}",
+            text = "Category: ${selectedItem!!.itemType}",
             modifier = Modifier.padding(top = 8.dp),
             fontSize = 20.sp,
             color = Color.Gray

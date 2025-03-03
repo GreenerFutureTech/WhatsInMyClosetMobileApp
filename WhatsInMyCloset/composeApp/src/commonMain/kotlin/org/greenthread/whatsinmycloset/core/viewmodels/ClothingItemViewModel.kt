@@ -29,7 +29,7 @@ open class ClothingItemViewModel : ViewModel() {
     val selectedItems: StateFlow<List<ClothingItem>> = _selectedItems.asStateFlow()
 
     fun addSelectedItems(items: List<ClothingItem>) {
-        _selectedItems.value = (_selectedItems.value + items).distinctBy { it.id to it.category }
+        _selectedItems.value = (_selectedItems.value + items).distinctBy { it.id to it.itemType }
     }
 
     fun addClothingItems(items: List<ClothingItem>) {
@@ -53,7 +53,7 @@ open class ClothingItemViewModel : ViewModel() {
         println("DEBUG, Current items: ${_clothingItems.value}")
 
         // get the item from the all the items shown on screen
-        return _clothingItems.value.find { it.id == itemId && it.category == category }
+        return _clothingItems.value.find { it.id == itemId && it.itemType == category }
     }
 
     private val _categoryItems = MutableStateFlow<List<ClothingItem>>(emptyList())
@@ -69,7 +69,7 @@ open class ClothingItemViewModel : ViewModel() {
             clothingItems.collectLatest { items ->
                 // Perform filtering
                 val filteredItems = items.filter {
-                    val itemCategory = it.category.toString().trim().lowercase()
+                    val itemCategory = it.itemType.toString().trim().lowercase()
                     println("DEBUG: itemCategory = '$itemCategory' with search = '$category'")
                     itemCategory == category.trim().lowercase()
                 }
