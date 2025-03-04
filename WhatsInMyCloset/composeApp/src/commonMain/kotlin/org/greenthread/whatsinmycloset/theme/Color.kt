@@ -2,31 +2,46 @@ package org.greenthread.whatsinmycloset.theme
 
 import androidx.compose.ui.graphics.Color
 
-val md_theme_light_primary = Color(0xFF6B5C4D)
+// Primary colours
+// Prominent UI elements: app bars, buttons
+// onPrimary and onPrimaryContainer: text and item's colour
+val md_theme_light_primary = Color(0xFF008A7C) //0f6566 2ADCDF 83EBEC A8C09B #009688
 val md_theme_light_onPrimary = Color(0xFFFFFFFF)
-val md_theme_light_primaryContainer = Color(0xFFF4DFCD)
-val md_theme_light_onPrimaryContainer = Color(0xFF241A0E)
-val md_theme_light_secondary = Color(0xFF635D59)
+val md_theme_light_primaryContainer = Color(0xFFCCE0DE) // 66C6BA 99FFF5 99C2BE C1ECE7 CCE0DE
+val md_theme_light_onPrimaryContainer = Color(0xFF00201C)
+
+// Secondary colours
+// Secondary buttons, chips and less prominent UI elements
+val md_theme_light_secondary = Color(0xFF4A635E) //7F9590
 val md_theme_light_onSecondary = Color(0xFFFFFFFF)
-val md_theme_light_secondaryContainer = Color(0xFFEAE1DB)
-val md_theme_light_onSecondaryContainer = Color(0xFF1F1B17)
-val md_theme_light_tertiary = Color(0xFF5E5F58)
+val md_theme_light_secondaryContainer = Color(0xFFCCE8E2)
+val md_theme_light_onSecondaryContainer = Color(0xFF06201C)
+
+// Tertiary colours
+val md_theme_light_tertiary = Color(0xFF456179) //456179 7C93A9
 val md_theme_light_onTertiary = Color(0xFFFFFFFF)
-val md_theme_light_tertiaryContainer = Color(0xFFE3E3DA)
-val md_theme_light_onTertiaryContainer = Color(0xFF1B1C17)
+val md_theme_light_tertiaryContainer = Color(0xFFCBE6FF)
+val md_theme_light_onTertiaryContainer = Color(0xFF001E31)
+
+// Error colours
 val md_theme_light_error = Color(0xFFBA1A1A)
 val md_theme_light_errorContainer = Color(0xFFFFDAD6)
 val md_theme_light_onError = Color(0xFFFFFFFF)
 val md_theme_light_onErrorContainer = Color(0xFF410002)
-val md_theme_light_background = Color(0xFFF5F0EE)
-val md_theme_light_onBackground = Color(0xFF1D1B1A)
-val md_theme_light_surface = Color(0xFFFFFBFF)
-val md_theme_light_onSurface = Color(0xFF1D1B1A)
-val md_theme_light_surfaceVariant = Color(0xFFE7E1DE)
-val md_theme_light_onSurfaceVariant = Color(0xFF494644)
-val md_theme_light_outline = Color(0xFF7A7674)
-val md_theme_light_inverseOnSurface = Color(0xFFF5F0EE)
 
+// Background and Surface colours
+val md_theme_light_background = Color(0xFFF8F6F2) //#EFDFCC FFF1E5D7 F4FBF8 FCF3EE
+val md_theme_light_onBackground = Color(0xFF161D1B)
+val md_theme_light_surface = Color(0xFFF0F0F0) //FFFBFF
+val md_theme_light_onSurface = Color(0xFF161D1B)
+val md_theme_light_surfaceVariant = Color(0xFFDAE5E1) //#D4C2AD
+val md_theme_light_onSurfaceVariant = Color(0xFF3F4946)
+
+// Outline and Inverse colours
+val md_theme_light_outline = Color(0xFF6F7976)
+val md_theme_light_inverseOnSurface = Color(0xFFECF2EF)
+
+// TODO update the dark theme colours
 val md_theme_dark_primary = Color(0xFFD7C3B1)
 val md_theme_dark_onPrimary = Color(0xFF3A2E22)
 val md_theme_dark_primaryContainer = Color(0xFF524437)
