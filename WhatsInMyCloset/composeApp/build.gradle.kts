@@ -67,6 +67,7 @@ kotlin {
             implementation(libs.bundles.ktor)
             implementation(libs.bundles.coil)
             implementation(libs.firebase.auth)
+            implementation(libs.kotlinx.datetime)
 
             implementation(libs.kotlinx.datetime)
             implementation(libs.image.loader) // KMP image loader
@@ -94,6 +95,7 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "META-INF/versions/9/OSGI-INF/MANIFEST.MF"
         }
     }
     buildTypes {
@@ -111,6 +113,13 @@ dependencies {
     implementation(libs.firebase.auth.ktx)
     implementation(libs.androidx.material3.android)
     implementation(libs.androidx.ui.graphics.android)
+    implementation(libs.androidx.ui.android)
+    implementation(libs.androidx.media3.common.ktx)
+    implementation(libs.androidx.navigation.testing)
+    implementation(libs.core.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.identity.jvm)
+    implementation(libs.androidx.core.ktx)
     debugImplementation(compose.uiTooling)
 }
 

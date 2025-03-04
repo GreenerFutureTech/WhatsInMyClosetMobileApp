@@ -16,12 +16,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
+import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import whatsinmycloset.composeapp.generated.resources.Res
 
 @Composable
-fun SwapDetailScreen(swap: SwapDto?, onBackClick: () -> Unit) = swap?.let {
+fun SwapDetailScreen(
+    swap: SwapDto?,
+    onBackClick: () -> Unit
+) = swap?.let {
+    val currentUser = UserManager.currentUser?:return
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Start
@@ -118,7 +124,7 @@ fun SwapDetailScreen(swap: SwapDto?, onBackClick: () -> Unit) = swap?.let {
 
                 Spacer(modifier = Modifier.height(30.dp))
 
-                if (swap.userId != 1) { // NEED TO UPDATE: 1 -> current userid
+                if (swap.userId != currentUser.id) {
                     Button(
                         onClick = { /* TODO: Implement Swap Request action */ },
                         modifier = Modifier

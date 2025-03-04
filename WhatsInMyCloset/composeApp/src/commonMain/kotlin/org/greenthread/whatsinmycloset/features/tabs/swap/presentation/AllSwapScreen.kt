@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.SwapImageCard
 import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
@@ -32,6 +33,8 @@ fun AllSwapsScreen(
     viewModel: SwapViewModel = koinViewModel(),
     onSwapClick: (SwapDto) -> Unit,
     ) {
+    val currentUser = UserManager.currentUser?:return
+
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val state by viewModel.state.collectAsStateWithLifecycle(
         initialValue = SwapListState(),
@@ -40,7 +43,7 @@ fun AllSwapsScreen(
 
     LaunchedEffect(Unit) {
         if (state.getUserSwapResults.isEmpty()) {
-            viewModel.fetchSwapData("1") // NEED TO UPDATE : current user id
+            viewModel.fetchSwapData(currentUser.id.toString())
         }
     }
 
