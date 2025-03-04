@@ -1,8 +1,6 @@
 package org.greenthread.whatsinmycloset.app
 
 import AllSwapsScreen
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
@@ -15,7 +13,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -26,19 +23,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
-import kotlinx.coroutines.selects.select
-import org.greenthread.whatsinmycloset.core.repository.SwapRepository
-import androidx.navigation.toRoute
 import org.greenthread.whatsinmycloset.CameraManager
-import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginScreen
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginScreenRoot
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginViewModel
-import org.greenthread.whatsinmycloset.features.screens.signup.SignupScreen
 import org.greenthread.whatsinmycloset.features.screens.signup.SignupScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.home.AddItemScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.HomeTabScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTab
-import org.greenthread.whatsinmycloset.features.tabs.social.SocialTab
+import org.greenthread.whatsinmycloset.features.tabs.social.SocialTabScreen
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SelectedSwapViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SwapDetailScreen
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SwapScreenRoot
@@ -142,7 +134,7 @@ fun App(cameraManager: CameraManager?) {
                 }
                 navigation<Routes.SocialGraph>(startDestination = Routes.SocialTab) {
                     composable<Routes.SocialTab> {
-                        SocialTab { }
+                        SocialTabScreen { }
                     }
                     composable<Routes.SocialDetailsScreen> {
                         //SocialDetailsScreen()
