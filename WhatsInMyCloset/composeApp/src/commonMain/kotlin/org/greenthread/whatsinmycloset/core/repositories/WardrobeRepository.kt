@@ -11,7 +11,7 @@ class WardrobeRepository(private val db: MyClosetDatabase) {
 
     suspend fun insertWardrobeWithItems(wardrobe: WardrobeEntity, items: List<ItemEntity>) {
 /*        db. {
-            db.wardrobeDao().insert(wardrobe)
+            db.wardrobeDao().insert(wardrobe) test
             items.forEach { db.itemDao().insert(it) }
         }*/
         wardrobeDao.insert(wardrobe)
