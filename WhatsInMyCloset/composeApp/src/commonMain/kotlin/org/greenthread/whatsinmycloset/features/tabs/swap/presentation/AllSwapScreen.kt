@@ -25,6 +25,7 @@ import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.SwapImageCard
 import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
+import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -33,7 +34,7 @@ fun AllSwapsScreen(
     viewModel: SwapViewModel = koinViewModel(),
     onSwapClick: (SwapDto) -> Unit,
     ) {
-    val currentUser = UserManager.currentUser?:return
+    val currentUser = UserManager.currentUser ?: return
 
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val state by viewModel.state.collectAsStateWithLifecycle(
@@ -41,59 +42,61 @@ fun AllSwapsScreen(
         lifecycle = lifecycle
     )
 
-    LaunchedEffect(Unit) {
-        if (state.getUserSwapResults.isEmpty()) {
-            viewModel.fetchSwapData(currentUser.id.toString())
-        }
-    }
-
-    Column(
-        modifier = Modifier.fillMaxSize().padding(10.dp)
-    ) {
-
-        TextButton(onClick = { navController.popBackStack() }) {
-            Text(
-                text = "Back",
-                fontSize = 15.sp,
-                color = Color.Blue
-            )
+    WhatsInMyClosetTheme {
+        LaunchedEffect(Unit) {
+            if (state.getUserSwapResults.isEmpty()) {
+                viewModel.fetchSwapData(currentUser.id.toString())
+            }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Column(
+            modifier = Modifier.fillMaxSize().padding(10.dp)
+        ) {
 
-        Text(
-            text = "All",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(start = 8.dp)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        if (state.getUserSwapResults.isEmpty()) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
-                verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
-            ) {
+            TextButton(onClick = { navController.popBackStack() }) {
                 Text(
-                    text = "No items found",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color.Gray
+                    text = "Back",
+                    fontSize = 15.sp,
+                    color = Color.Blue
                 )
             }
-        } else {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(3),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                itemsIndexed(state.getUserSwapResults) { _, item ->
-                    SwapImageCard(
-                        onSwapClick = {
-                            onSwapClick(item)
-                        }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "All",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.padding(start = 8.dp)
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (state.getUserSwapResults.isEmpty()) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
+                    verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
+                ) {
+                    Text(
+                        text = "No items found",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Gray
                     )
+                }
+            } else {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    itemsIndexed(state.getUserSwapResults) { _, item ->
+                        SwapImageCard(
+                            onSwapClick = {
+                                onSwapClick(item)
+                            }
+                        )
+                    }
                 }
             }
         }

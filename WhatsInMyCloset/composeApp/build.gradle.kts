@@ -69,6 +69,8 @@ kotlin {
             implementation(libs.firebase.auth)
             implementation(libs.kotlinx.datetime)
 
+            implementation(libs.kotlinx.datetime)
+            implementation(libs.image.loader) // KMP image loader
         }
         nativeMain.dependencies {
             implementation(libs.ktor.client.darwin)

@@ -35,6 +35,7 @@ import org.greenthread.whatsinmycloset.core.domain.models.generateSampleClothing
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.LazyGridColourBox
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.generateRandomItems
 import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
+import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
@@ -45,17 +46,17 @@ fun HomeTabScreenRoot(
     onCreateOutfitClick: () -> Unit = {},
     onAddItemClick: () -> Unit
 ) {
-    MaterialTheme {
+    WhatsInMyClosetTheme {
         var showContent by remember { mutableStateOf(false) }
 
         // Create a user profile
         val user = Account("user123", "Test")
 
         // Add some clothing items to the wardrobe
-        val redDress = ClothingItem("item1", "Red Dress",
-            ClothingCategory.TOPS, null, setOf("red", "fancy"))
-        val jeans = ClothingItem("item2", "Blue Jeans",
-            ClothingCategory.BOTTOMS, null, setOf("blue", "casual"))
+        val redDress = ClothingItem("item1", "Red Dress", "HomeWardrobe",
+            ClothingCategory.TOPS, null, listOf("red", "fancy"))
+        val jeans = ClothingItem("item2", "Blue Jeans", "HomeWardrobe",
+            ClothingCategory.BOTTOMS, null, listOf("blue", "casual"))
 
         val wardrobe = Wardrobe("Waterloo Wardrobe", "wardrobe1")
         wardrobe.addItem(redDress)
@@ -71,16 +72,16 @@ fun HomeTabScreenRoot(
                 ClothingItem(
                     id = "1",
                     name = "Blue Top",
-                    category = ClothingCategory.TOPS,
-                    clothingImage = null,
-                    tags = setOf("casual", "summer")
+                    itemType = ClothingCategory.TOPS,
+                    mediaUrl = null,
+                    tags = listOf("casual", "summer")
                 ),
                 ClothingItem(
                     id = "2",
                     name = "Denim Jeans",
-                    category = ClothingCategory.BOTTOMS,
-                    clothingImage = null,
-                    tags = setOf("casual", "summer")
+                    itemType = ClothingCategory.BOTTOMS,
+                    mediaUrl = null,
+                    tags = listOf("casual", "summer")
                 ),
             )
         )

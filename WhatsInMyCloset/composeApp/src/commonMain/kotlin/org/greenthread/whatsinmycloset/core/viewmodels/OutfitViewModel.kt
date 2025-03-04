@@ -111,6 +111,9 @@ open class OutfitViewModel
         outfitRepository.addFolder(folderName)
     }
 
+    // ADD OUTFIT COORDINATES - SO HOWEVER USER SAVES THE OUTFIT,
+    // THE NEXT TIME USER WANTS TO VIEW THE OUTFIT
+    // IT CAN SAME COORDINATES
     // Save the outfit and update isOutfitSaved state
     open fun saveOutfit(outfit: Outfit) {
         // Save the outfit to the repository or database

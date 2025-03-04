@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
+import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import whatsinmycloset.composeapp.generated.resources.Res
 
@@ -28,115 +29,119 @@ fun SwapDetailScreen(
 ) = swap?.let {
     val currentUser = UserManager.currentUser?:return
 
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Start
-    ) {
-        TextButton(
-            onClick = onBackClick,
-            modifier = Modifier.padding(8.dp)
+    WhatsInMyClosetTheme {
+
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Start
         ) {
-            Text(text = "Back")
+            TextButton(
+                onClick = onBackClick,
+                modifier = Modifier.padding(8.dp)
+            ) {
+                Text(text = "Back")
+            }
         }
-    }
 
-    Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
 
-    Box(
-        modifier = Modifier
-            .padding(20.dp)
-            .fillMaxSize()
-
-    ) {
-        Column(
+        Box(
             modifier = Modifier
-                .width(300.dp)
-                .align(Alignment.Center)
+                .padding(20.dp)
+                .fillMaxSize()
+
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start
-            ) {
-                @OptIn(ExperimentalResourceApi::class) // TEMP for /drawble image
-                AsyncImage(
-                    model = Res.getUri("drawable/defaultUser.png"), // NEED TO UPDATE : UserProfileUrl
-                    contentDescription = "User Image",
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .border(1.dp, Color.Gray, CircleShape)
-                        .padding(2.dp)
-                )
-
-                Spacer(modifier = Modifier.width(10.dp))
-
-                Text(
-                    text = "user${swap.userId}",
-                    fontSize = 25.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-
-            Spacer(modifier = Modifier.height(50.dp))
-
-            Box(
-                modifier = Modifier
-                    .size(300.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .border(2.dp, Color.Black, RoundedCornerShape(12.dp))
-                    .padding(2.dp)
-                    .align(Alignment.CenterHorizontally),
-            ) {
-                @OptIn(ExperimentalResourceApi::class) // TEMP for /drawble image
-                AsyncImage(
-                    model = Res.getUri("drawable/default.png"),
-                    contentDescription = "Swap Image",
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
-
             Column(
                 modifier = Modifier
-                    .padding(8.dp)
+                    .width(300.dp)
+                    .align(Alignment.Center)
             ) {
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    text = swap.brand,
-                    fontSize = 30.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                Text(
-                    text = "Size: ${swap.size}",
-                    fontSize = 20.sp
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                Text(
-                    text = "Condition: ${swap.condition}",
-                    fontSize = 20.sp
-                )
-
-                Spacer(modifier = Modifier.height(30.dp))
-
-                if (swap.userId != currentUser.id) {
-                    Button(
-                        onClick = { /* TODO: Implement Swap Request action */ },
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    @OptIn(ExperimentalResourceApi::class) // TEMP for /drawble image
+                    AsyncImage(
+                        model = Res.getUri("drawable/defaultUser.png"), // NEED TO UPDATE : UserProfileUrl
+                        contentDescription = "User Image",
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp)
-                            .height(50.dp)
-                    ) {
-                        Text(
-                            text = "Swap Request",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .border(1.dp, Color.Gray, CircleShape)
+                            .padding(2.dp)
+                    )
+
+                    Spacer(modifier = Modifier.width(10.dp))
+
+                    Text(
+                        text = "user${swap.userId}",
+                        fontSize = 25.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(50.dp))
+
+                Box(
+                    modifier = Modifier
+                        .size(300.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .border(2.dp, Color.Black, RoundedCornerShape(12.dp))
+                        .padding(2.dp)
+                        .align(Alignment.CenterHorizontally),
+                ) {
+                    @OptIn(ExperimentalResourceApi::class) // TEMP for /drawble image
+                    AsyncImage(
+                        model = Res.getUri("drawable/default.png"),
+                        contentDescription = "Swap Image",
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+
+                Column(
+                    modifier = Modifier
+                        .padding(8.dp)
+                ) {
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = swap.brand,
+                        fontSize = 30.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        text = "Size: ${swap.size}",
+                        fontSize = 20.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        text = "Condition: ${swap.condition}",
+                        fontSize = 20.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(30.dp))
+
+                    if (swap.userId != currentUser.id) {
+                        Button(
+                            onClick = { /* TODO: Implement Swap Request action */ },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 20.dp)
+                                .height(50.dp)
+                        ) {
+                            Text(
+                                text = "Swap Request",
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
                     }
                 }
             }

@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.ktor.client.network.sockets.ConnectTimeoutException
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
@@ -33,6 +34,7 @@ import org.greenthread.whatsinmycloset.core.dto.UserDto
 import org.greenthread.whatsinmycloset.core.ui.components.controls.SearchBar
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.SwapImageCard
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.SwapOtherImageCard
+import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -47,26 +49,33 @@ fun SwapScreenRoot(
         lifecycle = lifecycle
     )
 
-    val currentUser = UserManager.currentUser?:return
+    val currentUser = UserManager.currentUser
 
-    LaunchedEffect(state) {
-        if (state.getAllSwapResults.isEmpty()) {
-            viewModel.fetchAllSwapData()
-        }
-        if (state.getUserSwapResults.isEmpty()) {
-            viewModel.fetchSwapData(currentUser.id.toString())
-        }
-        if (state.getOtherUserSwapResults.isEmpty()) {
-            viewModel.fetchOtherSwapData(currentUser.id.toString())
+    WhatsInMyClosetTheme {
+        LaunchedEffect(state) {
+            try {
+                if (state.getAllSwapResults.isEmpty()) {
+                    viewModel.fetchAllSwapData()
+                }
+                if (state.getUserSwapResults.isEmpty()) {
+                    viewModel.fetchSwapData(currentUser?.id.toString())
+                }
+                if (state.getOtherUserSwapResults.isEmpty()) {
+                    viewModel.fetchOtherSwapData(currentUser?.id.toString())
+                }
+            } catch (e: ConnectTimeoutException) {
+                println("Connection timeout occurred (could not hit backend?): ${e.message}")
+            } catch (e: Exception) {
+                println("An error occurred: ${e.message}")
+            }
         }
 
-    }
-    SwapScreen(
-        state = state,
-        onAction = { action ->
-            when (action) {
-                is SwapAction.OnSwapClick -> {
-                    val selectedItem = state.getAllSwapResults.find { it.itemId.id == action.itemId }
+        SwapScreen(
+            state = state,
+            onAction = { action ->
+                when (action) {
+                    is SwapAction.OnSwapClick -> {
+                        val selectedItem = state.getAllSwapResults.find { it.itemId.id == action.itemId }
                     if (selectedItem != null) {
                         onSwapClick(selectedItem)
                     }
@@ -78,6 +87,7 @@ fun SwapScreenRoot(
         onAllSwapClick = onAllSwapClick,
         user = currentUser
     )
+    }
 }
 
 @Composable

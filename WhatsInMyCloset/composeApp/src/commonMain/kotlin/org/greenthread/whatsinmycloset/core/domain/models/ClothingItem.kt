@@ -17,12 +17,13 @@ enum class ClothingCategory(val categoryName: String) {
 
 @Serializable
 data class ClothingItem(
-    val id: String, // Unique identifier for the item
+    val id: String = "",
     val name: String, // Name of the item (e.g., "Red Dress")
-    val category: ClothingCategory, // Category the item belongs to
-    // Image of the clothing item from resources folder -- Stores drawables resource ID
-    val clothingImage: Unit? = null,
-    val tags: Set<String>? = null // Tags for characteristics (e.g., "red", "fancy", "rainy")
+    val wardrobeId: String = "",
+    val itemType: ClothingCategory,
+    val mediaUrl: String? = "",
+    val tags: List<String> = listOf(""),
+    val createdAt: String = ""
 )
 
 // Function to give dummy set of clothing to create a test outfit
@@ -31,27 +32,27 @@ fun generateSampleClothingItems(): List<ClothingItem> {
         ClothingItem(
             id = "1",
             name = "TOPS",
-            category = ClothingCategory.TOPS,
-            clothingImage = null
+            itemType = ClothingCategory.TOPS,
+            mediaUrl = null
         ),
         ClothingItem(
             id = "2",
             name = "BOTTOMS",
-            category = ClothingCategory.BOTTOMS,
-            clothingImage = null
+            itemType = ClothingCategory.BOTTOMS,
+            mediaUrl = null
         ),
         ClothingItem(
             id = "3",
             name = "FOOTWEAR",
-            category = ClothingCategory.FOOTWEAR,
-            clothingImage = null
+            itemType = ClothingCategory.FOOTWEAR,
+            mediaUrl = null
         ),
         ClothingItem(
             id = "4",
             name = "ACCESSORIES",
-            category = ClothingCategory.ACCESSORIES,
-            clothingImage = null,
-            tags = setOf("fashionable", "accessory")
+            itemType = ClothingCategory.ACCESSORIES,
+            mediaUrl = null,
+            tags = listOf("fashionable", "accessory")
         )
     )
 }
@@ -84,9 +85,8 @@ fun generateRandomClothingItems(category: String, numberOfItems: Int): List<Clot
         ClothingItem(
             id = itemId,
             name = itemName,
-            category = clothingCategory,
-            clothingImage = null, // Store null as placeholder
-            tags = tags
+            itemType = clothingCategory,
+            mediaUrl = null
         )
     }
 

@@ -27,7 +27,7 @@ class ClosetViewModel : ViewModel() {
         }
 
         if (categoryEnum != null) {
-            _clothingItems.update { items -> items.filter { it.category == categoryEnum } }
+            _clothingItems.update { items -> items.filter { it.itemType == categoryEnum } }
         }
     }
 
