@@ -20,6 +20,7 @@ import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.repositories.OutfitRepository
 import org.greenthread.whatsinmycloset.core.viewmodels.OutfitViewModel
+import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 
 // Save outfit to selected folder(s)
 @Composable
@@ -36,149 +37,151 @@ fun OutfitSaveScreen(
     */
     viewModel: OutfitViewModel
 ) {
-    val isOutfitSaved by viewModel.isOutfitSaved.collectAsState()
-    val outfitFolders by viewModel.outfitFolders.collectAsState()
-    val selectedFolder by viewModel.selectedFolder.collectAsState()
-    val selectedFolders by viewModel.selectedFolders.collectAsState()
-    val isPublic by viewModel.isPublic.collectAsState()
+    WhatsInMyClosetTheme {
+        val isOutfitSaved by viewModel.isOutfitSaved.collectAsState()
+        val outfitFolders by viewModel.outfitFolders.collectAsState()
+        val selectedFolder by viewModel.selectedFolder.collectAsState()
+        val selectedFolders by viewModel.selectedFolders.collectAsState()
+        val isPublic by viewModel.isPublic.collectAsState()
 
-    // retrieve the current outfit user wants to save
-    val currentOutfit by viewModel.currentOutfit.collectAsState()
+        // retrieve the current outfit user wants to save
+        val currentOutfit by viewModel.currentOutfit.collectAsState()
 
-    var showCreateFolderDialog by remember { mutableStateOf(false) }
-    var showDiscardDialog by remember { mutableStateOf(false) }
+        var showCreateFolderDialog by remember { mutableStateOf(false) }
+        var showDiscardDialog by remember { mutableStateOf(false) }
 
-    if (isOutfitSaved) {
-        OutfitSaved(
-            navController = navController,
-            onDismiss = {
-                // Navigate back to the Home Tab
-                navController.navigate("home") {
-                    popUpTo("home") { inclusive = true }
-                }
-            },
-            viewModel = viewModel
-        )
-    }
-    else {
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        )
-        {
-            // Heading for the selected category
-            OutfitScreenHeader(
-                onGoBack = { navController.popBackStack() },
-                onExit = { showDiscardDialog = true },
-                title = "Save Your Outfit"
+        if (isOutfitSaved) {
+            OutfitSaved(
+                navController = navController,
+                onDismiss = {
+                    // Navigate back to the Home Tab
+                    navController.navigate("home") {
+                        popUpTo("home") { inclusive = true }
+                    }
+                },
+                viewModel = viewModel
             )
-
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                items(outfitFolders) { folder ->
-                    // Determine if folder is selected (either one folder or multiple)
-                    val isSelected = if (selectedFolders.isNotEmpty()) {
-                        selectedFolders.contains(folder) || (isPublic && folder == "My Public Outfits")
-                    } else {
-                        selectedFolder == folder || (isPublic && folder == "My Public Outfits")
-                    }
-
-                    println(isSelected)
-                    println(selectedFolder)
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp)
-                            .background(
-                                if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
-                                else MaterialTheme.colorScheme.surfaceVariant,
-                                shape = RoundedCornerShape(8.dp)
-                            )
-                            .clickable {
-                                if (selectedFolders.isNotEmpty() != null) {
-                                    viewModel.updateSelectedFolders(folder)
-                                } else {
-                                    viewModel.updateSelectedFolder(if (selectedFolder == folder) null
-                                    else folder)
-                                }
-                            }
-                            .padding(16.dp)
-                    ) {
-                        Text(text = folder, style = MaterialTheme.typography.bodyLarge)
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Public Checkbox
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Checkbox(
-                    checked = isPublic,
-                    onCheckedChange = { viewModel.toggleIsPublic(it) }
-                )
-                Text(text = "Public")
-            }
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            // Footer with Done button
-            OutfitScreenFooter(
-                onDone = {
-                    // Get current outfit from the viewmodel
-                    // Save the current outfit
-                    currentOutfit?.let { outfit ->
-                        viewModel.saveOutfit(outfit)
-                    }
-                    onDone()
-                         },
-                    isDoneEnabled = selectedFolders.isNotEmpty() || selectedFolder != null
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            // Button to open the "Create New Folder" dialog
-            Button(
-                onClick = { showCreateFolderDialog = true },
-                modifier = Modifier.padding(8.dp)
-            ) {
-                Text("+ Create New Outfit Folder")
-            }
-
-            // Show CreateNewOutfitFolder when the button is clicked
-            if (showCreateFolderDialog) {
-                CreateNewOutfitFolder(
-                    onDismiss = { showCreateFolderDialog = false },
-                    onCreate = { folderName ->
-                        viewModel.addFolder(folderName) // Update repository
-                        showCreateFolderDialog = false // Close the dialog after creating the folder
-                    }
-                )
-            }
-
-            // Show discard confirmation dialog when "x" is clicked
-            if (showDiscardDialog) {
-
-                DiscardSavingDialog(
-                    onConfirm = {
-                        showDiscardDialog = false
-                        navController.navigate(Routes.HomeTab) // Navigate to Home Tab
-                    },
-                    onDismiss = { showDiscardDialog = false }
-                )
-            }
         }
-    } // end of else block
+        else {
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            )
+            {
+                // Heading for the selected category
+                OutfitScreenHeader(
+                    onGoBack = { navController.popBackStack() },
+                    onExit = { showDiscardDialog = true },
+                    title = "Save Your Outfit"
+                )
+
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    items(outfitFolders) { folder ->
+                        // Determine if folder is selected (either one folder or multiple)
+                        val isSelected = if (selectedFolders.isNotEmpty()) {
+                            selectedFolders.contains(folder) || (isPublic && folder == "My Public Outfits")
+                        } else {
+                            selectedFolder == folder || (isPublic && folder == "My Public Outfits")
+                        }
+
+                        println(isSelected)
+                        println(selectedFolder)
+
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp)
+                                .background(
+                                    if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
+                                    else MaterialTheme.colorScheme.surfaceVariant,
+                                    shape = RoundedCornerShape(8.dp)
+                                )
+                                .clickable {
+                                    if (selectedFolders.isNotEmpty() != null) {
+                                        viewModel.updateSelectedFolders(folder)
+                                    } else {
+                                        viewModel.updateSelectedFolder(if (selectedFolder == folder) null
+                                        else folder)
+                                    }
+                                }
+                                .padding(16.dp)
+                        ) {
+                            Text(text = folder, style = MaterialTheme.typography.bodyLarge)
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // Public Checkbox
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Checkbox(
+                        checked = isPublic,
+                        onCheckedChange = { viewModel.toggleIsPublic(it) }
+                    )
+                    Text(text = "Public")
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // Footer with Done button
+                OutfitScreenFooter(
+                    onDone = {
+                        // Get current outfit from the viewmodel
+                        // Save the current outfit
+                        currentOutfit?.let { outfit ->
+                            viewModel.saveOutfit(outfit)
+                        }
+                        onDone()
+                    },
+                    isDoneEnabled = selectedFolders.isNotEmpty() || selectedFolder != null
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // Button to open the "Create New Folder" dialog
+                Button(
+                    onClick = { showCreateFolderDialog = true },
+                    modifier = Modifier.padding(8.dp)
+                ) {
+                    Text("+ Create New Outfit Folder")
+                }
+
+                // Show CreateNewOutfitFolder when the button is clicked
+                if (showCreateFolderDialog) {
+                    CreateNewOutfitFolder(
+                        onDismiss = { showCreateFolderDialog = false },
+                        onCreate = { folderName ->
+                            viewModel.addFolder(folderName) // Update repository
+                            showCreateFolderDialog = false // Close the dialog after creating the folder
+                        }
+                    )
+                }
+
+                // Show discard confirmation dialog when "x" is clicked
+                if (showDiscardDialog) {
+
+                    DiscardSavingDialog(
+                        onConfirm = {
+                            showDiscardDialog = false
+                            navController.navigate(Routes.HomeTab) // Navigate to Home Tab
+                        },
+                        onDismiss = { showDiscardDialog = false }
+                    )
+                }
+            }
+        } // end of else block
+    }
 }
 
 @Composable

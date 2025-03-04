@@ -71,7 +71,6 @@ fun SocialTabScreen(onNavigate: (String) -> Unit) {
         }
 
         SocialFeedScreen(postsList)
-
     }
 }
 
@@ -86,7 +85,7 @@ fun FriendsOutfitsTitle() {
     ) {
         androidx.compose.material3.Text(
             text = "Friends' Outfits",
-            style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
+            style = androidx.compose.material3.MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
         )
     }

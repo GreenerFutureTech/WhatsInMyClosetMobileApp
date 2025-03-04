@@ -29,6 +29,7 @@ import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.ui.components.controls.SearchBar
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.SwapImageCard
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.SwapOtherImageCard
+import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -43,36 +44,40 @@ fun SwapScreenRoot(
         lifecycle = lifecycle
     )
 
-    val currentUser = UserManager.currentUser?:return
+    val currentUser = UserManager.currentUser ?: return
 
-    LaunchedEffect(state) {
-        if (state.getAllSwapResults.isEmpty()) {
-            viewModel.fetchAllSwapData()
-        }
-        if (state.getUserSwapResults.isEmpty()) {
-            viewModel.fetchSwapData(currentUser.id.toString())
-        }
-        if (state.getOtherUserSwapResults.isEmpty()) {
-            viewModel.fetchOtherSwapData(currentUser.id.toString())
-        }
-
-    }
-    SwapScreen(
-        state = state,
-        onAction = { action ->
-            when (action) {
-                is SwapAction.OnSwapClick -> {
-                    val selectedItem = state.getAllSwapResults.find { it.itemId.id == action.itemId }
-                    if (selectedItem != null) {
-                        onSwapClick(selectedItem)
-                    }
-                }
-                else -> Unit
+    WhatsInMyClosetTheme {
+        LaunchedEffect(state) {
+            if (state.getAllSwapResults.isEmpty()) {
+                viewModel.fetchAllSwapData()
             }
-           // viewModel.onAction(action)
-        },
-        onAllSwapClick = onAllSwapClick,
-    )
+            if (state.getUserSwapResults.isEmpty()) {
+                viewModel.fetchSwapData(currentUser.id.toString())
+            }
+            if (state.getOtherUserSwapResults.isEmpty()) {
+                viewModel.fetchOtherSwapData(currentUser.id.toString())
+            }
+
+        }
+        SwapScreen(
+            state = state,
+            onAction = { action ->
+                when (action) {
+                    is SwapAction.OnSwapClick -> {
+                        val selectedItem =
+                            state.getAllSwapResults.find { it.itemId.id == action.itemId }
+                        if (selectedItem != null) {
+                            onSwapClick(selectedItem)
+                        }
+                    }
+
+                    else -> Unit
+                }
+                // viewModel.onAction(action)
+            },
+            onAllSwapClick = onAllSwapClick,
+        )
+    }
 }
 
 @Composable

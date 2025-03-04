@@ -55,7 +55,7 @@ fun CreateNewPost(post: Post) {
             .fillMaxWidth()
             .padding(4.dp)
             .background(
-                color = MaterialTheme.colorScheme.surfaceVariant,
+                color = MaterialTheme.colorScheme.surface,
                 shape = RoundedCornerShape(12.dp)
             )
             .clip(RoundedCornerShape(12.dp))

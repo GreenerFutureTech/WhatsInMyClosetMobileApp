@@ -35,6 +35,7 @@ import org.greenthread.whatsinmycloset.core.domain.models.generateSampleClothing
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.LazyGridColourBox
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.generateRandomItems
 import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
+import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
@@ -45,7 +46,7 @@ fun HomeTabScreenRoot(
     onCreateOutfitClick: () -> Unit = {},
     onAddItemClick: () -> Unit
 ) {
-    MaterialTheme {
+    WhatsInMyClosetTheme {
         var showContent by remember { mutableStateOf(false) }
 
         // Create a user profile

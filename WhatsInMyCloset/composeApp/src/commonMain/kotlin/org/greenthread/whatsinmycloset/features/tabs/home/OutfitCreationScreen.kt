@@ -38,6 +38,7 @@ import org.greenthread.whatsinmycloset.app.Routes
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.OutfitViewModel
+import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 import org.jetbrains.compose.resources.painterResource
 import whatsinmycloset.composeapp.generated.resources.Res
 import whatsinmycloset.composeapp.generated.resources.top1
@@ -50,53 +51,54 @@ fun OutfitScreen(
     clothingItemViewModel: ClothingItemViewModel,
     outfitViewModel: OutfitViewModel
 ) {
-    // for testing - populate the categories with random items
-    val allCategories = ClothingCategory.values()
-    val categoryItemsMap = allCategories.associateWith { category ->
-        generateRandomClothingItems(category.toString(), 18)
-    }
+    WhatsInMyClosetTheme {
+        // for testing - populate the categories with random items
+        val allCategories = ClothingCategory.values()
+        val categoryItemsMap = allCategories.associateWith { category ->
+            generateRandomClothingItems(category.toString(), 18)
+        }
 
-    // Initialize clothing items for testing routing
-    LaunchedEffect(Unit) {
-        println("DEBUG: Initializing clothing items...")
+        // Initialize clothing items for testing routing
+        LaunchedEffect(Unit) {
+            println("DEBUG: Initializing clothing items...")
 
-        val allItems = categoryItemsMap.values.flatten() // Combine all category items
-        clothingItemViewModel.initializeClothingItems(allItems)
-    }
+            val allItems = categoryItemsMap.values.flatten() // Combine all category items
+            clothingItemViewModel.initializeClothingItems(allItems)
+        }
 
 
-    // Collect state from the ViewModel
-    val selectedItems by clothingItemViewModel.selectedItems.collectAsState()
-    val isCreateNewOutfit by outfitViewModel.isCreateNewOutfit.collectAsState()
-    val isOutfitSaved by outfitViewModel.isOutfitSaved.collectAsState()
-    var showExitDialog by remember { mutableStateOf(false) } // Exit screen
+        // Collect state from the ViewModel
+        val selectedItems by clothingItemViewModel.selectedItems.collectAsState()
+        val isCreateNewOutfit by outfitViewModel.isCreateNewOutfit.collectAsState()
+        val isOutfitSaved by outfitViewModel.isOutfitSaved.collectAsState()
+        var showExitDialog by remember { mutableStateOf(false) } // Exit screen
 
-    // Show calendar dialog
-    var showCalendarDialog by remember { mutableStateOf(false) }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(2.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-
-        // Header
-        OutfitScreenHeader(
-            onGoBack = { navController.popBackStack() }, // Navigate back to Home Tab,
-            onExit = { showExitDialog = true },  // Discard Outfit Creation -- pop up
-            title = "Create Your Outfit"
-        )
-
-        // Outfit collage area will show the selectedClothingItems
-        OutfitCollageArea(selectedItems)
-
-        Spacer(modifier = Modifier.height(4.dp))
+        // Show calendar dialog
+        var showCalendarDialog by remember { mutableStateOf(false) }
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(4.dp))
+                .padding(2.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            // Header
+            OutfitScreenHeader(
+                onGoBack = { navController.popBackStack() }, // Navigate back to Home Tab,
+                onExit = { showExitDialog = true },  // Discard Outfit Creation -- pop up
+                title = "Create Your Outfit"
+            )
+
+            // Outfit collage area will show the selectedClothingItems
+            OutfitCollageArea(selectedItems)
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(4.dp))
             {
                 // Clothing category selection
                 ClothingCategorySelection { selectedCategory ->
@@ -149,7 +151,7 @@ fun OutfitScreen(
                             onClick = {
                                 // Discard the current outfit and create a new one
                                 outfitViewModel.discardCurrentOutfit()
-                                      },
+                            },
                             modifier = Modifier.fillMaxWidth(),
                             enabled = selectedItems.isNotEmpty()
                         ) {
@@ -161,41 +163,41 @@ fun OutfitScreen(
 
         }   // end of Column
 
-    // Show Calendar Dialog
-    if (showCalendarDialog) {
-        CalendarDialog(
-            onDismiss = { showCalendarDialog = false },
-            onDateSelected = { selectedDate ->
-                outfitViewModel.addOutfitToCalendar(selectedDate) // Pass the selected date to the callback
-                showCalendarDialog = false // Close the dialog
-            }
-        )
-    }
-
-    // Show Exit Dialog
-    if (showExitDialog) {
-        DiscardOutfitDialog(
-            onConfirm = {
-                showExitDialog = false
-                navController.navigate(Routes.HomeTab) // Navigate to Home Tab
-            },
-            onDismiss = { showExitDialog = false }
-        )
-    }
-
-    // Show Outfit Saved Dialog
-    if (isOutfitSaved) {
-        OutfitSaved(
-            navController = navController,
-            onDismiss = {
-                navController.navigate(Routes.HomeTab) {
-                    popUpTo(Routes.HomeTab) { inclusive = true }
+        // Show Calendar Dialog
+        if (showCalendarDialog) {
+            CalendarDialog(
+                onDismiss = { showCalendarDialog = false },
+                onDateSelected = { selectedDate ->
+                    outfitViewModel.addOutfitToCalendar(selectedDate) // Pass the selected date to the callback
+                    showCalendarDialog = false // Close the dialog
                 }
-            },
-            viewModel = outfitViewModel
-        )
-    }
+            )
+        }
 
+        // Show Exit Dialog
+        if (showExitDialog) {
+            DiscardOutfitDialog(
+                onConfirm = {
+                    showExitDialog = false
+                    navController.navigate(Routes.HomeTab) // Navigate to Home Tab
+                },
+                onDismiss = { showExitDialog = false }
+            )
+        }
+
+        // Show Outfit Saved Dialog
+        if (isOutfitSaved) {
+            OutfitSaved(
+                navController = navController,
+                onDismiss = {
+                    navController.navigate(Routes.HomeTab) {
+                        popUpTo(Routes.HomeTab) { inclusive = true }
+                    }
+                },
+                viewModel = outfitViewModel
+            )
+        }
+    }
 }   /* end of OutfitScreen */
 
 @Composable

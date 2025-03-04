@@ -4,7 +4,6 @@ import AllSwapsScreen
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
@@ -15,14 +14,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.createSavedStateHandle
-import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -33,34 +28,28 @@ import org.greenthread.whatsinmycloset.features.screens.login.presentation.Login
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginViewModel
 import org.greenthread.whatsinmycloset.features.screens.signup.SignupScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.home.AddItemScreen
-import androidx.navigation.navArgument
-import coil3.util.Logger
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
-import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
-import org.greenthread.whatsinmycloset.core.domain.models.Outfit
-import org.greenthread.whatsinmycloset.core.domain.models.generateSampleClothingItems
 import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
-import org.greenthread.whatsinmycloset.core.viewmodels.MockClothingItemViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.OutfitViewModel
 import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItemDetailScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItemsScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.HomeTabScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.home.OutfitSaveScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.OutfitScreen
-import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTab
+import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabScreen
 import org.greenthread.whatsinmycloset.features.tabs.social.SocialTabScreen
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SelectedSwapViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SwapDetailScreen
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SwapScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
+import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
-import kotlin.reflect.KClass
 
 @Composable
 @Preview
 fun App(cameraManager: CameraManager?) {
-    MaterialTheme {
+    WhatsInMyClosetTheme {
         val navController = rememberNavController()
 
         // Create shared ViewModels for the outfit screens
@@ -211,7 +200,7 @@ fun App(cameraManager: CameraManager?) {
 
                 navigation<Routes.ProfileGraph>(startDestination = Routes.ProfileTab) {
                     composable<Routes.ProfileTab> {
-                        ProfileTab { }
+                        ProfileTabScreen { }
                     }
                     composable<Routes.ProfileDetailsScreen> {
                         //ProfileDetailsScreen()
