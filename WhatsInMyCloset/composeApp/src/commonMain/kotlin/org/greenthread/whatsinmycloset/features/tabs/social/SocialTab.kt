@@ -15,6 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.greenthread.whatsinmycloset.core.domain.models.Account
+import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
+import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.ui.components.posts.LazyGridPosts
 import org.greenthread.whatsinmycloset.core.ui.components.posts.Post
@@ -31,9 +33,30 @@ fun SocialTabScreen(onNavigate: (String) -> Unit) {
         // Create a user profile
         val user = Account("user123", "rachelg")
 
+        val testOutfit = listOf(
+            ClothingItem(
+                id = "1",
+                name = "Red Sweater",
+                wardrobeId = "1",
+                itemType = ClothingCategory.TOPS,
+                mediaUrl = "url_to_sweater.png", // Local resource key or remote URL
+                tags= listOf("red", "casual"),
+                createdAt = "20202020"
+            ),
+            ClothingItem(
+                id = "2",
+                name = "Pink Pattern Leggings",
+                wardrobeId = "1",
+                itemType = ClothingCategory.BOTTOMS,
+                mediaUrl = "url_to_leggings.png", // Local resource key or remote URL
+                tags= listOf("pink", "casual"),
+                createdAt = "20202020"
+            )
+        )
+
         // Generate outfits
         for (i in 0 until 10) {
-            val newLook =  Outfit("$i", "Look${i}", setOf("1", "2"))
+            val newLook =  Outfit("$i", "Look${i}", testOutfit)
             user.addOutfit(newLook)
         }
 

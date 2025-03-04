@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
+import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.jetbrains.compose.resources.painterResource
@@ -37,19 +38,19 @@ val itemRepository: Map<String, ClothingItem> = mapOf(
         id = "1",
         name = "Red Sweater",
         wardrobeId = "1",
-        itemType = "top",
+        itemType = ClothingCategory.TOPS,
         mediaUrl = "url_to_sweater.png", // Local resource key or remote URL
         tags= listOf("red", "casual"),
-        "20202020"
+        createdAt = "20202020"
     ),
     "2" to ClothingItem(
         id = "2",
         name = "Pink Pattern Leggings",
         wardrobeId = "1",
-        itemType = "bottom",
+        itemType = ClothingCategory.BOTTOMS,
         mediaUrl = "url_to_leggings.png", // Local resource key or remote URL
         tags= listOf("pink", "casual"),
-        "20202020"
+        createdAt = "20202020"
     )
 )
 
@@ -70,7 +71,7 @@ fun OutfitComposable(outfit: Outfit) {
         var y = 5f
 
         outfit.itemIds.forEach { itemId ->
-            val item = itemRepository[itemId] ?: error("Item not found: $itemId")
+            val item = itemRepository[itemId.id] ?: error("Item not found: $itemId")
             LoadImage(
                 imageKey = item.mediaUrl.toString(),
                 contentDescription = item.name,
