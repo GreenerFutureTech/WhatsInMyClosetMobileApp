@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.ktor.client.network.sockets.ConnectTimeoutException
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
@@ -44,39 +45,43 @@ fun SwapScreenRoot(
         lifecycle = lifecycle
     )
 
-    val currentUser = UserManager.currentUser ?: return
+    val currentUser = UserManager.currentUser
 
     WhatsInMyClosetTheme {
         LaunchedEffect(state) {
-            if (state.getAllSwapResults.isEmpty()) {
-                viewModel.fetchAllSwapData()
+            try {
+                if (state.getAllSwapResults.isEmpty()) {
+                    viewModel.fetchAllSwapData()
+                }
+                if (state.getUserSwapResults.isEmpty()) {
+                    viewModel.fetchSwapData(currentUser?.id.toString())
+                }
+                if (state.getOtherUserSwapResults.isEmpty()) {
+                    viewModel.fetchOtherSwapData(currentUser?.id.toString())
+                }
+            } catch (e: ConnectTimeoutException) {
+                println("Connection timeout occurred (could not hit backend?): ${e.message}")
+            } catch (e: Exception) {
+                println("An error occurred: ${e.message}")
             }
-            if (state.getUserSwapResults.isEmpty()) {
-                viewModel.fetchSwapData(currentUser.id.toString())
-            }
-            if (state.getOtherUserSwapResults.isEmpty()) {
-                viewModel.fetchOtherSwapData(currentUser.id.toString())
-            }
-
         }
+
         SwapScreen(
             state = state,
             onAction = { action ->
                 when (action) {
                     is SwapAction.OnSwapClick -> {
-                        val selectedItem =
-                            state.getAllSwapResults.find { it.itemId.id == action.itemId }
-                        if (selectedItem != null) {
-                            onSwapClick(selectedItem)
-                        }
+                        val selectedItem = state.getAllSwapResults.find { it.itemId.id == action.itemId }
+                    if (selectedItem != null) {
+                        onSwapClick(selectedItem)
                     }
-
-                    else -> Unit
                 }
-                // viewModel.onAction(action)
-            },
-            onAllSwapClick = onAllSwapClick,
-        )
+                else -> Unit
+            }
+           // viewModel.onAction(action)
+        },
+        onAllSwapClick = onAllSwapClick,
+    )
     }
 }
 

@@ -3,14 +3,23 @@ package org.greenthread.whatsinmycloset.features.tabs.home
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,14 +45,14 @@ fun AddItemScreen(cameraManager: CameraManager, onBack: () -> Unit) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        TextField(
-            value = itemName,
-            onValueChange = { itemName = it },
-            label = { Text("Item Name") }
-        )
+        val categories = listOf("Choose a Category!", "Tops", "Bottoms", "Shoes", "Accessories")
+        val wardrobes = listOf("Wardrobe 1", "Shoes", "Waterloo wardrobe")
 
+        WardrobeDropdown(wardrobes = wardrobes)
         Spacer(modifier = Modifier.height(16.dp))
 
+        CategoryDropdown(categories = categories)
+        Spacer(modifier = Modifier.height(16.dp))
         // Use the TakePhotoButton composable
         cameraManager.TakePhotoButton { imageBytes ->
             itemImage = imageBytes
@@ -59,7 +68,6 @@ fun AddItemScreen(cameraManager: CameraManager, onBack: () -> Unit) {
                 modifier = Modifier.size(300.dp)
             )
         }
-
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = {
@@ -92,3 +100,103 @@ fun ImageBitmap.Companion.imageFromBytes(bytes: ByteArray): ImageBitmap {
     return ImageBitmap(100,100)
 }
 */
+
+@Composable
+fun CategoryDropdown(categories: List<String>) {
+    var expanded by remember { mutableStateOf(false) }
+    var selectedCategory by remember { mutableStateOf(categories.firstOrNull() ?: "") } // Default to the first category if available
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally // Center the dropdown
+    ) {
+        OutlinedButton(
+            onClick = { expanded = true },
+            modifier = Modifier.width(200.dp) // Adjust width as needed
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = selectedCategory,
+                    style = MaterialTheme.typography.headlineSmall, // Larger font size
+                    modifier = Modifier.weight(1f) // Allows text to take available space
+                )
+                Icon(Icons.Filled.ArrowDropDown, contentDescription = "Dropdown")
+            }
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.width(200.dp) // Match width to the OutlinedButton
+        ) {
+            categories.filter { category -> category != "Choose a Category!" }.forEach { category ->
+                DropdownMenuItem(
+                    onClick = {
+                        selectedCategory = category
+                        expanded = false
+                    },
+                    text = {
+                        Text(
+                            text = category,
+                            style = MaterialTheme.typography.headlineSmall // Match font size in dropdown items
+                        )
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun WardrobeDropdown(wardrobes: List<String>) {
+    var expanded by remember { mutableStateOf(false) }
+    var selectedWadrobe by remember { mutableStateOf(wardrobes.firstOrNull() ?: "") } // Default to the first category if available
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally // Center the dropdown
+    ) {
+        OutlinedButton(
+            onClick = { expanded = true },
+            modifier = Modifier.width(200.dp) // Adjust width as needed
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = selectedWadrobe,
+                    style = MaterialTheme.typography.headlineSmall, // Larger font size
+                    modifier = Modifier.weight(1f) // Allows text to take available space
+                )
+                Icon(Icons.Filled.ArrowDropDown, contentDescription = "Dropdown")
+            }
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.width(200.dp) // Match width to the OutlinedButton
+        ) {
+            wardrobes.forEach { wardrobe ->
+                DropdownMenuItem(
+                    onClick = {
+                        selectedWadrobe = wardrobe
+                        expanded = false
+                    },
+                    text = {
+                        Text(
+                            text = wardrobe,
+                            style = MaterialTheme.typography.headlineSmall // Match font size in dropdown items
+                        )
+                    }
+                )
+            }
+        }
+    }
+}
