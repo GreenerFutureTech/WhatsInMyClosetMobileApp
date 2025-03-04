@@ -40,17 +40,15 @@ import org.greenthread.whatsinmycloset.core.ui.components.listItems.generateRand
 import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItem
 import org.greenthread.whatsinmycloset.features.tabs.home.SeeAllButton
 import org.greenthread.whatsinmycloset.getScreenWidthDp
+import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import whatsinmycloset.composeapp.generated.resources.Res
 import whatsinmycloset.composeapp.generated.resources.profileUser
 
 @Composable
-@Preview
-fun ProfileTab(onNavigate: (String) -> Unit) {
-    MaterialTheme {
+fun ProfileTabScreen(onNavigate: (String) -> Unit) {
+    WhatsInMyClosetTheme {
         var showContent by remember { mutableStateOf(false) }
-
         // Create a user profile
         val user = Account("user123", "Test")
 
@@ -72,10 +70,14 @@ fun ProfileTab(onNavigate: (String) -> Unit) {
 
         Column(Modifier
             .fillMaxWidth()
-            .padding(50.dp),
+            .padding(top = 60.dp),
             horizontalAlignment = Alignment.Start) {
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
                 // Profile Image
                 ProfilePicture()
 
@@ -116,19 +118,21 @@ fun ProfileTab(onNavigate: (String) -> Unit) {
 
 @Composable
 fun ProfilePicture() {
-    // Set profile picture proportional to the phone screen size
-    val screenWidth = getScreenWidthDp()
-    var imageSize = screenWidth * 0.2f // Adjust the percentage as needed
+    WhatsInMyClosetTheme {
+        // Set profile picture proportional to the phone screen size
+        val screenWidth = getScreenWidthDp()
+        var imageSize = screenWidth * 0.2f // Adjust the percentage as needed
 
-    Image(
-        painter = painterResource(resource = Res.drawable.profileUser),
-        contentDescription = "Profile Image",
-        modifier = Modifier
-            .size(imageSize)
-            .clip(CircleShape)
-            .border(2.dp, MaterialTheme.colors.primary, CircleShape),
-        contentScale = ContentScale.Crop
-    )
+        Image(
+            painter = painterResource(resource = Res.drawable.profileUser),
+            contentDescription = "Profile Image",
+            modifier = Modifier
+                .size(imageSize)
+                .clip(CircleShape)
+                .border(2.dp, MaterialTheme.colors.primary, CircleShape),
+            contentScale = ContentScale.Crop
+        )
+    }
 }
 
 @Composable

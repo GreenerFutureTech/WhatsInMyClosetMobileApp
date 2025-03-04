@@ -30,6 +30,7 @@ import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.ui.components.controls.SearchBar
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.SwapImageCard
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.SwapOtherImageCard
+import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -46,30 +47,31 @@ fun SwapScreenRoot(
 
     val currentUser = UserManager.currentUser
 
-    LaunchedEffect(state) {
-        try {
-            if (state.getAllSwapResults.isEmpty()) {
-                viewModel.fetchAllSwapData()
+    WhatsInMyClosetTheme {
+        LaunchedEffect(state) {
+            try {
+                if (state.getAllSwapResults.isEmpty()) {
+                    viewModel.fetchAllSwapData()
+                }
+                if (state.getUserSwapResults.isEmpty()) {
+                    viewModel.fetchSwapData(currentUser?.id.toString())
+                }
+                if (state.getOtherUserSwapResults.isEmpty()) {
+                    viewModel.fetchOtherSwapData(currentUser?.id.toString())
+                }
+            } catch (e: ConnectTimeoutException) {
+                println("Connection timeout occurred (could not hit backend?): ${e.message}")
+            } catch (e: Exception) {
+                println("An error occurred: ${e.message}")
             }
-            if (state.getUserSwapResults.isEmpty()) {
-                viewModel.fetchSwapData(currentUser?.id.toString())
-            }
-            if (state.getOtherUserSwapResults.isEmpty()) {
-                viewModel.fetchOtherSwapData(currentUser?.id.toString())
-            }
-        } catch (e: ConnectTimeoutException) {
-            println("Connection timeout occurred (could not hit backend?): ${e.message}")
-        } catch (e: Exception) {
-            println("An error occurred: ${e.message}")
         }
-    }
 
-    SwapScreen(
-        state = state,
-        onAction = { action ->
-            when (action) {
-                is SwapAction.OnSwapClick -> {
-                    val selectedItem = state.getAllSwapResults.find { it.itemId.id == action.itemId }
+        SwapScreen(
+            state = state,
+            onAction = { action ->
+                when (action) {
+                    is SwapAction.OnSwapClick -> {
+                        val selectedItem = state.getAllSwapResults.find { it.itemId.id == action.itemId }
                     if (selectedItem != null) {
                         onSwapClick(selectedItem)
                     }
@@ -80,6 +82,7 @@ fun SwapScreenRoot(
         },
         onAllSwapClick = onAllSwapClick,
     )
+    }
 }
 
 @Composable

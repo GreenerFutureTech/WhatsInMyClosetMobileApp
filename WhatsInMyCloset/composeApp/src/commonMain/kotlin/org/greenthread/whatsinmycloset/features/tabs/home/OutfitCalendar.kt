@@ -20,72 +20,75 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.LazyGridCalendarUI
+import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 
 @Composable
 fun CalendarDialog(
     onDismiss: () -> Unit,
     onDateSelected: (String) -> Unit
 ) {
-    var selectedDay by remember { mutableStateOf(7) }  // Default day
-    var selectedMonth by remember { mutableStateOf("February") }  // Default month
-    var selectedYear by remember { mutableStateOf(2027) } // Default year
-    var showConfirmation by remember { mutableStateOf(false) } // Track confirmation dialog
-    var showDiscardDialog by remember { mutableStateOf(false) } // Track discard dialog
+    WhatsInMyClosetTheme {
+        var selectedDay by remember { mutableStateOf(7) }  // Default day
+        var selectedMonth by remember { mutableStateOf("February") }  // Default month
+        var selectedYear by remember { mutableStateOf(2027) } // Default year
+        var showConfirmation by remember { mutableStateOf(false) } // Track confirmation dialog
+        var showDiscardDialog by remember { mutableStateOf(false) } // Track discard dialog
 
-    AlertDialog(
-        onDismissRequest = { showDiscardDialog = true },  // Show discard dialog when closing
-        title = { Text("Add Outfit to Calendar") },
-        text = {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("$selectedMonth $selectedYear", style = MaterialTheme.typography.titleMedium)
-                Spacer(modifier = Modifier.height(8.dp))
+        AlertDialog(
+            onDismissRequest = { showDiscardDialog = true },  // Show discard dialog when closing
+            title = { Text("Add Outfit to Calendar") },
+            text = {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("$selectedMonth $selectedYear", style = MaterialTheme.typography.titleMedium)
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                // Generate list of days (1-31)
-                val daysInMonth = (1..31).toList()
-                LazyGridCalendarUI(
-                    items = daysInMonth,
-                    selectedDay = selectedDay,
-                    onDayClick = { day -> selectedDay = day }
-                )
+                    // Generate list of days (1-31)
+                    val daysInMonth = (1..31).toList()
+                    LazyGridCalendarUI(
+                        items = daysInMonth,
+                        selectedDay = selectedDay,
+                        onDayClick = { day -> selectedDay = day }
+                    )
 
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    showConfirmation = true // Show confirmation dialog
-                    val selectedDate = "$selectedMonth $selectedDay, $selectedYear"
-                    onDateSelected(selectedDate)
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
-            ) {
-                Text("Add")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = { showDiscardDialog = true }) { // Show discard dialog
-                Text("Cancel")
-            }
-        }
-    )
-
-    // Show confirmation dialog when outfit is added
-    if (showConfirmation) {
-        ConfirmationDialog(
-            message = "Outfit added to date $selectedMonth $selectedDay, $selectedYear",
-            onDismiss = { showConfirmation = false }
-        )
-    }
-
-    // Show discard confirmation dialog when cancel is clicked
-    if (showDiscardDialog) {
-        DiscardConfirmationDialog(
-            onConfirm = {
-                showDiscardDialog = false
-                onDismiss()
             },
-            onDismiss = { showDiscardDialog = false }
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showConfirmation = true // Show confirmation dialog
+                        val selectedDate = "$selectedMonth $selectedDay, $selectedYear"
+                        onDateSelected(selectedDate)
+                    }
+                ) {
+                    Text("Add")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDiscardDialog = true }) { // Show discard dialog
+                    Text("Cancel")
+                }
+            }
         )
+
+        // Show confirmation dialog when outfit is added
+        if (showConfirmation) {
+            ConfirmationDialog(
+                message = "Outfit added to date $selectedMonth $selectedDay, $selectedYear",
+                onDismiss = { showConfirmation = false }
+            )
+        }
+
+        // Show discard confirmation dialog when cancel is clicked
+        if (showDiscardDialog) {
+            DiscardConfirmationDialog(
+                onConfirm = {
+                    showDiscardDialog = false
+                    onDismiss()
+                },
+                onDismiss = { showDiscardDialog = false }
+            )
+        }
     }
 }
 
