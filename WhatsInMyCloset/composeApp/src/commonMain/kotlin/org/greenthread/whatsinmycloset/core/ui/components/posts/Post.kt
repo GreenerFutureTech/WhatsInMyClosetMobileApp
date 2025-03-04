@@ -21,8 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
@@ -33,7 +31,7 @@ import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.ui.components.outfits.OutfitComposable
 
 data class Post(
-    val height: Dp,
+    val postID: String,
     val creator: Account,
     val outfit: Outfit,
     val createdAt: LocalDate
@@ -116,34 +114,5 @@ fun LazyGridPosts(postsList: MutableList<Post>) {
     }
 }
 
-@Composable
-fun FriendsOutfitsTitle() {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = "Friends' Outfits",
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Bold
-        )
-    }
-}
 
-@Composable
-fun SocialFeedScreen(postsList: MutableList<Post>) {
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .padding(top = 60.dp),
-        horizontalAlignment = Alignment.Start
-    ) {
-        FriendsOutfitsTitle()
-
-        LazyGridPosts(postsList)
-    }
-}
 
