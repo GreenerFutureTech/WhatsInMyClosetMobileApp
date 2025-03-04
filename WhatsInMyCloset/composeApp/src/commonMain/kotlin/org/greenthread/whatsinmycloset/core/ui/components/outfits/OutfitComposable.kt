@@ -2,12 +2,10 @@ package org.greenthread.whatsinmycloset.core.ui.components.outfits
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -43,8 +41,6 @@ val itemRepository: Map<String, ClothingItem> = mapOf(
         mediaUrl = "url_to_sweater.png", // Local resource key or remote URL
         tags= listOf("red", "casual"),
         "20202020"
-//        x = 100f,
-//        y = 200f
     ),
     "2" to ClothingItem(
         id = "2",
@@ -54,8 +50,6 @@ val itemRepository: Map<String, ClothingItem> = mapOf(
         mediaUrl = "url_to_leggings.png", // Local resource key or remote URL
         tags= listOf("pink", "casual"),
         "20202020"
-//        x = 100f,
-//        y = 300f
     )
 )
 
