@@ -47,6 +47,7 @@ import org.greenthread.whatsinmycloset.core.domain.models.generateSampleClothing
 import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.MockClothingItemViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.OutfitViewModel
+import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItemDetailScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItemsScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.HomeTabScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.home.OutfitSaveScreen
@@ -66,6 +67,11 @@ import kotlin.reflect.KClass
 fun App(cameraManager: CameraManager?) {
     MaterialTheme {
         val navController = rememberNavController()
+
+        // Create shared ViewModels for the outfit screens
+        val sharedClothingItemViewModel: ClothingItemViewModel = koinViewModel()
+        val sharedOutfitViewModel: OutfitViewModel = viewModel()
+
         Scaffold(
             bottomBar = {
                 BottomNavigationBar(navController)
@@ -118,11 +124,8 @@ fun App(cameraManager: CameraManager?) {
 
                     // add CreateOutfitScreen Route to separate composable in nav graph
                     composable<Routes.CreateOutfitScreen> {
-                        val clothingItemViewModel: ClothingItemViewModel = viewModel()
-                        val outfitViewModel: OutfitViewModel = viewModel()
-
                         // to test the Save Outfit, Add to Calendar and Create New Outfit buttons
-                        clothingItemViewModel.initializeClothingItems(
+                        /*clothingItemViewModel.initializeClothingItems(
                             listOf(
                             ClothingItem(
                                 id = "1",
@@ -137,12 +140,12 @@ fun App(cameraManager: CameraManager?) {
                                 category = ClothingCategory.BOTTOMS,
                                 clothingImage = null,
                                 tags = setOf("casual", "summer")
-                            )))
+                            )))*/
 
                         OutfitScreen(
                             navController = navController,
-                            clothingItemViewModel = clothingItemViewModel,
-                            outfitViewModel = outfitViewModel,
+                            clothingItemViewModel = sharedClothingItemViewModel,
+                            outfitViewModel = sharedOutfitViewModel,
                         )
                     }
 
@@ -155,28 +158,41 @@ fun App(cameraManager: CameraManager?) {
                         println("Category: $category")  // Log the category string
 
                         val categoryEnum = ClothingCategory.fromString(category)
-                        val viewModel: ClothingItemViewModel = viewModel()
 
                         if (categoryEnum != null) {
 
                             CategoryItemsScreen(
                                 navController = navController,
                                 category = categoryEnum.categoryName,
-                                onDone = { selectedItems ->
-                                    // Update the ViewModel with the selected items
-                                    viewModel.addClothingItems(selectedItems)
-                                    // Navigate back to the previous screen (OutfitScreen)
-                                    navController.popBackStack()
-                                },
-                                onBack = {
-                                    // Handle back navigation (e.g., without saving selected items)
-                                    navController.popBackStack()
-                                },
-                                viewModel = viewModel
+                                onBack = { navController.popBackStack() },
+                                onDone = {Routes.CreateOutfitScreen },
+                                viewModel = sharedClothingItemViewModel
                             )
                         } else {
                             // Handle invalid category (e.g., show an error message)
                             Text("Invalid category: $category")
+                        }
+                    }
+
+                    composable<Routes.CategoryItemDetailScreen>
+                    {
+                        backStackEntry ->
+                        val itemId =
+                            backStackEntry.arguments?.getString("clickedItemID") ?: ""
+
+                        val categoryStr =
+                            backStackEntry.arguments?.getString("clickedItemCategory") ?: ""
+
+                        val category = ClothingCategory.fromString(categoryStr)
+
+                        if (category != null) {
+                            CategoryItemDetailScreen(
+                                navController = navController,
+                                itemId = itemId,
+                                category = category,
+                                onBack = { navController.popBackStack() },
+                                viewModel = sharedClothingItemViewModel
+                            )
                         }
                     }
 
@@ -186,16 +202,15 @@ fun App(cameraManager: CameraManager?) {
                     // -- or create a new folder
                     composable<Routes.OutfitSaveScreen>
                     {
-                        // Initialize the ViewModel with the outfit
-                        val outfitViewModel: OutfitViewModel = viewModel()
-
-                        OutfitSaveScreen(
+                          OutfitSaveScreen(
                             navController = navController,
                             onExit = { },
                             onDone = { },
-                            viewModel = outfitViewModel
+                            viewModel = sharedOutfitViewModel
                         )
                     }
+
+                    // end of outfit screens
 
                 }   // end of Home Graph
 

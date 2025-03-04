@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
+import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
 
 sealed interface Routes {
     @Serializable
@@ -26,11 +27,16 @@ sealed interface Routes {
 
     // Routes for outfit creation screens
     @Serializable
-    data object CreateOutfitScreen : Routes
+    data object CreateOutfitScreen: Routes
     @Serializable
-    data class CategoryItemScreen(val category: String) : Routes
+    data class CategoryItemScreen(
+        val category: String) : Routes    // shows all items in that category, for example "Tops"
     @Serializable
     data object OutfitSaveScreen: Routes
+    @Serializable
+    data class CategoryItemDetailScreen
+        (val clickedItemID: String,
+         val clickedItemCategory: String): Routes // show the clicked items details
 
     @Serializable
     data object ProfileTab : Routes

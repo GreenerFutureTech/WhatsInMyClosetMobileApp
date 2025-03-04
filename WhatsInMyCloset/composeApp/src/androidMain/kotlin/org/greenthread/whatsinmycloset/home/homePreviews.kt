@@ -31,10 +31,10 @@ fun PreviewWardrobeScreen() {
     val user = Account("user123", "Test")
 
     // Add some clothing items to the wardrobe
-    val redDress = ClothingItem("item1", "Red Dress",
-        ClothingCategory.TOPS, null, setOf("red", "fancy"))
-    val jeans = ClothingItem("item2", "Blue Jeans",
-        ClothingCategory.BOTTOMS, null, setOf("blue", "casual"))
+    val redDress = ClothingItem("item1", "Red Dress", "HomeWardrobe",
+        ClothingCategory.TOPS, null, listOf("red", "fancy"))
+    val jeans = ClothingItem("item2", "Blue Jeans", "HomeWardrobe",
+        ClothingCategory.BOTTOMS, null, listOf("blue", "casual"))
 
     val wardrobe = Wardrobe("Waterloo Wardrobe", "wardrobe1")
     wardrobe.addItem(redDress)
@@ -51,16 +51,16 @@ fun PreviewWardrobeScreen() {
             ClothingItem(
                 id = "1",
                 name = "Blue Top",
-                category = ClothingCategory.TOPS,
-                clothingImage = null,
-                tags = setOf("casual", "summer")
+                itemType = ClothingCategory.TOPS,
+                mediaUrl = null,
+                tags = listOf("casual", "summer")
             ),
             ClothingItem(
                 id = "2",
                 name = "Denim Jeans",
-                category = ClothingCategory.BOTTOMS,
-                clothingImage = null,
-                tags = setOf("casual", "summer")
+                itemType = ClothingCategory.BOTTOMS,
+                mediaUrl = null,
+                tags = listOf("casual", "summer")
             ),
         )
     )

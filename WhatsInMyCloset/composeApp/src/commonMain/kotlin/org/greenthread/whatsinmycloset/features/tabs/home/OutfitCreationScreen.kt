@@ -1,5 +1,7 @@
 package org.greenthread.whatsinmycloset.features.tabs.home
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -17,122 +19,28 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.material3.Text
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import org.greenthread.whatsinmycloset.app.Routes
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
-import org.greenthread.whatsinmycloset.core.domain.models.generateSampleClothingItems
 import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.OutfitViewModel
 import org.jetbrains.compose.resources.painterResource
 import whatsinmycloset.composeapp.generated.resources.Res
 import whatsinmycloset.composeapp.generated.resources.top1
-
-
-// the screen that opens up when user clicks on "Create Outfit" button
-// from Home Tab
-/*@Composable
-fun OutfitScreen(
-    onDone: () -> Unit,
-    selectedClothingItems: List<ClothingItem>
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-
-        // Header
-        OutfitScreenHeader(
-            onGoBack = { /* Handle back action */ },
-            onExit = { /* Handle exit action */ },
-            title = "Create Your Outfit"
-        )
-
-        // Outfit collage preview - Displaying a blank area
-        OutfitCollageArea(selectedClothingItems)
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Footer with Done button
-        OutfitScreenFooter(onDone = onDone, isDoneEnabled = selectedClothingItems.isNotEmpty())
-    }
-}*/
-
-
-@Composable
-fun DisplayCategoryItems(
-    categoryItems: List<ClothingItem>,
-    onItemClick: (ClothingItem) -> Unit
-) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(3),
-        modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(8.dp)
-    ) {
-        items(categoryItems.size) { item ->
-
-            val item = categoryItems[item % categoryItems.size]
-
-            if (item.category == ClothingCategory.TOPS)
-            {
-                Image(
-                    painter = painterResource(Res.drawable.top1),
-                    contentDescription = item.name,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onItemClick(item) } // Handle click
-                )
-            }
-            else if (item.category == ClothingCategory.BOTTOMS)
-            {
-                Image(
-                    painter = painterResource(Res.drawable.top1),
-                    contentDescription = item.name,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onItemClick(item) } // Handle click
-                )
-            }
-            else if (item.category == ClothingCategory.FOOTWEAR)
-            {
-                Image(
-                    painter = painterResource(Res.drawable.top1),
-                    contentDescription = item.name,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onItemClick(item) } // Handle click
-                )
-            }
-            else if (item.category == ClothingCategory.ACCESSORIES)
-            {
-                Image(
-                    painter = painterResource(Res.drawable.top1),
-                    contentDescription = item.name,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onItemClick(item) } // Handle click
-                )
-            }
-        }
-    }
-}
-
 
 
 
@@ -142,8 +50,23 @@ fun OutfitScreen(
     clothingItemViewModel: ClothingItemViewModel,
     outfitViewModel: OutfitViewModel
 ) {
+    // for testing - populate the categories with random items
+    val allCategories = ClothingCategory.values()
+    val categoryItemsMap = allCategories.associateWith { category ->
+        generateRandomClothingItems(category.toString(), 18)
+    }
+
+    // Initialize clothing items for testing routing
+    LaunchedEffect(Unit) {
+        println("DEBUG: Initializing clothing items...")
+
+        val allItems = categoryItemsMap.values.flatten() // Combine all category items
+        clothingItemViewModel.initializeClothingItems(allItems)
+    }
+
+
     // Collect state from the ViewModel
-    val selectedClothingItems by clothingItemViewModel.clothingItems.collectAsState()   // ClothingItemViewModel
+    val selectedItems by clothingItemViewModel.selectedItems.collectAsState()
     val isCreateNewOutfit by outfitViewModel.isCreateNewOutfit.collectAsState()
     val isOutfitSaved by outfitViewModel.isOutfitSaved.collectAsState()
     var showExitDialog by remember { mutableStateOf(false) } // Exit screen
@@ -157,6 +80,7 @@ fun OutfitScreen(
             .padding(2.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
         // Header
         OutfitScreenHeader(
             onGoBack = { navController.popBackStack() }, // Navigate back to Home Tab,
@@ -164,8 +88,8 @@ fun OutfitScreen(
             title = "Create Your Outfit"
         )
 
-        // Outfit collage area (Preview or actual implementation)
-        OutfitCollageArea(selectedClothingItems)
+        // Outfit collage area will show the selectedClothingItems
+        OutfitCollageArea(selectedItems)
 
         Spacer(modifier = Modifier.height(4.dp))
 
@@ -179,7 +103,7 @@ fun OutfitScreen(
                     // Convert the selected category string to ClothingCategory enum
                     val categoryEnum = ClothingCategory.fromString(selectedCategory.categoryName)
                     if (categoryEnum != null) {
-                        // Navigate to the category items screen
+                        // Navigate to the category items screen showing all items in that category
                         navController.navigate(Routes.CategoryItemScreen(categoryEnum.toString()))
                     } else {
                         // Handle invalid category (e.g., show an error message)
@@ -187,8 +111,8 @@ fun OutfitScreen(
                     }
                 }
 
-                // show additional options when there is at least one clothing item
-                if (selectedClothingItems.isNotEmpty())
+                // show additional options when there is at least one item in outfit area
+                if (selectedItems.isNotEmpty())
                 {
                     Column(
                         modifier = Modifier.fillMaxWidth(),
@@ -198,7 +122,7 @@ fun OutfitScreen(
                         Button(
                             onClick = {
                                 // Create the outfit
-                                outfitViewModel.createOutfit(selectedClothingItems)
+                                outfitViewModel.createOutfit(selectedItems)
 
                                 // Navigate to the OutfitSaveScreen
                                 navController.navigate(
@@ -206,7 +130,7 @@ fun OutfitScreen(
                                 )
                             },
                             modifier = Modifier.fillMaxWidth(),
-                            enabled = selectedClothingItems.isNotEmpty()
+                            enabled = selectedItems.isNotEmpty()
                         ) {
                             Text("Save Outfit")
                         }
@@ -215,7 +139,7 @@ fun OutfitScreen(
                         Button(
                             onClick = { showCalendarDialog = true },
                             modifier = Modifier.fillMaxWidth(),
-                            enabled = selectedClothingItems.isNotEmpty()
+                            enabled = selectedItems.isNotEmpty()
                         ) {
                             Text("Add to Calendar")
                         }
@@ -227,7 +151,7 @@ fun OutfitScreen(
                                 outfitViewModel.discardCurrentOutfit()
                                       },
                             modifier = Modifier.fillMaxWidth(),
-                            enabled = selectedClothingItems.isNotEmpty()
+                            enabled = selectedItems.isNotEmpty()
                         ) {
                             Text("Create New Outfit")
                         }
@@ -272,7 +196,7 @@ fun OutfitScreen(
         )
     }
 
-}
+}   /* end of OutfitScreen */
 
 @Composable
 fun DiscardOutfitDialog(
@@ -294,81 +218,104 @@ fun DiscardOutfitDialog(
             }
         }
     )
-}
+}   /* end of DiscardOutfitDialog */
 
 // show the items user selected to create an outfit
 @Composable
-fun OutfitCollageArea(selectedClothingItems: List<ClothingItem>) {
-    // To track the position of each item
-    // Initialize itemPositions with the same size as selectedClothingItems
-    val itemPositions = remember {
-        mutableStateListOf<OffsetData>().apply {
-            // Calculate initial positions to avoid overlap
-            selectedClothingItems.forEachIndexed { index, _ ->
-                val x = 100f + (index * 200f) // Spacing of 120f between items on the x-axis
-                val y = 100f + (index * 100f) // Same y-coordinate for all items
-                add(OffsetData(x, y))
-            }
-        }
-    }
-
-    // Use LaunchedEffect to dynamically update itemPositions when selectedClothingItems changes
-    LaunchedEffect(selectedClothingItems.size) {
-        while (itemPositions.size < selectedClothingItems.size) {
-            val x = 100f + (itemPositions.size * 120f) // Spacing of 120f between items on the x-axis
-            val y = 100f // Same y-coordinate for all items (or adjust as needed)
-            itemPositions.add(OffsetData(x, y))
-        }
-        while (itemPositions.size > selectedClothingItems.size) {
-            itemPositions.removeAt(itemPositions.size - 1) // Remove extra positions
-        }
-    }
+fun OutfitCollageArea(
+    selectedClothingItems: List<ClothingItem>)
+{
+    val canvasHeight = with(LocalDensity.current) { 300.dp.toPx() }
+    val canvasWidth = with(LocalDensity.current) { 450.dp.toPx() }
 
     Box(
         modifier = Modifier
-            .fillMaxWidth()
-            .height(300.dp)
-            .background(Color.LightGray),
-        contentAlignment = Alignment.Center
-    ) {
+            .width(450.dp)
+            .height(300.dp) // Start with 300.dp
+            .background(Color.LightGray)
+    )
+    {
         if (selectedClothingItems.isEmpty()) {
             Text("No items selected", color = Color.Gray)
-        } else {
+        }
+        else
+        {
+            val itemPositions = remember { mutableStateListOf<OffsetData>() }
+
+            // Ensure items retain their positions when added
+            LaunchedEffect(selectedClothingItems.size) {
+                selectedClothingItems.forEachIndexed { index, _ ->
+                    if (index >= itemPositions.size) {
+                        val x = (index * 120f).coerceIn(0f, canvasWidth - 100f)
+                        val y = (index * 80f).coerceIn(0f, canvasHeight - 100f) // Stagger Y positions
+
+                        itemPositions.add(OffsetData(x, y))
+                    }
+                }
+            }
+
             // Loop through selectedClothingItems and display them
             selectedClothingItems.forEachIndexed { index, clothingItem ->
                 DraggableClothingItem(
                     clothingItem = clothingItem,
                     itemIndex = index,
-                    itemPositions = itemPositions
+                    itemPositions = itemPositions,
+                    canvasWidth = canvasWidth,
+                    canvasHeight = canvasHeight
                 )
             }
+
         }
     }
-}
+
+}   /* end of OutfitCollageArea */
+
 
 @Composable
 fun DraggableClothingItem(
     clothingItem: ClothingItem,
     itemIndex: Int,
-    itemPositions: MutableList<OffsetData>
+    itemPositions: MutableList<OffsetData>,
+    canvasWidth: Float,
+    canvasHeight: Float
 ) {
-    // Use the position from itemPositions
-    val position = remember { mutableStateOf(itemPositions[itemIndex]) }
+    val defaultPosition = OffsetData(100f, 100f)
+    val position = remember {
+        mutableStateOf(
+            if (itemIndex < itemPositions.size) itemPositions[itemIndex] else defaultPosition
+        )
+    }
+
+    // Only update if the position has changed
+    LaunchedEffect(itemPositions) {
+        if (itemIndex < itemPositions.size && position.value != itemPositions[itemIndex]) {
+            position.value = itemPositions[itemIndex]
+        }
+    }
 
     Box(
         modifier = Modifier
             .offset { IntOffset(position.value.x.toInt(), position.value.y.toInt()) }
             .pointerInput(Unit) {
                 detectDragGestures { _, dragAmount ->
-                    // Update the position based on the drag gesture
-                    val newX = position.value.x + dragAmount.x
-                    val newY = position.value.y + dragAmount.y
+
+                    val newX = (position.value.x + dragAmount.x)
+                        .coerceIn(0f, canvasWidth - 300f)
+                    val newY = (position.value.y + dragAmount.y)
+                        .coerceIn(0f, canvasHeight - 275f)
+
+                    println("NEW X: $newX")
+                    println("NEW Y: $newY")
+
                     position.value = OffsetData(newX, newY)
-                    itemPositions[itemIndex] = position.value // Update the shared state
+
+                    if (itemIndex < itemPositions.size) {
+                        itemPositions[itemIndex] = position.value
+                    }
                 }
             }
             .size(100.dp) // Define the size of the clothing item
-            .background(Color.Cyan) // Placeholder for clothing item (replace with image or actual content)
+            .border(2.dp, Color.Black, RoundedCornerShape(12.dp))
     ) {
         // Content (e.g., Text or Image of clothing)
         Text(
@@ -376,11 +323,14 @@ fun DraggableClothingItem(
             modifier = Modifier.align(Alignment.Center),
             color = Color.White
         )
+
+        // Show Image
     }
 }
 
 data class OffsetData(val x: Float, val y: Float)
 
+// shows all category options
 @Composable
 fun ClothingCategorySelection(onSelectCategory: (ClothingCategory) -> Unit) {
     val categories = ClothingCategory.values()
@@ -394,15 +344,16 @@ fun ClothingCategorySelection(onSelectCategory: (ClothingCategory) -> Unit) {
         horizontalArrangement = Arrangement.spacedBy(2.dp)
     ) {
         items(categories.size) { index ->
-            val category = categories[index]
+            val thisItem = categories[index]
+
             Button(
-                onClick = { onSelectCategory(category) },
+                onClick = { onSelectCategory(thisItem) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(2.dp)
             ) {
                 Text(
-                    text = category.categoryName,
+                    text = thisItem.categoryName,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -417,12 +368,32 @@ fun ClothingCategorySelection(onSelectCategory: (ClothingCategory) -> Unit) {
 fun CategoryItemsScreen(
     navController: NavController,
     category: String,
-    onDone: (List<ClothingItem>) -> Unit, // Callback to return selected items
     onBack: () -> Unit,
+    onDone: () -> Unit,
     viewModel: ClothingItemViewModel // Inject the ClothingItemViewModel
 ) {
-    // Track selected item IDs
-    val selectedItemIds = remember { mutableStateOf(mutableSetOf<String>()) }
+
+    // items in the selected category
+    val categoryEnum = ClothingCategory.fromString(category)
+
+    // Collect items for the selected category when category changes
+    LaunchedEffect(categoryEnum) {
+        viewModel.getItemsByCategory(categoryEnum.toString())
+    }
+    val categoryItems by viewModel.categoryItems.collectAsState()
+
+    // Track selected items uniquely by ID + Category
+    var selectedItemKeys by remember { mutableStateOf(setOf<Pair<String, ClothingCategory>>()) }
+
+    // Track if selection mode is ON - meaning user wants to select 1 or more items
+    // otherwise, clicking on the item will open a new screen with details of that item
+    val isSelectionMode = remember { mutableStateOf(false) }
+
+    // Animate the button background color
+    val buttonBackgroundColor by animateColorAsState(
+        targetValue = if (isSelectionMode.value) Color.Green else Color.Transparent,
+        animationSpec = tween(durationMillis = 300)
+    )
 
     Column(
         modifier = Modifier
@@ -439,10 +410,28 @@ fun CategoryItemsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Generate or fetch items for the category
-        val items = generateRandomClothingItems(category, 18)
+        // A button to toggle selection, if this button is not selected
+        // clicking on an item, will open a new screen with the details of that item
+        // using the CategoryItemScreen function
+        // Button to toggle selection mode
+        Button(
+            onClick = {
+                isSelectionMode.value = !isSelectionMode.value
+                if (!isSelectionMode.value) {
+                    // Reset selection when leaving selection mode
+                    selectedItemKeys = emptySet()
+                }
+            },
+            modifier = if (isSelectionMode.value) {
+                Modifier.background(color = buttonBackgroundColor) // Highlight the button when selection mode is ON
+            } else {
+                Modifier // Default modifier when selection mode is OFF
+            }
+        ) {
+            Text("Select Item(s) ${selectedItemKeys.size}")
 
-        // Use a Box with a Modifier.weight(1f) to allow scrolling within the grid
+        }
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -452,20 +441,27 @@ fun CategoryItemsScreen(
                 columns = GridCells.Fixed(3),
                 contentPadding = PaddingValues(8.dp)
             ) {
-                items(items.size) { index ->
-                    val item = items[index]
-                    CategoryItemBox(
+                items(categoryItems.size)
+                { thisItem ->
+                    val item = categoryItems[thisItem]
+                    val itemKey = item.id to item.itemType
+
+                    CategoryItem(
                         item = item,
-                        isSelected = selectedItemIds.value.contains(item.id),
+                        isSelected = selectedItemKeys.contains(itemKey),
+                        isSelectionMode = isSelectionMode.value,
+
                         onItemSelected = { selectedItem ->
-                            // Toggle selection based on ID
-                            if (selectedItemIds.value.contains(selectedItem.id)) {
-                                selectedItemIds.value.remove(selectedItem.id)
-                            } else {
-                                selectedItemIds.value.add(selectedItem.id)
+                            selectedItemKeys = selectedItemKeys.toMutableSet().apply {
+                                if (contains(itemKey)) remove(itemKey) else add(itemKey)
                             }
-                            // Update state to trigger recomposition
-                            selectedItemIds.value = selectedItemIds.value.toMutableSet()
+                        },
+                        onItemClicked = { clickedItem ->
+                            navController.navigate(
+                                Routes.CategoryItemDetailScreen(
+                                    clickedItem.id, clickedItem.itemType.toString()
+                                )
+                            )
                         }
                     )
                 }
@@ -474,65 +470,171 @@ fun CategoryItemsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Footer with Done button
-        OutfitScreenFooter(
-            onDone = {
-                // Update the ViewModel with the selected items
-                val selectedItems = items.filter { selectedItemIds.value.contains(it.id) }
-                viewModel.addClothingItems(selectedItems) // Add selected items to the ViewModel
-                onDone(selectedItems) // Navigate back
-            },
-            isDoneEnabled = selectedItemIds.value.isNotEmpty()
-        )
+        // Done button shows up when user selects 1 or more items to add to canvas
+        if (isSelectionMode.value) {
+            OutfitScreenFooter(
+                onDone = {
+                    // Update the ViewModel with the selected items
+                    val selectedItems = categoryItems.filter {
+                        selectedItemKeys.contains(it.id to it.itemType)
+                    }
+
+                    viewModel.addSelectedItems(selectedItems) // Add selected items to the ViewModel
+                    navController.navigate(Routes.CreateOutfitScreen)
+                         // Navigate to Outfit Screen with selected items
+                },
+                isDoneEnabled = selectedItemKeys.isNotEmpty()
+            )
+        }
     }
 }
 
-
-
+// this function displays all items in the selected category on screen
 @Composable
-fun CategoryItemBox(
+fun CategoryItem(
     item: ClothingItem,
     isSelected: Boolean,
-    onItemSelected: (ClothingItem) -> Unit
+    isSelectionMode: Boolean,
+    onItemSelected: (ClothingItem) -> Unit, // For selection mode
+    onItemClicked: (ClothingItem) -> Unit // For detail mode
 ) {
-    // Border color based on selection status
-    val borderColor = if (isSelected) Color.Red else Color.Transparent
+
+    // Log the isSelected state for debugging
+    println("CategoryItem: ${item.name}, isSelected: $isSelected")
+
 
     Box(
         modifier = Modifier
             .padding(4.dp)
-            .border(2.dp, borderColor, shape = RoundedCornerShape(8.dp))
-            .clickable { onItemSelected(item) } // Toggle selection
+            .clip(RoundedCornerShape(8.dp))
+            .border(2.dp, if (isSelected) Color.Green else Color.Transparent, RoundedCornerShape(8.dp))
+            .clickable {
+                if (isSelectionMode) {
+                    onItemSelected(item) // Handle selection
+                } else {
+                    onItemClicked(item) // Handle detail navigation
+                }
+            }
             .padding(8.dp)
     ) {
-        Image(
-            painter = when (item.category)
-            {
-                ClothingCategory.TOPS -> painterResource(Res.drawable.top1)
-                ClothingCategory.BOTTOMS -> painterResource(Res.drawable.top1)
-                ClothingCategory.FOOTWEAR -> painterResource(Res.drawable.top1)
-                ClothingCategory.ACCESSORIES -> painterResource(Res.drawable.top1)
-            },
-            contentDescription = item.name,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(100.dp)
-                .clip(RoundedCornerShape(8.dp))
-        )
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            // Display the clothing item image
+            Image(
+                painter = when (item.itemType) {
+                    ClothingCategory.TOPS -> painterResource(Res.drawable.top1)
+                    ClothingCategory.BOTTOMS -> painterResource(Res.drawable.top1)
+                    ClothingCategory.FOOTWEAR -> painterResource(Res.drawable.top1)
+                    ClothingCategory.ACCESSORIES -> painterResource(Res.drawable.top1)
+                },
+                contentDescription = item.name,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(100.dp)
+                    .clip(RoundedCornerShape(8.dp))
+            )
+        }
     }
 }
 
-
+// when user clicks on an item, a new screen opens showing picture and details of the item
 @Composable
-fun SelectClothingItem(
+fun CategoryItemDetailScreen(
+    navController: NavController,
+    itemId: String,
+    category: ClothingCategory,
+    onBack: () -> Unit,
+    viewModel: ClothingItemViewModel // Inject the ClothingItemViewModel
 
-)
-{
-    // highlight clothing item, say "Tops" when user clicks on it
-    // user can select 1 or more of the clothing items.
-    // For example, user can select more than 1 tops
-    // when user selects atleast 1 clothing item, enable the done button
+) {
+
+    // Fetch the item details from the ViewModel using both itemId and category
+    val selectedItem = remember(itemId, category) {
+        viewModel.getClothingItemDetails(itemId, category)
+    }
+
+    println("DEBUG, CategoryItemDetailScreen -> selectedItem: $selectedItem")
+
+    // If the item is not found, show an error message
+    if (selectedItem == null) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text("Item not found", color = Color.Red, fontSize = 20.sp)
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(onClick = onBack) {
+                Text("Back")
+            }
+        }
+        return
+    }
+
+    // Display the item details
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        // Heading for the selected category
+        OutfitScreenHeader(
+            onGoBack = {navController.popBackStack()},
+            onExit = {navController.navigate(Routes.HomeTab)},
+            title = selectedItem!!.name
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        Box(
+            modifier = Modifier
+                .size(300.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .border(2.dp, Color.Black, RoundedCornerShape(12.dp))
+                .padding(2.dp)
+        ) {
+            // Display the clothing item image
+            //selectedItem?.clothingImage?.let { imageResId ->
+            Image(
+                painter = painterResource(Res.drawable.top1), // Using dynamic resource
+                contentDescription = selectedItem.name,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxSize()
+                    .fillMaxHeight()
+                    .align(Alignment.Center) // Use Alignment.Center to center the image
+            )
+            //}
+        }
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        // Display the clothing item category
+        Text(
+            text = "Category: ${selectedItem!!.itemType}",
+            modifier = Modifier.padding(top = 8.dp),
+            fontSize = 20.sp,
+            color = Color.Gray
+        )
+
+        // Display the clothing item tags (if any)
+        if (!selectedItem!!.tags.isNullOrEmpty()) {
+            Text(
+                text = "Tags: ${selectedItem!!.tags?.joinToString(", ")}",
+                modifier = Modifier.padding(top = 8.dp),
+                fontSize = 20.sp,
+                color = Color.Gray
+            )
+        }
+    }
 }
+
 
 @Composable
 fun OutfitScreenHeader(

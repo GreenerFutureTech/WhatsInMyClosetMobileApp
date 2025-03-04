@@ -12,9 +12,9 @@ class MockClothingItemViewModel : ClothingItemViewModel() {
         // Add some mock data for the preview
         addClothingItems(
             listOf(
-                ClothingItem(id = "1", name = "Top 1", category = ClothingCategory.TOPS),
-                ClothingItem(id = "2", name = "Bottom 1", category = ClothingCategory.BOTTOMS),
-                ClothingItem(id = "3", name = "Shoes 1", category = ClothingCategory.FOOTWEAR)
+                ClothingItem(id = "1", name = "Top 1", itemType = ClothingCategory.TOPS),
+                ClothingItem(id = "2", name = "Bottom 1", itemType = ClothingCategory.BOTTOMS),
+                ClothingItem(id = "3", name = "Shoes 1", itemType = ClothingCategory.FOOTWEAR)
             )
         )
     }
