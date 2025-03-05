@@ -1,0 +1,97 @@
+package org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import org.greenthread.whatsinmycloset.core.dto.MessageDto
+
+
+@Composable
+fun MessageItem(
+    message: MessageDto,
+    isSender: Boolean
+) {
+    val alignment = if (isSender) Alignment.End else Alignment.Start
+    val backgroundColor = if (isSender) Color(0xFFDCF8C6) else Color(0xFFECECEC)
+    val shape = RoundedCornerShape(8.dp)
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 4.dp),
+        horizontalAlignment = alignment
+    ) {
+        Box(
+            modifier = Modifier
+                .clip(shape)
+                .background(backgroundColor)
+                .padding(8.dp)
+        ) {
+            Column {
+                Text(
+                    text = message.content,
+                    fontSize = 16.sp,
+                    color = Color.Black
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text =  formatTime(message.sentAt),
+                    fontSize = 12.sp,
+                    color = Color.Gray,
+                    modifier = Modifier.align(Alignment.End)
+                )
+            }
+        }
+    }
+}
+
+fun formatTime(isoTime: String): String {
+    val instant = Instant.parse(isoTime)
+    val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
+
+    val hour = localDateTime.hour % 12
+    val minute = localDateTime.minute
+    val amPm = if (localDateTime.hour < 12) "AM" else "PM"
+
+    val formattedTime = "$hour:$minute $amPm"
+    return formattedTime
+}
+
+@Composable
+fun ChatList(
+    messages: List<MessageDto>,
+    currentUserId: Int
+) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp)
+    ) {
+        items(messages) { message ->
+            val isSender = message.sender.id == currentUserId
+            MessageItem(
+                message = message,
+                isSender = isSender
+            )
+        }
+    }
+}
