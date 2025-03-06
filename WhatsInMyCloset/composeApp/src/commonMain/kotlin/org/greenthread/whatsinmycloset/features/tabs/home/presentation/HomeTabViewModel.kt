@@ -8,6 +8,7 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -24,7 +25,7 @@ class HomeTabViewModel(
 ) : ViewModel() {
 
     private var cachedWardrobes = wardrobeManager.cachedWardrobes
-    var defaultWardrobe: Wardrobe? = cachedWardrobes.first()
+    var defaultWardrobe: Wardrobe? = cachedWardrobes.firstOrNull()
 
     private val _state = MutableStateFlow(HomeTabState())
     val state = _state
@@ -53,9 +54,9 @@ class HomeTabViewModel(
             // Retrieve and print wardrobes
 
             val wardrobes = wardrobeRepository.getWardrobes() // Collect Flow once
-            val wardrobeList = wardrobes.first()
-            if (wardrobeList.isNotEmpty()) {
-                defaultWardrobe = wardrobeList[0] // Assign the first wardrobe
+            val wardrobeList = wardrobes.firstOrNull()
+            if (wardrobeList?.isNotEmpty() == true) {
+                defaultWardrobe = wardrobeList.get(0) // Assign the first wardrobe
             }
             println("GreenThread Ran testDb from HomeTabViewModel to insert a wardrobe into the DB and retrieve it: ${defaultWardrobe.toString()}")
         }

@@ -104,9 +104,9 @@ fun HomeTabScreen(
     onAddItemClick: () -> Unit,
     onCreateOutfitClick: () -> Unit
 ){
+    viewModel?.testDb()
     val wardrobe = viewModel?.defaultWardrobe
 
-    viewModel?.testDb()
 
     Column {
         WardrobeHeader(itemCount = wardrobe?.getAllItems()?.count() ?: 0)
