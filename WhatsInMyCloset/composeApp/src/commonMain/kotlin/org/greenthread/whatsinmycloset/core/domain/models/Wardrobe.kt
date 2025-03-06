@@ -2,10 +2,17 @@ package org.greenthread.whatsinmycloset.core.ui.components.models
 
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 
-class Wardrobe(nameIn: String, idIn: String) {
-    val id = idIn
+class Wardrobe(wardrobeName: String, id: String, createdAt: String, lastUpdate: String, userId: String) {
+    val id = id
     val items = mutableMapOf<String, ClothingItem>() // Maps item ID to ClothingItem
-    val name = nameIn
+    val wardrobeName = wardrobeName
+    val createdAt = ""
+    val lastUpdate = ""
+    val userId = ""
+
+    override fun toString(): String {
+        return "${wardrobeName}, ${items.count()} items, createdat: ${createdAt}, lastUpdate: ${lastUpdate}, userId: ${userId}, serverId: ${id}"
+    }
 
     fun addItem(item: ClothingItem) {
         items[item.id] = item

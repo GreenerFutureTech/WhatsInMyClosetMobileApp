@@ -1,4 +1,4 @@
-package org.greenthread.whatsinmycloset.features.tabs.home
+package org.greenthread.whatsinmycloset.features.tabs.home.presentation
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,13 +25,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import org.greenthread.whatsinmycloset.app.Routes
 import org.greenthread.whatsinmycloset.core.domain.models.Account
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
-import org.greenthread.whatsinmycloset.core.domain.models.generateSampleClothingItems
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.LazyGridColourBox
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.generateRandomItems
 import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
@@ -41,6 +39,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 @Preview
 fun HomeTabScreenRoot(
+    viewModel: HomeTabViewModel,
     navController: NavController,
     onWardrobeDetailsClick: (String) -> Unit = {},
     onCreateOutfitClick: () -> Unit = {},
@@ -51,20 +50,26 @@ fun HomeTabScreenRoot(
 
         // Create a user profile
         val user = Account("user123", "Test")
-
-        // Add some clothing items to the wardrobe
+        //Relevant info is injected via HomeTabViewModel and managers
+        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+            HomeTabScreen(
+                viewModel = viewModel,
+                navController = navController,
+                user,
+                onAddItemClick,
+                onCreateOutfitClick = onCreateOutfitClick
+            )
+        }
+/*        // Add some clothing items to the wardrobe
         val redDress = ClothingItem("item1", "Red Dress", "HomeWardrobe",
             ClothingCategory.TOPS, null, listOf("red", "fancy"))
         val jeans = ClothingItem("item2", "Blue Jeans", "HomeWardrobe",
             ClothingCategory.BOTTOMS, null, listOf("blue", "casual"))
 
-        val wardrobe = Wardrobe("Waterloo Wardrobe", "wardrobe1")
-        wardrobe.addItem(redDress)
-        wardrobe.addItem(jeans)
+        val wardrobe = Wardrobe("Waterloo Wardrobe", "1234", "01-01-2025", "01-01-2025","wardrobe1")
+        user.addWardrobe(wardrobe)*/
 
-        user.addWardrobe(wardrobe)
-
-        // Create an outfit
+/*        // Create an outfit
         val summerLook = Outfit(
             id = "outfit1",
             name = "Summer Look",
@@ -84,45 +89,36 @@ fun HomeTabScreenRoot(
                     tags = listOf("casual", "summer")
                 ),
             )
-        )
-        user.addOutfit(summerLook)
+        )*/
 
-        var wardrobeRepository = null
-        var favouriteOutfits = null
-        var outfitCalendarContents = null
+        //user.addOutfit(summerLook)
 
-        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-            HomeTabScreen(
-                navController = navController,
-                user,
-                onAddItemClick,
-                onCreateOutfitClick = onCreateOutfitClick
-            )
-        }
     }
 }
 
 @Composable
 fun HomeTabScreen(
+    viewModel: HomeTabViewModel?,
     navController: NavController,
     account: Account,
     onAddItemClick: () -> Unit,
     onCreateOutfitClick: () -> Unit
 ){
-    val wardrobe = account.getWardrobe("wardrobe1")
+    val wardrobe = viewModel?.defaultWardrobe
+    viewModel?.testDb()
     Column {
         WardrobeHeader(itemCount = wardrobe?.getAllItems()?.count() ?: 0)
         CategoriesSection({})
 
         Text(
-            wardrobe?.name ?: "No wardrobe found!",
+            wardrobe?.wardrobeName ?: "No wardrobe found!",
             modifier = Modifier.align(Alignment.CenterHorizontally))
 
         Spacer(modifier = Modifier.height(25.dp))
 
         FavouriteOutfitsRow()
 
-        val randomItems = generateRandomItems(account.getAllOutfits().size) // Generate 10 random items for the preview
+        val randomItems = generateRandomItems(2) // Generate 10 random items for the preview
         LazyGridColourBox(items = randomItems)
 
         BottomButtonsRow(navController, onAddItemClick)
@@ -130,14 +126,6 @@ fun HomeTabScreen(
         //ActionButtonRow(outfit = outfitOfTheDay)
 
     }
-
-    Button(
-        onClick = onCreateOutfitClick,
-        modifier = Modifier.padding(16.dp)
-    ) {
-        Text("Create Outfit")
-    }
-
 }
 
 @Composable
@@ -192,9 +180,8 @@ fun BottomButtonsRow(
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        // Tops Category
         CategoryItem(
-            icon = Icons.Default.ShoppingCart, // Icon for Tops
+            icon = Icons.Default.ShoppingCart,
             text = "Create outfit",
             onClick = {
                 if (navController.currentBackStackEntry != null) {
@@ -202,15 +189,13 @@ fun BottomButtonsRow(
                 }
             }
         )
-        // Bottoms Category
         CategoryItem(
-            icon = null, // Icon for Bottoms
+            icon = null,
             text = "Outfit of the Day",
             onClick = {  }
         )
-        // Accessories Category
         CategoryItem(
-            icon = Icons.Default.Add, // Icon for Accessories
+            icon = Icons.Default.Add,
             text = "Add item to wardrobe",
             onClick = { launchAddItemScreen() }
         )

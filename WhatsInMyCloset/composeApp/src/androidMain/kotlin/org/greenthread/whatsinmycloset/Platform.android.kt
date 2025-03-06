@@ -18,6 +18,9 @@ import java.io.ByteArrayOutputStream
 import android.Manifest
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import org.greenthread.whatsinmycloset.core.data.MyClosetDatabase
 
 class AndroidPlatform : Platform {
     override val name: String = "Android"
@@ -75,4 +78,18 @@ actual class CameraManager(private val context: Context) {
 actual fun ByteArray.toImageBitmap(): ImageBitmap {
     val bitmap = android.graphics.BitmapFactory.decodeByteArray(this, 0, this.size)
     return bitmap.asImageBitmap()
+}
+
+actual class DatabaseFactory(
+    private val context: Context
+) {
+    actual fun create(): RoomDatabase.Builder<MyClosetDatabase> {
+        val appContext = context.applicationContext
+        val dbFile = appContext.getDatabasePath(MyClosetDatabase.DB_NAME)
+
+        return Room.databaseBuilder(
+            context = appContext,
+            name = dbFile.absolutePath
+        )
+    }
 }

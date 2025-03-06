@@ -10,8 +10,11 @@ import org.greenthread.whatsinmycloset.app.App
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             val cameraManager = CameraManager(this)
+            //val wardrobeManager by inject<WardrobeManager>()
+            //val wardrobeManager: WardrobeManager = get()
             App(cameraManager)
         }
     }

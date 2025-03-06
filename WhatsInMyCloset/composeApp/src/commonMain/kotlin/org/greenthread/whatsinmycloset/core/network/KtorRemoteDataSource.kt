@@ -15,7 +15,7 @@ import org.greenthread.whatsinmycloset.core.dto.UserDto
 import org.greenthread.whatsinmycloset.getPlatform
 
 private val platform = getPlatform()
-private val BASE_URL = if (platform.name == "iOS") "http://127.0.0.1:13000" else "http://10.0.2.2:13000"
+private val BASE_URL = "https://green-api-c9h6f7huhuezbuhv.eastus2-01.azurewebsites.net"
 
 
 class KtorRemoteDataSource(

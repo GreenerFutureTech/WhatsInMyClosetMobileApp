@@ -10,8 +10,7 @@ import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.LazyGridColourBox
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.generateRandomItems
 import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
-import org.greenthread.whatsinmycloset.features.tabs.home.AddItemScreen
-import org.greenthread.whatsinmycloset.features.tabs.home.HomeTabScreen
+import org.greenthread.whatsinmycloset.features.tabs.home.presentation.HomeTabScreen
 
 // Preview Composable
 @Preview(showSystemUi = true, showBackground = true)
@@ -36,7 +35,7 @@ fun PreviewWardrobeScreen() {
     val jeans = ClothingItem("item2", "Blue Jeans", "HomeWardrobe",
         ClothingCategory.BOTTOMS, null, listOf("blue", "casual"))
 
-    val wardrobe = Wardrobe("Waterloo Wardrobe", "wardrobe1")
+    val wardrobe = Wardrobe("Waterloo Wardrobe", "12345", "01-01-2025", "01-01-2025", "2")
     wardrobe.addItem(redDress)
     wardrobe.addItem(jeans)
 
@@ -69,7 +68,7 @@ fun PreviewWardrobeScreen() {
     val mockNavController = rememberNavController()
 
     androidx.compose.material.MaterialTheme {
-        HomeTabScreen(navController = mockNavController, user, {}, {})
+        HomeTabScreen(viewModel = null, navController = mockNavController, user, {}, {})
     }
 }
 
