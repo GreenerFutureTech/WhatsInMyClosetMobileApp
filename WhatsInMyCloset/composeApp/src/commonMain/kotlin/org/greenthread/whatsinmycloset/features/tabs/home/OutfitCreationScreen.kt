@@ -31,6 +31,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -410,28 +412,30 @@ fun CategoryItemsScreen(
         // clicking on an item, will open a new screen with the details of that item
         // using the CategoryItemScreen function
         // Button to toggle selection mode
-        Row(modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-            horizontalArrangement = Arrangement.Center)
-        {
-            Text("Select Items ${selectedItemKeys.size}")
-            var checked by remember { mutableStateOf(false) }   // set switch to false
+        Text(
+            text = "Select Items ${selectedItemKeys.size}",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
 
-            Switch(
-                checked = checked,
-                onCheckedChange = {
-                    checked = it
-                    // Toggle selection mode when switch state changes
-                    isSelectionMode.value = !isSelectionMode.value
+        var checked by remember { mutableStateOf(false) }   // set switch to false
 
-                    // Reset selection when leaving selection mode
-                    if (!isSelectionMode.value) {
-                        selectedItemKeys = emptySet()
-                    }
+        Switch(
+            checked = checked,
+            onCheckedChange = {
+                checked = it
+                // Toggle selection mode when switch state changes
+                isSelectionMode.value = !isSelectionMode.value
+
+                // Reset selection when leaving selection mode
+                if (!isSelectionMode.value) {
+                    selectedItemKeys = emptySet()
                 }
-            )
-        }
+            }
+        )
 
         Box(
             modifier = Modifier
