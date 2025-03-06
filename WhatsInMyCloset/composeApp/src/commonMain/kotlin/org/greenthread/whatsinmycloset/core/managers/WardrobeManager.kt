@@ -18,9 +18,9 @@ class WardrobeManager(
         CoroutineScope(Dispatchers.IO).launch {
             if (cachedWardrobes.isEmpty()){
                 cachedWardrobes = getWardrobes() // Collect Flow once
-                println("Inside WardrobeManager.init (Did refresh cache)")
+                println("GreenThread Inside WardrobeManager.init (Did refresh cache)")
             }
-            println("Inside WardrobeManager.init (Did not refresh cache)")
+            println("GreenThread Inside WardrobeManager.init (Did not refresh cache)")
         }
     }
 
