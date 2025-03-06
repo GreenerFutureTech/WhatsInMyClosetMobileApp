@@ -1,24 +1,35 @@
 package org.greenthread.whatsinmycloset.core.repositories
-/*
+
+import androidx.sqlite.SQLiteException
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import org.greenthread.whatsinmycloset.core.data.MyClosetDatabase
 import org.greenthread.whatsinmycloset.core.data.daos.WardrobeDao
-import org.greenthread.whatsinmycloset.core.persistence.ItemEntity
+import org.greenthread.whatsinmycloset.core.domain.DataError
+import org.greenthread.whatsinmycloset.core.domain.EmptyResult
 import org.greenthread.whatsinmycloset.core.persistence.WardrobeEntity
+import org.greenthread.whatsinmycloset.core.domain.Result
+import org.greenthread.whatsinmycloset.core.persistence.toWardrobe
 import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
 
-class WardrobeRepository(private val db: MyClosetDatabase) {
-    private val wardrobeDao = db.wardrobeDao()
+class WardrobeRepository(
+    private val wardrobeDao: WardrobeDao
+) {
 
-    suspend fun insertWardrobeWithItems(wardrobe: WardrobeEntity, items: List<ItemEntity>) {
-/*        db. {
-            db.wardrobeDao().insert(wardrobe) test
-            items.forEach { db.itemDao().insert(it) }
-        }*/
-        wardrobeDao.insert(wardrobe)
+    suspend fun insertWardrobe(wardrobe: WardrobeEntity): EmptyResult<DataError.Local>  {
+        return try {
+            wardrobeDao.insertWardrobe(wardrobe)
+            Result.Success(Unit)
+        } catch(e: SQLiteException) {
+            Result.Error(DataError.Local.DISK_FULL)
+        }
     }
 
-    suspend fun getWardrobeWithItems(wardrobeId: String): WardrobeEntity? {
-        //return db.wardrobeWithItemsDao().getWardrobeWithItems(wardrobeId)
-        return wardrobeDao.getWardrobe(wardrobeId)
+    fun getWardrobes(): Flow<List<Wardrobe>> {
+        return wardrobeDao
+            .getWardrobes()
+            .map { wardrobeEntities ->
+                wardrobeEntities.map { it.toWardrobe() }
+            }
     }
-}*/
+}
