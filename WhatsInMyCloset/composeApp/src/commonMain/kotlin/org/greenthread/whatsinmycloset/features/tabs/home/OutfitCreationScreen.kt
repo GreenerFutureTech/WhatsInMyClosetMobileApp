@@ -34,6 +34,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.room.util.TableInfo
 import org.greenthread.whatsinmycloset.app.Routes
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
@@ -374,7 +375,6 @@ fun CategoryItemsScreen(
     onDone: () -> Unit,
     viewModel: ClothingItemViewModel // Inject the ClothingItemViewModel
 ) {
-
     // items in the selected category
     val categoryEnum = ClothingCategory.fromString(category)
 
@@ -390,12 +390,6 @@ fun CategoryItemsScreen(
     // Track if selection mode is ON - meaning user wants to select 1 or more items
     // otherwise, clicking on the item will open a new screen with details of that item
     val isSelectionMode = remember { mutableStateOf(false) }
-
-    // Animate the button background color
-    val buttonBackgroundColor by animateColorAsState(
-        targetValue = if (isSelectionMode.value) Color.Green else Color.Transparent,
-        animationSpec = tween(durationMillis = 300)
-    )
 
     Column(
         modifier = Modifier
@@ -416,22 +410,27 @@ fun CategoryItemsScreen(
         // clicking on an item, will open a new screen with the details of that item
         // using the CategoryItemScreen function
         // Button to toggle selection mode
-        Button(
-            onClick = {
-                isSelectionMode.value = !isSelectionMode.value
-                if (!isSelectionMode.value) {
-                    // Reset selection when leaving selection mode
-                    selectedItemKeys = emptySet()
-                }
-            },
-            modifier = if (isSelectionMode.value) {
-                Modifier.background(color = buttonBackgroundColor) // Highlight the button when selection mode is ON
-            } else {
-                Modifier // Default modifier when selection mode is OFF
-            }
-        ) {
-            Text("Select Item(s) ${selectedItemKeys.size}")
+        Row(modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+            horizontalArrangement = Arrangement.Center)
+        {
+            Text("Select Items ${selectedItemKeys.size}")
+            var checked by remember { mutableStateOf(false) }   // set switch to false
 
+            Switch(
+                checked = checked,
+                onCheckedChange = {
+                    checked = it
+                    // Toggle selection mode when switch state changes
+                    isSelectionMode.value = !isSelectionMode.value
+
+                    // Reset selection when leaving selection mode
+                    if (!isSelectionMode.value) {
+                        selectedItemKeys = emptySet()
+                    }
+                }
+            )
         }
 
         Box(

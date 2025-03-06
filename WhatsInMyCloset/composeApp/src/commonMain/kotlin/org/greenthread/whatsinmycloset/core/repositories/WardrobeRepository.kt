@@ -1,5 +1,5 @@
 package org.greenthread.whatsinmycloset.core.repositories
-
+/*
 import org.greenthread.whatsinmycloset.core.data.MyClosetDatabase
 import org.greenthread.whatsinmycloset.core.data.daos.WardrobeDao
 import org.greenthread.whatsinmycloset.core.persistence.ItemEntity
@@ -21,4 +21,4 @@ class WardrobeRepository(private val db: MyClosetDatabase) {
         //return db.wardrobeWithItemsDao().getWardrobeWithItems(wardrobeId)
         return wardrobeDao.getWardrobe(wardrobeId)
     }
-}
+}*/
