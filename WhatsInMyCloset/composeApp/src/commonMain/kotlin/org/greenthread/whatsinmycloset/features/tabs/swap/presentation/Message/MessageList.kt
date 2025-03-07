@@ -48,7 +48,9 @@ fun MessageList(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+
         ) {
             @OptIn(ExperimentalResourceApi::class) // TEMP for /drawable image
             AsyncImage(

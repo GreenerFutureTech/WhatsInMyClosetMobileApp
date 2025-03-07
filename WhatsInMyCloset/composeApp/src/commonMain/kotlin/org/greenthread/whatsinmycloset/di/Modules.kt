@@ -1,8 +1,13 @@
 package org.greenthread.whatsinmycloset.di
 
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import org.greenthread.whatsinmycloset.DatabaseFactory
 import org.greenthread.whatsinmycloset.core.data.HttpClientFactory
+import org.greenthread.whatsinmycloset.core.data.MyClosetDatabase
+import org.greenthread.whatsinmycloset.core.managers.WardrobeManager
 import org.greenthread.whatsinmycloset.core.network.KtorRemoteDataSource
 import org.greenthread.whatsinmycloset.core.network.RemoteClosetDataSource
+import org.greenthread.whatsinmycloset.core.repositories.WardrobeRepository
 import org.greenthread.whatsinmycloset.core.repository.ClosetRepository
 import org.greenthread.whatsinmycloset.core.repository.DefaultClosetRepository
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginViewModel

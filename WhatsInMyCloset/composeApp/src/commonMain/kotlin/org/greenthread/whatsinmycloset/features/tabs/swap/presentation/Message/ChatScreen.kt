@@ -42,7 +42,7 @@ fun ChatScreen(
         lifecycle = lifecycle
     )
     val currentUserId = UserManager.currentUser?.id
-    println("OTHER USER ID: ${otherUserId}")
+
     if (currentUserId != null) {
         LaunchedEffect(state) {
             try {

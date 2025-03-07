@@ -1,9 +1,11 @@
 package org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
@@ -24,7 +26,6 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import org.greenthread.whatsinmycloset.app.Routes
-import org.greenthread.whatsinmycloset.core.dto.UserDto
 import org.greenthread.whatsinmycloset.features.tabs.swap.data.MessageListState
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -40,31 +41,40 @@ fun MessageListScreen(
     )
 
     Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        modifier = Modifier
+            .fillMaxSize()
     ) {
-        TextButton(
-            onClick = { navController.popBackStack() },
-            modifier = Modifier.align(Alignment.TopStart)
+        Column(
+            modifier = Modifier
+                .align(Alignment.TopStart)
         ) {
-            Text(
-                text = "Back",
-                fontSize = 15.sp,
-                color = Color.Blue
-            )
+            TextButton(
+                onClick = { navController.popBackStack() }
+            ) {
+                Text(
+                    text = "Back",
+                    fontSize = 15.sp,
+                    color = Color.Blue
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
 
-
-        Spacer(modifier = Modifier.height(16.dp))
         when {
             state.isLoading -> {
-                CircularProgressIndicator()
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
             state.getAllMessageResults.isEmpty() -> {
-                Text(text = "No Swap Message")
+                Text(text = "No Swap Message", modifier = Modifier.align(Alignment.Center))
             }
             else -> {
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
+                        .fillMaxSize()
+                        .padding(top = 60.dp)
+
+                ) {
                     items(state.getAllMessageResults) { message ->
                         val isSender = message.sender.id == viewModel.currentUser?.id
                         val otherUser = if (isSender) message.receiver else message.sender
@@ -76,7 +86,6 @@ fun MessageListScreen(
                                 navController.navigate(Routes.ChatScreen(otherUser.id.toString()))
                             }
                         )
-
                     }
                 }
             }

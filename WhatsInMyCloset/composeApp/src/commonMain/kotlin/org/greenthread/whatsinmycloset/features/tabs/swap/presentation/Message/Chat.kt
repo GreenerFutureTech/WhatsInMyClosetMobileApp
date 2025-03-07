@@ -78,7 +78,7 @@ fun formatTime(isoTime: String): String {
     val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
 
     val hour = localDateTime.hour % 12
-    val minute = localDateTime.minute
+    val minute = if (localDateTime.minute < 10) "0${localDateTime.minute}" else "${localDateTime.minute}"
     val amPm = if (localDateTime.hour < 12) "AM" else "PM"
 
     val formattedTime = "$hour:$minute $amPm"
