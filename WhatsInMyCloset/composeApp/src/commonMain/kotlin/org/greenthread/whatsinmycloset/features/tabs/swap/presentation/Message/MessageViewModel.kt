@@ -128,6 +128,38 @@ class MessageViewModel(
                 }
         }
     }
+
+//    fun fetchUserById(userId: Int) {
+//        viewModelScope.launch {
+//
+//            println("FETCH USER BY ID : send message from $userId")
+//            _state.update {
+//                it.copy(
+//                    isLoading = true
+//                )
+//            }
+//            swapRepository
+//                .getUserById(userId)
+//                .onSuccess { getResults ->
+//                    println("FETCH USER BY ID API success: $getResults")
+//                    _state.update {
+//                        it.copy(
+//                            isLoading = false,
+//                            getOtherUserInfo = getResults
+//                        )
+//                    }
+//                }
+//                .onError { error ->
+//                    println("SFETCH USER BY ID API ERROR ${error}")
+//                    _state.update {
+//                        it.copy(
+//                            isLoading = false,
+//                            getOtherUserInfo = null
+//                        )
+//                    }
+//                }
+//        }
+//    }
 }
 
 

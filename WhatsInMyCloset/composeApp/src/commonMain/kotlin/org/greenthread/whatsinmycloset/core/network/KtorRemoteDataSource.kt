@@ -108,13 +108,13 @@ class KtorRemoteDataSource(
         }
     }
 
-    override suspend fun getUserById(userId: Int): Result<UserDto, DataError.Remote> {
-        return safeCall {
-            httpClient.get(
-                urlString = "$BASE_URL/users/email/${userId}"
-            )
-        }
-    }
+//    override suspend fun getUserById(userId: Int): Result<UserDto, DataError.Remote> {
+//        return safeCall {
+//            httpClient.get(
+//                urlString = "$BASE_URL/users/${userId}"
+//            )
+//        }
+//    }
 
 
     override suspend fun updateUser(user: UserDto): Result<UserDto, DataError.Remote> {

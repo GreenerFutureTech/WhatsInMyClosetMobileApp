@@ -10,7 +10,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import org.greenthread.whatsinmycloset.core.dto.MessageDto
 import org.greenthread.whatsinmycloset.core.dto.MessageUserDto
+import org.greenthread.whatsinmycloset.core.dto.UserDto
 import org.greenthread.whatsinmycloset.core.ui.components.controls.SearchBar
+import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.ChatTitle
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.MessageInput
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.MessageItem
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.MessageList
@@ -67,7 +69,7 @@ fun PreviewMessageItem() {
             name = "Veronica Price",
             profilePicture = "https://fastly.picsum.photos/id/237/200/200.jpg?hmac=TmmQSbShHz9CdQm0NkEjx1Dyh_Y984R9LpNrpvH2D_U"
         ),
-        content = "Hello there!kkkkkkkkkkkkkkkkkkkk",
+        content = "Hello there!",
         sentAt = "2025-03-05T18:21:49.486Z",
         isRead = false
     )
@@ -97,3 +99,4 @@ fun PreviewMessageInput() {
         )
     }
 }
+
