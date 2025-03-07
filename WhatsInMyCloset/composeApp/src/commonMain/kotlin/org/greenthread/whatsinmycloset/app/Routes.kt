@@ -35,7 +35,8 @@ sealed interface Routes {
     data object OutfitSaveScreen: Routes
     @Serializable
     data class CategoryItemDetailScreen
-        (val clickedItemID: String,
+        (val clickedItemWardrobeID: String,
+         val clickedItemID: String,
          val clickedItemCategory: String): Routes // show the clicked items details
 
     @Serializable
