@@ -2,6 +2,7 @@ package org.greenthread.whatsinmycloset.features.tabs.home
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -35,8 +36,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.room.util.TableInfo
+import kotlinx.coroutines.flow.firstOrNull
 import org.greenthread.whatsinmycloset.app.Routes
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
+import org.greenthread.whatsinmycloset.core.repositories.WardrobeRepository
+import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
 import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.OutfitViewModel
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
@@ -59,14 +63,18 @@ fun OutfitScreen(
             generateRandomClothingItems(category.toString(), 18)
         }
 
-        // Initialize clothing items for testing routing
-        LaunchedEffect(Unit) {
-            println("DEBUG: Initializing clothing items...")
+        // Track selected wardrobe in the Composable
+        var selectedWardrobe by remember { mutableStateOf(clothingItemViewModel.defaultWardrobe) }
+
+        // Initialize clothing items for the selected wardrobe (default when screen first launches)
+        LaunchedEffect(selectedWardrobe) {
+            println("DEBUG: Initializing clothing items for wardrobe: ${selectedWardrobe?.wardrobeName}...")
 
             val allItems = categoryItemsMap.values.flatten() // Combine all category items
-            clothingItemViewModel.initializeClothingItems(allItems)
+            if (selectedWardrobe != null) {
+                clothingItemViewModel.initializeClothingItems(allItems, selectedWardrobe!!.id)
+            }
         }
-
 
         // Collect state from the ViewModel
         val selectedItems by clothingItemViewModel.selectedItems.collectAsState()
@@ -200,6 +208,44 @@ fun OutfitScreen(
         }
     }
 }   /* end of OutfitScreen */
+
+// select a wardrobe to choose items from
+@Composable
+fun WardrobeDropdown(
+    wardrobes: List<Wardrobe>,
+    selectedWardrobe: Wardrobe?,
+    onWardrobeSelected: (Wardrobe) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    // Wardrobe clickable icon
+    Image(
+        painter = painterResource(Res.drawable.wardrobe), // Replace with your wardrobe icon resource
+        contentDescription = "Wardrobe Icon",
+        modifier = Modifier
+            .size(30.dp)
+            .clickable { expanded = true } // Show dropdown when clicked
+    )
+
+    // Wardrobe dropdown menu
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = { expanded = false } // Hide dropdown when dismissed
+    ) {
+        wardrobes.forEach { wardrobe ->
+            DropdownMenuItem(
+                onClick = {
+                    onWardrobeSelected(wardrobe) // Notify parent of the selected wardrobe
+                    expanded = false // Hide dropdown after selection
+                },
+                text = { Text(text = wardrobe.wardrobeName) } // Display wardrobe name
+            )
+        }
+    }
+    /*Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+
+    }*/
+}
 
 @Composable
 fun DiscardOutfitDialog(
@@ -378,10 +424,6 @@ fun CategoryItemsScreen(
     // items in the selected category
     val categoryEnum = ClothingCategory.fromString(category)
 
-    // Collect items for the selected category when category changes
-    LaunchedEffect(categoryEnum) {
-        viewModel.getItemsByCategory(categoryEnum.toString())
-    }
     val categoryItems by viewModel.categoryItems.collectAsState()
 
     // Track selected items uniquely by ID + Category
@@ -391,24 +433,21 @@ fun CategoryItemsScreen(
     // otherwise, clicking on the item will open a new screen with details of that item
     val isSelectionMode = remember { mutableStateOf(false) }
 
+    // Track selected wardrobe in the Composable
+    var selectedWardrobe by remember { mutableStateOf(viewModel.defaultWardrobe) }
+
+    // Dropdown menu state
+    var expanded by remember { mutableStateOf(false) }
+
+    val wardrobes by viewModel.wardrobes.collectAsState()
+    var checked by remember { mutableStateOf(false) }   // set switch to false
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
-        // wardrobe clickable icon
-        Image(
-            painter = painterResource(Res.drawable.wardrobe),  // Replace with your PNG file name
-            contentDescription = "Wardrobe Icon",
-            modifier = Modifier
-                .size(64.dp)  // Adjust size as needed
-                .clickable {
-                    // Handle click action here
-                    println("Wardrobe clicked")
-                }
-        )
 
         // Heading for the selected category
         OutfitScreenHeader(
@@ -419,34 +458,50 @@ fun CategoryItemsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // A button to toggle selection, if this button is not selected
-        // clicking on an item, will open a new screen with the details of that item
-        // using the CategoryItemScreen function
-        // Button to toggle selection mode
-        Text(
-            text = "Select Items ${selectedItemKeys.size}",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            Text(
+                text = "Selected Items ${selectedItemKeys.size}",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
+                textAlign = TextAlign.End,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+        }
 
-        var checked by remember { mutableStateOf(false) }   // set switch to false
-
-        Switch(
-            checked = checked,
-            onCheckedChange = {
-                checked = it
-                // Toggle selection mode when switch state changes
-                isSelectionMode.value = !isSelectionMode.value
-
-                // Reset selection when leaving selection mode
-                if (!isSelectionMode.value) {
-                    selectedItemKeys = emptySet()
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            // Wardrobe selection dropdown
+            WardrobeDropdown(
+                wardrobes = wardrobes,
+                selectedWardrobe = selectedWardrobe,
+                onWardrobeSelected = { wardrobe ->
+                    selectedWardrobe = wardrobe // Update the selected wardrobe
                 }
-            }
-        )
+            )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Switch(
+                checked = checked,
+                onCheckedChange = {
+                    checked = it
+                    // Toggle selection mode when switch state changes
+                    isSelectionMode.value = !isSelectionMode.value
+
+                    // Reset selection when leaving selection mode
+                    if (!isSelectionMode.value) {
+                        selectedItemKeys = emptySet()
+                    }
+                }
+            )
+        }
 
         Box(
             modifier = Modifier

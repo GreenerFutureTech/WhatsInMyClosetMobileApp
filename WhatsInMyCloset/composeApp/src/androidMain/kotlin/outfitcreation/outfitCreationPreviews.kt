@@ -22,6 +22,7 @@ import androidx.navigation.navArgument
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.viewmodels.MockClothingItemViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.MockOutfitViewModel
+import org.greenthread.whatsinmycloset.core.viewmodels.MockWardrobeManager
 
 @Composable
 @Preview(showSystemUi = true, showBackground = true)
@@ -36,7 +37,7 @@ fun PreviewCategoryItemsScreen() {
     }
 
     val mockNavController = rememberNavController()
-    val mockViewModel = MockClothingItemViewModel()
+    val mockViewModel = MockClothingItemViewModel(wardrobeManager = MockWardrobeManager())
 
     // Show all items in the selected category
     CategoryItemsScreen(
@@ -54,7 +55,7 @@ fun PreviewCategoryItemsScreen() {
 fun PreviewOutfitCreationScreen() {
 
     val mockNavController = rememberNavController()
-    val mockClothingViewModel = MockClothingItemViewModel()
+    val mockClothingViewModel = MockClothingItemViewModel(wardrobeManager = MockWardrobeManager())
     val mockOutfitViewModel = MockOutfitViewModel()
 
     OutfitScreen(
