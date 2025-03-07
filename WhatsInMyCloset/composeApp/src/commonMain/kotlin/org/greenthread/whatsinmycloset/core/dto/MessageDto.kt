@@ -20,5 +20,10 @@ data class MessageUserDto (
     val profilePicture: String? = null
 )
 
-
+@Serializable
+data class SendMessageRequest(
+    val senderId: Int,
+    val receiverId: Int,
+    val content: String
+)
 

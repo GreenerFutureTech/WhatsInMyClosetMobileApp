@@ -67,7 +67,7 @@ class MessageViewModel(
 
     }
 
-    fun fetchChatHistory(userId: Int, otherUserId: String) {
+    fun fetchChatHistory(userId: Int, otherUserId: Int) {
         viewModelScope.launch {
             println("FETCHCHAT : Fetching chat data for user $userId and user $otherUserId")
             _state.update {
@@ -91,6 +91,37 @@ class MessageViewModel(
                     _state.update {
                         it.copy(
                             getChatHistory = emptyList(),
+                            isLoading = false
+                        )
+                    }
+                }
+        }
+    }
+
+    fun sendMessage(senderId: Int, receiverId: Int, content: String) {
+        viewModelScope.launch {
+
+            println("SEND MESSAGE : send message from $senderId to user $receiverId")
+            _state.update {
+                it.copy(
+                    isLoading = true
+                )
+            }
+            swapRepository
+                .sendMessage(senderId, receiverId, content)
+                .onSuccess { getResults ->
+                    println("SEND MESSAGE API success: $getResults")
+                    fetchChatHistory(senderId, receiverId)
+                    _state.update {
+                        it.copy(
+                            isLoading = false
+                        )
+                    }
+                }
+                .onError { error ->
+                    println("SEND MESSAGE API ERROR ${error}")
+                    _state.update {
+                        it.copy(
                             isLoading = false
                         )
                     }

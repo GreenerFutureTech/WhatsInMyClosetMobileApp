@@ -42,12 +42,13 @@ fun ChatScreen(
         lifecycle = lifecycle
     )
     val currentUserId = UserManager.currentUser?.id
+    val otherUserIdInt = otherUserId.toInt()
 
     if (currentUserId != null) {
         LaunchedEffect(state) {
             try {
                 if (state.getChatHistory.isEmpty()) {
-                    viewModel.fetchChatHistory(currentUserId, otherUserId)
+                    viewModel.fetchChatHistory(currentUserId, otherUserIdInt)
                 }
             } catch (e: ConnectTimeoutException) {
                 println("Connection timeout occurred (could not hit backend?): ${e.message}")
@@ -77,7 +78,9 @@ fun ChatScreen(
                 currentUserId = currentUserId,
                 messages = state.getChatHistory
             )
-            MessageInput()
+            MessageInput { messageContent ->
+                viewModel.sendMessage(currentUserId, otherUserIdInt, messageContent)
+            }
 
         }
     }

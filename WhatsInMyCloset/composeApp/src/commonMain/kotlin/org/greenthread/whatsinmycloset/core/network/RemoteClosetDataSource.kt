@@ -4,6 +4,7 @@ import org.greenthread.whatsinmycloset.core.domain.DataError
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.domain.Result
 import org.greenthread.whatsinmycloset.core.dto.MessageDto
+import org.greenthread.whatsinmycloset.core.dto.SendMessageRequest
 import org.greenthread.whatsinmycloset.core.dto.UserDto
 
 interface RemoteClosetDataSource {
@@ -14,7 +15,8 @@ interface RemoteClosetDataSource {
 
     // Messages
     suspend fun getLatestMessage(userId: String): Result<List<MessageDto>, DataError.Remote>
-    suspend fun getChatHistory(userId: Int, otherUserId: String): Result<List<MessageDto>, DataError.Remote>
+    suspend fun getChatHistory(userId: Int, otherUserId: Int): Result<List<MessageDto>, DataError.Remote>
+    suspend fun sendMessage(senderId: Int, receiverId: Int, content: String): Result<MessageDto, DataError.Remote>
 
     // User
     suspend fun createUser(user: UserDto): Result<UserDto, DataError.Remote>

@@ -3,6 +3,7 @@ package org.greenthread.whatsinmycloset.core.repository
 import org.greenthread.whatsinmycloset.core.domain.DataError
 import org.greenthread.whatsinmycloset.core.domain.Result
 import org.greenthread.whatsinmycloset.core.dto.MessageDto
+import org.greenthread.whatsinmycloset.core.dto.SendMessageRequest
 import org.greenthread.whatsinmycloset.core.network.RemoteClosetDataSource
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.dto.UserDto
@@ -27,11 +28,15 @@ class DefaultClosetRepository(
         return remoteClosetDataSource.getLatestMessage(userId)
     }
 
-    override suspend fun getChatHistory(userId: Int, otherUserId: String): Result<List<MessageDto>, DataError.Remote> {
+    override suspend fun getChatHistory(userId: Int, otherUserId: Int): Result<List<MessageDto>, DataError.Remote> {
         return remoteClosetDataSource.getChatHistory(userId, otherUserId)
     }
 
-    //============================= User ==================================
+    override suspend fun sendMessage(senderId: Int, receiverId: Int, content: String): Result<MessageDto, DataError.Remote> {
+        return remoteClosetDataSource.sendMessage(senderId, receiverId, content)
+    }
+
+        //============================= User ==================================
     override suspend fun createUser(user: UserDto): Result<UserDto, DataError.Remote> {
         return remoteClosetDataSource.createUser(user)
     }

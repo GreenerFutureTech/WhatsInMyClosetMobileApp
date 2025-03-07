@@ -7,10 +7,13 @@ import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.greenthread.whatsinmycloset.core.data.safeCall
 import org.greenthread.whatsinmycloset.core.domain.DataError
 import org.greenthread.whatsinmycloset.core.domain.Result
 import org.greenthread.whatsinmycloset.core.dto.MessageDto
+import org.greenthread.whatsinmycloset.core.dto.SendMessageRequest
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.dto.UserDto
 import org.greenthread.whatsinmycloset.getPlatform
@@ -57,11 +60,31 @@ class KtorRemoteDataSource(
         }
     }
 
-    override suspend fun getChatHistory(userId: Int, otherUserId: String): Result<List<MessageDto>, DataError.Remote> {
+    override suspend fun getChatHistory(userId: Int, otherUserId: Int): Result<List<MessageDto>, DataError.Remote> {
         return safeCall {
             httpClient.get(
                 urlString = "$BASE_URL/messages/chat/$userId/$otherUserId"
             )
+        }
+    }
+
+    override suspend fun sendMessage(senderId: Int, receiverId: Int, content: String): Result<MessageDto, DataError.Remote> {
+        return safeCall {
+            val request = SendMessageRequest(
+                senderId = senderId,
+                receiverId = receiverId,
+                content = content
+            )
+
+            val jsonRequest = Json.encodeToString(request)
+            println("SEND MESSAGE REQUEST ${jsonRequest}")
+
+            httpClient.post(
+                urlString = "$BASE_URL/messages"
+            ) {
+                contentType(ContentType.Application.Json)
+                setBody(jsonRequest)
+            }
         }
     }
 
