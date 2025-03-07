@@ -37,8 +37,8 @@ import org.greenthread.whatsinmycloset.core.domain.models.generateSampleClothing
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.LazyGridColourBox
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.LazyRowColourBox
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.generateRandomItems
-import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItem
-import org.greenthread.whatsinmycloset.features.tabs.home.SeeAllButton
+import org.greenthread.whatsinmycloset.features.tabs.home.presentation.CategoryItem
+import org.greenthread.whatsinmycloset.features.tabs.home.presentation.SeeAllButton
 import org.greenthread.whatsinmycloset.getScreenWidthDp
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 import org.jetbrains.compose.resources.painterResource

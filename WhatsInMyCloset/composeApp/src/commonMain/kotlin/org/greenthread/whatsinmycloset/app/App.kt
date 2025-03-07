@@ -27,15 +27,18 @@ import org.greenthread.whatsinmycloset.CameraManager
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginScreenRoot
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginViewModel
 import org.greenthread.whatsinmycloset.features.screens.signup.SignupScreenRoot
-import org.greenthread.whatsinmycloset.features.tabs.home.AddItemScreen
+import org.greenthread.whatsinmycloset.features.screens.addItem.presentation.AddItemScreen
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
+import org.greenthread.whatsinmycloset.core.managers.WardrobeManager
 import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.OutfitViewModel
+import org.greenthread.whatsinmycloset.features.screens.addItem.presentation.AddItemScreenViewModel
 import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItemDetailScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItemsScreen
-import org.greenthread.whatsinmycloset.features.tabs.home.HomeTabScreenRoot
+import org.greenthread.whatsinmycloset.features.tabs.home.presentation.HomeTabScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.home.OutfitSaveScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.OutfitScreen
+import org.greenthread.whatsinmycloset.features.tabs.home.presentation.HomeTabViewModel
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabScreen
 import org.greenthread.whatsinmycloset.features.tabs.social.SocialTabScreen
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.ChatScreen
@@ -47,14 +50,19 @@ import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SwapScree
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 @Preview
-fun App(cameraManager: CameraManager?) {
+fun App(
+    cameraManager: CameraManager?,
+) {
     WhatsInMyClosetTheme {
-        val navController = rememberNavController()
+        val wardrobeManager = koinInject<WardrobeManager>()
+        //wardrobeManager.test()
 
+        val navController = rememberNavController()
         // Create shared ViewModels for the outfit screens
         val sharedClothingItemViewModel: ClothingItemViewModel = koinViewModel()
         val sharedOutfitViewModel: OutfitViewModel = viewModel()
@@ -81,7 +89,9 @@ fun App(cameraManager: CameraManager?) {
                 }
                 navigation<Routes.HomeGraph>(startDestination = Routes.HomeTab) {
                     composable<Routes.HomeTab> {
+                        val viewModel = koinViewModel<HomeTabViewModel>()
                         HomeTabScreenRoot(
+                            viewModel = viewModel,
                             navController = navController,
                             onWardrobeDetailsClick = { homeTabAction ->
                                 navController.navigate(Routes.WardrobeItemsScreen(homeTabAction))
@@ -99,7 +109,8 @@ fun App(cameraManager: CameraManager?) {
                     }
                     composable<Routes.AddItemScreen> {
                         if (cameraManager != null) {
-                            AddItemScreen(cameraManager = cameraManager, onBack = {navController.navigate(Routes.HomeTab)})
+                            val viewmodel = koinViewModel<AddItemScreenViewModel>()
+                            AddItemScreen(viewModel = viewmodel, cameraManager = cameraManager, onBack = {navController.navigate(Routes.HomeTab)})
                         }
                     }
                     composable<Routes.WardrobeItemsScreen> {

@@ -1,4 +1,4 @@
-package org.greenthread.whatsinmycloset.features.tabs.home
+package org.greenthread.whatsinmycloset.features.screens.addItem.presentation
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -30,10 +30,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.dp
 import org.greenthread.whatsinmycloset.CameraManager
+import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.toImageBitmap
 
 @Composable
-fun AddItemScreen(cameraManager: CameraManager, onBack: () -> Unit) {
+fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManager, onBack: () -> Unit) {
     var itemName by remember { mutableStateOf("") }
     var itemImage by remember { mutableStateOf<ByteArray?>(null) }
     var bitmap : ImageBitmap
@@ -45,10 +46,11 @@ fun AddItemScreen(cameraManager: CameraManager, onBack: () -> Unit) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val categories = listOf("Choose a Category!", "Tops", "Bottoms", "Shoes", "Accessories")
-        val wardrobes = listOf("Wardrobe 1", "Shoes", "Waterloo wardrobe")
+        //val categories = listOf("Choose a Category!", "Tops", "Bottoms", "Shoes", "Accessories")
+        val categories = listOf("Choose a Category!") + ClothingCategory.entries.map { it.categoryName }
 
-        WardrobeDropdown(wardrobes = wardrobes)
+        val wardrobes = viewModel.getWardrobes()
+        WardrobeDropdown(wardrobes = wardrobes.map { it.wardrobeName })
         Spacer(modifier = Modifier.height(16.dp))
 
         CategoryDropdown(categories = categories)

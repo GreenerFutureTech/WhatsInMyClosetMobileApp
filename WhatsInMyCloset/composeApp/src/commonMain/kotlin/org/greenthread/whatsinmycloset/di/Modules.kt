@@ -10,6 +10,8 @@ import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SelectedS
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.MessageViewModel
+import org.greenthread.whatsinmycloset.features.tabs.home.presentation.HomeTabViewModel
+import org.greenthread.whatsinmycloset.features.screens.addItem.presentation.AddItemScreenViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
@@ -25,6 +27,18 @@ val sharedModule = module {
 
     singleOf(::KtorRemoteDataSource).bind<RemoteClosetDataSource>()
     singleOf(::DefaultClosetRepository).bind<ClosetRepository>()
+    singleOf(::WardrobeRepository).bind<WardrobeRepository>()
+    singleOf(::WardrobeManager).bind<WardrobeManager>()
+
+
+    single {
+        get<DatabaseFactory>().create()
+            .setDriver(BundledSQLiteDriver())
+            .build()
+    }
+    single{ get<MyClosetDatabase>().wardrobeDao()}
+    viewModelOf(::HomeTabViewModel)
+    viewModelOf(::AddItemScreenViewModel)
 
     viewModelOf(::SelectedSwapViewModel)
     viewModelOf(::SwapViewModel)

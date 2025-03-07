@@ -47,7 +47,7 @@ fun MessageItem(
                 .background(backgroundColor)
                 .padding(8.dp)
         ) {
-            Column( // ✅ 메시지를 위쪽에 배치
+            Column(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
