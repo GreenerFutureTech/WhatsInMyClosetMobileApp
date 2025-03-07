@@ -38,6 +38,9 @@ import org.greenthread.whatsinmycloset.features.tabs.home.OutfitSaveScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.OutfitScreen
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabScreen
 import org.greenthread.whatsinmycloset.features.tabs.social.SocialTabScreen
+import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.ChatScreen
+import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.MessageListScreen
+import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.MessageViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SelectedSwapViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SwapDetailScreen
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SwapScreenRoot
@@ -221,7 +224,8 @@ fun App(cameraManager: CameraManager?) {
                                 selectedSwapViewModel.onSelectSwap(swap)
                                 navController.navigate(Routes.SwapDetailsScreen(swap.itemId.id))
                             },
-                            onAllSwapClick = { navController.navigate(Routes.AllSwapScreen) }
+                            onAllSwapClick = { navController.navigate(Routes.AllSwapScreen) },
+                            onMessageClick = { navController.navigate(Routes.MessageListScreen)}
                         )
                     }
 
@@ -244,6 +248,30 @@ fun App(cameraManager: CameraManager?) {
                         val selectedSwap by selectedSwapViewModel.selectedSwap.collectAsStateWithLifecycle()
 
                         SwapDetailScreen(swap = selectedSwap, onBackClick = { navController.popBackStack() } )
+                    }
+
+                }
+                navigation<Routes.MessageGraph>(startDestination = Routes.MessageListScreen) {
+
+                    composable<Routes.MessageListScreen>{
+                        val viewModel: MessageViewModel = koinViewModel()
+                        MessageListScreen(
+                            viewModel = viewModel,
+                            navController = navController
+                        )
+                    }
+                    composable<Routes.ChatScreen>{
+                        backStackEntry ->
+                        val userId = backStackEntry.arguments?.getString("userId")
+                        val viewModel: MessageViewModel = koinViewModel()
+                        if(userId != null) {
+                            ChatScreen(
+                                viewModel = viewModel,
+                                otherUserId = userId,
+                                navController = navController
+                            )
+                        }
+
                     }
                 }
                 navigation<Routes.SocialGraph>(startDestination = Routes.SocialTab) {

@@ -1,13 +1,13 @@
 package org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,8 +22,8 @@ import androidx.compose.ui.unit.sp
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.dto.MessageDto
-
 
 @Composable
 fun MessageItem(
@@ -43,26 +43,35 @@ fun MessageItem(
         Box(
             modifier = Modifier
                 .clip(shape)
+                .widthIn(max = 250.dp)
                 .background(backgroundColor)
                 .padding(8.dp)
         ) {
-            Column {
+            Column( // ✅ 메시지를 위쪽에 배치
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 Text(
                     text = message.content,
                     fontSize = 16.sp,
                     color = Color.Black
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text =  formatTime(message.sentAt),
-                    fontSize = 12.sp,
-                    color = Color.Gray,
-                    modifier = Modifier.align(Alignment.End)
-                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Text(
+                        text = formatTime(message.sentAt),
+                        fontSize = 12.sp,
+                        color = Color.Gray
+                    )
+                }
             }
         }
     }
 }
+
+
 
 fun formatTime(isoTime: String): String {
     val instant = Instant.parse(isoTime)
@@ -76,14 +85,15 @@ fun formatTime(isoTime: String): String {
     return formattedTime
 }
 
+
 @Composable
 fun ChatList(
+    modifier: Modifier = Modifier,
+    currentUserId: Int,
     messages: List<MessageDto>,
-    currentUserId: Int
 ) {
     LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = modifier
             .padding(8.dp)
     ) {
         items(messages) { message ->

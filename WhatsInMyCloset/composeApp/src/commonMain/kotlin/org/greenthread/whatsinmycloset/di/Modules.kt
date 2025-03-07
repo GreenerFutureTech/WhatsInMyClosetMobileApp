@@ -9,6 +9,7 @@ import org.greenthread.whatsinmycloset.features.screens.login.presentation.Login
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SelectedSwapViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
+import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.MessageViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
@@ -28,6 +29,7 @@ val sharedModule = module {
     viewModelOf(::SelectedSwapViewModel)
     viewModelOf(::SwapViewModel)
     viewModelOf(::LoginViewModel)
+    viewModelOf(::MessageViewModel)
 
     viewModelOf(::ClothingItemViewModel)
 

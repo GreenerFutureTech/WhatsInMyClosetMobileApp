@@ -5,11 +5,19 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class MessageDto (
     val id: Int,
-    val sender: UserDto,
-    val receiver: UserDto,
+    val sender: MessageUserDto,
+    val receiver: MessageUserDto,
     val content: String,
     val sentAt: String,
     val isRead: Boolean
+)
+
+@Serializable
+data class MessageUserDto (
+    val id: Int,
+    val username: String,
+    val name: String,
+    val profilePicture: String? = null
 )
 
 

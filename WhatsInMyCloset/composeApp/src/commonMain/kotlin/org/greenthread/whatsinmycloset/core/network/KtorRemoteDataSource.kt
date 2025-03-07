@@ -10,13 +10,15 @@ import io.ktor.http.contentType
 import org.greenthread.whatsinmycloset.core.data.safeCall
 import org.greenthread.whatsinmycloset.core.domain.DataError
 import org.greenthread.whatsinmycloset.core.domain.Result
+import org.greenthread.whatsinmycloset.core.dto.MessageDto
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.dto.UserDto
 import org.greenthread.whatsinmycloset.getPlatform
 
 private val platform = getPlatform()
-private val BASE_URL = if (platform.name == "iOS") "http://127.0.0.1:13000" else "http://10.0.2.2:13000"
 
+private val BASE_URL =  if (platform.name == "iOS") "http://127.0.0.1:13000" else "http://10.0.2.2:13000"
+//"https://green-api-c9h6f7huhuezbuhv.eastus2-01.azurewebsites.net"
 
 class KtorRemoteDataSource(
     private val httpClient: HttpClient
@@ -46,6 +48,23 @@ class KtorRemoteDataSource(
         }
     }
 
+    //============================= Messages  =================================
+    override suspend fun getLatestMessage(userId: String): Result<List<MessageDto>, DataError.Remote> {
+        return safeCall {
+            httpClient.get(
+                urlString = "$BASE_URL/messages/latest/$userId"
+            )
+        }
+    }
+
+    override suspend fun getChatHistory(userId: Int, otherUserId: String): Result<List<MessageDto>, DataError.Remote> {
+        return safeCall {
+            httpClient.get(
+                urlString = "$BASE_URL/messages/chat/$userId/$otherUserId"
+            )
+        }
+    }
+
     //============================= User ==================================
     override suspend fun createUser(user: UserDto): Result<UserDto, DataError.Remote> {
         return safeCall {
@@ -65,6 +84,15 @@ class KtorRemoteDataSource(
             )
         }
     }
+
+    override suspend fun getUserById(userId: Int): Result<UserDto, DataError.Remote> {
+        return safeCall {
+            httpClient.get(
+                urlString = "$BASE_URL/users/email/${userId}"
+            )
+        }
+    }
+
 
     override suspend fun updateUser(user: UserDto): Result<UserDto, DataError.Remote> {
         return safeCall {

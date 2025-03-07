@@ -24,7 +24,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import io.ktor.client.network.sockets.ConnectTimeoutException
+import org.greenthread.whatsinmycloset.app.Routes
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
@@ -41,7 +43,8 @@ import org.koin.compose.viewmodel.koinViewModel
 fun SwapScreenRoot(
     viewModel: SwapViewModel = koinViewModel(),
     onSwapClick: (SwapDto) -> Unit,
-    onAllSwapClick: () -> Unit
+    onAllSwapClick: () -> Unit,
+    onMessageClick: () -> Unit
 ) {
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val state by viewModel.state.collectAsStateWithLifecycle(
@@ -49,7 +52,7 @@ fun SwapScreenRoot(
         lifecycle = lifecycle
     )
 
-    val currentUser = UserManager.currentUser
+    val currentUser = UserManager.currentUser?:return
 
     WhatsInMyClosetTheme {
         LaunchedEffect(state) {
@@ -85,8 +88,8 @@ fun SwapScreenRoot(
            // viewModel.onAction(action)
         },
         onAllSwapClick = onAllSwapClick,
-        user = currentUser
-    )
+        onMessageClick = onMessageClick
+        )
     }
 }
 
@@ -95,7 +98,7 @@ fun SwapScreen(
     state: SwapListState,
     onAction: (SwapAction) -> Unit,
     onAllSwapClick: () -> Unit,
-    user: UserDto
+    onMessageClick: () -> Unit
 ) {
     var searchString by remember { mutableStateOf("") }
 
@@ -126,7 +129,9 @@ fun SwapScreen(
             Icon(
                 imageVector = Icons.Default.MailOutline,
                 contentDescription = "Messages",
-                modifier = Modifier.size(40.dp),
+                modifier = Modifier
+                    .size(40.dp)
+                    .clickable { onMessageClick() },
                 tint = Color.Black
             )
         }
