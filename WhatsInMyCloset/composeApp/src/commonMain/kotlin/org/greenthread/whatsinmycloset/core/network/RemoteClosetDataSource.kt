@@ -17,6 +17,7 @@ interface RemoteClosetDataSource {
     suspend fun getLatestMessage(userId: String): Result<List<MessageDto>, DataError.Remote>
     suspend fun getChatHistory(userId: Int, otherUserId: Int): Result<List<MessageDto>, DataError.Remote>
     suspend fun sendMessage(senderId: Int, receiverId: Int, content: String): Result<MessageDto, DataError.Remote>
+    suspend fun updateRead(messageId: Int): Result<String, DataError.Remote>
 
     // User
     suspend fun createUser(user: UserDto): Result<UserDto, DataError.Remote>

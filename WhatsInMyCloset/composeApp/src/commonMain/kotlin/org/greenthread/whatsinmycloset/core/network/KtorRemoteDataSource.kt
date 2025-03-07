@@ -2,6 +2,7 @@ package org.greenthread.whatsinmycloset.core.network
 
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
+import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
@@ -68,6 +69,14 @@ class KtorRemoteDataSource(
         }
     }
 
+    override suspend fun updateRead(messageId: Int): Result<String, DataError.Remote> {
+        return safeCall {
+            httpClient.patch(
+                urlString = "$BASE_URL/messages/$messageId/read"
+            )
+        }
+    }
+
     override suspend fun sendMessage(senderId: Int, receiverId: Int, content: String): Result<MessageDto, DataError.Remote> {
         return safeCall {
             val request = SendMessageRequest(
@@ -108,13 +117,13 @@ class KtorRemoteDataSource(
         }
     }
 
-//    override suspend fun getUserById(userId: Int): Result<UserDto, DataError.Remote> {
-//        return safeCall {
-//            httpClient.get(
-//                urlString = "$BASE_URL/users/${userId}"
-//            )
-//        }
-//    }
+    override suspend fun getUserById(userId: Int): Result<UserDto, DataError.Remote> {
+        return safeCall {
+            httpClient.get(
+                urlString = "$BASE_URL/users/${userId}"
+            )
+        }
+    }
 
 
     override suspend fun updateUser(user: UserDto): Result<UserDto, DataError.Remote> {

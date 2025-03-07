@@ -12,7 +12,6 @@ import org.greenthread.whatsinmycloset.core.dto.MessageDto
 import org.greenthread.whatsinmycloset.core.dto.MessageUserDto
 import org.greenthread.whatsinmycloset.core.dto.UserDto
 import org.greenthread.whatsinmycloset.core.ui.components.controls.SearchBar
-import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.ChatTitle
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.MessageInput
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.MessageItem
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.MessageList
@@ -46,6 +45,7 @@ fun PreviewMessageList() {
                 profilePicture = "https://fastly.picsum.photos/id/853/200/200.jpg?hmac=f4LF-tVBBnJb9PQAVEO8GCTGWgLUnxQLw44rUofE6mQ",
             ),
             lastMessage = "Hello! How are you?",
+            isUnread = true,
             onClick = {}
         )
     }

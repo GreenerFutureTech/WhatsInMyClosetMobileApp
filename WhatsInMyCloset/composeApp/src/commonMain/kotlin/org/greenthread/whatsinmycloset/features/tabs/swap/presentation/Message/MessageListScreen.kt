@@ -12,11 +12,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -65,7 +61,7 @@ fun MessageListScreen(
             state.isLoading -> {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
-            state.getAllMessageResults.isEmpty() -> {
+            state.getLatestMessageResults.isEmpty() -> {
                 Text(text = "No Swap Message", modifier = Modifier.align(Alignment.Center))
             }
             else -> {
@@ -75,14 +71,16 @@ fun MessageListScreen(
                         .padding(top = 60.dp)
 
                 ) {
-                    items(state.getAllMessageResults) { message ->
+                    items(state.getLatestMessageResults) { message ->
                         val isSender = message.sender.id == viewModel.currentUser?.id
                         val otherUser = if (isSender) message.receiver else message.sender
 
                         MessageList(
                             user = otherUser,
                             lastMessage = message.content,
+                            isUnread = !message.isRead,
                             onClick = {
+                                viewModel.updateRead(message.id)
                                 navController.navigate(Routes.ChatScreen(otherUser.id.toString()))
                             }
                         )

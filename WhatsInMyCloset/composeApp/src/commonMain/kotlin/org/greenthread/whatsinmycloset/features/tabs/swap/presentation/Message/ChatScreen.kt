@@ -91,7 +91,6 @@ fun ChatScreen(
 
                 Spacer(modifier = Modifier.width(8.dp))
 
-                println("GET OTHER USER ${state.getOtherUserInfo}")
 //                state.getOtherUserInfo?.let { user ->
 //                    ChatTitle(user)
 //                }

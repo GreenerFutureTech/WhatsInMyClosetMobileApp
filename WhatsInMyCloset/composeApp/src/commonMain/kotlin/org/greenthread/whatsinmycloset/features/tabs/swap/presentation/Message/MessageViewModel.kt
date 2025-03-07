@@ -49,7 +49,7 @@ class MessageViewModel(
                         _state.update {
                             it.copy(
                                 isLoading = false,
-                                getAllMessageResults = getResults
+                                getLatestMessageResults = getResults
                             )
                         }
                     }
@@ -57,7 +57,7 @@ class MessageViewModel(
                         println("FETCH MESSAGE LIST API ERROR: $error")
                         _state.update {
                             it.copy(
-                                getAllMessageResults = emptyList(),
+                                getLatestMessageResults = emptyList(),
                                 isLoading = false,
                             )
                         }
@@ -120,6 +120,36 @@ class MessageViewModel(
                 }
                 .onError { error ->
                     println("SEND MESSAGE API ERROR ${error}")
+                    _state.update {
+                        it.copy(
+                            isLoading = false
+                        )
+                    }
+                }
+        }
+    }
+
+    fun updateRead(messageId: Int) {
+        viewModelScope.launch {
+
+            println("UPDATE READ : message ${messageId} marked as read")
+            _state.update {
+                it.copy(
+                    isLoading = true
+                )
+            }
+            swapRepository
+                .updateRead(messageId)
+                .onSuccess { getResults ->
+                    println("UPDATE READ API success: $getResults")
+                    _state.update {
+                        it.copy(
+                            isLoading = false
+                        )
+                    }
+                }
+                .onError { error ->
+                    println("UPDATE READ API ERROR ${error}")
                     _state.update {
                         it.copy(
                             isLoading = false

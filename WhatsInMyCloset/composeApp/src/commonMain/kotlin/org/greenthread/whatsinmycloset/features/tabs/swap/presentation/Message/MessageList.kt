@@ -29,12 +29,14 @@ import coil3.compose.AsyncImage
 import org.greenthread.whatsinmycloset.core.dto.MessageUserDto
 import org.greenthread.whatsinmycloset.core.dto.UserDto
 import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.Font
 import whatsinmycloset.composeapp.generated.resources.Res
 
 @Composable
 fun MessageList(
     user: MessageUserDto,
     lastMessage: String,
+    isUnread: Boolean,
     onClick: () -> Unit
 ) {
     Button(
@@ -69,12 +71,25 @@ fun MessageList(
                     fontSize = 20.sp,
                     color = Color.Black
                 )
-                Text(
-                    text = lastMessage,
-                    fontSize = 14.sp,
-                    color = Color.Gray
-                )
+                if (isUnread) {
+                    Text(
+                        text = lastMessage,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.DarkGray
+                    )
+                }else {
+                    Text(
+                        text = lastMessage,
+                        fontSize = 16.sp,
+                        color = Color.Gray
+                    )
+                }
+
+
             }
+
+
         }
     }
 }

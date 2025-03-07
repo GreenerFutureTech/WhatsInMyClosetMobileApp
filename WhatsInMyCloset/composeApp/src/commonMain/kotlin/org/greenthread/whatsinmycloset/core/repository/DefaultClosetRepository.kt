@@ -36,6 +36,10 @@ class DefaultClosetRepository(
         return remoteClosetDataSource.sendMessage(senderId, receiverId, content)
     }
 
+    override suspend fun updateRead(messageId: Int): Result<String, DataError.Remote> {
+        return remoteClosetDataSource.updateRead(messageId)
+    }
+
         //============================= User ==================================
     override suspend fun createUser(user: UserDto): Result<UserDto, DataError.Remote> {
         return remoteClosetDataSource.createUser(user)
