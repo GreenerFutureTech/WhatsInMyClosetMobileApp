@@ -10,9 +10,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -92,9 +94,19 @@ fun ChatList(
     currentUserId: Int,
     messages: List<MessageDto>,
 ) {
+
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(messages) {
+        if (messages.isNotEmpty()) {
+            listState.scrollToItem(messages.size - 1)
+        }
+    }
     LazyColumn(
         modifier = modifier
-            .padding(8.dp)
+            .padding(8.dp),
+        state = listState,
+        reverseLayout = false
     ) {
         items(messages) { message ->
             val isSender = message.sender.id == currentUserId
