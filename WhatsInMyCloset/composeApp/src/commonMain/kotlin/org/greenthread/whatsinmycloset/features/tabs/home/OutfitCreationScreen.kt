@@ -442,6 +442,13 @@ fun CategoryItemsScreen(
     val wardrobes by viewModel.wardrobes.collectAsState()
     var checked by remember { mutableStateOf(false) }   // set switch to false
 
+    // Fetch items for the selected category and wardrobe whenever they change
+    LaunchedEffect(category, selectedWardrobe) {
+        if (selectedWardrobe != null) {
+            viewModel.getItemsByCategoryAndWardrobe(category, selectedWardrobe)
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -529,10 +536,9 @@ fun CategoryItemsScreen(
                         },
                         onItemClicked = { clickedItem ->
                             navController.navigate(
-                                Routes.CategoryItemDetailScreen(
-                                    clickedItem.id, clickedItem.itemType.toString()
+                                Routes.CategoryItemDetailScreen(clickedItem.wardrobeId.toString(),
+                                    clickedItem.id, clickedItem.itemType.toString())
                                 )
-                            )
                         }
                     )
                 }
@@ -558,7 +564,7 @@ fun CategoryItemsScreen(
             )
         }
     }
-}
+} /* end of CategoryItemsScreen */
 
 // this function displays all items in the selected category on screen
 @Composable
@@ -614,6 +620,7 @@ fun CategoryItem(
 @Composable
 fun CategoryItemDetailScreen(
     navController: NavController,
+    wardrobeId: String,
     itemId: String,
     category: ClothingCategory,
     onBack: () -> Unit,
@@ -622,11 +629,18 @@ fun CategoryItemDetailScreen(
 ) {
 
     // Fetch the item details from the ViewModel using both itemId and category
-    val selectedItem = remember(itemId, category) {
-        viewModel.getClothingItemDetails(itemId, category)
+    val selectedItem = remember(wardrobeId, itemId, category) {
+        viewModel.getClothingItemDetails(wardrobeId, itemId, category)
     }
 
-    println("DEBUG, CategoryItemDetailScreen -> selectedItem: $selectedItem")
+    // Fetch the wardrobe name using the wardrobeId from the selected item
+    val wardrobeName = remember(selectedItem) {
+        viewModel.wardrobes.value.find { it.id == selectedItem?.wardrobeId }?.wardrobeName
+            ?: "Unknown Wardrobe"
+    }
+
+    println("DEBUG, CategoryItemDetailScreen -> " +
+            "selectedItem: $selectedItem selected wardrobe: $wardrobeName")
 
     // If the item is not found, show an error message
     if (selectedItem == null) {
@@ -671,7 +685,6 @@ fun CategoryItemDetailScreen(
                 .padding(2.dp)
         ) {
             // Display the clothing item image
-            //selectedItem?.clothingImage?.let { imageResId ->
             Image(
                 painter = painterResource(Res.drawable.top1), // Using dynamic resource
                 contentDescription = selectedItem.name,
@@ -681,10 +694,17 @@ fun CategoryItemDetailScreen(
                     .fillMaxHeight()
                     .align(Alignment.Center) // Use Alignment.Center to center the image
             )
-            //}
         }
 
         Spacer(modifier = Modifier.height(4.dp))
+
+        // Display wardrobe name
+        Text(
+            text = "Wardrobe: ${wardrobeName}",
+            modifier = Modifier.padding(top = 8.dp),
+            fontSize = 20.sp,
+            color = Color.Gray
+        )
 
         // Display the clothing item category
         Text(

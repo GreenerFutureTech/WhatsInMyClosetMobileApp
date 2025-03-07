@@ -61,13 +61,17 @@ ViewModel() {
 
     // Fetch the details of a specific clothing item by its ID
     // this info will come from DB eventually
-    fun getClothingItemDetails(itemId: String,  category: ClothingCategory): ClothingItem? {
-
-        println("DEBUG, Searching for item: id=$itemId, category=$category")
+    fun getClothingItemDetails
+                (wardrobeId: String, itemId: String, category: ClothingCategory)
+    : ClothingItem?
+    {
+        println("DEBUG, Searching for item: id=$itemId, category=$category, wardrobeId=$wardrobeId")
         println("DEBUG, Current items: ${_clothingItems.value}")
 
-        // get the item from the all the items shown on screen
-        return _clothingItems.value.find { it.id == itemId && it.itemType == category }
+        // Get the item from all items that match the ID, category, and wardrobe ID
+        return _clothingItems.value.find { item ->
+            item.id == itemId && item.itemType == category && item.wardrobeId == wardrobeId
+        }
     }
 
     private val _categoryItems = MutableStateFlow<List<ClothingItem>>(emptyList())
@@ -75,7 +79,7 @@ ViewModel() {
 
     val sampleWardrobes = listOf(
         WardrobeEntity(
-            id = "1",
+            id = "123",
             wardrobeName = "Summer Closet",
             createdAt = "2025-03-01",
             lastUpdate = "2025-03-07",
