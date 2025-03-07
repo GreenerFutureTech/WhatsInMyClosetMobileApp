@@ -28,8 +28,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.material3.Text
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
@@ -42,7 +40,7 @@ import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 import org.jetbrains.compose.resources.painterResource
 import whatsinmycloset.composeapp.generated.resources.Res
 import whatsinmycloset.composeapp.generated.resources.top1
-
+import whatsinmycloset.composeapp.generated.resources.wardrobe
 
 
 @Composable
@@ -403,6 +401,19 @@ fun CategoryItemsScreen(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
+        // wardrobe clickable icon
+        Image(
+            painter = painterResource(Res.drawable.wardrobe),  // Replace with your PNG file name
+            contentDescription = "Wardrobe Icon",
+            modifier = Modifier
+                .size(64.dp)  // Adjust size as needed
+                .clickable {
+                    // Handle click action here
+                    println("Wardrobe clicked")
+                }
+        )
+
         // Heading for the selected category
         OutfitScreenHeader(
             onGoBack = {navController.popBackStack()},
