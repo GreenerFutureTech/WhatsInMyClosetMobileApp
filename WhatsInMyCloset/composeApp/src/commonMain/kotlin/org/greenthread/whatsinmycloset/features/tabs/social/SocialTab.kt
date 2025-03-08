@@ -95,8 +95,7 @@ fun FriendsOutfitsTitle() {
 fun SocialFeedScreen(postsList: MutableList<Post>) {
     Column(
         Modifier
-            .fillMaxWidth()
-            .padding(top = 60.dp),
+            .fillMaxWidth(),
         horizontalAlignment = Alignment.Start
     ) {
         FriendsOutfitsTitle()
