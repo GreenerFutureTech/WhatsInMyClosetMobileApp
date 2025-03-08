@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
+import org.greenthread.whatsinmycloset.core.dto.MessageUserDto
 import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
 
 sealed interface Routes {
@@ -17,6 +18,8 @@ sealed interface Routes {
     data object SocialGraph : Routes
     @Serializable
     data object LoginGraph : Routes
+    @Serializable
+    data object MessageGraph : Routes
 
     @Serializable
     data object LoginTab : Routes
@@ -55,6 +58,12 @@ sealed interface Routes {
 
     @Serializable
     data object AllSwapScreen : Routes
+
+    @Serializable
+    data object MessageListScreen : Routes
+
+    @Serializable
+    data class ChatScreen(val userId: String) : Routes
 
     @Serializable
     data class WardrobeItemsScreen(val id: String) : Routes
