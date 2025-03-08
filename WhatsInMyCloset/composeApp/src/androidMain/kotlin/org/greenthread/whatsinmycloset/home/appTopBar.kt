@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
@@ -16,6 +18,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
+import org.greenthread.whatsinmycloset.app.Routes
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 
 @Composable
@@ -27,8 +31,8 @@ fun AppScreenTest() {
         ) {
             AppTopBar(
                 title = "Wardrobe",
-                onNavigateHome = ::TODO,
-                onOpenSettings = {TODO()},
+                navController = TODO(),
+                showBackButton = true
             )
         }
     }
@@ -37,8 +41,8 @@ fun AppScreenTest() {
 @Composable
 fun AppTopBar(
     title: String,
-    onNavigateHome: () -> Unit,
-    onOpenSettings: () -> Unit
+    navController: NavController,
+    showBackButton: Boolean = false
 ) {
     TopAppBar(
         title = {
@@ -53,16 +57,18 @@ fun AppTopBar(
             )
         } },
         navigationIcon = {
-            IconButton(onClick = onNavigateHome) {
-                Icon(
-                    Icons.Default.Home,
-                    contentDescription = "Home",
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )
+            if (showBackButton) {
+                IconButton(onClick = { navController.popBackStack() }) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        tint = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
             }
         },
         actions = {
-            IconButton(onClick = onOpenSettings) {
+            IconButton(onClick = { navController.navigate(Routes.SettingsScreen)}) {
                 Icon(
                     Icons.Default.Settings,
                     contentDescription = "Settings",
