@@ -23,20 +23,6 @@ import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.viewmodels.MockClothingItemViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.MockOutfitViewModel
 
-
-/*@Preview(showSystemUi = true, showBackground = true)
-@Composable
-fun PreviewOutfitScreen() {
-    val onDone: () -> Unit = { /* Handle When User is Done Creating the Outfit */ }
-
-    val sampleItems = generateSampleClothingItems()
-
-    OutfitScreen(
-        onDone = onDone,
-        selectedClothingItems = sampleItems // dummy items
-    )
-}*/
-
 @Composable
 @Preview(showSystemUi = true, showBackground = true)
 fun PreviewCategoryItemsScreen() {
