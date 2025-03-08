@@ -175,6 +175,9 @@ fun App(
                     composable<Routes.CategoryItemDetailScreen>
                     {
                         backStackEntry ->
+                        val wardrobeId =
+                            backStackEntry.arguments?.getString("clickedItemWardrobeID") ?: ""
+
                         val itemId =
                             backStackEntry.arguments?.getString("clickedItemID") ?: ""
 
@@ -186,6 +189,7 @@ fun App(
                         if (category != null) {
                             CategoryItemDetailScreen(
                                 navController = navController,
+                                wardrobeId = wardrobeId,
                                 itemId = itemId,
                                 category = category,
                                 onBack = { navController.popBackStack() },

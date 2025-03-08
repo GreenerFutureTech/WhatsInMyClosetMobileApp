@@ -1,5 +1,6 @@
 package org.greenthread.whatsinmycloset.core.ui.components.models
 
+import kotlinx.serialization.Serializable
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 
 class Wardrobe(wardrobeName: String, id: String, createdAt: String, lastUpdate: String, userId: String) {
@@ -11,7 +12,8 @@ class Wardrobe(wardrobeName: String, id: String, createdAt: String, lastUpdate: 
     val userId = ""
 
     override fun toString(): String {
-        return "${wardrobeName}, ${items.count()} items, createdat: ${createdAt}, lastUpdate: ${lastUpdate}, userId: ${userId}, serverId: ${id}"
+        return "${wardrobeName}, ${items.count()} items, createdAt: ${createdAt}, " +
+                "lastUpdate: ${lastUpdate}, userId: ${userId}, serverId: ${id}"
     }
 
     fun addItem(item: ClothingItem) {

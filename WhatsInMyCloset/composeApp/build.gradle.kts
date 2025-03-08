@@ -120,6 +120,7 @@ dependencies {
     implementation(libs.identity.jvm)
     implementation(libs.androidx.core.ktx)
     debugImplementation(compose.uiTooling)
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
 }
 
 
