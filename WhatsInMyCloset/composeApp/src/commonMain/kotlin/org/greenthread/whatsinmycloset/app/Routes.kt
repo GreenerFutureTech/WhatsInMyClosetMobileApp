@@ -60,4 +60,7 @@ sealed interface Routes {
 
     @Serializable
     data object AddItemScreen : Routes
+
+    @Serializable
+    data object SettingsScreen: Routes
 }
