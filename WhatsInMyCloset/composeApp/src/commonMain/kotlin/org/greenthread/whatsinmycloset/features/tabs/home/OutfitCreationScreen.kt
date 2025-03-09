@@ -1,7 +1,6 @@
 package org.greenthread.whatsinmycloset.features.tabs.home
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.tween
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -12,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
+import org.greenthread.whatsinmycloset.core.domain.models.OffsetData
 import org.greenthread.whatsinmycloset.core.domain.models.generateRandomClothingItems
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
@@ -28,21 +28,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.material3.Text
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.room.util.TableInfo
 import org.greenthread.whatsinmycloset.app.Routes
+import org.greenthread.whatsinmycloset.core.domain.models.Account
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.OutfitViewModel
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 import org.jetbrains.compose.resources.painterResource
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 import whatsinmycloset.composeapp.generated.resources.Res
 import whatsinmycloset.composeapp.generated.resources.top1
 
@@ -54,6 +54,7 @@ fun OutfitScreen(
     clothingItemViewModel: ClothingItemViewModel,
     outfitViewModel: OutfitViewModel
 ) {
+
     WhatsInMyClosetTheme {
         // for testing - populate the categories with random items
         val allCategories = ClothingCategory.values()
@@ -79,6 +80,11 @@ fun OutfitScreen(
         // Show calendar dialog
         var showCalendarDialog by remember { mutableStateOf(false) }
 
+        // Handle position updates
+        val onPositionUpdate = { itemId: String, newPosition: OffsetData ->
+            outfitViewModel.updateClothingItemPosition(itemId, newPosition)
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -94,7 +100,10 @@ fun OutfitScreen(
             )
 
             // Outfit collage area will show the selectedClothingItems
-            OutfitCollageArea(selectedItems)
+            OutfitCollageArea(
+                selectedClothingItems = selectedItems,
+                onPositionUpdate = onPositionUpdate
+            )
 
             Spacer(modifier = Modifier.height(4.dp))
 
@@ -126,7 +135,7 @@ fun OutfitScreen(
                         // Save Outfit button
                         Button(
                             onClick = {
-                                // Create the outfit
+                                // Create the outfit, pass user's id and outfit id
                                 outfitViewModel.createOutfit(selectedItems)
 
                                 // Navigate to the OutfitSaveScreen
@@ -228,7 +237,8 @@ fun DiscardOutfitDialog(
 // show the items user selected to create an outfit
 @Composable
 fun OutfitCollageArea(
-    selectedClothingItems: List<ClothingItem>)
+    selectedClothingItems: List<ClothingItem>,
+    onPositionUpdate: (String, OffsetData) -> Unit)
 {
     val canvasHeight = with(LocalDensity.current) { 300.dp.toPx() }
     val canvasWidth = with(LocalDensity.current) { 450.dp.toPx() }
@@ -266,7 +276,11 @@ fun OutfitCollageArea(
                     itemIndex = index,
                     itemPositions = itemPositions,
                     canvasWidth = canvasWidth,
-                    canvasHeight = canvasHeight
+                    canvasHeight = canvasHeight,
+                    onPositionUpdate = { newPosition ->
+                        // Notify parent of position change
+                        onPositionUpdate(clothingItem.id, newPosition)
+                    }
                 )
             }
 
@@ -282,7 +296,8 @@ fun DraggableClothingItem(
     itemIndex: Int,
     itemPositions: MutableList<OffsetData>,
     canvasWidth: Float,
-    canvasHeight: Float
+    canvasHeight: Float,
+    onPositionUpdate: (OffsetData) -> Unit
 ) {
     val defaultPosition = OffsetData(100f, 100f)
     val position = remember {
@@ -312,11 +327,15 @@ fun DraggableClothingItem(
                     println("NEW X: $newX")
                     println("NEW Y: $newY")
 
+                    val newPosition = OffsetData(newX, newY)
                     position.value = OffsetData(newX, newY)
 
                     if (itemIndex < itemPositions.size) {
                         itemPositions[itemIndex] = position.value
                     }
+
+                    // Notify parent of position change
+                    onPositionUpdate(newPosition)
                 }
             }
             .size(100.dp) // Define the size of the clothing item
@@ -333,7 +352,7 @@ fun DraggableClothingItem(
     }
 }
 
-data class OffsetData(val x: Float, val y: Float)
+//data class OffsetData(val x: Float, val y: Float)
 
 // shows all category options
 @Composable

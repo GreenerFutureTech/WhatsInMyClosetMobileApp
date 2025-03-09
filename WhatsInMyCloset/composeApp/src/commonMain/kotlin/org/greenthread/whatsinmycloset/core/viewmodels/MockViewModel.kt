@@ -3,6 +3,7 @@ package org.greenthread.whatsinmycloset.core.viewmodels
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import org.greenthread.whatsinmycloset.core.domain.models.Account
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.repositories.OutfitRepository
@@ -21,14 +22,32 @@ class MockClothingItemViewModel : ClothingItemViewModel() {
 }
 
 class MockOutfitViewModel (
+    account: Account, // Add Account parameter
     initialSelectedFolder: String? = null,
     initialSelectedFolders: List<String> = emptyList(),
     initialIsPublic: Boolean = false
-): OutfitViewModel()
+): OutfitViewModel(account)
 {
 
-    private val outfitRepository = OutfitRepository()
-    override val outfitFolders: StateFlow<List<String>> = outfitRepository.outfitFolders
+    // Default repository names
+    public val defaultRepositories = setOf(
+        "Business Casuals",
+        "Formals",
+        "Casuals",
+        "Public Outfits"
+    )
+
+    // StateFlow for default repositories
+    private val _outfitFolders = MutableStateFlow(defaultRepositories)
+    override val outfitFolders: StateFlow<Set<String>> = _outfitFolders
+
+    // StateFlow for user-created repositories
+    private val _userRepositories = MutableStateFlow<Set<String>>(emptySet())
+    val userRepositories: StateFlow<Set<String>> = _userRepositories
+
+    // Combined list of default and user-created repositories
+    val allRepositories: Set<String>
+        get() = _outfitFolders.value + _userRepositories.value
 
     override val selectedFolder: StateFlow<String?> = MutableStateFlow(initialSelectedFolder).asStateFlow()
     override val selectedFolders: StateFlow<List<String>> = MutableStateFlow(initialSelectedFolders).asStateFlow()
@@ -52,9 +71,12 @@ class MockOutfitViewModel (
         (this.isPublic as MutableStateFlow).value = isPublic
     }
 
-    override fun addFolder(folderName: String) {
-        val currentFolders = (outfitFolders as MutableStateFlow).value.toMutableList()
-        currentFolders.add(folderName)
-        (outfitFolders as MutableStateFlow).value = currentFolders
+    /**
+     * Add a new user-created repository name.
+     */
+    fun addUserRepository(name: String) {
+        if (name.isNotBlank() && name !in allRepositories) {
+            _userRepositories.value = _userRepositories.value + name
+        }
     }
 }

@@ -19,6 +19,7 @@ import org.greenthread.whatsinmycloset.features.tabs.home.DiscardConfirmationDia
 import org.greenthread.whatsinmycloset.features.tabs.home.DiscardSavingDialog
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import org.greenthread.whatsinmycloset.core.domain.models.Account
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.viewmodels.MockClothingItemViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.MockOutfitViewModel
@@ -53,15 +54,16 @@ fun PreviewCategoryItemsScreen() {
 @Composable
 fun PreviewOutfitCreationScreen() {
 
+    val user =  Account(userId = "user123", name = "Test User")
+
     val mockNavController = rememberNavController()
     val mockClothingViewModel = MockClothingItemViewModel()
-    val mockOutfitViewModel = MockOutfitViewModel()
+    val mockOutfitViewModel = MockOutfitViewModel(user)
 
     OutfitScreen(
         navController = mockNavController,  // for testing preview
         clothingItemViewModel = mockClothingViewModel,
         outfitViewModel = mockOutfitViewModel
-
     )
 }
 
@@ -72,13 +74,17 @@ fun OutfitSaveScreenPreview() {
     val onDone: () -> Unit = { /* Handle When User is Done Saving the Outfit */ }
 
     val mockNavController = rememberNavController()
-    val mockViewModel = MockOutfitViewModel()
+
+    val mockAccount = Account(userId = "user123", name = "Test User")
+
+    val mockViewModel = MockOutfitViewModel(
+        account = mockAccount)
 
     OutfitSaveScreen(
         navController = mockNavController,
         onExit = onExit,
         onDone = onDone,
-        viewModel = mockViewModel
+        outfitViewModel = mockViewModel
     )
 }
 
@@ -88,7 +94,11 @@ fun OutfitSaveScreenPreview() {
 fun PreviewSingleFolderSelected() {
 
     val mockNavController = rememberNavController()
+
+    val mockAccount = Account(userId = "user123", name = "Test User")
+
     val mockViewModel = MockOutfitViewModel(
+        account = mockAccount,
         initialSelectedFolder = "Business Casuals", // Initialize with a selected folder
         initialIsPublic = false
     )
@@ -97,7 +107,7 @@ fun PreviewSingleFolderSelected() {
         navController = mockNavController,
         onExit = {},
         onDone = {},
-        viewModel = mockViewModel
+        outfitViewModel = mockViewModel
     )
 
 }
@@ -107,7 +117,11 @@ fun PreviewSingleFolderSelected() {
 fun PreviewPublicChecked() {
 
     val mockNavController = rememberNavController()
+
+    val mockAccount = Account(userId = "user123", name = "Test User")
+
     val mockViewModel = MockOutfitViewModel(
+        account = mockAccount,
         initialSelectedFolders = listOf("Business Casuals", "My Public Outfits"), // Initialize with a selected folder
         initialIsPublic = true
     )
@@ -116,7 +130,7 @@ fun PreviewPublicChecked() {
         navController = mockNavController,
         onExit = {},
         onDone = {},
-        viewModel = mockViewModel
+        outfitViewModel = mockViewModel
     )
 }
 
@@ -125,7 +139,11 @@ fun PreviewPublicChecked() {
 fun PreviewMultipleFoldersSelected() {
 
     val mockNavController = rememberNavController()
+
+    val mockAccount = Account(userId = "user123", name = "Test User")
+
     val mockViewModel = MockOutfitViewModel(
+        account = mockAccount,
         initialSelectedFolders = listOf("Business Casuals", "Formals"), // Initialize with a selected folder
         initialIsPublic = true
     )
@@ -134,7 +152,7 @@ fun PreviewMultipleFoldersSelected() {
         navController = mockNavController,
         onExit = {},
         onDone = {},
-        viewModel = mockViewModel
+        outfitViewModel = mockViewModel
     )
 }
 
@@ -143,7 +161,11 @@ fun PreviewMultipleFoldersSelected() {
 @Composable
 fun OutfitSavedPreview() {
     val mockNavController = rememberNavController()
+
+    val mockAccount = Account(userId = "user123", name = "Test User")
+
     val mockViewModel = MockOutfitViewModel(
+        account = mockAccount,
         initialSelectedFolders = listOf("Business Casuals", "Formals"), // Initialize with a selected folder
         initialIsPublic = true
     )
