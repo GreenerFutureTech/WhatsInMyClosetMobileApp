@@ -20,6 +20,7 @@ import org.greenthread.whatsinmycloset.core.domain.models.Account
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.repositories.OutfitRepository
+import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.OutfitViewModel
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 
@@ -36,7 +37,8 @@ fun OutfitSaveScreen(
     selectedFolders state (when user wants to save outfit in more than 1 folder)
     isPublic state (when user wants the outfit to be public)
     */
-    outfitViewModel: OutfitViewModel
+    outfitViewModel: OutfitViewModel,
+    clothingItemViewModel: ClothingItemViewModel
 ) {
     WhatsInMyClosetTheme {
         val isOutfitSaved by outfitViewModel.isOutfitSaved.collectAsState()
@@ -52,15 +54,19 @@ fun OutfitSaveScreen(
         var showDiscardDialog by remember { mutableStateOf(false) }
 
         if (isOutfitSaved) {
+
+
             OutfitSaved(
                 navController = navController,
                 onDismiss = {
+
                     // Navigate back to the Home Tab
                     navController.navigate("home") {
                         popUpTo("home") { inclusive = true }
                     }
                 },
-                viewModel = outfitViewModel
+                viewModel = outfitViewModel,
+                clothingItemViewModel = clothingItemViewModel
             )
         }
         else {
@@ -162,7 +168,7 @@ fun OutfitSaveScreen(
 
                 // Button to open the "Create New Folder" dialog
                 Button(
-                    onClick = { showCreateFolderDialog = true },
+                    onClick = { showCreateFolderDialog = true},
                     modifier = Modifier.padding(8.dp)
                 ) {
                     Text("+ Create New Outfit Folder")
@@ -279,7 +285,8 @@ fun CreateNewOutfitFolder(
 fun OutfitSaved(
     navController: NavController,
     onDismiss: () -> Unit, // Callback to close the dialog and go back to the Home Tab
-    viewModel: OutfitViewModel
+    viewModel: OutfitViewModel,
+    clothingItemViewModel: ClothingItemViewModel
 ) {
     var showDialog by remember { mutableStateOf(true) }
 
@@ -307,6 +314,10 @@ fun OutfitSaved(
             },
             confirmButton = {
                 Button(onClick = {
+                    // clear outfit state for next outfit
+                    viewModel.clearOutfitState()
+                    clothingItemViewModel.clearClothingItemState()
+
                     showDialog = false // Close dialog
                     navController.navigate(Routes.HomeTab) // Navigate to Home
                 }) {

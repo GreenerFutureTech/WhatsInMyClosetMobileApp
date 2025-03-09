@@ -86,4 +86,11 @@ open class ClothingItemViewModel : ViewModel() {
         _clothingItems.value = _clothingItems.value + newItems
     }
 
+    open fun clearClothingItemState() {
+        println("DEBUG: Clearing clothing item state")
+        _clothingItems.value = emptyList() // Clear selected clothing items
+        _selectedItems.value = emptyList()
+    }
+
+
 }

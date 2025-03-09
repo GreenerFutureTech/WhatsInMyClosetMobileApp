@@ -163,6 +163,8 @@ fun OutfitScreen(
                             onClick = {
                                 // Discard the current outfit and create a new one
                                 outfitViewModel.discardCurrentOutfit()
+                                outfitViewModel.clearOutfitState() // Clear the outfit state
+                                clothingItemViewModel.clearClothingItemState() // Clear the selected items state
                             },
                             modifier = Modifier.fillMaxWidth(),
                             enabled = selectedItems.isNotEmpty()
@@ -194,19 +196,6 @@ fun OutfitScreen(
                     navController.navigate(Routes.HomeTab) // Navigate to Home Tab
                 },
                 onDismiss = { showExitDialog = false }
-            )
-        }
-
-        // Show Outfit Saved Dialog
-        if (isOutfitSaved) {
-            OutfitSaved(
-                navController = navController,
-                onDismiss = {
-                    navController.navigate(Routes.HomeTab) {
-                        popUpTo(Routes.HomeTab) { inclusive = true }
-                    }
-                },
-                viewModel = outfitViewModel
             )
         }
     }

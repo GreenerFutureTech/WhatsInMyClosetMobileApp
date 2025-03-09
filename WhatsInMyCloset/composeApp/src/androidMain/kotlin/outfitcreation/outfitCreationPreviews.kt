@@ -79,12 +79,14 @@ fun OutfitSaveScreenPreview() {
 
     val mockViewModel = MockOutfitViewModel(
         account = mockAccount)
+    val mockClothingItem = MockClothingItemViewModel()
 
     OutfitSaveScreen(
         navController = mockNavController,
         onExit = onExit,
         onDone = onDone,
-        outfitViewModel = mockViewModel
+        outfitViewModel = mockViewModel,
+        clothingItemViewModel = mockClothingItem
     )
 }
 
@@ -103,11 +105,14 @@ fun PreviewSingleFolderSelected() {
         initialIsPublic = false
     )
 
+    val mockClothingItem = MockClothingItemViewModel()
+
     OutfitSaveScreen(
         navController = mockNavController,
         onExit = {},
         onDone = {},
-        outfitViewModel = mockViewModel
+        outfitViewModel = mockViewModel,
+        clothingItemViewModel = mockClothingItem
     )
 
 }
@@ -125,12 +130,14 @@ fun PreviewPublicChecked() {
         initialSelectedFolders = listOf("Business Casuals", "My Public Outfits"), // Initialize with a selected folder
         initialIsPublic = true
     )
+    val mockClothingItem = MockClothingItemViewModel()
 
     OutfitSaveScreen(
         navController = mockNavController,
         onExit = {},
         onDone = {},
-        outfitViewModel = mockViewModel
+        outfitViewModel = mockViewModel,
+        clothingItemViewModel = mockClothingItem
     )
 }
 
@@ -148,11 +155,14 @@ fun PreviewMultipleFoldersSelected() {
         initialIsPublic = true
     )
 
+    val mockClothingItem = MockClothingItemViewModel()
+
     OutfitSaveScreen(
         navController = mockNavController,
         onExit = {},
         onDone = {},
-        outfitViewModel = mockViewModel
+        outfitViewModel = mockViewModel,
+        clothingItemViewModel = mockClothingItem
     )
 }
 
@@ -170,10 +180,13 @@ fun OutfitSavedPreview() {
         initialIsPublic = true
     )
 
+    val mockClothingItem = MockClothingItemViewModel()
+
     OutfitSaved(
         navController = mockNavController,
         onDismiss = { println("Outfit saved in folder: Business Casuals") },
-        viewModel = mockViewModel
+        viewModel = mockViewModel,
+        clothingItemViewModel = mockClothingItem
     )
 }
 

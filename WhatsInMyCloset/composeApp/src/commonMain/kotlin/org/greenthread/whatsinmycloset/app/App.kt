@@ -192,7 +192,8 @@ fun App(
                             navController = navController,
                             onExit = { },
                             onDone = { },
-                            outfitViewModel = sharedOutfitViewModel
+                            outfitViewModel = sharedOutfitViewModel,
+                            clothingItemViewModel = sharedClothingItemViewModel
                         )
                     }
 

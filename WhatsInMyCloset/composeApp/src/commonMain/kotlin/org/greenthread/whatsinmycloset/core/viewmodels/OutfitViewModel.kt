@@ -109,7 +109,7 @@ open class OutfitViewModel
     open fun toggleIsPublic(isPublic: Boolean) {
         _isPublic.value = isPublic
         if (isPublic) {
-            _selectedFolders.value = listOf("My Public Outfits")
+            _selectedFolders.value = listOf("Public Outfits")
         }
     }
 
@@ -192,6 +192,16 @@ open class OutfitViewModel
         if (outfit != null) {
             _calendarEvents.value = _calendarEvents.value + "$date: ${outfit.name}"
         }
+    }
+
+    open fun clearOutfitState() {
+        _currentOutfit.value = null // Clear the current outfit
+        _clothingItems.value = emptyList() // Clear selected clothing items
+        _selectedFolder.value = null // Clear selected folder
+        _selectedFolders.value = emptyList() // Clear selected folders
+        _calendarEvents.value = emptyList()
+        _isPublic.value = false // Reset public state
+        _isOutfitSaved.value = false // Reset outfit saved state
     }
 }
 
