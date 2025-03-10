@@ -29,9 +29,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.dp
+import kotlinx.datetime.Clock
 import org.greenthread.whatsinmycloset.CameraManager
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
+import org.greenthread.whatsinmycloset.core.dto.ItemDto
 import org.greenthread.whatsinmycloset.toImageBitmap
+import kotlin.random.Random
 
 @Composable
 fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManager, onBack: () -> Unit) {
@@ -46,7 +49,9 @@ fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManage
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        //val categories = listOf("Choose a Category!", "Tops", "Bottoms", "Shoes", "Accessories")
+        var selectedCategory by remember { mutableStateOf<String?>(null) }
+        var selectedWardrobe by remember { mutableStateOf<String?>(null) }
+
         val categories = listOf("Choose a Category!") + ClothingCategory.entries.map { it.categoryName }
 
         val wardrobes = viewModel.getWardrobes()
@@ -73,7 +78,22 @@ fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManage
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = {
-            onBack()
+            val item = ItemDto(
+                id = Random.nextInt(1000, 100000).toString(),
+                wardrobeId = selectedWardrobe!!,
+                itemType = selectedCategory!!,
+                mediaUrl = null.toString(), // Will be set after uploading image
+                tags = emptyList(),
+                createdAt = Clock.System.now().toString()
+            )
+
+            viewModel.addItem(item, itemImage) { success, error ->
+                if (success) {
+                    onBack()
+                } else {
+                    println("failure")
+                }
+            }
         }) {
             Text("Add Item")
         }
