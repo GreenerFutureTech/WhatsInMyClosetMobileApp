@@ -22,16 +22,14 @@ import org.greenthread.whatsinmycloset.core.ui.components.posts.LazyGridPosts
 import org.greenthread.whatsinmycloset.core.ui.components.posts.Post
 import org.greenthread.whatsinmycloset.core.ui.components.posts.getCurrentDate
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
-@Preview
-fun SocialTabScreen(onNavigate: (String) -> Unit) {
+fun SocialTabScreen(user: Account?, onNavigate: (String) -> Unit) {
     WhatsInMyClosetTheme {
         var showContent by remember { mutableStateOf(false) }
 
         // Create a user profile
-        val user = Account("user123", "rachelg")
+        val currentUser = user
 
         val testOutfit = listOf(
             ClothingItem(
@@ -57,19 +55,20 @@ fun SocialTabScreen(onNavigate: (String) -> Unit) {
         // Generate outfits
         for (i in 0 until 10) {
             val newLook =  Outfit("$i", "Look${i}", testOutfit)
-            user.addOutfit(newLook)
+            currentUser?.addOutfit(newLook)
         }
 
         // Generate posts
         val postsList = mutableListOf<Post>()
 
+        if (currentUser != null) {
         for (i in 0 until 10) {
-            val post = user.getOutfit("$i")?.let { Post("$i", user, it, getCurrentDate()) }
+            val post = currentUser.getOutfit("$i")?.let { Post("$i", currentUser, it, getCurrentDate()) }
             if (post != null) {
                 postsList.add(post)
             }
         }
-
+        }
         SocialFeedScreen(postsList)
     }
 }

@@ -27,7 +27,7 @@ fun PreviewLazyGridColourBox() {
 fun PreviewWardrobeScreen() {
 
     // Create a user profile
-    val user = Account("user123", "Test")
+    val user = Account(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
 
     // Add some clothing items to the wardrobe
     val redDress = ClothingItem("item1", "Red Dress", "HomeWardrobe",
@@ -39,7 +39,7 @@ fun PreviewWardrobeScreen() {
     wardrobe.addItem(redDress)
     wardrobe.addItem(jeans)
 
-    user.addWardrobe(wardrobe)
+    //user.addWardrobe(wardrobe)
 
     // Create an outfit
     // Create an outfit
@@ -63,7 +63,7 @@ fun PreviewWardrobeScreen() {
             ),
         )
     )
-    user.addOutfit(summerLook)
+    //user.addOutfit(summerLook)
 
     val mockNavController = rememberNavController()
 

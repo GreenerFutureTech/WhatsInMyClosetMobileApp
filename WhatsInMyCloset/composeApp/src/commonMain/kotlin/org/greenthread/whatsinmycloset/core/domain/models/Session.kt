@@ -1,7 +1,5 @@
 package org.greenthread.whatsinmycloset.core.domain.models
 
-import org.greenthread.whatsinmycloset.core.domain.models.Account
-
 data class Session(
     /**
      * The ID of the session

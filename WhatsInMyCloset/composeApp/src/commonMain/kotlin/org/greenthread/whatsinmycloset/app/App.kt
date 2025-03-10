@@ -29,6 +29,7 @@ import org.greenthread.whatsinmycloset.features.screens.login.presentation.Login
 import org.greenthread.whatsinmycloset.features.screens.signup.SignupScreenRoot
 import org.greenthread.whatsinmycloset.features.screens.addItem.presentation.AddItemScreen
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
+import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.managers.WardrobeManager
 import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.OutfitViewModel
@@ -40,6 +41,7 @@ import org.greenthread.whatsinmycloset.features.tabs.home.OutfitSaveScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.OutfitScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.HomeTabViewModel
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabScreen
+import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabViewModel
 import org.greenthread.whatsinmycloset.features.tabs.social.SocialTabScreen
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SelectedSwapViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SwapDetailScreen
@@ -57,6 +59,7 @@ fun App(
 ) {
     WhatsInMyClosetTheme {
         val wardrobeManager = koinInject<WardrobeManager>()
+        val userManager = koinInject<UserManager>()
         //wardrobeManager.test()
 
         val navController = rememberNavController()
@@ -211,7 +214,8 @@ fun App(
 
                 navigation<Routes.ProfileGraph>(startDestination = Routes.ProfileTab) {
                     composable<Routes.ProfileTab> {
-                        ProfileTabScreen { }
+                        val viewModel: ProfileTabViewModel = koinViewModel()
+                        ProfileTabScreen(userState = viewModel.userState, onNavigate = {})
                     }
                     composable<Routes.ProfileDetailsScreen> {
                         //ProfileDetailsScreen()
@@ -253,13 +257,15 @@ fun App(
                     composable<Routes.SwapDetailsScreen> {
                         val selectedSwapViewModel = it.sharedKoinViewModel<SelectedSwapViewModel>(navController)
                         val selectedSwap by selectedSwapViewModel.selectedSwap.collectAsStateWithLifecycle()
+                        val userAccount by userManager.currentUser.collectAsState() // Collect StateFlow as a normal value
 
-                        SwapDetailScreen(swap = selectedSwap, onBackClick = { navController.popBackStack() } )
+                        SwapDetailScreen(swap = selectedSwap, onBackClick = { navController.popBackStack() }, userAccount = userAccount )
                     }
                 }
                 navigation<Routes.SocialGraph>(startDestination = Routes.SocialTab) {
                     composable<Routes.SocialTab> {
-                        SocialTabScreen { }
+                        val userAccount by userManager.currentUser.collectAsState()
+                        SocialTabScreen(user = userAccount, onNavigate = {})
                     }
                     composable<Routes.SocialDetailsScreen> {
                         //SocialDetailsScreen()

@@ -50,13 +50,13 @@ class HomeTabViewModel(
 
         // Insert sample data
         CoroutineScope(Dispatchers.IO).launch {
-            wardrobeRepository.insertWardrobe(sampleWardrobe)
+            wardrobeManager.insertWardrobe(sampleWardrobe)
             // Retrieve and print wardrobes
 
             val wardrobes = wardrobeRepository.getWardrobes() // Collect Flow once
             val wardrobeList = wardrobes.firstOrNull()
             if (wardrobeList?.isNotEmpty() == true) {
-                defaultWardrobe = wardrobeList.get(0) // Assign the first wardrobe
+                defaultWardrobe = wardrobeList[0] // Assign the first wardrobe
             }
             println("GreenThread Ran testDb from HomeTabViewModel to insert a wardrobe into the DB and retrieve it: ${defaultWardrobe.toString()}")
         }
@@ -89,6 +89,10 @@ class HomeTabViewModel(
                 }
             }
         }
+    }
+
+    suspend fun insertWardrobe(wardrobe: WardrobeEntity) {
+        wardrobeManager.insertWardrobe((wardrobe))
     }
 }
 
