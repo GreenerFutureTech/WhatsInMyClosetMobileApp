@@ -27,7 +27,9 @@ import whatsinmycloset.composeapp.generated.resources.Res
 
 
 @Composable
-fun SwapImageCard(onSwapClick: () -> Unit) {
+fun SwapImageCard(
+    onSwapClick: () -> Unit,
+                  imageUrl: String) {
     Column(
         modifier = Modifier
             .width(125.dp)
@@ -41,9 +43,8 @@ fun SwapImageCard(onSwapClick: () -> Unit) {
                 .clickable { onSwapClick() }
                 .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
         ) {
-            @OptIn(ExperimentalResourceApi::class) // TEMP for /drawble image
             (AsyncImage(
-        model = Res.getUri("drawable/default.png"), // NEED TO UPDATE: = mediaURL from Item entity
+        model = imageUrl,
         contentDescription = "Clothing Image",
         modifier = Modifier
             .matchParentSize()
@@ -67,9 +68,8 @@ fun SwapOtherImageCard(onSwapClick: () -> Unit, imageUrl: String, username: Stri
                 .clickable { onSwapClick() }
                 .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
         ) {
-            @OptIn(ExperimentalResourceApi::class) // TEMP for /drawble image
             (AsyncImage(
-                model = Res.getUri("drawable/default.png"), // NEED TO UPDATE : imageUrl
+                model = imageUrl,
                 contentDescription = "Clothing Image",
                 modifier = Modifier
                     .matchParentSize()
