@@ -4,10 +4,20 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,6 +38,7 @@ fun SwapDetailScreen(
     onBackClick: () -> Unit
 ) = swap?.let {
     val currentUser = UserManager.currentUser?:return
+    var menuExpanded by remember { mutableStateOf(false) }
 
     WhatsInMyClosetTheme {
 
@@ -43,6 +54,41 @@ fun SwapDetailScreen(
                 Text(text = "Back")
             }
         }
+
+        Box(modifier = Modifier.fillMaxSize()) {
+            if (swap.userId == currentUser.id) {
+                IconButton(
+                    onClick = { menuExpanded = true },
+                    modifier = Modifier.align(Alignment.TopEnd)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = "More options"
+                    )
+                }
+
+                DropdownMenu(
+                    expanded = menuExpanded,
+                    onDismissRequest = { menuExpanded = false },
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Complete Swap") },
+                        onClick = {
+                            println("Complete Swap clicked")
+                            menuExpanded = false
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Delete") },
+                        onClick = {
+                            println("Delete clicked")
+                            menuExpanded = false
+                        }
+                    )
+                }
+            }
+        }
+
 
         Spacer(modifier = Modifier.height(10.dp))
 
@@ -92,9 +138,8 @@ fun SwapDetailScreen(
                         .padding(2.dp)
                         .align(Alignment.CenterHorizontally),
                 ) {
-                    @OptIn(ExperimentalResourceApi::class) // TEMP for /drawble image
                     AsyncImage(
-                        model = Res.getUri("drawable/default.png"),
+                        model = swap.itemId.mediaUrl,
                         contentDescription = "Swap Image",
                         modifier = Modifier.fillMaxSize()
                     )
@@ -107,7 +152,7 @@ fun SwapDetailScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Text(
-                        text = swap.brand,
+                        text = swap.itemId.brand,
                         fontSize = 30.sp,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -115,14 +160,14 @@ fun SwapDetailScreen(
                     Spacer(modifier = Modifier.height(10.dp))
 
                     Text(
-                        text = "Size: ${swap.size}",
+                        text = "Size: ${swap.itemId.size}",
                         fontSize = 20.sp
                     )
 
                     Spacer(modifier = Modifier.height(10.dp))
 
                     Text(
-                        text = "Condition: ${swap.condition}",
+                        text = "Condition: ${swap.itemId.condition}",
                         fontSize = 20.sp
                     )
 
