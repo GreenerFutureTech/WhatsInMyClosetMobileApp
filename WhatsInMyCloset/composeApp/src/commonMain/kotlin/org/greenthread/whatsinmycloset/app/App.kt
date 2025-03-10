@@ -262,7 +262,7 @@ fun App(
                         val selectedSwapViewModel = it.sharedKoinViewModel<SelectedSwapViewModel>(navController)
                         val selectedSwap by selectedSwapViewModel.selectedSwap.collectAsStateWithLifecycle()
 
-                        SwapDetailScreen(swap = selectedSwap, onBackClick = { navController.popBackStack() } )
+                        SwapDetailScreen(swap = selectedSwap, onBackClick = { navController.navigate(Routes.SwapTab)})
                     }
 
                 }

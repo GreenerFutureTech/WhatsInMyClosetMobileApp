@@ -6,6 +6,7 @@ import org.greenthread.whatsinmycloset.core.dto.MessageDto
 import org.greenthread.whatsinmycloset.core.dto.SendMessageRequest
 import org.greenthread.whatsinmycloset.core.network.RemoteClosetDataSource
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
+import org.greenthread.whatsinmycloset.core.dto.SwapStatusDto
 import org.greenthread.whatsinmycloset.core.dto.UserDto
 
 class DefaultClosetRepository(
@@ -23,6 +24,11 @@ class DefaultClosetRepository(
     override suspend fun getAllSwaps(): Result<List<SwapDto>, DataError.Remote> {
         return remoteClosetDataSource.getAllSwaps()
     }
+
+    override suspend fun updateStatus(itemId: String): Result<SwapStatusDto, DataError.Remote> {
+        return remoteClosetDataSource.updateStatus(itemId)
+    }
+
     //============================= Messages ==================================
     override suspend fun getLatestMessage(userId: String): Result<List<MessageDto>, DataError.Remote> {
         return remoteClosetDataSource.getLatestMessage(userId)

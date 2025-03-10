@@ -13,3 +13,14 @@ data class SwapDto(
     val updatedAt: String
 )
 
+@Serializable
+data class SwapStatusDto(
+    val id: String,
+    val itemId: String,
+    val userId: Int,
+    val status: String,
+    val registeredAt: String,
+    val updatedAt: String
+)
+
+

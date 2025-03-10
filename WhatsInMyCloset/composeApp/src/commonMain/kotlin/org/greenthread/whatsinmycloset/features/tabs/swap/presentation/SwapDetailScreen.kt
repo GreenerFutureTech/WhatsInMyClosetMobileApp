@@ -6,6 +6,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -25,24 +26,27 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
+import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.koin.compose.viewmodel.koinViewModel
 import whatsinmycloset.composeapp.generated.resources.Res
-
 @Composable
 fun SwapDetailScreen(
     swap: SwapDto?,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
 ) = swap?.let {
-    val currentUser = UserManager.currentUser?:return
+    val viewModel: SwapViewModel = koinViewModel()
+
+    val currentUser = UserManager.currentUser ?: return
     var menuExpanded by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
 
     WhatsInMyClosetTheme {
-
-
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Start
@@ -74,7 +78,7 @@ fun SwapDetailScreen(
                     DropdownMenuItem(
                         text = { Text("Complete Swap") },
                         onClick = {
-                            println("Complete Swap clicked")
+                            showDialog = true
                             menuExpanded = false
                         }
                     )
@@ -90,14 +94,36 @@ fun SwapDetailScreen(
         }
 
 
-        Spacer(modifier = Modifier.height(10.dp))
+        if (showDialog) {
+            AlertDialog(
+                onDismissRequest = { showDialog = false },
+                title = { Text("Complete Swap") },
+                text = { Text("Are you sure you want to complete this swap?") },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            viewModel.updateSwap(swap.itemId.id)
+                            onBackClick()
+                            showDialog = false
+                        }
+                    ) {
+                        Text("Yes")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDialog = false }) {
+                        Text("No")
+                    }
+                }
+            )
+        }
 
+        Spacer(modifier = Modifier.height(10.dp))
 
         Box(
             modifier = Modifier
                 .padding(20.dp)
                 .fillMaxSize()
-
         ) {
             Column(
                 modifier = Modifier
@@ -108,7 +134,7 @@ fun SwapDetailScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Start
                 ) {
-                    @OptIn(ExperimentalResourceApi::class) // TEMP for /drawble image
+                    @OptIn(ExperimentalResourceApi::class) // TEMP for /drawable image
                     AsyncImage(
                         model = Res.getUri("drawable/defaultUser.png"), // NEED TO UPDATE : UserProfileUrl
                         contentDescription = "User Image",
@@ -193,4 +219,3 @@ fun SwapDetailScreen(
         }
     }
 } ?: Text("No swap data available")
-
