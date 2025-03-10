@@ -91,8 +91,7 @@ fun ProfileTabScreen(onNavigate: (String) -> Unit) {
         val swapItems = generateRandomItems(10)
 
         Column(Modifier
-            .fillMaxWidth()
-            .padding(top = 60.dp),
+            .fillMaxWidth(),
             horizontalAlignment = Alignment.Start) {
 
             Row(
@@ -117,12 +116,6 @@ fun ProfileTabScreen(onNavigate: (String) -> Unit) {
                         SwapsCount(10)
                     }
                 }
-
-                CategoryItem(
-                    icon = Icons.Default.Menu,
-                    text = "Menu",
-                    onClick = {}
-                )
             }
 
             SearchBar()
@@ -220,20 +213,22 @@ private fun SwapTitle() {
 
 @Composable
 private fun SearchBar() {
-    TextField(
-        value = "SEARCH ...",
-        onValueChange = { },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        placeholder = { Text(text = "hint") },
-        singleLine = true,
-        keyboardOptions = KeyboardOptions.Default.copy(
-            imeAction = ImeAction.Search
-        ),
-        keyboardActions = KeyboardActions(
-            onSearch = {
-            }
-        ),
-    )
+    WhatsInMyClosetTheme {
+        TextField(
+            value = "SEARCH ...",
+            onValueChange = { },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            placeholder = { Text(text = "hint") },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions.Default.copy(
+                imeAction = ImeAction.Search
+            ),
+            keyboardActions = KeyboardActions(
+                onSearch = {
+                }
+            ),
+        )
+    }
 }

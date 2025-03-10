@@ -2,9 +2,11 @@ package org.greenthread.whatsinmycloset.core.persistence
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
 
 @Entity(tableName = "wardrobe")
+@Serializable
 data class WardrobeEntity(
     @PrimaryKey val id: String, // Matches backend UUID
     val wardrobeName: String,
