@@ -1,17 +1,25 @@
 package org.greenthread.whatsinmycloset.app
 
 import AllSwapsScreen
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -33,6 +41,7 @@ import org.greenthread.whatsinmycloset.core.managers.WardrobeManager
 import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.OutfitViewModel
 import org.greenthread.whatsinmycloset.features.screens.addItem.presentation.AddItemScreenViewModel
+import org.greenthread.whatsinmycloset.features.screens.settings.SettingsScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItemDetailScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItemsScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.HomeTabScreenRoot
@@ -68,6 +77,13 @@ fun App(
         val sharedOutfitViewModel: OutfitViewModel = viewModel()
 
         Scaffold(
+            topBar = {
+                AppTopBar(
+                    title = "WIMC",
+                    navController = navController,
+                    showBackButton = true
+                )
+            },
             bottomBar = {
                 BottomNavigationBar(navController)
             }
@@ -297,6 +313,12 @@ fun App(
                         //SocialDetailsScreen()
                     }
                 }
+
+                composable<Routes.SettingsScreen> {
+                    SettingsScreen(
+                        navController = navController
+                    )
+                }
             }
         }
     }
@@ -335,5 +357,48 @@ private inline fun <reified T: ViewModel> NavBackStackEntry.sharedKoinViewModel(
     }
     return koinViewModel (
         viewModelStoreOwner = parentEntry
+    )
+}
+
+@Composable
+fun AppTopBar(
+    title: String,
+    navController: NavController,
+    showBackButton: Boolean = false
+) {
+    TopAppBar(
+        title = {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            } },
+        navigationIcon = {
+            if (showBackButton) {
+                IconButton(onClick = { navController.popBackStack() }) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        tint = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
+            }
+        },
+        actions = {
+            IconButton(onClick = { navController.navigate(Routes.SettingsScreen)}) {
+                Icon(
+                    Icons.Default.Settings,
+                    contentDescription = "Settings",
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+        },
+        backgroundColor = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.onPrimary
     )
 }
