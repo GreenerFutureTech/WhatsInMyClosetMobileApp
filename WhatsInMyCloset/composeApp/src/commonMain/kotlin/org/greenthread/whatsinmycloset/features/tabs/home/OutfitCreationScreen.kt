@@ -24,7 +24,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.runtime.Composable
@@ -96,32 +98,34 @@ fun OutfitScreen(
             outfitViewModel.updateClothingItemPosition(itemId, newPosition)
         }
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(2.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-
-            // Header
-            OutfitScreenHeader(
-                onGoBack = { navController.popBackStack() }, // Navigate back to Home Tab,
-                onExit = { showExitDialog = true },  // Discard Outfit Creation -- pop up
-                title = "Create Your Outfit"
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(2.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             )
+            {
 
-            // Outfit collage area will show the selectedClothingItems
-            OutfitCollageArea(
-                selectedClothingItems = selectedItems,
-                onPositionUpdate = onPositionUpdate
-            )
+                // Header
+                OutfitScreenHeader(
+                    onGoBack = { navController.popBackStack() }, // Navigate back to Home Tab,
+                    onExit = { showExitDialog = true },  // Discard Outfit Creation -- pop up
+                    title = "Create Your Outfit"
+                )
 
-            Spacer(modifier = Modifier.height(4.dp))
+                // Outfit collage area will show the selectedClothingItems
+                OutfitCollageArea(
+                    selectedClothingItems = selectedItems,
+                    onPositionUpdate = onPositionUpdate
+                )
+
+                //Spacer(modifier = Modifier.height(4.dp))
 
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(4.dp))
+                    .padding(4.dp)
+            )
             {
                 // Clothing category selection
                 ClothingCategorySelection { selectedCategory ->
@@ -137,50 +141,57 @@ fun OutfitScreen(
                 }
 
                 // show additional options when there is at least one item in outfit area
-                if (selectedItems.isNotEmpty())
-                {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                if (selectedItems.isNotEmpty()) {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(1), // Single column for vertical layout
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(4.dp)
                     ) {
                         // Save Outfit button
-                        Button(
-                            onClick = {
-                                // Create the outfit, pass user's id and outfit id
-                                outfitViewModel.createOutfit(selectedItems)
+                        item {
+                            Button(
+                                onClick = {
+                                    // Create the outfit, pass user's id and outfit id
+                                    outfitViewModel.createOutfit(selectedItems)
 
-                                // Navigate to the OutfitSaveScreen
-                                navController.navigate(
-                                    Routes.OutfitSaveScreen
-                                )
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            enabled = selectedItems.isNotEmpty()
-                        ) {
-                            Text("Save Outfit")
+                                    // Navigate to the OutfitSaveScreen
+                                    navController.navigate(
+                                        Routes.OutfitSaveScreen
+                                    )
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                enabled = selectedItems.isNotEmpty()
+                            ) {
+                                Text("Save Outfit")
+                            }
                         }
 
                         // Add to Calendar button
-                        Button(
-                            onClick = { showCalendarDialog = true },
-                            modifier = Modifier.fillMaxWidth(),
-                            enabled = selectedItems.isNotEmpty()
-                        ) {
-                            Text("Add to Calendar")
+                        item {
+                            Button(
+                                onClick = { showCalendarDialog = true },
+                                modifier = Modifier.fillMaxWidth(),
+                                enabled = selectedItems.isNotEmpty()
+                            ) {
+                                Text("Add to Calendar")
+                            }
                         }
 
                         // Create New Outfit button
-                        Button(
-                            onClick = {
-                                // Discard the current outfit and create a new one
-                                outfitViewModel.discardCurrentOutfit()
-                                outfitViewModel.clearOutfitState() // Clear the outfit state
-                                clothingItemViewModel.clearClothingItemState() // Clear the selected items state
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            enabled = selectedItems.isNotEmpty()
-                        ) {
-                            Text("Create New Outfit")
+                        item {
+                            Button(
+                                onClick = {
+                                    // Discard the current outfit and create a new one
+                                    outfitViewModel.discardCurrentOutfit()
+                                    outfitViewModel.clearOutfitState() // Clear the outfit state
+                                    clothingItemViewModel.clearClothingItemState() // Clear the selected items state
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                enabled = selectedItems.isNotEmpty()
+                            ) {
+                                Text("Create New Outfit")
+                            }
                         }
                     }
                 }
