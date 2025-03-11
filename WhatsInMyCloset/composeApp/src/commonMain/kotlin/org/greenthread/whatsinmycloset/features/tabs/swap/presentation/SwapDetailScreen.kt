@@ -35,6 +35,7 @@ import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.koin.compose.viewmodel.koinViewModel
 import whatsinmycloset.composeapp.generated.resources.Res
+
 @Composable
 fun SwapDetailScreen(
     swap: SwapDto?,
@@ -48,51 +49,53 @@ fun SwapDetailScreen(
 
     WhatsInMyClosetTheme {
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Start
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
+
             TextButton(
-                onClick = onBackClick,
-                modifier = Modifier.padding(8.dp)
+                onClick = onBackClick
             ) {
                 Text(text = "Back")
             }
-        }
 
-        Box(modifier = Modifier.fillMaxSize()) {
             if (swap.userId == currentUser.id) {
-                IconButton(
-                    onClick = { menuExpanded = true },
-                    modifier = Modifier.align(Alignment.TopEnd)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.MoreVert,
-                        contentDescription = "More options"
-                    )
-                }
+                Box {
+                    IconButton(
+                        onClick = { menuExpanded = true },
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = "More options"
+                        )
+                    }
 
-                DropdownMenu(
-                    expanded = menuExpanded,
-                    onDismissRequest = { menuExpanded = false },
-                ) {
-                    DropdownMenuItem(
-                        text = { Text("Complete Swap") },
-                        onClick = {
-                            showDialog = true
-                            menuExpanded = false
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text("Delete") },
-                        onClick = {
-                            println("Delete clicked")
-                            menuExpanded = false
-                        }
-                    )
+                    DropdownMenu(
+                        expanded = menuExpanded,
+                        onDismissRequest = { menuExpanded = false },
+                        modifier = Modifier.widthIn(min = 130.dp)
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Complete Swap", modifier = Modifier.fillMaxWidth(),) },
+                            onClick = {
+                                showDialog = true
+                                menuExpanded = false
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Delete",  modifier = Modifier.fillMaxWidth(),) },
+                            onClick = {
+                                println("Delete clicked")
+                                menuExpanded = false
+                            }
+                        )
+                    }
                 }
             }
         }
-
 
         if (showDialog) {
             AlertDialog(
