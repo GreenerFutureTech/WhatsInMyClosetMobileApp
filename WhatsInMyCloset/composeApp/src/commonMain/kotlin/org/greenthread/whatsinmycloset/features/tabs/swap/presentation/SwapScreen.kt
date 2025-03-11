@@ -104,7 +104,7 @@ fun SwapScreen(
 
     val matchingSwaps = state.getOtherUserSwapResults.filter { swap ->
         val query = searchString.lowercase()
-        swap.brand.lowercase().contains(query) ||
+        swap.itemId.brand.lowercase().contains(query) ||
                 swap.itemId.itemType.lowercase().contains(query) ||
                 swap.itemId.tags.any { it.lowercase().contains(query) }
     }
@@ -190,7 +190,8 @@ fun SwapScreen(
                 SwapImageCard(
                     onSwapClick = {
                         onAction(SwapAction.OnSwapClick(item.itemId.id))
-                    }
+                    },
+                    imageUrl = item.itemId.mediaUrl
                 )
                 Spacer(modifier = Modifier.width(10.dp))
             }

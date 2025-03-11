@@ -4,10 +4,21 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -15,43 +26,131 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
+import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
 import whatsinmycloset.composeapp.generated.resources.Res
+import whatsinmycloset.composeapp.generated.resources.complete_swap
+import whatsinmycloset.composeapp.generated.resources.complete_swap_dialog_message
+import whatsinmycloset.composeapp.generated.resources.complete_swap_dialog_title
+import whatsinmycloset.composeapp.generated.resources.delete
 
 @Composable
 fun SwapDetailScreen(
     swap: SwapDto?,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
 ) = swap?.let {
-    val currentUser = UserManager.currentUser?:return
+    val viewModel: SwapViewModel = koinViewModel()
+
+    val currentUser = UserManager.currentUser ?: return
+    var menuExpanded by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
 
     WhatsInMyClosetTheme {
-
-
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Start
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
+
             TextButton(
-                onClick = onBackClick,
-                modifier = Modifier.padding(8.dp)
+                onClick = onBackClick
             ) {
                 Text(text = "Back")
             }
+
+            if (swap.userId == currentUser.id) {
+                Box {
+                    IconButton(
+                        onClick = { menuExpanded = true },
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = "More options"
+                        )
+                    }
+
+                    DropdownMenu(
+                        expanded = menuExpanded,
+                        onDismissRequest = { menuExpanded = false },
+                        modifier = Modifier.widthIn(min = 130.dp)
+                    ) {
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    text = stringResource(Res.string.complete_swap),
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            },
+                            onClick = {
+                                showDialog = true
+                                menuExpanded = false
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    text = stringResource(Res.string.delete),
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            },
+                            onClick = {
+                                println("Delete clicked")
+                                menuExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
         }
 
-        Spacer(modifier = Modifier.height(10.dp))
+        if (showDialog) {
+            AlertDialog(
+                onDismissRequest = { showDialog = false },
+                title = {
+                    Text(
+                        text = stringResource(Res.string.complete_swap_dialog_title)
+                    )
+                },
+                text = {
+                    Text(
+                        text = stringResource(Res.string.complete_swap_dialog_message)
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            viewModel.updateSwap(swap.itemId.id)
+                            onBackClick()
+                            showDialog = false
+                        }
+                    ) {
+                        Text("Yes")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDialog = false }) {
+                        Text("No")
+                    }
+                }
+            )
+        }
 
+
+        Spacer(modifier = Modifier.height(10.dp))
 
         Box(
             modifier = Modifier
                 .padding(20.dp)
                 .fillMaxSize()
-
         ) {
             Column(
                 modifier = Modifier
@@ -62,7 +161,7 @@ fun SwapDetailScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Start
                 ) {
-                    @OptIn(ExperimentalResourceApi::class) // TEMP for /drawble image
+                    @OptIn(ExperimentalResourceApi::class) // TEMP for /drawable image
                     AsyncImage(
                         model = Res.getUri("drawable/defaultUser.png"), // NEED TO UPDATE : UserProfileUrl
                         contentDescription = "User Image",
@@ -92,11 +191,14 @@ fun SwapDetailScreen(
                         .padding(2.dp)
                         .align(Alignment.CenterHorizontally),
                 ) {
-                    @OptIn(ExperimentalResourceApi::class) // TEMP for /drawble image
+
+                    var loadFailed by remember { mutableStateOf(false) }
+                    @OptIn(ExperimentalResourceApi::class)
                     AsyncImage(
-                        model = Res.getUri("drawable/default.png"),
+                        model = if (loadFailed) Res.getUri("drawable/noImage.png") else swap.itemId.mediaUrl,
                         contentDescription = "Swap Image",
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize(),
+                        onError = { loadFailed = true }
                     )
                 }
 
@@ -107,7 +209,7 @@ fun SwapDetailScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Text(
-                        text = swap.brand,
+                        text = swap.itemId.brand,
                         fontSize = 30.sp,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -115,14 +217,14 @@ fun SwapDetailScreen(
                     Spacer(modifier = Modifier.height(10.dp))
 
                     Text(
-                        text = "Size: ${swap.size}",
+                        text = "Size: ${swap.itemId.size}",
                         fontSize = 20.sp
                     )
 
                     Spacer(modifier = Modifier.height(10.dp))
 
                     Text(
-                        text = "Condition: ${swap.condition}",
+                        text = "Condition: ${swap.itemId.condition}",
                         fontSize = 20.sp
                     )
 
@@ -148,4 +250,3 @@ fun SwapDetailScreen(
         }
     }
 } ?: Text("No swap data available")
-

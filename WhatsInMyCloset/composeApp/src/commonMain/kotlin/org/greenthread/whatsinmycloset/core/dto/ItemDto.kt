@@ -9,5 +9,8 @@ data class ItemDto(
     val itemType: String,
     val mediaUrl: String,
     val tags: List<String>,
+    val condition: String,
+    val brand: String,
+    val size: String,
     val createdAt: String
 )

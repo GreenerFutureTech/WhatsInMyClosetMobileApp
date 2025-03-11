@@ -52,6 +52,17 @@ class KtorRemoteDataSource(
         }
     }
 
+    override suspend fun updateStatus(itemId: String): Result<SwapStatusDto, DataError.Remote> {
+        return safeCall {
+            httpClient.patch(
+                urlString = "$BASE_URL/swaps/$itemId"
+            ) {
+                contentType(ContentType.Application.Json)
+                setBody(mapOf("status" to "completed"))
+            }
+        }
+    }
+
     //============================= Messages  =================================
     override suspend fun getLatestMessage(userId: String): Result<List<MessageDto>, DataError.Remote> {
         return safeCall {
