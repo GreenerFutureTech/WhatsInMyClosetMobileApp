@@ -72,6 +72,7 @@ class LoginViewModel(
                     email = email,
                     name = name,
                     firebaseUid = result.user?.uid?:"",
+                    type = "User",
                     registeredAt = now.toString(),
                     updatedAt = now.toString(),
                     lastLogin = now.toString()
