@@ -152,7 +152,12 @@ ViewModel() {
         println("DEBUG: Clearing clothing item state")
         _clothingItems.value = emptyList() // Clear selected clothing items
         _selectedItems.value = emptyList()
+        // Function to initialize clothing items for each wardrobe
+        fun initializeClothingItems(newItems: List<ClothingItem>, wardrobeId: String) {
+            val updatedItems =
+                newItems.map { it.copy(wardrobeId = wardrobeId) } // Associate items with the wardrobe
+            _clothingItems.value = _clothingItems.value + updatedItems
+        }
     }
-
 
 }

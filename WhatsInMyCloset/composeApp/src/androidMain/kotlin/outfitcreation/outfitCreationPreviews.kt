@@ -61,6 +61,7 @@ fun PreviewOutfitCreationScreen() {
     val mockOutfitViewModel = MockOutfitViewModel(user)
     val mockClothingViewModel = MockClothingItemViewModel(wardrobeManager = MockWardrobeManager())
 
+
     OutfitScreen(
         navController = mockNavController,  // for testing preview
         clothingItemViewModel = mockClothingViewModel,
