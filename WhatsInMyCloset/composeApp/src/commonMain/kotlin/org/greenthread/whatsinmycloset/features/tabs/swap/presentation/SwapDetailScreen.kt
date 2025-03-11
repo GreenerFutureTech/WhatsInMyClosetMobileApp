@@ -167,10 +167,14 @@ fun SwapDetailScreen(
                         .padding(2.dp)
                         .align(Alignment.CenterHorizontally),
                 ) {
+
+                    var loadFailed by remember { mutableStateOf(false) }
+                    @OptIn(ExperimentalResourceApi::class)
                     AsyncImage(
-                        model = swap.itemId.mediaUrl,
+                        model = if (loadFailed) Res.getUri("drawable/noImage.png") else swap.itemId.mediaUrl,
                         contentDescription = "Swap Image",
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize(),
+                        onError = { loadFailed = true }
                     )
                 }
 
