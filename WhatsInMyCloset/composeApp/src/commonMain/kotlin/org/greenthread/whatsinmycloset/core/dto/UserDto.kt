@@ -10,6 +10,7 @@ data class UserDto(
     val name: String,
     val firebaseUid: String,
     val profilePicture: String? = null,
+    val type: String? = null,
     val registeredAt: String,
     val updatedAt: String,
     val lastLogin: String
