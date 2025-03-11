@@ -19,6 +19,7 @@ import org.greenthread.whatsinmycloset.features.tabs.home.DiscardConfirmationDia
 import org.greenthread.whatsinmycloset.features.tabs.home.DiscardSavingDialog
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import org.greenthread.whatsinmycloset.core.domain.models.Account
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.viewmodels.MockClothingItemViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.MockOutfitViewModel
@@ -54,15 +55,17 @@ fun PreviewCategoryItemsScreen() {
 @Composable
 fun PreviewOutfitCreationScreen() {
 
+    val user =  Account(userId = "user123", name = "Test User")
+
     val mockNavController = rememberNavController()
+    val mockOutfitViewModel = MockOutfitViewModel(user)
     val mockClothingViewModel = MockClothingItemViewModel(wardrobeManager = MockWardrobeManager())
-    val mockOutfitViewModel = MockOutfitViewModel()
+
 
     OutfitScreen(
         navController = mockNavController,  // for testing preview
         clothingItemViewModel = mockClothingViewModel,
         outfitViewModel = mockOutfitViewModel
-
     )
 }
 
@@ -73,13 +76,19 @@ fun OutfitSaveScreenPreview() {
     val onDone: () -> Unit = { /* Handle When User is Done Saving the Outfit */ }
 
     val mockNavController = rememberNavController()
-    val mockViewModel = MockOutfitViewModel()
+
+    val mockAccount = Account(userId = "user123", name = "Test User")
+
+    val mockViewModel = MockOutfitViewModel(
+        account = mockAccount)
+    val mockClothingItem = MockClothingItemViewModel(wardrobeManager = MockWardrobeManager())
 
     OutfitSaveScreen(
         navController = mockNavController,
         onExit = onExit,
         onDone = onDone,
-        viewModel = mockViewModel
+        outfitViewModel = mockViewModel,
+        clothingItemViewModel = mockClothingItem
     )
 }
 
@@ -89,16 +98,23 @@ fun OutfitSaveScreenPreview() {
 fun PreviewSingleFolderSelected() {
 
     val mockNavController = rememberNavController()
+
+    val mockAccount = Account(userId = "user123", name = "Test User")
+
     val mockViewModel = MockOutfitViewModel(
+        account = mockAccount,
         initialSelectedFolder = "Business Casuals", // Initialize with a selected folder
         initialIsPublic = false
     )
+
+    val mockClothingItem = MockClothingItemViewModel(wardrobeManager = MockWardrobeManager())
 
     OutfitSaveScreen(
         navController = mockNavController,
         onExit = {},
         onDone = {},
-        viewModel = mockViewModel
+        outfitViewModel = mockViewModel,
+        clothingItemViewModel = mockClothingItem
     )
 
 }
@@ -108,16 +124,22 @@ fun PreviewSingleFolderSelected() {
 fun PreviewPublicChecked() {
 
     val mockNavController = rememberNavController()
+
+    val mockAccount = Account(userId = "user123", name = "Test User")
+
     val mockViewModel = MockOutfitViewModel(
+        account = mockAccount,
         initialSelectedFolders = listOf("Business Casuals", "My Public Outfits"), // Initialize with a selected folder
         initialIsPublic = true
     )
+    val mockClothingItem = MockClothingItemViewModel(wardrobeManager = MockWardrobeManager())
 
     OutfitSaveScreen(
         navController = mockNavController,
         onExit = {},
         onDone = {},
-        viewModel = mockViewModel
+        outfitViewModel = mockViewModel,
+        clothingItemViewModel = mockClothingItem
     )
 }
 
@@ -126,16 +148,23 @@ fun PreviewPublicChecked() {
 fun PreviewMultipleFoldersSelected() {
 
     val mockNavController = rememberNavController()
+
+    val mockAccount = Account(userId = "user123", name = "Test User")
+
     val mockViewModel = MockOutfitViewModel(
+        account = mockAccount,
         initialSelectedFolders = listOf("Business Casuals", "Formals"), // Initialize with a selected folder
         initialIsPublic = true
     )
+
+    val mockClothingItem = MockClothingItemViewModel(wardrobeManager = MockWardrobeManager())
 
     OutfitSaveScreen(
         navController = mockNavController,
         onExit = {},
         onDone = {},
-        viewModel = mockViewModel
+        outfitViewModel = mockViewModel,
+        clothingItemViewModel = mockClothingItem
     )
 }
 
@@ -144,15 +173,22 @@ fun PreviewMultipleFoldersSelected() {
 @Composable
 fun OutfitSavedPreview() {
     val mockNavController = rememberNavController()
+
+    val mockAccount = Account(userId = "user123", name = "Test User")
+
     val mockViewModel = MockOutfitViewModel(
+        account = mockAccount,
         initialSelectedFolders = listOf("Business Casuals", "Formals"), // Initialize with a selected folder
         initialIsPublic = true
     )
 
+    val mockClothingItem = MockClothingItemViewModel(wardrobeManager = MockWardrobeManager())
+
     OutfitSaved(
         navController = mockNavController,
         onDismiss = { println("Outfit saved in folder: Business Casuals") },
-        viewModel = mockViewModel
+        viewModel = mockViewModel,
+        clothingItemViewModel = mockClothingItem
     )
 }
 

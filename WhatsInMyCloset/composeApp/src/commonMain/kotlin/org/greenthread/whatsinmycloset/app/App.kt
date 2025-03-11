@@ -31,7 +31,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import org.koin.core.parameter.parametersOf
 import org.greenthread.whatsinmycloset.CameraManager
+import org.greenthread.whatsinmycloset.core.domain.models.Account
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginScreenRoot
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginViewModel
 import org.greenthread.whatsinmycloset.features.screens.signup.SignupScreenRoot
@@ -72,9 +74,15 @@ fun App(
         //wardrobeManager.test()
 
         val navController = rememberNavController()
+
+        // For Testing Saving Outfit -
+        // Create an Account instance (or retrieve it from your app's logic)
+        //val account = remember { Account(userId = "user123", name = "Test User") }
+
         // Create shared ViewModels for the outfit screens
+        val account: Account = koinInject() // Retrieve the logged-in user's account
         val sharedClothingItemViewModel: ClothingItemViewModel = koinViewModel()
-        val sharedOutfitViewModel: OutfitViewModel = viewModel()
+        val sharedOutfitViewModel: OutfitViewModel = koinViewModel()
 
         Scaffold(
             topBar = {
@@ -138,28 +146,11 @@ fun App(
 
                     // add CreateOutfitScreen Route to separate composable in nav graph
                     composable<Routes.CreateOutfitScreen> {
-                        // to test the Save Outfit, Add to Calendar and Create New Outfit buttons
-                        /*clothingItemViewModel.initializeClothingItems(
-                            listOf(
-                            ClothingItem(
-                                id = "1",
-                                name = "Blue Top",
-                                category = ClothingCategory.TOPS,
-                                clothingImage = null,
-                                tags = setOf("casual", "summer")
-                            ),
-                            ClothingItem(
-                                id = "2",
-                                name = "Denim Jeans",
-                                category = ClothingCategory.BOTTOMS,
-                                clothingImage = null,
-                                tags = setOf("casual", "summer")
-                            )))*/
 
                         OutfitScreen(
                             navController = navController,
                             clothingItemViewModel = sharedClothingItemViewModel,
-                            outfitViewModel = sharedOutfitViewModel,
+                            outfitViewModel = sharedOutfitViewModel
                         )
                     }
 
@@ -224,7 +215,8 @@ fun App(
                             navController = navController,
                             onExit = { },
                             onDone = { },
-                            viewModel = sharedOutfitViewModel
+                            outfitViewModel = sharedOutfitViewModel,
+                            clothingItemViewModel = sharedClothingItemViewModel
                         )
                     }
 

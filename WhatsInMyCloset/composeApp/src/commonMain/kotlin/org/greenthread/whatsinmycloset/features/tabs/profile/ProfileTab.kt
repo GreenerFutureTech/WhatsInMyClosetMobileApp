@@ -32,6 +32,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import org.greenthread.whatsinmycloset.core.domain.models.Account
+import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
+import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.domain.models.generateSampleClothingItems
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.LazyGridColourBox
@@ -56,14 +58,34 @@ fun ProfileTabScreen(onNavigate: (String) -> Unit) {
         val numberOfOutfits = 10
         val outfits = List(numberOfOutfits) { i ->
             Outfit(
-                id = "outfit$i",
-                name = "Look$i",
-                itemIds = generateSampleClothingItems()
+                id = "outfit1",
+                userId = "1",
+                public = true,
+                favorite = true,
+                mediaURL = "",
+                name = "Summer Look",
+                items = listOf(
+                    ClothingItem(
+                        id = "1",
+                        name = "Blue Top",
+                        itemType = ClothingCategory.TOPS,
+                        mediaUrl = null,
+                        tags = listOf("casual", "summer")
+                    ),
+                    ClothingItem(
+                        id = "2",
+                        name = "Denim Jeans",
+                        itemType = ClothingCategory.BOTTOMS,
+                        mediaUrl = null,
+                        tags = listOf("casual", "summer")
+                    ),
+                ),
+                createdAt = "08/03/2025"
             )
         }
 
         // Add generated outfits to the user
-        outfits.forEach { user.addOutfit(it) }
+        outfits.forEach { user.addOutfit(it, listOf("Public Outfits", "Fancy")) }
 
         val randomItems = generateRandomItems(user.getAllOutfits().size) // Generate 10 random items for the preview
         val swapItems = generateRandomItems(10)
