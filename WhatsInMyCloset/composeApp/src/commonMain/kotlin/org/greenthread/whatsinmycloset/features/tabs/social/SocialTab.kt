@@ -31,7 +31,7 @@ fun SocialTabScreen(user: Account?, onNavigate: (String) -> Unit) {
         // Create a user profile
         val currentUser = user
 
-        val testOutfit = listOf(
+        val testClothingItems = listOf(
             ClothingItem(
                 id = "1",
                 name = "Red Sweater",
@@ -54,8 +54,18 @@ fun SocialTabScreen(user: Account?, onNavigate: (String) -> Unit) {
 
         // Generate outfits
         for (i in 0 until 10) {
-            val newLook =  Outfit("$i", "Look${i}", testOutfit)
-            currentUser?.addOutfit(newLook)
+            val newLook =
+                Outfit(
+                    id = "$i",
+                    userId = "1",
+                    public = true,
+                    favorite = true,
+                    mediaURL = "",
+                    name = "Look${i}",
+                    items = testClothingItems,
+                    createdAt = "08/03/2025"
+                )
+            currentUser?.addOutfit(newLook, listOf("Public Outfits", "Fancy"))
         }
 
         // Generate posts
@@ -94,8 +104,7 @@ fun FriendsOutfitsTitle() {
 fun SocialFeedScreen(postsList: MutableList<Post>) {
     Column(
         Modifier
-            .fillMaxWidth()
-            .padding(top = 60.dp),
+            .fillMaxWidth(),
         horizontalAlignment = Alignment.Start
     ) {
         FriendsOutfitsTitle()

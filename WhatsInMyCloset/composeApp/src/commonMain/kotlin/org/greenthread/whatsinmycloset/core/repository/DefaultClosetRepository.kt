@@ -2,6 +2,8 @@ package org.greenthread.whatsinmycloset.core.repository
 
 import org.greenthread.whatsinmycloset.core.domain.DataError
 import org.greenthread.whatsinmycloset.core.domain.Result
+import org.greenthread.whatsinmycloset.core.dto.MessageDto
+import org.greenthread.whatsinmycloset.core.dto.SendMessageRequest
 import org.greenthread.whatsinmycloset.core.network.RemoteClosetDataSource
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.dto.UserDto
@@ -21,14 +23,34 @@ class DefaultClosetRepository(
     override suspend fun getAllSwaps(): Result<List<SwapDto>, DataError.Remote> {
         return remoteClosetDataSource.getAllSwaps()
     }
+    //============================= Messages ==================================
+    override suspend fun getLatestMessage(userId: String): Result<List<MessageDto>, DataError.Remote> {
+        return remoteClosetDataSource.getLatestMessage(userId)
+    }
 
-    //============================= User ==================================
+    override suspend fun getChatHistory(userId: Int, otherUserId: Int): Result<List<MessageDto>, DataError.Remote> {
+        return remoteClosetDataSource.getChatHistory(userId, otherUserId)
+    }
+
+    override suspend fun sendMessage(senderId: Int, receiverId: Int, content: String): Result<MessageDto, DataError.Remote> {
+        return remoteClosetDataSource.sendMessage(senderId, receiverId, content)
+    }
+
+    override suspend fun updateRead(messageId: Int): Result<String, DataError.Remote> {
+        return remoteClosetDataSource.updateRead(messageId)
+    }
+
+        //============================= User ==================================
     override suspend fun createUser(user: UserDto): Result<UserDto, DataError.Remote> {
         return remoteClosetDataSource.createUser(user)
     }
 
     override suspend fun getUser(userEmail: String): Result<UserDto, DataError.Remote> {
        return remoteClosetDataSource.getUser(userEmail)
+    }
+
+    override suspend fun getUserById(userId: Int): Result<UserDto, DataError.Remote> {
+        return remoteClosetDataSource.getUserById(userId)
     }
 
     override suspend fun updateUser(user: UserDto): Result<UserDto, DataError.Remote> {

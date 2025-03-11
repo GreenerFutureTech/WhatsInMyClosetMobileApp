@@ -10,7 +10,7 @@ import org.greenthread.whatsinmycloset.core.persistence.WardrobeEntity
 import org.greenthread.whatsinmycloset.core.repositories.WardrobeRepository
 import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
 
-class WardrobeManager(
+open class WardrobeManager(
     private val wardrobeRepository: WardrobeRepository
 ) {
     public var cachedWardrobes = emptyList<Wardrobe>()
@@ -25,7 +25,7 @@ class WardrobeManager(
         }
     }
 
-    suspend fun getWardrobes(): List<Wardrobe> {
+    open suspend fun getWardrobes(): List<Wardrobe> {
         return withContext(Dispatchers.IO) {
             wardrobeRepository.getWardrobes().first()
         }

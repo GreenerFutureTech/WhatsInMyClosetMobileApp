@@ -13,8 +13,8 @@ import org.greenthread.whatsinmycloset.core.domain.Result
 import org.greenthread.whatsinmycloset.core.persistence.toWardrobe
 import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
 
-class WardrobeRepository(
-    private val wardrobeDao: WardrobeDao,
+open class WardrobeRepository(
+    val wardrobeDao: WardrobeDao,
     private val itemDao: ItemDao
 ) {
 
@@ -27,7 +27,7 @@ class WardrobeRepository(
         }
     }
 
-    fun getWardrobes(): Flow<List<Wardrobe>> {
+    open fun getWardrobes(): Flow<List<Wardrobe>> {
         return wardrobeDao
             .getWardrobes()
             .map { wardrobeEntities ->

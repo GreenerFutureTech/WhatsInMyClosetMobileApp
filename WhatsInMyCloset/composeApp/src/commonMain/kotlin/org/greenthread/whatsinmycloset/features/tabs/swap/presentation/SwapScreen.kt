@@ -1,11 +1,14 @@
 package org.greenthread.whatsinmycloset.features.tabs.swap.presentation
 
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MailOutline
@@ -21,12 +24,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import io.ktor.client.network.sockets.ConnectTimeoutException
+import org.greenthread.whatsinmycloset.app.Routes
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.Action.SwapAction
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
+import org.greenthread.whatsinmycloset.core.dto.UserDto
 import org.greenthread.whatsinmycloset.core.ui.components.controls.SearchBar
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.SwapImageCard
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.SwapOtherImageCard
@@ -37,7 +43,8 @@ import org.koin.compose.viewmodel.koinViewModel
 fun SwapScreenRoot(
     viewModel: SwapViewModel = koinViewModel(),
     onSwapClick: (SwapDto) -> Unit,
-    onAllSwapClick: () -> Unit
+    onAllSwapClick: () -> Unit,
+    onMessageClick: () -> Unit
 ) {
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val state by viewModel.state.collectAsStateWithLifecycle(
@@ -81,7 +88,8 @@ fun SwapScreenRoot(
            // viewModel.onAction(action)
         },
         onAllSwapClick = onAllSwapClick,
-    )
+        onMessageClick = onMessageClick
+        )
     }
 }
 
@@ -90,6 +98,7 @@ fun SwapScreen(
     state: SwapListState,
     onAction: (SwapAction) -> Unit,
     onAllSwapClick: () -> Unit,
+    onMessageClick: () -> Unit
 ) {
     var searchString by remember { mutableStateOf("") }
 
@@ -120,8 +129,10 @@ fun SwapScreen(
             Icon(
                 imageVector = Icons.Default.MailOutline,
                 contentDescription = "Messages",
-                modifier = Modifier.size(48.dp),
-                tint = MaterialTheme.colors.primary
+                modifier = Modifier
+                    .size(40.dp)
+                    .clickable { onMessageClick() },
+                tint = Color.Black
             )
         }
 
@@ -155,8 +166,26 @@ fun SwapScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
-                .height(100.dp)
+                .height(120.dp)
         ) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .width(80.dp)
+                        .height(95.dp)
+                        .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
+                        .clickable { println("Add button clicked") },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        "+",
+                        fontSize = 30.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.LightGray
+                    )
+                }
+            }
             itemsIndexed(state.getUserSwapResults) { index, item ->
                 SwapImageCard(
                     onSwapClick = {

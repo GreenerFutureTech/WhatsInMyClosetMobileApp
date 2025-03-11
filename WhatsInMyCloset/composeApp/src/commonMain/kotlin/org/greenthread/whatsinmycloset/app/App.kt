@@ -1,19 +1,27 @@
 package org.greenthread.whatsinmycloset.app
 
 import AllSwapsScreen
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -25,7 +33,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import org.koin.core.parameter.parametersOf
 import org.greenthread.whatsinmycloset.CameraManager
+import org.greenthread.whatsinmycloset.core.domain.models.Account
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginScreenRoot
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginViewModel
 import org.greenthread.whatsinmycloset.features.screens.signup.SignupScreenRoot
@@ -36,6 +46,7 @@ import org.greenthread.whatsinmycloset.core.managers.WardrobeManager
 import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.OutfitViewModel
 import org.greenthread.whatsinmycloset.features.screens.addItem.presentation.AddItemScreenViewModel
+import org.greenthread.whatsinmycloset.features.screens.settings.SettingsScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItemDetailScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItemsScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.HomeTabScreenRoot
@@ -45,6 +56,9 @@ import org.greenthread.whatsinmycloset.features.tabs.home.presentation.HomeTabVi
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabScreen
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabViewModel
 import org.greenthread.whatsinmycloset.features.tabs.social.SocialTabScreen
+import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.ChatScreen
+import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.MessageListScreen
+import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.MessageViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SelectedSwapViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SwapDetailScreen
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SwapScreenRoot
@@ -65,11 +79,24 @@ fun App(
         //wardrobeManager.test()
 
         val navController = rememberNavController()
+
+        // For Testing Saving Outfit -
+        // Create an Account instance (or retrieve it from your app's logic)
+        //val account = remember { Account(userId = "user123", name = "Test User") }
+
         // Create shared ViewModels for the outfit screens
+        val account: Account = koinInject() // Retrieve the logged-in user's account
         val sharedClothingItemViewModel: ClothingItemViewModel = koinViewModel()
-        val sharedOutfitViewModel: OutfitViewModel = viewModel()
+        val sharedOutfitViewModel: OutfitViewModel = koinViewModel()
 
         Scaffold(
+            topBar = {
+                AppTopBar(
+                    title = "WIMC",
+                    navController = navController,
+                    showBackButton = true
+                )
+            },
             bottomBar = {
                 BottomNavigationBar(navController)
             }
@@ -124,28 +151,11 @@ fun App(
 
                     // add CreateOutfitScreen Route to separate composable in nav graph
                     composable<Routes.CreateOutfitScreen> {
-                        // to test the Save Outfit, Add to Calendar and Create New Outfit buttons
-                        /*clothingItemViewModel.initializeClothingItems(
-                            listOf(
-                            ClothingItem(
-                                id = "1",
-                                name = "Blue Top",
-                                category = ClothingCategory.TOPS,
-                                clothingImage = null,
-                                tags = setOf("casual", "summer")
-                            ),
-                            ClothingItem(
-                                id = "2",
-                                name = "Denim Jeans",
-                                category = ClothingCategory.BOTTOMS,
-                                clothingImage = null,
-                                tags = setOf("casual", "summer")
-                            )))*/
 
                         OutfitScreen(
                             navController = navController,
                             clothingItemViewModel = sharedClothingItemViewModel,
-                            outfitViewModel = sharedOutfitViewModel,
+                            outfitViewModel = sharedOutfitViewModel
                         )
                     }
 
@@ -177,6 +187,9 @@ fun App(
                     composable<Routes.CategoryItemDetailScreen>
                     {
                         backStackEntry ->
+                        val wardrobeId =
+                            backStackEntry.arguments?.getString("clickedItemWardrobeID") ?: ""
+
                         val itemId =
                             backStackEntry.arguments?.getString("clickedItemID") ?: ""
 
@@ -188,6 +201,7 @@ fun App(
                         if (category != null) {
                             CategoryItemDetailScreen(
                                 navController = navController,
+                                wardrobeId = wardrobeId,
                                 itemId = itemId,
                                 category = category,
                                 onBack = { navController.popBackStack() },
@@ -206,7 +220,8 @@ fun App(
                             navController = navController,
                             onExit = { },
                             onDone = { },
-                            viewModel = sharedOutfitViewModel
+                            outfitViewModel = sharedOutfitViewModel,
+                            clothingItemViewModel = sharedClothingItemViewModel
                         )
                     }
 
@@ -238,7 +253,8 @@ fun App(
                                 selectedSwapViewModel.onSelectSwap(swap)
                                 navController.navigate(Routes.SwapDetailsScreen(swap.itemId.id))
                             },
-                            onAllSwapClick = { navController.navigate(Routes.AllSwapScreen) }
+                            onAllSwapClick = { navController.navigate(Routes.AllSwapScreen) },
+                            onMessageClick = { navController.navigate(Routes.MessageListScreen)}
                         )
                     }
 
@@ -263,6 +279,30 @@ fun App(
 
                         SwapDetailScreen(swap = selectedSwap, onBackClick = { navController.popBackStack() }, userAccount = userAccount )
                     }
+
+                }
+                navigation<Routes.MessageGraph>(startDestination = Routes.MessageListScreen) {
+
+                    composable<Routes.MessageListScreen>{
+                        val viewModel: MessageViewModel = koinViewModel()
+                        MessageListScreen(
+                            viewModel = viewModel,
+                            navController = navController
+                        )
+                    }
+                    composable<Routes.ChatScreen>{
+                        backStackEntry ->
+                        val userId = backStackEntry.arguments?.getString("userId")
+                        val viewModel: MessageViewModel = koinViewModel()
+                        if(userId != null) {
+                            ChatScreen(
+                                viewModel = viewModel,
+                                otherUserId = userId,
+                                navController = navController
+                            )
+                        }
+
+                    }
                 }
                 navigation<Routes.SocialGraph>(startDestination = Routes.SocialTab) {
                     composable<Routes.SocialTab> {
@@ -272,6 +312,12 @@ fun App(
                     composable<Routes.SocialDetailsScreen> {
                         //SocialDetailsScreen()
                     }
+                }
+
+                composable<Routes.SettingsScreen> {
+                    SettingsScreen(
+                        navController = navController
+                    )
                 }
             }
         }
@@ -314,5 +360,48 @@ private inline fun <reified T: ViewModel> NavBackStackEntry.sharedKoinViewModel(
     }
     return koinViewModel (
         viewModelStoreOwner = parentEntry
+    )
+}
+
+@Composable
+fun AppTopBar(
+    title: String,
+    navController: NavController,
+    showBackButton: Boolean = false
+) {
+    TopAppBar(
+        title = {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            } },
+        navigationIcon = {
+            if (showBackButton) {
+                IconButton(onClick = { navController.popBackStack() }) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        tint = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
+            }
+        },
+        actions = {
+            IconButton(onClick = { navController.navigate(Routes.SettingsScreen)}) {
+                Icon(
+                    Icons.Default.Settings,
+                    contentDescription = "Settings",
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+        },
+        backgroundColor = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.onPrimary
     )
 }

@@ -34,6 +34,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.StateFlow
 import org.greenthread.whatsinmycloset.core.domain.models.Account
+import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
+import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.domain.models.generateSampleClothingItems
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.LazyGridColourBox
@@ -54,26 +56,46 @@ fun ProfileTabScreen(userState: StateFlow<Account?>, onNavigate: () -> Unit) {
     WhatsInMyClosetTheme {
         var showContent by remember { mutableStateOf(false) }
         // Create a user profile
+        //val user = Account(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
 
         // Generate outfits
         val numberOfOutfits = 10
         val outfits = List(numberOfOutfits) { i ->
             Outfit(
-                id = "outfit$i",
-                name = "Look$i",
-                itemIds = generateSampleClothingItems()
+                id = "outfit1",
+                userId = "1",
+                public = true,
+                favorite = true,
+                mediaURL = "",
+                name = "Summer Look",
+                items = listOf(
+                    ClothingItem(
+                        id = "1",
+                        name = "Blue Top",
+                        itemType = ClothingCategory.TOPS,
+                        mediaUrl = null,
+                        tags = listOf("casual", "summer")
+                    ),
+                    ClothingItem(
+                        id = "2",
+                        name = "Denim Jeans",
+                        itemType = ClothingCategory.BOTTOMS,
+                        mediaUrl = null,
+                        tags = listOf("casual", "summer")
+                    ),
+                ),
+                createdAt = "08/03/2025"
             )
         }
 
         // Add generated outfits to the user
-        outfits.forEach { currentUser?.addOutfit(it) }
+        outfits.forEach { currentUser?.addOutfit(it, listOf("Public Outfits", "Fancy")) }
 
         val randomItems = generateRandomItems(currentUser?.getAllOutfits()?.size ?: 0) // Generate 10 random items for the preview
         val swapItems = generateRandomItems(10)
 
         Column(Modifier
-            .fillMaxWidth()
-            .padding(top = 60.dp),
+            .fillMaxWidth(),
             horizontalAlignment = Alignment.Start) {
 
             Row(
@@ -98,12 +120,6 @@ fun ProfileTabScreen(userState: StateFlow<Account?>, onNavigate: () -> Unit) {
                         SwapsCount(10)
                     }
                 }
-
-                CategoryItem(
-                    icon = Icons.Default.Menu,
-                    text = "Menu",
-                    onClick = {}
-                )
             }
 
             SearchBar()
@@ -201,20 +217,22 @@ private fun SwapTitle() {
 
 @Composable
 private fun SearchBar() {
-    TextField(
-        value = "SEARCH ...",
-        onValueChange = { },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        placeholder = { Text(text = "hint") },
-        singleLine = true,
-        keyboardOptions = KeyboardOptions.Default.copy(
-            imeAction = ImeAction.Search
-        ),
-        keyboardActions = KeyboardActions(
-            onSearch = {
-            }
-        ),
-    )
+    WhatsInMyClosetTheme {
+        TextField(
+            value = "SEARCH ...",
+            onValueChange = { },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            placeholder = { Text(text = "hint") },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions.Default.copy(
+                imeAction = ImeAction.Search
+            ),
+            keyboardActions = KeyboardActions(
+                onSearch = {
+                }
+            ),
+        )
+    }
 }
