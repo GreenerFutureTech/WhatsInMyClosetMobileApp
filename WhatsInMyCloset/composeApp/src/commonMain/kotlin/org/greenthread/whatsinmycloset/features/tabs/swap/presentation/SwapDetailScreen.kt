@@ -33,8 +33,13 @@ import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import whatsinmycloset.composeapp.generated.resources.Res
+import whatsinmycloset.composeapp.generated.resources.complete_swap
+import whatsinmycloset.composeapp.generated.resources.complete_swap_dialog_message
+import whatsinmycloset.composeapp.generated.resources.complete_swap_dialog_title
+import whatsinmycloset.composeapp.generated.resources.delete
 
 @Composable
 fun SwapDetailScreen(
@@ -79,14 +84,24 @@ fun SwapDetailScreen(
                         modifier = Modifier.widthIn(min = 130.dp)
                     ) {
                         DropdownMenuItem(
-                            text = { Text("Complete Swap", modifier = Modifier.fillMaxWidth(),) },
+                            text = {
+                                Text(
+                                    text = stringResource(Res.string.complete_swap),
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            },
                             onClick = {
                                 showDialog = true
                                 menuExpanded = false
                             }
                         )
                         DropdownMenuItem(
-                            text = { Text("Delete",  modifier = Modifier.fillMaxWidth(),) },
+                            text = {
+                                Text(
+                                    text = stringResource(Res.string.delete),
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            },
                             onClick = {
                                 println("Delete clicked")
                                 menuExpanded = false
@@ -100,8 +115,16 @@ fun SwapDetailScreen(
         if (showDialog) {
             AlertDialog(
                 onDismissRequest = { showDialog = false },
-                title = { Text("Complete Swap") },
-                text = { Text("Are you sure you want to complete this swap?") },
+                title = {
+                    Text(
+                        text = stringResource(Res.string.complete_swap_dialog_title)
+                    )
+                },
+                text = {
+                    Text(
+                        text = stringResource(Res.string.complete_swap_dialog_message)
+                    )
+                },
                 confirmButton = {
                     TextButton(
                         onClick = {
@@ -120,6 +143,7 @@ fun SwapDetailScreen(
                 }
             )
         }
+
 
         Spacer(modifier = Modifier.height(10.dp))
 
