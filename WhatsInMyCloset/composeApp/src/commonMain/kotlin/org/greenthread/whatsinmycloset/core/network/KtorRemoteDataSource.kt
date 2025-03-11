@@ -1,6 +1,7 @@
 package org.greenthread.whatsinmycloset.core.network
 
 import io.ktor.client.HttpClient
+import io.ktor.client.call.body
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.get
@@ -11,6 +12,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
+import io.ktor.client.statement.*
 import org.greenthread.whatsinmycloset.core.data.safeCall
 import org.greenthread.whatsinmycloset.core.domain.DataError
 import org.greenthread.whatsinmycloset.core.domain.Result
@@ -131,20 +133,38 @@ class KtorRemoteDataSource(
         }
     }
 
+
     suspend fun uploadFile(file: ByteArray): Result<String, DataError.Remote> {
         return safeCall {
-            httpClient.post("$BASE_URL/blob/upload") {
+            println("Uploading File...")
+
+            val response = httpClient.post("$BASE_URL/blob/upload") {
                 contentType(ContentType.MultiPart.FormData)
                 setBody(
                     MultiPartFormDataContent(
                         formData {
-                            append("file", file, Headers.build {
-                                append(HttpHeaders.ContentDisposition, "form-data; name=\"file\"; filename=\"file.jpg\"")
-                            })
+                            append(
+                                key = "file", // Ensure this matches the expected field name
+                                value = file,
+                                headers = Headers.build {
+                                    append(HttpHeaders.ContentDisposition, "form-data; name=\"file\"; filename=\"file.png\"")
+                                    append(HttpHeaders.ContentType, "image/png")
+                                }
+                            )
                         }
                     )
                 )
             }
+
+            println("Upload Response: ${response.status}")
+            println("Response Body: ${response.bodyAsText()}")
+
+            response.body()
         }
     }
+
+
+
+
+
 }

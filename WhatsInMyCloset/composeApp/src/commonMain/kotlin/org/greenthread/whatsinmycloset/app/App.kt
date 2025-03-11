@@ -10,6 +10,8 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -278,22 +280,25 @@ fun App(
 
 @Composable
 fun BottomNavigationBar(navController: NavController) {
-    BottomNavigation {
-        val currentDestination =
-            navController.currentBackStackEntryAsState().value?.destination?.route
-        listOf(
-            Routes.HomeTab to Icons.Default.Home,
-            Routes.ProfileTab to Icons.Default.Person,
-            Routes.SwapTab to Icons.Default.ShoppingCart,
-            Routes.SocialTab to Icons.Default.Person
-        ).forEach { (route, icon) ->
-            BottomNavigationItem(
-                selected = currentDestination == route::class.simpleName,
+    val tabs = listOf(
+        Routes.HomeTab to Icons.Default.Home,
+        Routes.ProfileTab to Icons.Default.Person,
+        Routes.SwapTab to Icons.Default.ShoppingCart,
+        Routes.SocialTab to Icons.Default.Person
+    )
+
+    val currentDestination = navController.currentBackStackEntryAsState().value?.destination?.route
+    val selectedIndex = tabs.indexOfFirst { it.first::class.simpleName == currentDestination }
+
+    TabRow(
+        selectedTabIndex = if (selectedIndex >= 0) selectedIndex else 0
+    ) {
+        tabs.forEachIndexed { index, (route, icon) ->
+            Tab(
+                selected = index == selectedIndex,
                 onClick = { navController.navigate(route) },
-                icon = {
-                    Icon(imageVector = icon, contentDescription = null)
-                },
-                label = { Text(route::class.simpleName ?: "Null tab name") }
+                text = { Text(route::class.simpleName ?: "Null tab name") },
+                icon = { Icon(imageVector = icon, contentDescription = null) }
             )
         }
     }

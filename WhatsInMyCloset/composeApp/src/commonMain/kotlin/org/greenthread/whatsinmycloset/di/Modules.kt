@@ -44,6 +44,8 @@ val sharedModule = module {
             .build()
     }
     single{ get<MyClosetDatabase>().wardrobeDao()}
+    single{ get<MyClosetDatabase>().itemDao()}
+
     viewModelOf(::HomeTabViewModel)
     viewModelOf(::AddItemScreenViewModel)
     viewModelOf(::ProfileTabViewModel)
