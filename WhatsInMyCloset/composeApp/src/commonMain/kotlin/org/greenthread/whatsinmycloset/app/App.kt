@@ -324,10 +324,10 @@ fun App(
 fun BottomNavigationBar(navController: NavController) {
     val tabs = listOf(
         Routes.HomeTab to Icons.Default.Home,
-        Routes.ProfileTab to Icons.Default.Person,
         Routes.SwapTab to Icons.Default.ShoppingCart,
-        Routes.SocialTab to Icons.Default.Person
-    )
+        Routes.SocialTab to Icons.Default.Person,
+        Routes.ProfileTab to Icons.Default.Person
+        )
 
     val currentDestination = navController.currentBackStackEntryAsState().value?.destination?.route
     val selectedIndex = tabs.indexOfFirst { it.first::class.simpleName == currentDestination }

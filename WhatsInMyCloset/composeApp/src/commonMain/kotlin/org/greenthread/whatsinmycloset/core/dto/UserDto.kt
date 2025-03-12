@@ -16,7 +16,7 @@ data class UserDto(
     val updatedAt: String,
     val lastLogin: String
 ) {
-    fun toProfile(): User {
+    fun toModel(): User {
         return User(id = id, name = name, username = username, email = email, firebaseUuid = firebaseUid, profilePicture = profilePicture, type = type, registeredAt = registeredAt, updatedAt = updatedAt, lastLogin = lastLogin)
     }
 }

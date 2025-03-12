@@ -125,12 +125,12 @@ class LoginViewModel(
             )
             userRepository
                 .getUser(email)
-                .onSuccess { user ->
-                    println("GET USER ${user.id} SUCCESS")
+                .onSuccess { userDto ->
+                    println("GET USER ${userDto.id} SUCCESS")
 
-                    userManager.updateUser(user.toProfile())
+                    userManager.updateUser(userDto.toModel())
 
-                    val updatedUser = user.copy(
+                    val updatedUser = userDto.copy(
                         lastLogin = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).toString()
                     )
                     updateUser(updatedUser)
