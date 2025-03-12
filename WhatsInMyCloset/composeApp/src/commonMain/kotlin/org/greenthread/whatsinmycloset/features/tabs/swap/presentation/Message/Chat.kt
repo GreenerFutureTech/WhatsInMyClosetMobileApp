@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.datetime.Instant
@@ -42,37 +43,44 @@ fun MessageItem(
             .padding(horizontal = 8.dp, vertical = 4.dp),
         horizontalAlignment = alignment
     ) {
-        Box(
-            modifier = Modifier
-                .clip(shape)
-                .widthIn(max = 250.dp)
-                .background(backgroundColor)
-                .padding(8.dp)
+        Row(
+            verticalAlignment = Alignment.Bottom,
+            horizontalArrangement = if (isSender) Arrangement.End else Arrangement.Start
         ) {
-            Column(
-                modifier = Modifier.fillMaxWidth()
+            if (isSender) {
+                Text(
+                    text = formatTime(message.sentAt),
+                    fontSize = 12.sp,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .clip(shape)
+                    .widthIn(min = 100.dp, max = 200.dp)
+                    .background(backgroundColor)
+                    .padding(8.dp)
             ) {
                 Text(
                     text = message.content,
                     fontSize = 16.sp,
                     color = Color.Black
                 )
+            }
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    Text(
-                        text = formatTime(message.sentAt),
-                        fontSize = 12.sp,
-                        color = Color.Gray
-                    )
-                }
+            if (!isSender) {
+                Text(
+                    text = formatTime(message.sentAt),
+                    fontSize = 12.sp,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(start = 8.dp)
+                )
             }
         }
     }
 }
-
 
 
 fun formatTime(isoTime: String): String {
