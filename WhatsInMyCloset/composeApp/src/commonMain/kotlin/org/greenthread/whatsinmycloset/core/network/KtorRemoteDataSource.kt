@@ -23,6 +23,7 @@ import org.greenthread.whatsinmycloset.core.dto.ItemDto
 import org.greenthread.whatsinmycloset.core.dto.MessageDto
 import org.greenthread.whatsinmycloset.core.dto.SendMessageRequest
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
+import org.greenthread.whatsinmycloset.core.dto.SwapStatusDto
 import org.greenthread.whatsinmycloset.core.dto.UserDto
 import org.greenthread.whatsinmycloset.getPlatform
 
@@ -56,6 +57,17 @@ class KtorRemoteDataSource(
             httpClient.get(
                 urlString = "$BASE_URL/swaps"
             )
+        }
+    }
+
+    override suspend fun updateStatus(itemId: String): Result<SwapStatusDto, DataError.Remote> {
+        return safeCall {
+            httpClient.patch(
+                urlString = "$BASE_URL/swaps/$itemId"
+            ) {
+                contentType(ContentType.Application.Json)
+                setBody(mapOf("status" to "completed"))
+            }
         }
     }
 

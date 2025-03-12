@@ -94,7 +94,8 @@ fun AllSwapsScreen(
                         SwapImageCard(
                             onSwapClick = {
                                 onSwapClick(item)
-                            }
+                            },
+                            imageUrl = item.itemId.mediaUrl
                         )
                     }
                 }

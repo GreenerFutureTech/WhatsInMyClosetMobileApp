@@ -124,4 +124,33 @@ class SwapViewModel(
                 }
         }
     }
+
+    fun updateSwap(itemId: String) {
+        viewModelScope.launch {
+            println("UPDATE SWAP : Completed Swap: $itemId")
+            _state.update {
+                it.copy(
+                    isLoading = true
+                )
+            }
+            swapRepository
+                .updateStatus(itemId)
+                .onSuccess { getResults ->
+                    println("UPDATE SWAP API success: $getResults")
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                        )
+                    }
+                }
+                .onError { error ->
+                    println("UPDATE SWAP API ERROR ${error}")
+                    _state.update {
+                        it.copy(
+                            isLoading = false
+                        )
+                    }
+                }
+        }
+    }
 }

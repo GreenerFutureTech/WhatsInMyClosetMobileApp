@@ -94,6 +94,9 @@ fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManage
                 itemType = selectedCategory?: "null",
                 mediaUrl = null.toString(), // Will be set after uploading image
                 tags = emptyList(),
+                condition = "",
+                brand = "",
+                size = "",
                 createdAt = Clock.System.now().toString()
             )
 
