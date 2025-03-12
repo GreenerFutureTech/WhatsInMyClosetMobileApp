@@ -128,14 +128,16 @@ fun ChatTitle(
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.Start
     ) {
+        var loadFailed by remember { mutableStateOf(false) }
         @OptIn(ExperimentalResourceApi::class)
         AsyncImage(
-            model = user.profilePicture ?: Res.getUri("drawable/defaultUser.png"), // TODO: url error -> drawable
+            model = if(loadFailed) Res.getUri("drawable/defaultUser.png") else user.profilePicture,
             contentDescription = "Profile Image",
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
-                .border(1.dp, Color.LightGray, CircleShape)
+                .border(1.dp, Color.LightGray, CircleShape),
+            onError = { loadFailed = true }
         )
         Spacer(modifier = Modifier.width(8.dp))
         Column {
