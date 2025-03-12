@@ -23,7 +23,14 @@ data class ClothingItem(
     val itemType: ClothingCategory,
     val mediaUrl: String? = "",
     val tags: List<String> = listOf(""),
+    val position: OffsetData? = null, // Add position data
     val createdAt: String = ""
+)
+
+@Serializable
+data class OffsetData(
+    val x: Float,
+    val y: Float
 )
 
 // Function to give dummy set of clothing to create a test outfit

@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
-import org.greenthread.whatsinmycloset.core.domain.models.UserManager
+import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
@@ -45,10 +45,11 @@ import whatsinmycloset.composeapp.generated.resources.delete
 fun SwapDetailScreen(
     swap: SwapDto?,
     onBackClick: () -> Unit,
+    userUser: User?
 ) = swap?.let {
     val viewModel: SwapViewModel = koinViewModel()
 
-    val currentUser = UserManager.currentUser ?: return
+    val currentUser = userUser?:return
     var menuExpanded by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
 
@@ -147,10 +148,12 @@ fun SwapDetailScreen(
 
         Spacer(modifier = Modifier.height(10.dp))
 
+
         Box(
             modifier = Modifier
                 .padding(20.dp)
                 .fillMaxSize()
+
         ) {
             Column(
                 modifier = Modifier
@@ -161,7 +164,7 @@ fun SwapDetailScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Start
                 ) {
-                    @OptIn(ExperimentalResourceApi::class) // TEMP for /drawable image
+                    @OptIn(ExperimentalResourceApi::class) // TEMP for /drawble image
                     AsyncImage(
                         model = Res.getUri("drawable/defaultUser.png"), // NEED TO UPDATE : UserProfileUrl
                         contentDescription = "User Image",

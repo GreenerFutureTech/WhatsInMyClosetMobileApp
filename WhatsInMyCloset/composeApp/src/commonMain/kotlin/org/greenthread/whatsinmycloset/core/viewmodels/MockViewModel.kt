@@ -1,6 +1,5 @@
-package org.greenthread.whatsinmycloset.core.viewmodels
+/*package org.greenthread.whatsinmycloset.core.viewmodels
 
-import androidx.sqlite.SQLiteException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
@@ -12,14 +11,12 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import org.greenthread.whatsinmycloset.core.data.daos.WardrobeDao
-import org.greenthread.whatsinmycloset.core.domain.DataError
-import org.greenthread.whatsinmycloset.core.domain.Result
+import org.greenthread.whatsinmycloset.core.domain.models.Account
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.managers.WardrobeManager
 import org.greenthread.whatsinmycloset.core.persistence.WardrobeEntity
 import org.greenthread.whatsinmycloset.core.persistence.toWardrobe
-import org.greenthread.whatsinmycloset.core.repositories.OutfitRepository
 import org.greenthread.whatsinmycloset.core.repositories.WardrobeRepository
 import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
 
@@ -41,14 +38,32 @@ class MockClothingItemViewModel(wardrobeManager: WardrobeManager) :
 }
 
 class MockOutfitViewModel (
+    account: Account, // Add Account parameter
     initialSelectedFolder: String? = null,
     initialSelectedFolders: List<String> = emptyList(),
     initialIsPublic: Boolean = false
-): OutfitViewModel()
+): OutfitViewModel(account)
 {
 
-    private val outfitRepository = OutfitRepository()
-    override val outfitFolders: StateFlow<List<String>> = outfitRepository.outfitFolders
+    // Default repository names
+    public val defaultRepositories = setOf(
+        "Business Casuals",
+        "Formals",
+        "Casuals",
+        "Public Outfits"
+    )
+
+    // StateFlow for default repositories
+    private val _outfitFolders = MutableStateFlow(defaultRepositories)
+    override val outfitFolders: StateFlow<Set<String>> = _outfitFolders
+
+    // StateFlow for user-created repositories
+    private val _userRepositories = MutableStateFlow<Set<String>>(emptySet())
+    val userRepositories: StateFlow<Set<String>> = _userRepositories
+
+    // Combined list of default and user-created repositories
+    val allRepositories: Set<String>
+        get() = _outfitFolders.value + _userRepositories.value
 
     override val selectedFolder: StateFlow<String?> = MutableStateFlow(initialSelectedFolder).asStateFlow()
     override val selectedFolders: StateFlow<List<String>> = MutableStateFlow(initialSelectedFolders).asStateFlow()
@@ -72,10 +87,13 @@ class MockOutfitViewModel (
         (this.isPublic as MutableStateFlow).value = isPublic
     }
 
-    override fun addFolder(folderName: String) {
-        val currentFolders = (outfitFolders as MutableStateFlow).value.toMutableList()
-        currentFolders.add(folderName)
-        (outfitFolders as MutableStateFlow).value = currentFolders
+    *//**
+     * Add a new user-created repository name.
+     *//*
+    fun addUserRepository(name: String) {
+        if (name.isNotBlank() && name !in allRepositories) {
+            _userRepositories.value = _userRepositories.value + name
+        }
     }
 }
 
@@ -130,4 +148,5 @@ class MockWardrobeDao : WardrobeDao {
     override suspend fun deleteWardrobe(wardrobe: WardrobeEntity) {
         // No-op for mock
     }
-}
+}*/
+

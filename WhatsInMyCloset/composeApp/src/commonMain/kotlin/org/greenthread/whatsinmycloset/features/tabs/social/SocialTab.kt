@@ -14,7 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import org.greenthread.whatsinmycloset.core.domain.models.Account
+import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
@@ -22,18 +22,16 @@ import org.greenthread.whatsinmycloset.core.ui.components.posts.LazyGridPosts
 import org.greenthread.whatsinmycloset.core.ui.components.posts.Post
 import org.greenthread.whatsinmycloset.core.ui.components.posts.getCurrentDate
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
-@Preview
-fun SocialTabScreen(onNavigate: (String) -> Unit) {
+fun SocialTabScreen(user: User?, onNavigate: (String) -> Unit) {
     WhatsInMyClosetTheme {
         var showContent by remember { mutableStateOf(false) }
 
         // Create a user profile
-        val user = Account("user123", "rachelg")
+        val currentUser = user
 
-        val testOutfit = listOf(
+        val testClothingItems = listOf(
             ClothingItem(
                 id = "1",
                 name = "Red Sweater",
@@ -56,20 +54,31 @@ fun SocialTabScreen(onNavigate: (String) -> Unit) {
 
         // Generate outfits
         for (i in 0 until 10) {
-            val newLook =  Outfit("$i", "Look${i}", testOutfit)
-            user.addOutfit(newLook)
+            val newLook =
+                Outfit(
+                    id = "$i",
+                    userId = "1",
+                    public = true,
+                    favorite = true,
+                    mediaURL = "",
+                    name = "Look${i}",
+                    items = testClothingItems,
+                    createdAt = "08/03/2025"
+                )
+            currentUser?.addOutfit(newLook, listOf("Public Outfits", "Fancy"))
         }
 
         // Generate posts
         val postsList = mutableListOf<Post>()
 
+        if (currentUser != null) {
         for (i in 0 until 10) {
-            val post = user.getOutfit("$i")?.let { Post("$i", user, it, getCurrentDate()) }
+            val post = currentUser.getOutfit("$i")?.let { Post("$i", currentUser, it, getCurrentDate()) }
             if (post != null) {
                 postsList.add(post)
             }
         }
-
+        }
         SocialFeedScreen(postsList)
     }
 }

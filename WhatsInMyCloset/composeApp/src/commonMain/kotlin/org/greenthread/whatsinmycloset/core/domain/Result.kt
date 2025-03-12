@@ -17,6 +17,17 @@ fun <T, E: Error> Result<T, E>.asEmptyDataResult(): EmptyResult<E> {
     return map {  }
 }
 
+fun <T, E: Error> Result<T, E>.getOrNull(): T? {
+    return when (this) {
+        is Result.Success -> this.data
+        is Result.Error -> null
+    }
+}
+
+fun <T, E: Error> Result<T, E>.isSuccess(): Boolean = this is Result.Success
+
+fun <T, E: Error> Result<T, E>.isError(): Boolean = this is Result.Error
+
 inline fun <T, E: Error> Result<T, E>.onSuccess(action: (T) -> Unit): Result<T, E> {
     return when(this) {
         is Result.Error -> this

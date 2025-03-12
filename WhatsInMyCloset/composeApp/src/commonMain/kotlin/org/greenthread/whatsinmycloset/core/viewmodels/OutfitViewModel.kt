@@ -5,8 +5,11 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.datetime.format.DateTimeFormat
+import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
+import org.greenthread.whatsinmycloset.core.domain.models.OffsetData
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.repositories.OutfitRepository
 
@@ -19,11 +22,14 @@ isPublic state (when user wants the outfit to be public)
 
 This ViewModel manages outfit creation, saving, and calendar events
 */
+
 open class OutfitViewModel
     (
-        savedStateHandle: SavedStateHandle? = null
-
-    ) : ViewModel() {
+    private val user: User, // Pass the logged-in user's account
+    savedStateHandle: SavedStateHandle? = null
+    )
+    : ViewModel()
+{
     private var outfitCounter = 0
 
     private val selectedCategoryKey = "selected_category"
@@ -42,8 +48,8 @@ open class OutfitViewModel
     val calendarEvents: StateFlow<List<String>> = _calendarEvents.asStateFlow()
 
     // State for OutfitSaveScreen
-    private val outfitRepository = OutfitRepository()
-    open val outfitFolders: StateFlow<List<String>> = outfitRepository.outfitFolders
+    private val outfitRepository = OutfitRepository(user)
+    open val outfitFolders: StateFlow<Set<String>> = outfitRepository.outfitFolders
 
     private val _selectedFolder = MutableStateFlow<String?>(null)
     open val selectedFolder: StateFlow<String?> = _selectedFolder.asStateFlow()
@@ -64,10 +70,6 @@ open class OutfitViewModel
     // For tracking the current outfit being created
     private val _currentOutfit = MutableStateFlow<Outfit?>(null)  // current outfit user wants to save
     val currentOutfit: StateFlow<Outfit?> = _currentOutfit.asStateFlow()
-
-    init {
-        savedStateHandle?.let { loadState(it) } // Only call if non-null
-    }
 
     // Load state - ensures that critical state data is preserved during config changes
     private fun loadState(savedStateHandle: SavedStateHandle) {
@@ -102,22 +104,33 @@ open class OutfitViewModel
     open fun toggleIsPublic(isPublic: Boolean) {
         _isPublic.value = isPublic
         if (isPublic) {
-            _selectedFolders.value = listOf("My Public Outfits")
+            _selectedFolders.value = listOf("Public Outfits")
         }
     }
 
     // Add a new folder using outfitRepository class
     open fun addFolder(folderName: String) {
-        outfitRepository.addFolder(folderName)
+        outfitRepository.addUserRepository(folderName)
     }
 
     // ADD OUTFIT COORDINATES - SO HOWEVER USER SAVES THE OUTFIT,
     // THE NEXT TIME USER WANTS TO VIEW THE OUTFIT
     // IT CAN SAME COORDINATES
     // Save the outfit and update isOutfitSaved state
-    open fun saveOutfit(outfit: Outfit) {
-        // Save the outfit to the repository or database
-        outfitRepository.saveOutfit(outfit)
+    open fun saveOutfit(outfit: Outfit, selectedFolders: List<String>? = null,
+                        selectedFolder: String?) {
+        // Save the outfit to the selected folder
+        if (selectedFolders != null || selectedFolder != null) {
+            if(selectedFolders != null)
+            {
+                outfitRepository.saveOutfit(outfit, selectedFolders)
+            }
+            /*else
+            {
+                outfitRepository.saveOutfit(outfit, selectedFolder)
+            }*/
+        }
+
 
         // Update isOutfitSaved state
         _isOutfitSaved.value = true
@@ -135,14 +148,37 @@ open class OutfitViewModel
     }
 
     // Create an outfit
-    open fun createOutfit(clothingItems: List<ClothingItem>) {
+    open fun createOutfit(clothingItems: List<ClothingItem>)
+    {
         _isCreateNewOutfit.value = true
+        val outfitId = "outfit_${user.outfitCount() + 1}"
 
+        // Create the outfit with the logged-in user's account
         _currentOutfit.value = Outfit(
-            id = generateOutfitId(), // Generate a unique ID
-            name = "New Outfit",
-            itemIds = _clothingItems.value // Use the selected clothing items
+            id = outfitId,
+            userId = user.retrieveUserId().toString(),
+            public = true,
+            favorite = true,
+            mediaURL = "",
+            name = "Summer Look",
+            items = clothingItems, // Use the passed clothing items
+            createdAt = DateTimeFormat.toString()
         )
+    }
+
+    // Function to update the position of a clothing item
+    fun updateClothingItemPosition(itemId: String, newPosition: OffsetData) {
+        val currentOutfit = _currentOutfit.value
+        if (currentOutfit != null) {
+            val updatedItems = currentOutfit.items.map { item ->
+                if (item.id == itemId) {
+                    item.copy(position = newPosition)
+                } else {
+                    item
+                }
+            }
+            _currentOutfit.value = currentOutfit.copy(items = updatedItems)
+        }
     }
 
     // Add outfit to calendar
@@ -151,6 +187,16 @@ open class OutfitViewModel
         if (outfit != null) {
             _calendarEvents.value = _calendarEvents.value + "$date: ${outfit.name}"
         }
+    }
+
+    open fun clearOutfitState() {
+        _currentOutfit.value = null // Clear the current outfit
+        _clothingItems.value = emptyList() // Clear selected clothing items
+        _selectedFolder.value = null // Clear selected folder
+        _selectedFolders.value = emptyList() // Clear selected folders
+        _calendarEvents.value = emptyList()
+        _isPublic.value = false // Reset public state
+        _isOutfitSaved.value = false // Reset outfit saved state
     }
 }
 
