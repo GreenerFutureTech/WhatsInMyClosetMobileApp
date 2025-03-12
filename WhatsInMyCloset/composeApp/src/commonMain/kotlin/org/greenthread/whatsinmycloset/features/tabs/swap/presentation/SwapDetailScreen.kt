@@ -16,7 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
-import org.greenthread.whatsinmycloset.core.domain.models.Account
+import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 import org.jetbrains.compose.resources.ExperimentalResourceApi
@@ -26,9 +26,9 @@ import whatsinmycloset.composeapp.generated.resources.Res
 fun SwapDetailScreen(
     swap: SwapDto?,
     onBackClick: () -> Unit,
-    userAccount: Account?
+    userUser: User?
 ) = swap?.let {
-    val currentUser = userAccount?:return
+    val currentUser = userUser?:return
 
     WhatsInMyClosetTheme {
 

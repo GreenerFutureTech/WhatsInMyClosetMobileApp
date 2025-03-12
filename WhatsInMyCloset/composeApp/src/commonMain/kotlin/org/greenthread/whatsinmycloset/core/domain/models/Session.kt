@@ -9,7 +9,7 @@ data class Session(
     /**
      * The account this session belongs to
      */
-    val account: Account,
+    val user: User,
 
     /**
      * The token returned when the session is created

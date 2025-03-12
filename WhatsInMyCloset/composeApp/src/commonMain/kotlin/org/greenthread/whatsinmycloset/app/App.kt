@@ -4,8 +4,6 @@ import AllSwapsScreen
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.BottomNavigation
-import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -25,7 +23,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -33,9 +30,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
-import org.koin.core.parameter.parametersOf
 import org.greenthread.whatsinmycloset.CameraManager
-import org.greenthread.whatsinmycloset.core.domain.models.Account
+import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginScreenRoot
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginViewModel
 import org.greenthread.whatsinmycloset.features.screens.signup.SignupScreenRoot
@@ -85,7 +81,7 @@ fun App(
         //val account = remember { Account(userId = "user123", name = "Test User") }
 
         // Create shared ViewModels for the outfit screens
-        val account: Account = koinInject() // Retrieve the logged-in user's account
+        val user: User = koinInject() // Retrieve the logged-in user's account
         val sharedClothingItemViewModel: ClothingItemViewModel = koinViewModel()
         val sharedOutfitViewModel: OutfitViewModel = koinViewModel()
 
@@ -277,7 +273,7 @@ fun App(
                         val selectedSwap by selectedSwapViewModel.selectedSwap.collectAsStateWithLifecycle()
                         val userAccount by userManager.currentUser.collectAsState() // Collect StateFlow as a normal value
 
-                        SwapDetailScreen(swap = selectedSwap, onBackClick = { navController.popBackStack() }, userAccount = userAccount )
+                        SwapDetailScreen(swap = selectedSwap, onBackClick = { navController.popBackStack() }, userUser = userAccount )
                     }
 
                 }

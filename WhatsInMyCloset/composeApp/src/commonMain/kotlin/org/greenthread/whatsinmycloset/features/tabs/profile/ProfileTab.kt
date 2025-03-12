@@ -16,8 +16,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -33,15 +31,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.StateFlow
-import org.greenthread.whatsinmycloset.core.domain.models.Account
+import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
-import org.greenthread.whatsinmycloset.core.domain.models.generateSampleClothingItems
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.LazyGridColourBox
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.LazyRowColourBox
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.generateRandomItems
-import org.greenthread.whatsinmycloset.features.tabs.home.presentation.CategoryItem
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.SeeAllButton
 import org.greenthread.whatsinmycloset.getScreenWidthDp
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
@@ -50,7 +46,7 @@ import whatsinmycloset.composeapp.generated.resources.Res
 import whatsinmycloset.composeapp.generated.resources.profileUser
 
 @Composable
-fun ProfileTabScreen(userState: StateFlow<Account?>, onNavigate: () -> Unit) {
+fun ProfileTabScreen(userState: StateFlow<User?>, onNavigate: () -> Unit) {
     val currentUser by userState.collectAsState()
 
     WhatsInMyClosetTheme {

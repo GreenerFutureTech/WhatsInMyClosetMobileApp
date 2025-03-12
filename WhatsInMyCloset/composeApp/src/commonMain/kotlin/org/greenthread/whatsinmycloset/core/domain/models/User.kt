@@ -1,15 +1,15 @@
 package org.greenthread.whatsinmycloset.core.domain.models
 
-import org.greenthread.whatsinmycloset.core.repositories.OutfitRepository
 import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
 
-class Account(
+class User(
     val id: Int? = null,
     val username: String,
     val email: String,
     val name: String,
     val firebaseUuid: String,
     val profilePicture: String? = null,
+    val type: String? = null,
     val registeredAt: String,
     val updatedAt: String,
     val lastLogin: String
@@ -65,15 +65,3 @@ class Account(
         wardrobes.remove(wardrobeId)
     }
 }
-
-data class ProfileDto(
-    val id: Int? = null,
-    val username: String,
-    val email: String,
-    val name: String,
-    val firebaseUid: String,
-    val profilePicture: String? = null,
-    val registeredAt: String,
-    val updatedAt: String,
-    val lastLogin: String
-)

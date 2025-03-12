@@ -1,12 +1,11 @@
 package org.greenthread.whatsinmycloset.di
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import org.greenthread.whatsinmycloset.DatabaseFactory
 import org.greenthread.whatsinmycloset.core.data.HttpClientFactory
 import org.greenthread.whatsinmycloset.core.data.MyClosetDatabase
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
-import org.greenthread.whatsinmycloset.core.domain.models.Account
+import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.managers.WardrobeManager
 import org.greenthread.whatsinmycloset.core.network.KtorRemoteDataSource
 import org.greenthread.whatsinmycloset.core.network.RemoteClosetDataSource
@@ -61,7 +60,7 @@ val sharedModule = module {
 
     viewModelOf(::ClothingItemViewModel)
 
-    single { Account(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
+    single { User(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
     } // Replace with actual user info
 
     viewModel { OutfitViewModel(get(), get()) } // Pass Account and SavedStateHandle

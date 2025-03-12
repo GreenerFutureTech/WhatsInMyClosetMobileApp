@@ -3,7 +3,7 @@ package org.greenthread.whatsinmycloset.home
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
-import org.greenthread.whatsinmycloset.core.domain.models.Account
+import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
@@ -27,7 +27,7 @@ fun PreviewLazyGridColourBox() {
 fun PreviewWardrobeScreen() {
 
     // Create a user profile
-    val user = Account(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
+    val user = User(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
 
     // Add some clothing items to the wardrobe
     val redDress = ClothingItem("item1", "Red Dress", "HomeWardrobe",

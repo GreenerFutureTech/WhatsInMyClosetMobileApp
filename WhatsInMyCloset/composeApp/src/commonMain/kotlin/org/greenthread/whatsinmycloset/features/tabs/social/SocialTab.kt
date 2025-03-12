@@ -14,7 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import org.greenthread.whatsinmycloset.core.domain.models.Account
+import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
@@ -24,7 +24,7 @@ import org.greenthread.whatsinmycloset.core.ui.components.posts.getCurrentDate
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 
 @Composable
-fun SocialTabScreen(user: Account?, onNavigate: (String) -> Unit) {
+fun SocialTabScreen(user: User?, onNavigate: (String) -> Unit) {
     WhatsInMyClosetTheme {
         var showContent by remember { mutableStateOf(false) }
 

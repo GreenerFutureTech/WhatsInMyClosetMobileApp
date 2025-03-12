@@ -1,7 +1,7 @@
 package org.greenthread.whatsinmycloset.core.dto
 
 import kotlinx.serialization.Serializable
-import org.greenthread.whatsinmycloset.core.domain.models.Account
+import org.greenthread.whatsinmycloset.core.domain.models.User
 
 @Serializable
 data class UserDto(
@@ -16,7 +16,7 @@ data class UserDto(
     val updatedAt: String,
     val lastLogin: String
 ) {
-    fun toProfile(): Account {
-        return Account(id = id, name = name, username = username, email = email, firebaseUuid = firebaseUid, profilePicture = profilePicture, registeredAt = registeredAt, updatedAt = updatedAt, lastLogin = lastLogin)
+    fun toProfile(): User {
+        return User(id = id, name = name, username = username, email = email, firebaseUuid = firebaseUid, profilePicture = profilePicture, type = type, registeredAt = registeredAt, updatedAt = updatedAt, lastLogin = lastLogin)
     }
 }

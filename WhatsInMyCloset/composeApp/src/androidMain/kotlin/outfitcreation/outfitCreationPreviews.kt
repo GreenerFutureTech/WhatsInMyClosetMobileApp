@@ -8,19 +8,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Modifier
-import org.greenthread.whatsinmycloset.features.tabs.home.OutfitScreen
-import org.greenthread.whatsinmycloset.features.tabs.home.OutfitSaveScreen
-import org.greenthread.whatsinmycloset.features.tabs.home.OutfitSaved
 import org.greenthread.whatsinmycloset.features.tabs.home.CreateNewOutfitFolder
 import org.greenthread.whatsinmycloset.features.tabs.home.CalendarDialog
-import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItemsScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.ConfirmationDialog
 import org.greenthread.whatsinmycloset.features.tabs.home.DiscardConfirmationDialog
 import org.greenthread.whatsinmycloset.features.tabs.home.DiscardSavingDialog
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
-import org.greenthread.whatsinmycloset.core.domain.models.Account
-import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
+import org.greenthread.whatsinmycloset.core.domain.models.User
+
 /*import org.greenthread.whatsinmycloset.core.viewmodels.MockClothingItemViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.MockOutfitViewModel*/
 //import org.greenthread.whatsinmycloset.core.viewmodels.MockWardrobeManager
@@ -55,7 +50,7 @@ fun PreviewCategoryItemsScreen() {
 @Composable
 fun PreviewOutfitCreationScreen() {
 
-    val user = Account(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
+    val user = User(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
 
     val mockNavController = rememberNavController()
     //val mockOutfitViewModel = MockOutfitViewModel(user)
@@ -77,7 +72,7 @@ fun OutfitSaveScreenPreview() {
 
     val mockNavController = rememberNavController()
 
-    val mockAccount = Account(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
+    val mockUser = User(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
 
     //val mockViewModel = MockOutfitViewModel(
     //    account = mockAccount)
@@ -99,7 +94,7 @@ fun PreviewSingleFolderSelected() {
 
     val mockNavController = rememberNavController()
 
-    val mockAccount = Account(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
+    val mockUser = User(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
 
 /*    val mockViewModel = MockOutfitViewModel(
         account = mockAccount,
@@ -125,7 +120,7 @@ fun PreviewPublicChecked() {
 
     val mockNavController = rememberNavController()
 
-    val mockAccount = Account(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
+    val mockUser = User(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
 
 /*    val mockViewModel = MockOutfitViewModel(
         account = mockAccount,
@@ -149,7 +144,7 @@ fun PreviewMultipleFoldersSelected() {
 
     val mockNavController = rememberNavController()
 
-    val mockAccount = Account(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
+    val mockUser = User(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
 
 /*
     val mockViewModel = MockOutfitViewModel(
@@ -176,7 +171,7 @@ fun PreviewMultipleFoldersSelected() {
 fun OutfitSavedPreview() {
     val mockNavController = rememberNavController()
 
-    val mockAccount = Account(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
+    val mockUser = User(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
 
 /*    val mockViewModel = MockOutfitViewModel(
         account = mockAccount,

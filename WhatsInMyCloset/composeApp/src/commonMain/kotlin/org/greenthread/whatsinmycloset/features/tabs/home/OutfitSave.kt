@@ -1,7 +1,6 @@
 package org.greenthread.whatsinmycloset.features.tabs.home
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -9,17 +8,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import org.greenthread.whatsinmycloset.app.Routes
-import org.greenthread.whatsinmycloset.core.domain.models.Account
-import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
-import org.greenthread.whatsinmycloset.core.domain.models.Outfit
-import org.greenthread.whatsinmycloset.core.repositories.OutfitRepository
 import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.OutfitViewModel
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme

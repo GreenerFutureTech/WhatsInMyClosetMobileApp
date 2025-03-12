@@ -3,13 +3,13 @@ package org.greenthread.whatsinmycloset.social
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.flow.MutableStateFlow
-import org.greenthread.whatsinmycloset.core.domain.models.Account
+import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabScreen
 
 @Composable
 @Preview(showSystemUi = true, showBackground = true)
 fun ProfileTab() {
-    val fakeUser = Account(
+    val fakeUser = User(
         id = 100,
         username = "UserTest1",
         email = "testmail",
@@ -20,6 +20,6 @@ fun ProfileTab() {
         updatedAt = "01-01-2025"
     )
 
-    val fakeUserState = MutableStateFlow<Account?>(fakeUser) // Fake state for preview
+    val fakeUserState = MutableStateFlow<User?>(fakeUser) // Fake state for preview
 
     ProfileTabScreen(userState = fakeUserState, onNavigate = {})}

@@ -28,7 +28,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.greenthread.whatsinmycloset.app.Routes
-import org.greenthread.whatsinmycloset.core.domain.models.Account
+import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.LazyGridColourBox
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.generateRandomItems
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
@@ -47,7 +47,7 @@ fun HomeTabScreenRoot(
         var showContent by remember { mutableStateOf(false) }
 
         // Create a user profile
-        val user = Account(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
+        val user = User(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
         //Relevant info is injected via HomeTabViewModel and managers
         Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
             HomeTabScreen(
@@ -98,7 +98,7 @@ fun HomeTabScreenRoot(
 fun HomeTabScreen(
     viewModel: HomeTabViewModel?,
     navController: NavController,
-    account: Account,
+    user: User,
     onAddItemClick: () -> Unit,
     onCreateOutfitClick: () -> Unit
 ){
