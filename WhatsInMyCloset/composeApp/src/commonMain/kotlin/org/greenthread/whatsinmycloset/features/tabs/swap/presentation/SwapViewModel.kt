@@ -152,4 +152,33 @@ class SwapViewModel(
                 }
         }
     }
+
+    fun deleteSwap(itemId: String) {
+        viewModelScope.launch {
+            println("DELETE SWAP : Completed Swap: $itemId")
+            _state.update {
+                it.copy(
+                    isLoading = true
+                )
+            }
+            swapRepository
+                .updateStatus(itemId)
+                .onSuccess { getResults ->
+                    println("DELETE SWAP API success: $getResults")
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                        )
+                    }
+                }
+                .onError { error ->
+                    println("DELETE SWAP API ERROR ${error}")
+                    _state.update {
+                        it.copy(
+                            isLoading = false
+                        )
+                    }
+                }
+        }
+    }
 }

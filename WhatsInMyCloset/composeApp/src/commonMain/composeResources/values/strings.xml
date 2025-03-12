@@ -10,4 +10,6 @@
     <string name="delete">Delete</string>
     <string name="complete_swap_dialog_title">Complete Swap</string>
     <string name="complete_swap_dialog_message">Are you sure you want to complete this swap?</string>
+    <string name="delete_swap_dialog_title">Delete Swap</string>
+    <string name="delete_swap_dialog_message">Are you sure you want to delete this swap?</string>
 </resources>
