@@ -4,6 +4,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
@@ -68,6 +69,14 @@ class KtorRemoteDataSource(
                 contentType(ContentType.Application.Json)
                 setBody(mapOf("status" to "completed"))
             }
+        }
+    }
+
+    override suspend fun deleteSwap(itemId: String): Result<String, DataError.Remote> {
+        return safeCall {
+            httpClient.delete(
+                urlString = "$BASE_URL/swaps/${itemId}"
+            )
         }
     }
 

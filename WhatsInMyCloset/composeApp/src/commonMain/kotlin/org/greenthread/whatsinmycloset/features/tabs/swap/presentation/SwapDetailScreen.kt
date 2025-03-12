@@ -40,6 +40,8 @@ import whatsinmycloset.composeapp.generated.resources.complete_swap
 import whatsinmycloset.composeapp.generated.resources.complete_swap_dialog_message
 import whatsinmycloset.composeapp.generated.resources.complete_swap_dialog_title
 import whatsinmycloset.composeapp.generated.resources.delete
+import whatsinmycloset.composeapp.generated.resources.delete_swap_dialog_message
+import whatsinmycloset.composeapp.generated.resources.delete_swap_dialog_title
 
 @Composable
 fun SwapDetailScreen(
@@ -51,7 +53,8 @@ fun SwapDetailScreen(
 
     val currentUser = userUser?:return
     var menuExpanded by remember { mutableStateOf(false) }
-    var showDialog by remember { mutableStateOf(false) }
+    var showCompleteDialog by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     WhatsInMyClosetTheme {
         Row(
@@ -92,7 +95,7 @@ fun SwapDetailScreen(
                                 )
                             },
                             onClick = {
-                                showDialog = true
+                                showCompleteDialog = true
                                 menuExpanded = false
                             }
                         )
@@ -104,7 +107,7 @@ fun SwapDetailScreen(
                                 )
                             },
                             onClick = {
-                                println("Delete clicked")
+                                showDeleteDialog = true
                                 menuExpanded = false
                             }
                         )
@@ -113,9 +116,9 @@ fun SwapDetailScreen(
             }
         }
 
-        if (showDialog) {
+        if (showCompleteDialog) {
             AlertDialog(
-                onDismissRequest = { showDialog = false },
+                onDismissRequest = { showCompleteDialog = false },
                 title = {
                     Text(
                         text = stringResource(Res.string.complete_swap_dialog_title)
@@ -131,14 +134,46 @@ fun SwapDetailScreen(
                         onClick = {
                             viewModel.updateSwap(swap.itemId.id)
                             onBackClick()
-                            showDialog = false
+                            showCompleteDialog = false
                         }
                     ) {
                         Text("Yes")
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { showDialog = false }) {
+                    TextButton(onClick = { showCompleteDialog = false }) {
+                        Text("No")
+                    }
+                }
+            )
+        }
+
+        if (showDeleteDialog) {
+            AlertDialog(
+                onDismissRequest = { showDeleteDialog = false },
+                title = {
+                    Text(
+                        text = stringResource(Res.string.delete_swap_dialog_title)
+                    )
+                },
+                text = {
+                    Text(
+                        text = stringResource(Res.string.delete_swap_dialog_message)
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            viewModel.deleteSwap(swap.itemId.id)
+                            onBackClick()
+                            showDeleteDialog = false
+                        }
+                    ) {
+                        Text("Yes")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDeleteDialog = false }) {
                         Text("No")
                     }
                 }

@@ -14,6 +14,7 @@ interface RemoteClosetDataSource {
     suspend fun getOtherUsersSwaps(currentUserId: String): Result<List<SwapDto>, DataError.Remote>
     suspend fun getAllSwaps(): Result<List<SwapDto>, DataError.Remote>
     suspend fun updateStatus(itemId: String): Result<SwapStatusDto, DataError.Remote>
+    suspend fun deleteSwap(itemId: String): Result<String, DataError.Remote>
 
     // Messages
     suspend fun getLatestMessage(userId: String): Result<List<MessageDto>, DataError.Remote>
