@@ -12,15 +12,16 @@ import org.greenthread.whatsinmycloset.features.tabs.swap.Action.SwapAction
 import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
 
 class SwapViewModel(
-    private val swapRepository: ClosetRepository
+    private val swapRepository: ClosetRepository,
+    private val userManager: UserManager
 ) : ViewModel() {
-    val currentUser = UserManager.currentUser
+    val currentUser = userManager.currentUser
 
     private val _state = MutableStateFlow(SwapListState())
     val state =_state
         .onStart {
-            fetchSwapData(currentUser?.id.toString())
-            fetchOtherSwapData(currentUser?.id.toString())
+            fetchSwapData(currentUser.value?.id.toString())
+            fetchOtherSwapData(currentUser.value?.id.toString())
         }
 
     fun onAction(action: SwapAction) {

@@ -1,4 +1,4 @@
-package org.greenthread.whatsinmycloset.core.viewmodels
+/*package org.greenthread.whatsinmycloset.core.viewmodels
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -87,9 +87,9 @@ class MockOutfitViewModel (
         (this.isPublic as MutableStateFlow).value = isPublic
     }
 
-    /**
+    *//**
      * Add a new user-created repository name.
-     */
+     *//*
     fun addUserRepository(name: String) {
         if (name.isNotBlank() && name !in allRepositories) {
             _userRepositories.value = _userRepositories.value + name
@@ -148,5 +148,5 @@ class MockWardrobeDao : WardrobeDao {
     override suspend fun deleteWardrobe(wardrobe: WardrobeEntity) {
         // No-op for mock
     }
-}
+}*/
 

@@ -34,7 +34,7 @@ fun AllSwapsScreen(
     viewModel: SwapViewModel = koinViewModel(),
     onSwapClick: (SwapDto) -> Unit,
     ) {
-    val currentUser = UserManager.currentUser ?: return
+    val currentUser = viewModel.currentUser ?: return
 
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val state by viewModel.state.collectAsStateWithLifecycle(
@@ -45,7 +45,7 @@ fun AllSwapsScreen(
     WhatsInMyClosetTheme {
         LaunchedEffect(Unit) {
             if (state.getUserSwapResults.isEmpty()) {
-                viewModel.fetchSwapData(currentUser.id.toString())
+                viewModel.fetchSwapData(currentUser.value?.id.toString())
             }
         }
 

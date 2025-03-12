@@ -1,20 +1,27 @@
 package org.greenthread.whatsinmycloset.core.domain.models
 
-import org.greenthread.whatsinmycloset.core.repositories.OutfitRepository
 import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
 
-class Account(
-    val userId: String, // Unique identifier for the user
-    val name: String // User's name
+class User(
+    val id: Int? = null,
+    val username: String,
+    val email: String,
+    val name: String,
+    val firebaseUuid: String,
+    val profilePicture: String? = null,
+    val type: String? = null,
+    val registeredAt: String,
+    val updatedAt: String,
+    val lastLogin: String
 ) {
     private val wardrobes = mutableMapOf<String, Wardrobe>() // Maps wardrobe ID to Wardrobe
     private val outfits = mutableMapOf<String, Outfit>() // Maps outfit ID to Outfit
     private val outfitRepositories = mutableMapOf<String, MutableSet<String>>()  // Maps outfit
     // repo user wants to save the outfit in to OutfitRepository class
 
-    fun retrieveUserId() : String
+    fun retrieveUserId() : Int?
     {
-        return userId
+        return id
     }
 
     fun outfitCount() : Int
@@ -56,13 +63,5 @@ class Account(
 
     fun removeWardrobe(wardrobeId: String) {
         wardrobes.remove(wardrobeId)
-    }
-
-    fun getWardrobe(wardrobeId: String): Wardrobe? {
-        return wardrobes[wardrobeId]
-    }
-
-    fun getAllWardrobes(): List<Outfit> {
-        return outfits.values.toList()
     }
 }
