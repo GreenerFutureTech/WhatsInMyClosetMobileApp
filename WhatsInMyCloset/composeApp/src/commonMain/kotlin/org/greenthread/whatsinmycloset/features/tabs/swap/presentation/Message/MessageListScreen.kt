@@ -72,7 +72,8 @@ fun MessageListScreen(
 
                 ) {
                     items(state.getLatestMessageResults) { message ->
-                        val isSender = message.sender.id == viewModel.currentUser?.id
+                        val isSender =
+                            message.sender.id == (viewModel.currentUser.value?.id ?: true)
                         val otherUser = if (isSender) message.receiver else message.sender
 
                         MessageList(

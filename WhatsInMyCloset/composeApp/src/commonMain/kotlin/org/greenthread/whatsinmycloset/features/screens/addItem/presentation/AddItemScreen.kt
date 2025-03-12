@@ -29,14 +29,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.dp
+import kotlinx.datetime.Clock
 import org.greenthread.whatsinmycloset.CameraManager
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
+import org.greenthread.whatsinmycloset.core.dto.ItemDto
 import org.greenthread.whatsinmycloset.toImageBitmap
+import kotlin.random.Random
 
 @Composable
 fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManager, onBack: () -> Unit) {
     var itemName by remember { mutableStateOf("") }
     var itemImage by remember { mutableStateOf<ByteArray?>(null) }
+    var selectedCategory by remember { mutableStateOf<String?>("Tops") }
+    var selectedWardrobe by remember { mutableStateOf<String?>("Winter Collection") }
+
     var bitmap : ImageBitmap
 
     Column(
@@ -46,14 +52,23 @@ fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManage
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        //val categories = listOf("Choose a Category!", "Tops", "Bottoms", "Shoes", "Accessories")
+
+
         val categories = listOf("Choose a Category!") + ClothingCategory.entries.map { it.categoryName }
 
         val wardrobes = viewModel.getWardrobes()
-        WardrobeDropdown(wardrobes = wardrobes.map { it.wardrobeName })
+        WardrobeDropdown(
+            wardrobes = wardrobes.map { it.wardrobeName },
+            selectedWardrobe = selectedWardrobe ?: "Choose a Wardrobe!",
+            onWardrobeSelected = { selectedWardrobe = it })
         Spacer(modifier = Modifier.height(16.dp))
 
-        CategoryDropdown(categories = categories)
+        // Pass selectedCategory and a setter function to update it
+        CategoryDropdown(
+            categories = categories,
+            selectedCategory = selectedCategory ?: "Choose a Category!",
+            onCategorySelected = { selectedCategory = it }
+        )
         Spacer(modifier = Modifier.height(16.dp))
         // Use the TakePhotoButton composable
         cameraManager.TakePhotoButton { imageBytes ->
@@ -73,7 +88,22 @@ fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManage
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = {
-            onBack()
+            val item = ItemDto(
+                id = Random.nextInt(1000, 100000).toString(),
+                wardrobeId = selectedWardrobe?: "null",
+                itemType = selectedCategory?: "null",
+                mediaUrl = null.toString(), // Will be set after uploading image
+                tags = emptyList(),
+                createdAt = Clock.System.now().toString()
+            )
+
+            viewModel.addItem(item, itemImage) { success, error ->
+                if (success) {
+                    onBack()
+                } else {
+                    println("failure")
+                }
+            }
         }) {
             Text("Add Item")
         }
@@ -104,9 +134,10 @@ fun ImageBitmap.Companion.imageFromBytes(bytes: ByteArray): ImageBitmap {
 */
 
 @Composable
-fun CategoryDropdown(categories: List<String>) {
+fun CategoryDropdown(categories: List<String>,
+                     selectedCategory: String,
+                     onCategorySelected: (String) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedCategory by remember { mutableStateOf(categories.firstOrNull() ?: "") } // Default to the first category if available
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -138,7 +169,7 @@ fun CategoryDropdown(categories: List<String>) {
             categories.filter { category -> category != "Choose a Category!" }.forEach { category ->
                 DropdownMenuItem(
                     onClick = {
-                        selectedCategory = category
+                        onCategorySelected(category)
                         expanded = false
                     },
                     text = {
@@ -154,7 +185,9 @@ fun CategoryDropdown(categories: List<String>) {
 }
 
 @Composable
-fun WardrobeDropdown(wardrobes: List<String>) {
+fun WardrobeDropdown(wardrobes: List<String>,
+                     selectedWardrobe: String,
+                     onWardrobeSelected: (String) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     var selectedWadrobe by remember { mutableStateOf(wardrobes.firstOrNull() ?: "") } // Default to the first category if available
 
@@ -183,18 +216,18 @@ fun WardrobeDropdown(wardrobes: List<String>) {
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            modifier = Modifier.width(200.dp) // Match width to the OutlinedButton
+            modifier = Modifier.width(300.dp) // Match width to the OutlinedButton
         ) {
             wardrobes.forEach { wardrobe ->
                 DropdownMenuItem(
                     onClick = {
-                        selectedWadrobe = wardrobe
+                        onWardrobeSelected(wardrobe)
                         expanded = false
                     },
                     text = {
                         Text(
                             text = wardrobe,
-                            style = MaterialTheme.typography.headlineSmall // Match font size in dropdown items
+                            style = MaterialTheme.typography.headlineMedium // Match font size in dropdown items
                         )
                     }
                 )

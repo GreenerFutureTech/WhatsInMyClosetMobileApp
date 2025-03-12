@@ -2,21 +2,16 @@ package org.greenthread.whatsinmycloset.core.viewmodels
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.CreationExtras
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.datetime.LocalDate
 import kotlinx.datetime.format.DateTimeFormat
-import org.greenthread.whatsinmycloset.core.domain.models.Account
+import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.domain.models.OffsetData
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.repositories.OutfitRepository
-import kotlin.reflect.KClass
-
 
 
 /* this viewmodel handles the following:
@@ -30,8 +25,8 @@ This ViewModel manages outfit creation, saving, and calendar events
 
 open class OutfitViewModel
     (
-        private val account: Account, // Pass the logged-in user's account
-        savedStateHandle: SavedStateHandle? = null
+    private val user: User, // Pass the logged-in user's account
+    savedStateHandle: SavedStateHandle? = null
     )
     : ViewModel()
 {
@@ -53,7 +48,7 @@ open class OutfitViewModel
     val calendarEvents: StateFlow<List<String>> = _calendarEvents.asStateFlow()
 
     // State for OutfitSaveScreen
-    private val outfitRepository = OutfitRepository(account)
+    private val outfitRepository = OutfitRepository(user)
     open val outfitFolders: StateFlow<Set<String>> = outfitRepository.outfitFolders
 
     private val _selectedFolder = MutableStateFlow<String?>(null)
@@ -156,12 +151,12 @@ open class OutfitViewModel
     open fun createOutfit(clothingItems: List<ClothingItem>)
     {
         _isCreateNewOutfit.value = true
-        val outfitId = "outfit_${account.outfitCount() + 1}"
+        val outfitId = "outfit_${user.outfitCount() + 1}"
 
         // Create the outfit with the logged-in user's account
         _currentOutfit.value = Outfit(
             id = outfitId,
-            userId = account.retrieveUserId(),
+            userId = user.retrieveUserId().toString(),
             public = true,
             favorite = true,
             mediaURL = "",

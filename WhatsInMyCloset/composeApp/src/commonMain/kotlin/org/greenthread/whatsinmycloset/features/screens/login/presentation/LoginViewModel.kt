@@ -20,7 +20,8 @@ import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 
 
 class LoginViewModel(
-    private val userRepository: ClosetRepository
+    private val userRepository: ClosetRepository,
+    private val userManager: UserManager
 ): ViewModel() {
     private val auth = Firebase.auth
     private val _state = mutableStateOf(LoginState())
@@ -124,12 +125,12 @@ class LoginViewModel(
             )
             userRepository
                 .getUser(email)
-                .onSuccess { user ->
-                    println("GET USER ${user.id} SUCCESS")
+                .onSuccess { userDto ->
+                    println("GET USER ${userDto.id} SUCCESS")
 
-                    UserManager.currentUser = user
+                    userManager.updateUser(userDto.toModel())
 
-                    val updatedUser = user.copy(
+                    val updatedUser = userDto.copy(
                         lastLogin = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).toString()
                     )
                     updateUser(updatedUser)

@@ -52,7 +52,7 @@ fun SwapScreenRoot(
         lifecycle = lifecycle
     )
 
-    val currentUser = UserManager.currentUser?:return
+    val currentUser = viewModel.currentUser
 
     WhatsInMyClosetTheme {
         LaunchedEffect(state) {
@@ -61,10 +61,10 @@ fun SwapScreenRoot(
                     viewModel.fetchAllSwapData()
                 }
                 if (state.getUserSwapResults.isEmpty()) {
-                    viewModel.fetchSwapData(currentUser?.id.toString())
+                    viewModel.fetchSwapData(currentUser.value?.id.toString())
                 }
                 if (state.getOtherUserSwapResults.isEmpty()) {
-                    viewModel.fetchOtherSwapData(currentUser?.id.toString())
+                    viewModel.fetchOtherSwapData(currentUser.value?.id.toString())
                 }
             } catch (e: ConnectTimeoutException) {
                 println("Connection timeout occurred (could not hit backend?): ${e.message}")

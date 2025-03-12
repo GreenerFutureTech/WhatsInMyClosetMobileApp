@@ -6,6 +6,7 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.greenthread.whatsinmycloset.core.persistence.WardrobeEntity
 import org.greenthread.whatsinmycloset.core.repositories.WardrobeRepository
 import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
 
@@ -28,5 +29,9 @@ open class WardrobeManager(
         return withContext(Dispatchers.IO) {
             wardrobeRepository.getWardrobes().first()
         }
+    }
+
+    suspend fun insertWardrobe(wardrobe: WardrobeEntity) {
+        wardrobeRepository.insertWardrobe((wardrobe))
     }
 }

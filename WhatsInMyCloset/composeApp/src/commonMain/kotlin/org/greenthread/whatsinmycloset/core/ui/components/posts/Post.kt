@@ -26,13 +26,13 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import org.greenthread.whatsinmycloset.core.domain.models.Account
+import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.ui.components.outfits.OutfitComposable
 
 data class Post(
     val postID: String,
-    val creator: Account,
+    val creator: User,
     val outfit: Outfit,
     val createdAt: LocalDate
 )

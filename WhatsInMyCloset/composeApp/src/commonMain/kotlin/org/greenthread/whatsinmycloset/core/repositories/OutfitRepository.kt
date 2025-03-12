@@ -2,11 +2,11 @@ package org.greenthread.whatsinmycloset.core.repositories
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import org.greenthread.whatsinmycloset.core.domain.models.Account
+import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 
 
-class OutfitRepository (private val account: Account) // Pass the logged-in user's account)
+class OutfitRepository (private val user: User) // Pass the logged-in user's account)
 {
     // Default repository names
     public val defaultRepositories = setOf(
@@ -72,7 +72,7 @@ class OutfitRepository (private val account: Account) // Pass the logged-in user
         {
             if (selectedFolders != null)
             {
-                account.addOutfit(outfit, selectedFolders)
+                user.addOutfit(outfit, selectedFolders)
             }
             /*else
             {
@@ -85,7 +85,7 @@ class OutfitRepository (private val account: Account) // Pass the logged-in user
      * Delete a saved outfit for the logged-in user.
      */
     fun removeOutfit(outfitId: String) {
-        account.removeOutfit(outfitId)
+        user.removeOutfit(outfitId)
         _savedOutfits.value = _savedOutfits.value.filter { it.id != outfitId }
     }
 }

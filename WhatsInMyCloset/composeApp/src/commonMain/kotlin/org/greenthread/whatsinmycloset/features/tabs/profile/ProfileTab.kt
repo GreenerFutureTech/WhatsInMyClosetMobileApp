@@ -16,10 +16,9 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,15 +30,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import org.greenthread.whatsinmycloset.core.domain.models.Account
+import kotlinx.coroutines.flow.StateFlow
+import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
-import org.greenthread.whatsinmycloset.core.domain.models.generateSampleClothingItems
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.LazyGridColourBox
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.LazyRowColourBox
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.generateRandomItems
-import org.greenthread.whatsinmycloset.features.tabs.home.presentation.CategoryItem
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.SeeAllButton
 import org.greenthread.whatsinmycloset.getScreenWidthDp
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
@@ -48,11 +46,13 @@ import whatsinmycloset.composeapp.generated.resources.Res
 import whatsinmycloset.composeapp.generated.resources.profileUser
 
 @Composable
-fun ProfileTabScreen(onNavigate: (String) -> Unit) {
+fun ProfileTabScreen(userState: StateFlow<User?>, onNavigate: () -> Unit) {
+    val currentUser by userState.collectAsState()
+
     WhatsInMyClosetTheme {
         var showContent by remember { mutableStateOf(false) }
         // Create a user profile
-        val user = Account("user123", "Test")
+        //val user = Account(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
 
         // Generate outfits
         val numberOfOutfits = 10
@@ -85,9 +85,9 @@ fun ProfileTabScreen(onNavigate: (String) -> Unit) {
         }
 
         // Add generated outfits to the user
-        outfits.forEach { user.addOutfit(it, listOf("Public Outfits", "Fancy")) }
+        outfits.forEach { currentUser?.addOutfit(it, listOf("Public Outfits", "Fancy")) }
 
-        val randomItems = generateRandomItems(user.getAllOutfits().size) // Generate 10 random items for the preview
+        val randomItems = generateRandomItems(currentUser?.getAllOutfits()?.size ?: 0) // Generate 10 random items for the preview
         val swapItems = generateRandomItems(10)
 
         Column(Modifier
@@ -104,7 +104,7 @@ fun ProfileTabScreen(onNavigate: (String) -> Unit) {
 
                 Column(Modifier.padding(16.dp)) {
                     // Username
-                    Username("Rachel Green")
+                    Username(currentUser?.name ?: "No username found")
 
                     Spacer(modifier = Modifier.height(16.dp))
 

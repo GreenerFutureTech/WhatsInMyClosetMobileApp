@@ -8,24 +8,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Modifier
-import org.greenthread.whatsinmycloset.features.tabs.home.OutfitScreen
-import org.greenthread.whatsinmycloset.features.tabs.home.OutfitSaveScreen
-import org.greenthread.whatsinmycloset.features.tabs.home.OutfitSaved
 import org.greenthread.whatsinmycloset.features.tabs.home.CreateNewOutfitFolder
 import org.greenthread.whatsinmycloset.features.tabs.home.CalendarDialog
-import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItemsScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.ConfirmationDialog
 import org.greenthread.whatsinmycloset.features.tabs.home.DiscardConfirmationDialog
 import org.greenthread.whatsinmycloset.features.tabs.home.DiscardSavingDialog
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
-import org.greenthread.whatsinmycloset.core.domain.models.Account
-import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
-import org.greenthread.whatsinmycloset.core.viewmodels.MockClothingItemViewModel
-import org.greenthread.whatsinmycloset.core.viewmodels.MockOutfitViewModel
-import org.greenthread.whatsinmycloset.core.viewmodels.MockWardrobeManager
+import org.greenthread.whatsinmycloset.core.domain.models.User
 
-@Composable
+/*import org.greenthread.whatsinmycloset.core.viewmodels.MockClothingItemViewModel
+import org.greenthread.whatsinmycloset.core.viewmodels.MockOutfitViewModel*/
+//import org.greenthread.whatsinmycloset.core.viewmodels.MockWardrobeManager
+
+/*@Composable
 @Preview(showSystemUi = true, showBackground = true)
 fun PreviewCategoryItemsScreen() {
     val onDone: () -> Unit = {
@@ -48,25 +43,25 @@ fun PreviewCategoryItemsScreen() {
         onDone = onDone,
         viewModel = mockViewModel
     )
-}
+}*/
 
 
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
 fun PreviewOutfitCreationScreen() {
 
-    val user =  Account(userId = "user123", name = "Test User")
+    val user = User(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
 
     val mockNavController = rememberNavController()
-    val mockOutfitViewModel = MockOutfitViewModel(user)
-    val mockClothingViewModel = MockClothingItemViewModel(wardrobeManager = MockWardrobeManager())
+    //val mockOutfitViewModel = MockOutfitViewModel(user)
+    //val mockClothingViewModel = MockClothingItemViewModel(wardrobeManager = MockWardrobeManager())
 
 
-    OutfitScreen(
+/*    OutfitScreen(
         navController = mockNavController,  // for testing preview
         clothingItemViewModel = mockClothingViewModel,
         outfitViewModel = mockOutfitViewModel
-    )
+    )*/
 }
 
 @Preview
@@ -77,19 +72,19 @@ fun OutfitSaveScreenPreview() {
 
     val mockNavController = rememberNavController()
 
-    val mockAccount = Account(userId = "user123", name = "Test User")
+    val mockUser = User(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
 
-    val mockViewModel = MockOutfitViewModel(
-        account = mockAccount)
-    val mockClothingItem = MockClothingItemViewModel(wardrobeManager = MockWardrobeManager())
+    //val mockViewModel = MockOutfitViewModel(
+    //    account = mockAccount)
+    //val mockClothingItem = MockClothingItemViewModel(wardrobeManager = MockWardrobeManager())
 
-    OutfitSaveScreen(
+/*    OutfitSaveScreen(
         navController = mockNavController,
         onExit = onExit,
         onDone = onDone,
         outfitViewModel = mockViewModel,
         clothingItemViewModel = mockClothingItem
-    )
+    )*/
 }
 
 
@@ -99,23 +94,23 @@ fun PreviewSingleFolderSelected() {
 
     val mockNavController = rememberNavController()
 
-    val mockAccount = Account(userId = "user123", name = "Test User")
+    val mockUser = User(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
 
-    val mockViewModel = MockOutfitViewModel(
+/*    val mockViewModel = MockOutfitViewModel(
         account = mockAccount,
         initialSelectedFolder = "Business Casuals", // Initialize with a selected folder
         initialIsPublic = false
-    )
+    )*/
 
-    val mockClothingItem = MockClothingItemViewModel(wardrobeManager = MockWardrobeManager())
+    //val mockClothingItem = MockClothingItemViewModel(wardrobeManager = MockWardrobeManager())
 
-    OutfitSaveScreen(
+/*    OutfitSaveScreen(
         navController = mockNavController,
         onExit = {},
         onDone = {},
         outfitViewModel = mockViewModel,
         clothingItemViewModel = mockClothingItem
-    )
+    )*/
 
 }
 
@@ -125,22 +120,22 @@ fun PreviewPublicChecked() {
 
     val mockNavController = rememberNavController()
 
-    val mockAccount = Account(userId = "user123", name = "Test User")
+    val mockUser = User(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
 
-    val mockViewModel = MockOutfitViewModel(
+/*    val mockViewModel = MockOutfitViewModel(
         account = mockAccount,
         initialSelectedFolders = listOf("Business Casuals", "My Public Outfits"), // Initialize with a selected folder
         initialIsPublic = true
-    )
-    val mockClothingItem = MockClothingItemViewModel(wardrobeManager = MockWardrobeManager())
+    )*/
+    //val mockClothingItem = MockClothingItemViewModel(wardrobeManager = MockWardrobeManager())
 
-    OutfitSaveScreen(
+/*    OutfitSaveScreen(
         navController = mockNavController,
         onExit = {},
         onDone = {},
         outfitViewModel = mockViewModel,
         clothingItemViewModel = mockClothingItem
-    )
+    )*/
 }
 
 @Preview
@@ -149,23 +144,25 @@ fun PreviewMultipleFoldersSelected() {
 
     val mockNavController = rememberNavController()
 
-    val mockAccount = Account(userId = "user123", name = "Test User")
+    val mockUser = User(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
 
+/*
     val mockViewModel = MockOutfitViewModel(
         account = mockAccount,
         initialSelectedFolders = listOf("Business Casuals", "Formals"), // Initialize with a selected folder
         initialIsPublic = true
     )
+*/
 
-    val mockClothingItem = MockClothingItemViewModel(wardrobeManager = MockWardrobeManager())
+    //val mockClothingItem = MockClothingItemViewModel(wardrobeManager = MockWardrobeManager())
 
-    OutfitSaveScreen(
+/*    OutfitSaveScreen(
         navController = mockNavController,
         onExit = {},
         onDone = {},
         outfitViewModel = mockViewModel,
         clothingItemViewModel = mockClothingItem
-    )
+    )*/
 }
 
 
@@ -174,22 +171,22 @@ fun PreviewMultipleFoldersSelected() {
 fun OutfitSavedPreview() {
     val mockNavController = rememberNavController()
 
-    val mockAccount = Account(userId = "user123", name = "Test User")
+    val mockUser = User(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
 
-    val mockViewModel = MockOutfitViewModel(
+/*    val mockViewModel = MockOutfitViewModel(
         account = mockAccount,
         initialSelectedFolders = listOf("Business Casuals", "Formals"), // Initialize with a selected folder
         initialIsPublic = true
-    )
+    )*/
 
-    val mockClothingItem = MockClothingItemViewModel(wardrobeManager = MockWardrobeManager())
+    //val mockClothingItem = MockClothingItemViewModel(wardrobeManager = MockWardrobeManager())
 
-    OutfitSaved(
+/*    OutfitSaved(
         navController = mockNavController,
         onDismiss = { println("Outfit saved in folder: Business Casuals") },
         viewModel = mockViewModel,
         clothingItemViewModel = mockClothingItem
-    )
+    )*/
 }
 
 @Preview

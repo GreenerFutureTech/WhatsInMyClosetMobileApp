@@ -49,7 +49,7 @@ fun ChatScreen(
         initialValue = MessageListState(),
         lifecycle = lifecycle
     )
-    val currentUserId = UserManager.currentUser?.id
+    val currentUserId = viewModel.currentUser.value?.id
     val otherUserIdInt = otherUserId.toInt()
 
     if (currentUserId != null) {
