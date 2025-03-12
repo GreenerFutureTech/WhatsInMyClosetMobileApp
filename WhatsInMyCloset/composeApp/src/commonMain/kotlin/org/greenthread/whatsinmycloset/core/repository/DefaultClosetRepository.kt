@@ -29,6 +29,10 @@ class DefaultClosetRepository(
         return remoteClosetDataSource.updateStatus(itemId)
     }
 
+    override suspend fun deleteSwap(itemId: String): Result<String, DataError.Remote> {
+        return remoteClosetDataSource.deleteSwap((itemId))
+    }
+
     //============================= Messages ==================================
     override suspend fun getLatestMessage(userId: String): Result<List<MessageDto>, DataError.Remote> {
         return remoteClosetDataSource.getLatestMessage(userId)

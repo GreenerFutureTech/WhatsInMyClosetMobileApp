@@ -1,6 +1,7 @@
 package org.greenthread.whatsinmycloset.core.network
 
 import io.ktor.client.HttpClient
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
@@ -16,6 +17,7 @@ import org.greenthread.whatsinmycloset.core.domain.Result
 import org.greenthread.whatsinmycloset.core.dto.MessageDto
 import org.greenthread.whatsinmycloset.core.dto.SendMessageRequest
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
+import org.greenthread.whatsinmycloset.core.dto.SwapStatusDto
 import org.greenthread.whatsinmycloset.core.dto.UserDto
 import org.greenthread.whatsinmycloset.getPlatform
 
@@ -60,6 +62,14 @@ class KtorRemoteDataSource(
                 contentType(ContentType.Application.Json)
                 setBody(mapOf("status" to "completed"))
             }
+        }
+    }
+
+    override suspend fun deleteSwap(itemId: String): Result<String, DataError.Remote> {
+        return safeCall {
+            httpClient.delete(
+                urlString = "$BASE_URL/swaps/${itemId}"
+            )
         }
     }
 
