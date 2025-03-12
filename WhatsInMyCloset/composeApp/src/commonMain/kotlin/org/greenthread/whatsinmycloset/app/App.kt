@@ -288,15 +288,13 @@ fun App(
                     }
                     composable<Routes.ChatScreen>{
                         backStackEntry ->
-                        val userId = backStackEntry.arguments?.getString("userId")
                         val viewModel: MessageViewModel = koinViewModel()
-                        if(userId != null) {
-                            ChatScreen(
-                                viewModel = viewModel,
-                                otherUserId = userId,
-                                navController = navController
-                            )
-                        }
+
+                        ChatScreen(
+                            viewModel = viewModel,
+                            navController = navController
+                        )
+
 
                     }
                 }

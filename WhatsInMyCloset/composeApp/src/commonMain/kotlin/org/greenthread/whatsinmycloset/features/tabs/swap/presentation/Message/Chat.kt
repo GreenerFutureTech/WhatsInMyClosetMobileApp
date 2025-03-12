@@ -19,13 +19,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.dto.MessageDto
 
 @Composable
@@ -59,9 +57,9 @@ fun MessageItem(
             Box(
                 modifier = Modifier
                     .clip(shape)
-                    .widthIn(min = 100.dp, max = 200.dp)
+                    .widthIn(max = 200.dp)
                     .background(backgroundColor)
-                    .padding(8.dp)
+                    .padding(horizontal = 10.dp, vertical = 8.dp)
             ) {
                 Text(
                     text = message.content,

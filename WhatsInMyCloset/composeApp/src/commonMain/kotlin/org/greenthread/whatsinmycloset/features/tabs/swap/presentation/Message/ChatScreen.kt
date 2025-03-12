@@ -9,6 +9,8 @@ import androidx.compose.foundation.text.input.InputTransformation.Companion.keyb
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -30,6 +32,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import io.ktor.client.network.sockets.ConnectTimeoutException
+import org.greenthread.whatsinmycloset.core.domain.models.MessageManager
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.dto.MessageUserDto
 import org.greenthread.whatsinmycloset.core.dto.UserDto
@@ -41,7 +44,6 @@ import whatsinmycloset.composeapp.generated.resources.Res
 @Composable
 fun ChatScreen(
     viewModel: MessageViewModel = koinViewModel(),
-    otherUserId: String,
     navController: NavController
 ) {
     val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -50,21 +52,18 @@ fun ChatScreen(
         lifecycle = lifecycle
     )
     val currentUserId = viewModel.currentUser.value?.id
-    val otherUserIdInt = otherUserId.toInt()
+    val otherUser = MessageManager.currentOtherUser
 
-    if (currentUserId != null) {
+    if (currentUserId != null && otherUser != null) {
+        val otherUserIdInt = otherUser.id.toInt()
+
         LaunchedEffect(state) {
             try {
                 if (state.getChatHistory.isEmpty()) {
                     viewModel.fetchChatHistory(currentUserId, otherUserIdInt)
                 }
-//                if (state.getOtherUserInfo == null) {
-//                    viewModel.fetchUserById(otherUserIdInt)
-//                }
-            } catch (e: ConnectTimeoutException) {
-                println("Connection timeout occurred (could not hit backend?): ${e.message}")
             } catch (e: Exception) {
-                println("An error occurred: ${e.message}")
+                println("MESSAGE SCREEN ERROR: ${e.message}")
             }
         }
 
@@ -77,10 +76,14 @@ fun ChatScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 TextButton(
-                    onClick = { navController.popBackStack() },
+                    onClick = {
+                        MessageManager.clearCurrentOtherUser()
+                        navController.popBackStack()
+                    },
                 ) {
                     Text(
                         text = "Back",
@@ -89,14 +92,17 @@ fun ChatScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.width(8.dp))
-
-//                state.getOtherUserInfo?.let { user ->
-//                    ChatTitle(user)
-//                }
-
+                ChatTitle(
+                    user = otherUser,
+                    modifier = Modifier.weight(1f)
+                )
             }
 
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 4.dp),
+                thickness = 1.dp,
+                color = Color.LightGray
+            )
 
             ChatList(
                 modifier = Modifier.weight(1f),
@@ -106,39 +112,42 @@ fun ChatScreen(
             MessageInput { messageContent ->
                 viewModel.sendMessage(currentUserId, otherUserIdInt, messageContent)
             }
-
         }
     }
 }
 
-//@Composable
-//fun ChatTitle(user: UserDto){
-//    Row(
-//        verticalAlignment = Alignment.CenterVertically,
-//        modifier = Modifier
-//            .fillMaxWidth()
-//
-//    ) {
-//        @OptIn(ExperimentalResourceApi::class) // TEMP for /drawable image
-//        (AsyncImage(
-//        model = user.profilePicture ?: Res.getUri("drawable/defaultUser.png"), // TODO: REMOVE drawable
-//        contentDescription = "Profile Image",
-//        modifier = Modifier
-//            .size(50.dp)
-//            .clip(CircleShape)
-//            .border(1.dp, Color.LightGray, CircleShape)
-//    ))
-//        Spacer(modifier = Modifier.width(8.dp))
-//        Column {
-//            Text(
-//                text = user.username,
-//                fontWeight = FontWeight.Bold,
-//                fontSize = 26.sp,
-//                color = Color.Black
-//            )
-//        }
-//    }
-//}
+@Composable
+fun ChatTitle(
+    user: MessageUserDto,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .padding(horizontal = 10.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.Start
+    ) {
+        @OptIn(ExperimentalResourceApi::class)
+        AsyncImage(
+            model = user.profilePicture ?: Res.getUri("drawable/defaultUser.png"), // TODO: url error -> drawable
+            contentDescription = "Profile Image",
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .border(1.dp, Color.LightGray, CircleShape)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Column {
+            Text(
+                text = user.username,
+                fontWeight = FontWeight.Medium,
+                fontSize = 24.sp,
+                color = Color.Black
+            )
+        }
+    }
+}
 
 @Composable
 fun MessageInput(

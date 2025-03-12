@@ -22,6 +22,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import org.greenthread.whatsinmycloset.app.Routes
+import org.greenthread.whatsinmycloset.core.domain.models.MessageManager
 import org.greenthread.whatsinmycloset.features.tabs.swap.data.MessageListState
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -82,7 +83,8 @@ fun MessageListScreen(
                             isUnread = !message.isRead,
                             onClick = {
                                 viewModel.updateRead(message.id)
-                                navController.navigate(Routes.ChatScreen(otherUser.id.toString()))
+                                MessageManager.setCurrentOtherUser(otherUser)
+                                navController.navigate(Routes.ChatScreen)
                             }
                         )
                     }
