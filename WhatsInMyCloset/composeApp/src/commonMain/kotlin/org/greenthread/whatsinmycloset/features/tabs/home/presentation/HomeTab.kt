@@ -12,15 +12,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.rounded.AddCircle
+import androidx.compose.material.icons.rounded.Build
+import androidx.compose.material.icons.rounded.DateRange
+import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -151,7 +154,7 @@ fun CategoriesSection(onCategoryClick: (String) -> Unit) {
     ) {
         // Tops Category
         CategoryItem(
-            icon = Icons.Default.Home,
+            icon = Icons.Rounded.Home,
             text = "Tops",
             onClick = { onCategoryClick("Tops") }
         )
@@ -181,8 +184,8 @@ fun BottomButtonsRow(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         CategoryItem(
-            icon = Icons.Default.ShoppingCart,
-            text = "Create outfit",
+            icon = Icons.Rounded.Build,
+            text = "Create Outfit",
             onClick = {
                 if (navController.currentBackStackEntry != null) {
                     navController.navigate(Routes.CreateOutfitScreen)
@@ -190,13 +193,13 @@ fun BottomButtonsRow(
             }
         )
         CategoryItem(
-            icon = Icons.Default.Star,
+            icon = Icons.Rounded.DateRange,
             text = "Outfit of the Day",
             onClick = {  }
         )
         CategoryItem(
-            icon = Icons.Default.Add,
-            text = "Add item to wardrobe",
+            icon = Icons.Rounded.AddCircle,
+            text = "New Item",
             onClick = { launchAddItemScreen() }
         )
     }
@@ -216,7 +219,7 @@ fun CategoryItem(icon: ImageVector?, text: String?, onClick: (() -> Unit)? = nul
                 imageVector = icon,
                 contentDescription = text, // Accessibility description
                 modifier = Modifier.size(48.dp), // Set icon size
-                tint = MaterialTheme.colors.secondary // Use theme color for the icon
+                tint = MaterialTheme.colors.onSurface // Use theme color for the icon
             )
             Spacer(modifier = Modifier.height(8.dp)) // Space between icon and text
             // Text
