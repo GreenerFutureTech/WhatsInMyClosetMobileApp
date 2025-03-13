@@ -1,25 +1,28 @@
 package org.greenthread.whatsinmycloset.app
 
 import AllSwapsScreen
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.ShoppingCart
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -31,23 +34,23 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import org.greenthread.whatsinmycloset.CameraManager
-import org.greenthread.whatsinmycloset.core.domain.models.User
-import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginScreenRoot
-import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginViewModel
-import org.greenthread.whatsinmycloset.features.screens.signup.SignupScreenRoot
-import org.greenthread.whatsinmycloset.features.screens.addItem.presentation.AddItemScreen
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
+import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.managers.WardrobeManager
 import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.OutfitViewModel
+import org.greenthread.whatsinmycloset.features.screens.addItem.presentation.AddItemScreen
 import org.greenthread.whatsinmycloset.features.screens.addItem.presentation.AddItemScreenViewModel
+import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginScreenRoot
+import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginViewModel
 import org.greenthread.whatsinmycloset.features.screens.settings.SettingsScreen
+import org.greenthread.whatsinmycloset.features.screens.signup.SignupScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItemDetailScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItemsScreen
-import org.greenthread.whatsinmycloset.features.tabs.home.presentation.HomeTabScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.home.OutfitSaveScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.OutfitScreen
+import org.greenthread.whatsinmycloset.features.tabs.home.presentation.HomeTabScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.HomeTabViewModel
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabScreen
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabViewModel
@@ -69,7 +72,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun App(
     cameraManager: CameraManager?,
 ) {
-    WhatsInMyClosetTheme {
+
         val wardrobeManager = koinInject<WardrobeManager>()
         val userManager = koinInject<UserManager>()
         //wardrobeManager.test()
@@ -85,6 +88,7 @@ fun App(
         val sharedClothingItemViewModel: ClothingItemViewModel = koinViewModel()
         val sharedOutfitViewModel: OutfitViewModel = koinViewModel()
 
+    WhatsInMyClosetTheme {
         Scaffold(
             topBar = {
                 AppTopBar(
@@ -323,24 +327,65 @@ fun App(
 @Composable
 fun BottomNavigationBar(navController: NavController) {
     val tabs = listOf(
-        Routes.HomeTab to Icons.Default.Home,
-        Routes.SwapTab to Icons.Default.ShoppingCart,
-        Routes.SocialTab to Icons.Default.Person,
-        Routes.ProfileTab to Icons.Default.Person
+        Routes.HomeTab to Icons.Rounded.Home,
+        Routes.SwapTab to Icons.Rounded.ShoppingCart,
+        Routes.SocialTab to Icons.Rounded.Person,
+        Routes.ProfileTab to Icons.Rounded.Person
         )
 
+    // Current route
     val currentDestination = navController.currentBackStackEntryAsState().value?.destination?.route
+
+    LaunchedEffect(currentDestination) {
+        println("Current Destination: $currentDestination")
+
+    }
+
     val selectedIndex = tabs.indexOfFirst { it.first::class.simpleName == currentDestination }
 
-    TabRow(
-        selectedTabIndex = if (selectedIndex >= 0) selectedIndex else 0
-    ) {
+    LaunchedEffect(selectedIndex) {
+        println("Selected Index: $selectedIndex")
+    }
+
+    val safeSelectedIndex = if (selectedIndex >= 0) selectedIndex else 0
+
+//    TabRow(
+//        selectedTabIndex = if (selectedIndex >= 0) selectedIndex else 0
+//    ) {
+//        tabs.forEachIndexed { index, (route, icon) ->
+//            Tab(
+//                selected = index == selectedIndex,
+//                onClick = { navController.navigate(route) },
+//                text = { Text(route::class.simpleName ?: "Null tab name") },
+//                icon = { Icon(imageVector = icon, contentDescription = null) }
+//            )
+//        }
+//    }
+
+    NavigationBar () {
         tabs.forEachIndexed { index, (route, icon) ->
-            Tab(
-                selected = index == selectedIndex,
-                onClick = { navController.navigate(route) },
-                text = { Text(route::class.simpleName ?: "Null tab name") },
-                icon = { Icon(imageVector = icon, contentDescription = null) }
+            val isSelected = index == safeSelectedIndex
+            val formattedLabel = route::class.simpleName?.removeSuffix("Tab") ?: "Null tab name"
+
+            NavigationBarItem(
+                selected = isSelected,
+                onClick = {
+                    if(!isSelected) {
+                        navController.navigate(route) {
+                            launchSingleTop = true
+                            restoreState = true
+                            println("Route: $route")
+                            println("Route name: ${route::class.simpleName}")
+                        }
+                    }
+                },
+                icon = { Icon(imageVector = icon, contentDescription = null) },
+                label = { Text(formattedLabel) },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = MaterialTheme.colorScheme.primary, // Highlight selected icon
+                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant, // Dim unselected icons
+                    indicatorColor = MaterialTheme.colorScheme.primaryContainer // Background of selected tab
+                )
             )
         }
     }
@@ -359,6 +404,7 @@ private inline fun <reified T: ViewModel> NavBackStackEntry.sharedKoinViewModel(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppTopBar(
     title: String,
@@ -367,23 +413,16 @@ fun AppTopBar(
 ) {
     TopAppBar(
         title = {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
-            } },
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium
+            )},
         navigationIcon = {
             if (showBackButton) {
                 IconButton(onClick = { navController.popBackStack() }) {
                     Icon(
                         Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
-                        tint = MaterialTheme.colorScheme.onPrimary
+                        contentDescription = "Back"
                     )
                 }
             }
@@ -392,12 +431,9 @@ fun AppTopBar(
             IconButton(onClick = { navController.navigate(Routes.SettingsScreen)}) {
                 Icon(
                     Icons.Default.Settings,
-                    contentDescription = "Settings",
-                    tint = MaterialTheme.colorScheme.onPrimary
+                    contentDescription = "Settings"
                 )
             }
-        },
-        backgroundColor = MaterialTheme.colorScheme.primary,
-        contentColor = MaterialTheme.colorScheme.onPrimary
+        }
     )
 }
