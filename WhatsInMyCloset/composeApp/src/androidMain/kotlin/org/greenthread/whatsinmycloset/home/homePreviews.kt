@@ -3,7 +3,7 @@ package org.greenthread.whatsinmycloset.home
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
-import org.greenthread.whatsinmycloset.core.domain.models.Account
+import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
@@ -27,7 +27,7 @@ fun PreviewLazyGridColourBox() {
 fun PreviewWardrobeScreen() {
 
     // Create a user profile
-    val user = Account("user123", "Test")
+    val user = User(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
 
     // Add some clothing items to the wardrobe
     val redDress = ClothingItem("item1", "Red Dress", "HomeWardrobe",
@@ -42,11 +42,14 @@ fun PreviewWardrobeScreen() {
     user.addWardrobe(wardrobe)
 
     // Create an outfit
-    // Create an outfit
     val summerLook = Outfit(
         id = "outfit1",
+        userId = "1",
+        public = true,
+        favorite = true,
+        mediaURL = "",
         name = "Summer Look",
-        itemIds = listOf(
+        items = listOf(
             ClothingItem(
                 id = "1",
                 name = "Blue Top",
@@ -61,9 +64,10 @@ fun PreviewWardrobeScreen() {
                 mediaUrl = null,
                 tags = listOf("casual", "summer")
             ),
-        )
+        ),
+        createdAt = "08/03/2025"
     )
-    user.addOutfit(summerLook)
+    user.addOutfit(summerLook, listOf("Busines Casuals", "Casuals"))
 
     val mockNavController = rememberNavController()
 

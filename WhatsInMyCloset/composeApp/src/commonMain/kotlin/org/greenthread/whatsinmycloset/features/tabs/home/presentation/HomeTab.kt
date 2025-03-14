@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.Button
+import androidx.compose.material3.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -18,6 +18,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,13 +28,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.greenthread.whatsinmycloset.app.Routes
-import org.greenthread.whatsinmycloset.core.domain.models.Account
-import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
-import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
-import org.greenthread.whatsinmycloset.core.domain.models.Outfit
+import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.LazyGridColourBox
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.generateRandomItems
-import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -49,7 +47,7 @@ fun HomeTabScreenRoot(
         var showContent by remember { mutableStateOf(false) }
 
         // Create a user profile
-        val user = Account("user123", "Test")
+        val user = User(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
         //Relevant info is injected via HomeTabViewModel and managers
         Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
             HomeTabScreen(
@@ -100,7 +98,7 @@ fun HomeTabScreenRoot(
 fun HomeTabScreen(
     viewModel: HomeTabViewModel?,
     navController: NavController,
-    account: Account,
+    user: User,
     onAddItemClick: () -> Unit,
     onCreateOutfitClick: () -> Unit
 ){
@@ -120,7 +118,7 @@ fun HomeTabScreen(
 
         FavouriteOutfitsRow()
 
-        val randomItems = generateRandomItems(2) // Generate 10 random items for the preview
+        val randomItems = generateRandomItems(4) // Generate 10 random items for the preview
         LazyGridColourBox(items = randomItems)
 
         BottomButtonsRow(navController, onAddItemClick)
@@ -192,7 +190,7 @@ fun BottomButtonsRow(
             }
         )
         CategoryItem(
-            icon = null,
+            icon = Icons.Default.Star,
             text = "Outfit of the Day",
             onClick = {  }
         )
@@ -218,7 +216,7 @@ fun CategoryItem(icon: ImageVector?, text: String?, onClick: (() -> Unit)? = nul
                 imageVector = icon,
                 contentDescription = text, // Accessibility description
                 modifier = Modifier.size(48.dp), // Set icon size
-                tint = MaterialTheme.colors.primary // Use theme color for the icon
+                tint = MaterialTheme.colors.secondary // Use theme color for the icon
             )
             Spacer(modifier = Modifier.height(8.dp)) // Space between icon and text
             // Text
@@ -236,9 +234,8 @@ fun CategoryItem(icon: ImageVector?, text: String?, onClick: (() -> Unit)? = nul
 fun SeeAllButton(onClick: () -> Unit) {
     Button(
         onClick = onClick,
-        modifier = Modifier
-//            .fillMaxWidth()
-            .padding(4.dp)
+        modifier = Modifier.padding(4.dp),
+        colors = ButtonDefaults.buttonColors(MaterialTheme.colors.secondary)
     ) {
         Text(text = "See All")
     }

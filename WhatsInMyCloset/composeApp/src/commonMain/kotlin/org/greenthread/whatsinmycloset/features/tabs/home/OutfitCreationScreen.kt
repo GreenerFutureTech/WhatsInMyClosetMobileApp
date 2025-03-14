@@ -1,8 +1,6 @@
 package org.greenthread.whatsinmycloset.features.tabs.home
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -13,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
+import org.greenthread.whatsinmycloset.core.domain.models.OffsetData
 import org.greenthread.whatsinmycloset.core.domain.models.generateRandomClothingItems
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
@@ -35,11 +34,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.room.util.TableInfo
-import kotlinx.coroutines.flow.firstOrNull
 import org.greenthread.whatsinmycloset.app.Routes
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
-import org.greenthread.whatsinmycloset.core.repositories.WardrobeRepository
 import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
 import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.OutfitViewModel
@@ -56,6 +52,7 @@ fun OutfitScreen(
     clothingItemViewModel: ClothingItemViewModel,
     outfitViewModel: OutfitViewModel
 ) {
+
     WhatsInMyClosetTheme {
         // for testing - populate the categories with random items
         val allCategories = ClothingCategory.values()
@@ -85,29 +82,39 @@ fun OutfitScreen(
         // Show calendar dialog
         var showCalendarDialog by remember { mutableStateOf(false) }
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(2.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-
-            // Header
-            OutfitScreenHeader(
-                onGoBack = { navController.popBackStack() }, // Navigate back to Home Tab,
-                onExit = { showExitDialog = true },  // Discard Outfit Creation -- pop up
-                title = "Create Your Outfit"
-            )
-
-            // Outfit collage area will show the selectedClothingItems
-            OutfitCollageArea(selectedItems)
-
-            Spacer(modifier = Modifier.height(4.dp))
+        // Handle position updates
+        val onPositionUpdate = { itemId: String, newPosition: OffsetData ->
+            outfitViewModel.updateClothingItemPosition(itemId, newPosition)
+        }
 
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(4.dp))
+                    .padding(2.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            )
+            {
+
+                // Header
+                OutfitScreenHeader(
+                    onGoBack = { navController.popBackStack() }, // Navigate back to Home Tab,
+                    onExit = { showExitDialog = true },  // Discard Outfit Creation -- pop up
+                    title = "Create Your Outfit"
+                )
+
+                // Outfit collage area will show the selectedClothingItems
+                OutfitCollageArea(
+                    selectedClothingItems = selectedItems,
+                    onPositionUpdate = onPositionUpdate
+                )
+
+                //Spacer(modifier = Modifier.height(4.dp))
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(4.dp)
+            )
             {
                 // Clothing category selection
                 ClothingCategorySelection { selectedCategory ->
@@ -123,48 +130,57 @@ fun OutfitScreen(
                 }
 
                 // show additional options when there is at least one item in outfit area
-                if (selectedItems.isNotEmpty())
-                {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                if (selectedItems.isNotEmpty()) {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(1), // Single column for vertical layout
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(4.dp)
                     ) {
                         // Save Outfit button
-                        Button(
-                            onClick = {
-                                // Create the outfit
-                                outfitViewModel.createOutfit(selectedItems)
+                        item {
+                            Button(
+                                onClick = {
+                                    // Create the outfit, pass user's id and outfit id
+                                    outfitViewModel.createOutfit(selectedItems)
 
-                                // Navigate to the OutfitSaveScreen
-                                navController.navigate(
-                                    Routes.OutfitSaveScreen
-                                )
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            enabled = selectedItems.isNotEmpty()
-                        ) {
-                            Text("Save Outfit")
+                                    // Navigate to the OutfitSaveScreen
+                                    navController.navigate(
+                                        Routes.OutfitSaveScreen
+                                    )
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                enabled = selectedItems.isNotEmpty()
+                            ) {
+                                Text("Save Outfit")
+                            }
                         }
 
                         // Add to Calendar button
-                        Button(
-                            onClick = { showCalendarDialog = true },
-                            modifier = Modifier.fillMaxWidth(),
-                            enabled = selectedItems.isNotEmpty()
-                        ) {
-                            Text("Add to Calendar")
+                        item {
+                            Button(
+                                onClick = { showCalendarDialog = true },
+                                modifier = Modifier.fillMaxWidth(),
+                                enabled = selectedItems.isNotEmpty()
+                            ) {
+                                Text("Add to Calendar")
+                            }
                         }
 
                         // Create New Outfit button
-                        Button(
-                            onClick = {
-                                // Discard the current outfit and create a new one
-                                outfitViewModel.discardCurrentOutfit()
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            enabled = selectedItems.isNotEmpty()
-                        ) {
-                            Text("Create New Outfit")
+                        item {
+                            Button(
+                                onClick = {
+                                    // Discard the current outfit and create a new one
+                                    outfitViewModel.discardCurrentOutfit()
+                                    outfitViewModel.clearOutfitState() // Clear the outfit state
+                                    clothingItemViewModel.clearClothingItemState() // Clear the selected items state
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                enabled = selectedItems.isNotEmpty()
+                            ) {
+                                Text("Create New Outfit")
+                            }
                         }
                     }
                 }
@@ -191,19 +207,6 @@ fun OutfitScreen(
                     navController.navigate(Routes.HomeTab) // Navigate to Home Tab
                 },
                 onDismiss = { showExitDialog = false }
-            )
-        }
-
-        // Show Outfit Saved Dialog
-        if (isOutfitSaved) {
-            OutfitSaved(
-                navController = navController,
-                onDismiss = {
-                    navController.navigate(Routes.HomeTab) {
-                        popUpTo(Routes.HomeTab) { inclusive = true }
-                    }
-                },
-                viewModel = outfitViewModel
             )
         }
     }
@@ -272,7 +275,8 @@ fun DiscardOutfitDialog(
 // show the items user selected to create an outfit
 @Composable
 fun OutfitCollageArea(
-    selectedClothingItems: List<ClothingItem>)
+    selectedClothingItems: List<ClothingItem>,
+    onPositionUpdate: (String, OffsetData) -> Unit)
 {
     val canvasHeight = with(LocalDensity.current) { 300.dp.toPx() }
     val canvasWidth = with(LocalDensity.current) { 450.dp.toPx() }
@@ -310,7 +314,11 @@ fun OutfitCollageArea(
                     itemIndex = index,
                     itemPositions = itemPositions,
                     canvasWidth = canvasWidth,
-                    canvasHeight = canvasHeight
+                    canvasHeight = canvasHeight,
+                    onPositionUpdate = { newPosition ->
+                        // Notify parent of position change
+                        onPositionUpdate(clothingItem.id, newPosition)
+                    }
                 )
             }
 
@@ -326,7 +334,8 @@ fun DraggableClothingItem(
     itemIndex: Int,
     itemPositions: MutableList<OffsetData>,
     canvasWidth: Float,
-    canvasHeight: Float
+    canvasHeight: Float,
+    onPositionUpdate: (OffsetData) -> Unit
 ) {
     val defaultPosition = OffsetData(100f, 100f)
     val position = remember {
@@ -356,11 +365,15 @@ fun DraggableClothingItem(
                     println("NEW X: $newX")
                     println("NEW Y: $newY")
 
+                    val newPosition = OffsetData(newX, newY)
                     position.value = OffsetData(newX, newY)
 
                     if (itemIndex < itemPositions.size) {
                         itemPositions[itemIndex] = position.value
                     }
+
+                    // Notify parent of position change
+                    onPositionUpdate(newPosition)
                 }
             }
             .size(100.dp) // Define the size of the clothing item
@@ -377,7 +390,7 @@ fun DraggableClothingItem(
     }
 }
 
-data class OffsetData(val x: Float, val y: Float)
+//data class OffsetData(val x: Float, val y: Float)
 
 // shows all category options
 @Composable

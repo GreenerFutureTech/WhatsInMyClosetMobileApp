@@ -12,15 +12,16 @@ import org.greenthread.whatsinmycloset.features.tabs.swap.Action.SwapAction
 import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
 
 class SwapViewModel(
-    private val swapRepository: ClosetRepository
+    private val swapRepository: ClosetRepository,
+    private val userManager: UserManager
 ) : ViewModel() {
-    val currentUser = UserManager.currentUser
+    val currentUser = userManager.currentUser
 
     private val _state = MutableStateFlow(SwapListState())
     val state =_state
         .onStart {
-            fetchSwapData(currentUser?.id.toString())
-            fetchOtherSwapData(currentUser?.id.toString())
+            fetchSwapData(currentUser.value?.id.toString())
+            fetchOtherSwapData(currentUser.value?.id.toString())
         }
 
     fun onAction(action: SwapAction) {
@@ -117,6 +118,64 @@ class SwapViewModel(
                     _state.update {
                         it.copy(
                             getOtherUserSwapResults = emptyList(),
+                            isLoading = false
+                        )
+                    }
+                }
+        }
+    }
+
+    fun updateSwap(itemId: String) {
+        viewModelScope.launch {
+            println("UPDATE SWAP : Completed Swap: $itemId")
+            _state.update {
+                it.copy(
+                    isLoading = true
+                )
+            }
+            swapRepository
+                .updateStatus(itemId)
+                .onSuccess { getResults ->
+                    println("UPDATE SWAP API success: $getResults")
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                        )
+                    }
+                }
+                .onError { error ->
+                    println("UPDATE SWAP API ERROR ${error}")
+                    _state.update {
+                        it.copy(
+                            isLoading = false
+                        )
+                    }
+                }
+        }
+    }
+
+    fun deleteSwap(itemId: String) {
+        viewModelScope.launch {
+            println("DELETE SWAP : Completed Swap: $itemId")
+            _state.update {
+                it.copy(
+                    isLoading = true
+                )
+            }
+            swapRepository
+                .updateStatus(itemId)
+                .onSuccess { getResults ->
+                    println("DELETE SWAP API success: $getResults")
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                        )
+                    }
+                }
+                .onError { error ->
+                    println("DELETE SWAP API ERROR ${error}")
+                    _state.update {
+                        it.copy(
                             isLoading = false
                         )
                     }

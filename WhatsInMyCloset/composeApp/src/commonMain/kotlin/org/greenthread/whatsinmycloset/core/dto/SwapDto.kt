@@ -9,10 +9,18 @@ data class SwapDto(
     val itemId: ItemDto,
     val userId: Int,
     val status: String,
-    val condition: String,
-    val brand: String,
-    val size: String,
     val registeredAt: String,
-    val updatedAt: String
+    val updatedAt: String? = null
 )
+
+@Serializable
+data class SwapStatusDto(
+    val id: String,
+    val itemId: String,
+    val userId: Int,
+    val status: String,
+    val registeredAt: String,
+    val updatedAt: String? = null
+)
+
 

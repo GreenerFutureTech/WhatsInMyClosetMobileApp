@@ -2,37 +2,59 @@ package org.greenthread.whatsinmycloset.core.repositories
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 
-class OutfitRepository {
 
-    private val _outfitFolders = MutableStateFlow(
-        listOf("Business Casuals", "Formals", "Casuals", "My Public Outfits")
+class OutfitRepository (private val user: User) // Pass the logged-in user's account)
+{
+    // Default repository names
+    public val defaultRepositories = setOf(
+        "Business Casuals",
+        "Formals",
+        "Casuals",
+        "Public Outfits"
     )
-    val outfitFolders: StateFlow<List<String>> = _outfitFolders
+
+    // StateFlow for default repositories
+    private val _outfitFolders = MutableStateFlow(defaultRepositories)
+    val outfitFolders: StateFlow<Set<String>> = _outfitFolders
+
+    // StateFlow for user-created repositories
+    private val _userRepositories = MutableStateFlow<Set<String>>(emptySet())
+    val userRepositories: StateFlow<Set<String>> = _userRepositories
+
+    // Combined list of default and user-created repositories
+    val allRepositories: Set<String>
+        get() = _outfitFolders.value + _userRepositories.value
+
+    fun getAllRepos() : Set<String>
+    {
+        return allRepositories
+    }
 
     // List of saved outfits
     private val _savedOutfits = MutableStateFlow<List<Outfit>>(emptyList())
     val savedOutfits: StateFlow<List<Outfit>> = _savedOutfits
 
     /**
-     * Add a new outfit folder (if it doesn't already exist)
+     * Add a new user-created repository name.
      */
-    fun addFolder(folderName: String) {
-        if (folderName.isNotBlank() && folderName !in _outfitFolders.value) {
-            _outfitFolders.value = _outfitFolders.value + folderName
+    fun addUserRepository(name: String) {
+        if (name.isNotBlank() && name !in allRepositories) {
+            _userRepositories.value = _userRepositories.value + name
         }
     }
 
     /**
-     * Delete an outfit folder
+     * Remove a user-created repository name.
      */
-    fun removeFolder(folderName: String) {
-        _outfitFolders.value = _outfitFolders.value - folderName
+    fun removeUserRepository(name: String) {
+        _userRepositories.value = _userRepositories.value - name
     }
 
     /**
-     * Get all saved outfits
+     * Get all saved outfits for the logged in user from the selected repository
      */
     fun getSavedOutfits(): List<Outfit> {
         return _savedOutfits.value
@@ -41,17 +63,29 @@ class OutfitRepository {
     /**
      * Save an outfit to the repository
      */
-    fun saveOutfit(outfit: Outfit) {
-        // Check if the outfit already exists (based on ID)
-        if (_savedOutfits.value.none { it.id == outfit.id }) {
-            _savedOutfits.value = _savedOutfits.value + outfit
+    fun saveOutfit(outfit: Outfit,
+                   selectedFolders: List<String>? = null,
+                   selectedFolder: String? = null)
+    {
+        // Save the outfit to the user's account
+        if (selectedFolders != null || selectedFolder != null)
+        {
+            if (selectedFolders != null)
+            {
+                user.addOutfit(outfit, selectedFolders)
+            }
+            /*else
+            {
+                account.addOutfit(outfit, selectedFolder)
+            }*/
         }
     }
 
     /**
-     * Delete a saved outfit
+     * Delete a saved outfit for the logged-in user.
      */
     fun removeOutfit(outfitId: String) {
+        user.removeOutfit(outfitId)
         _savedOutfits.value = _savedOutfits.value.filter { it.id != outfitId }
     }
 }

@@ -14,10 +14,11 @@ import org.greenthread.whatsinmycloset.core.repository.ClosetRepository
 import org.greenthread.whatsinmycloset.features.tabs.swap.data.MessageListState
 
 class MessageViewModel(
-    private val swapRepository: ClosetRepository
+    private val swapRepository: ClosetRepository,
+    val userManager: UserManager
 ) : ViewModel() {
-    val currentUser = UserManager.currentUser
-    val userId = currentUser?.id ?: throw IllegalStateException("User ID is null")
+    val currentUser = userManager.currentUser
+    val userId = currentUser.value?.id ?: throw IllegalStateException("User ID is null")
 
     private val _state = MutableStateFlow(MessageListState())
     val state = _state
@@ -43,7 +44,7 @@ class MessageViewModel(
                 }
 
                 swapRepository
-                    .getLatestMessage(currentUser.id.toString())
+                    .getLatestMessage(currentUser.value?.id.toString())
                     .onSuccess { getResults ->
                         println("FETCH MESSAGE LIST API success: $getResults")
                         _state.update {

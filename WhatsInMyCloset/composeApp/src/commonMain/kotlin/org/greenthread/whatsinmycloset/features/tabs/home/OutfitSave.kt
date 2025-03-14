@@ -1,7 +1,6 @@
 package org.greenthread.whatsinmycloset.features.tabs.home
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -9,16 +8,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import org.greenthread.whatsinmycloset.app.Routes
-import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
-import org.greenthread.whatsinmycloset.core.domain.models.Outfit
-import org.greenthread.whatsinmycloset.core.repositories.OutfitRepository
+import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.OutfitViewModel
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 
@@ -35,31 +31,36 @@ fun OutfitSaveScreen(
     selectedFolders state (when user wants to save outfit in more than 1 folder)
     isPublic state (when user wants the outfit to be public)
     */
-    viewModel: OutfitViewModel
+    outfitViewModel: OutfitViewModel,
+    clothingItemViewModel: ClothingItemViewModel
 ) {
     WhatsInMyClosetTheme {
-        val isOutfitSaved by viewModel.isOutfitSaved.collectAsState()
-        val outfitFolders by viewModel.outfitFolders.collectAsState()
-        val selectedFolder by viewModel.selectedFolder.collectAsState()
-        val selectedFolders by viewModel.selectedFolders.collectAsState()
-        val isPublic by viewModel.isPublic.collectAsState()
+        val isOutfitSaved by outfitViewModel.isOutfitSaved.collectAsState()
+        val outfitFolders by outfitViewModel.outfitFolders.collectAsState()
+        val selectedFolder by outfitViewModel.selectedFolder.collectAsState()
+        val selectedFolders by outfitViewModel.selectedFolders.collectAsState()
+        val isPublic by outfitViewModel.isPublic.collectAsState()
 
         // retrieve the current outfit user wants to save
-        val currentOutfit by viewModel.currentOutfit.collectAsState()
+        val currentOutfit by outfitViewModel.currentOutfit.collectAsState()
 
         var showCreateFolderDialog by remember { mutableStateOf(false) }
         var showDiscardDialog by remember { mutableStateOf(false) }
 
         if (isOutfitSaved) {
+
+
             OutfitSaved(
                 navController = navController,
                 onDismiss = {
+
                     // Navigate back to the Home Tab
                     navController.navigate("home") {
                         popUpTo("home") { inclusive = true }
                     }
                 },
-                viewModel = viewModel
+                viewModel = outfitViewModel,
+                clothingItemViewModel = clothingItemViewModel
             )
         }
         else {
@@ -82,12 +83,12 @@ fun OutfitSaveScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    items(outfitFolders) { folder ->
+                    items(outfitFolders.toList()) { folder ->
                         // Determine if folder is selected (either one folder or multiple)
                         val isSelected = if (selectedFolders.isNotEmpty()) {
-                            selectedFolders.contains(folder) || (isPublic && folder == "My Public Outfits")
+                            selectedFolders.contains(folder) || (isPublic && folder == "Public Outfits")
                         } else {
-                            selectedFolder == folder || (isPublic && folder == "My Public Outfits")
+                            selectedFolder == folder || (isPublic && folder == "Public Outfits")
                         }
 
                         println(isSelected)
@@ -104,9 +105,9 @@ fun OutfitSaveScreen(
                                 )
                                 .clickable {
                                     if (selectedFolders.isNotEmpty() != null) {
-                                        viewModel.updateSelectedFolders(folder)
+                                        outfitViewModel.updateSelectedFolders(folder)
                                     } else {
-                                        viewModel.updateSelectedFolder(if (selectedFolder == folder) null
+                                        outfitViewModel.updateSelectedFolder(if (selectedFolder == folder) null
                                         else folder)
                                     }
                                 }
@@ -127,7 +128,7 @@ fun OutfitSaveScreen(
                 ) {
                     Checkbox(
                         checked = isPublic,
-                        onCheckedChange = { viewModel.toggleIsPublic(it) }
+                        onCheckedChange = { outfitViewModel.toggleIsPublic(it) }
                     )
                     Text(text = "Public")
                 }
@@ -137,12 +138,22 @@ fun OutfitSaveScreen(
                 // Footer with Done button
                 OutfitScreenFooter(
                     onDone = {
+                        println("Done button clicked") // Debugging statement
                         // Get current outfit from the viewmodel
-                        // Save the current outfit
                         currentOutfit?.let { outfit ->
-                            viewModel.saveOutfit(outfit)
+                            println("Saving outfit: $outfit") // Debugging statement
+                            if(selectedFolders.isNotEmpty())
+                            {
+                                outfitViewModel.saveOutfit(outfit, selectedFolders,
+                                    null)
+                            }
+                            else
+                            {
+                                outfitViewModel.saveOutfit(outfit, null,
+                                    selectedFolder)
+                            }
                         }
-                        onDone()
+                        onDone() // Trigger the onDone callback
                     },
                     isDoneEnabled = selectedFolders.isNotEmpty() || selectedFolder != null
                 )
@@ -151,7 +162,7 @@ fun OutfitSaveScreen(
 
                 // Button to open the "Create New Folder" dialog
                 Button(
-                    onClick = { showCreateFolderDialog = true },
+                    onClick = { showCreateFolderDialog = true},
                     modifier = Modifier.padding(8.dp)
                 ) {
                     Text("+ Create New Outfit Folder")
@@ -162,7 +173,7 @@ fun OutfitSaveScreen(
                     CreateNewOutfitFolder(
                         onDismiss = { showCreateFolderDialog = false },
                         onCreate = { folderName ->
-                            viewModel.addFolder(folderName) // Update repository
+                            outfitViewModel.addFolder(folderName) // Update repository
                             showCreateFolderDialog = false // Close the dialog after creating the folder
                         }
                     )
@@ -268,7 +279,8 @@ fun CreateNewOutfitFolder(
 fun OutfitSaved(
     navController: NavController,
     onDismiss: () -> Unit, // Callback to close the dialog and go back to the Home Tab
-    viewModel: OutfitViewModel
+    viewModel: OutfitViewModel,
+    clothingItemViewModel: ClothingItemViewModel
 ) {
     var showDialog by remember { mutableStateOf(true) }
 
@@ -290,11 +302,16 @@ fun OutfitSaved(
             title = { Text(text = "Outfit Saved") },
             text = {
                 Text(
-                    text = "Your outfit has been saved in the following folder(s): $folderNamesText. $publicText"
+                    text = "Your outfit has been saved in the following folder(s): " +
+                            "$folderNamesText. $publicText"
                 )
             },
             confirmButton = {
                 Button(onClick = {
+                    // clear outfit state for next outfit
+                    viewModel.clearOutfitState()
+                    clothingItemViewModel.clearClothingItemState()
+
                     showDialog = false // Close dialog
                     navController.navigate(Routes.HomeTab) // Navigate to Home
                 }) {

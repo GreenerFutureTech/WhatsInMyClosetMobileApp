@@ -15,6 +15,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,7 +31,12 @@ import whatsinmycloset.composeapp.generated.resources.Res
 
 
 @Composable
-fun SwapImageCard(onSwapClick: () -> Unit) {
+fun SwapImageCard(
+    onSwapClick: () -> Unit,
+    imageUrl: String
+) {
+    var loadFailed by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .width(125.dp)
@@ -41,19 +50,22 @@ fun SwapImageCard(onSwapClick: () -> Unit) {
                 .clickable { onSwapClick() }
                 .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
         ) {
-            @OptIn(ExperimentalResourceApi::class) // TEMP for /drawble image
-            (AsyncImage(
-        model = Res.getUri("drawable/default.png"), // NEED TO UPDATE: = mediaURL from Item entity
-        contentDescription = "Clothing Image",
-        modifier = Modifier
-            .matchParentSize()
-            .clip(RoundedCornerShape(8.dp))
-    ))
+            @OptIn(ExperimentalResourceApi::class)
+            AsyncImage(
+                model = if (loadFailed) Res.getUri("drawable/noImage.png") else imageUrl,
+                contentDescription = "Clothing Image",
+                modifier = Modifier
+                    .matchParentSize()
+                    .clip(RoundedCornerShape(8.dp)),
+                onError = { loadFailed = true }
+            )
         }
     }
 }
 @Composable
 fun SwapOtherImageCard(onSwapClick: () -> Unit, imageUrl: String, username: String) {
+    var loadFailed by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .width(125.dp)
@@ -67,14 +79,15 @@ fun SwapOtherImageCard(onSwapClick: () -> Unit, imageUrl: String, username: Stri
                 .clickable { onSwapClick() }
                 .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
         ) {
-            @OptIn(ExperimentalResourceApi::class) // TEMP for /drawble image
-            (AsyncImage(
-                model = Res.getUri("drawable/default.png"), // NEED TO UPDATE : imageUrl
+            @OptIn(ExperimentalResourceApi::class)
+            AsyncImage(
+                model = if (loadFailed) Res.getUri("drawable/noImage.png") else imageUrl,
                 contentDescription = "Clothing Image",
                 modifier = Modifier
                     .matchParentSize()
-                    .clip(RoundedCornerShape(8.dp))
-            ))
+                    .clip(RoundedCornerShape(8.dp)),
+                onError = { loadFailed = true }
+            )
         }
 
         Row(

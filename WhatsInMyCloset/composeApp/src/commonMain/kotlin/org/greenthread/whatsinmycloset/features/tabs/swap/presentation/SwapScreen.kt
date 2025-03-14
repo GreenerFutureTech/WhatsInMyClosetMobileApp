@@ -52,7 +52,7 @@ fun SwapScreenRoot(
         lifecycle = lifecycle
     )
 
-    val currentUser = UserManager.currentUser?:return
+    val currentUser = viewModel.currentUser
 
     WhatsInMyClosetTheme {
         LaunchedEffect(state) {
@@ -61,10 +61,10 @@ fun SwapScreenRoot(
                     viewModel.fetchAllSwapData()
                 }
                 if (state.getUserSwapResults.isEmpty()) {
-                    viewModel.fetchSwapData(currentUser?.id.toString())
+                    viewModel.fetchSwapData(currentUser.value?.id.toString())
                 }
                 if (state.getOtherUserSwapResults.isEmpty()) {
-                    viewModel.fetchOtherSwapData(currentUser?.id.toString())
+                    viewModel.fetchOtherSwapData(currentUser.value?.id.toString())
                 }
             } catch (e: ConnectTimeoutException) {
                 println("Connection timeout occurred (could not hit backend?): ${e.message}")
@@ -104,7 +104,7 @@ fun SwapScreen(
 
     val matchingSwaps = state.getOtherUserSwapResults.filter { swap ->
         val query = searchString.lowercase()
-        swap.brand.lowercase().contains(query) ||
+        swap.itemId.brand.lowercase().contains(query) ||
                 swap.itemId.itemType.lowercase().contains(query) ||
                 swap.itemId.tags.any { it.lowercase().contains(query) }
     }
@@ -190,7 +190,8 @@ fun SwapScreen(
                 SwapImageCard(
                     onSwapClick = {
                         onAction(SwapAction.OnSwapClick(item.itemId.id))
-                    }
+                    },
+                    imageUrl = item.itemId.mediaUrl
                 )
                 Spacer(modifier = Modifier.width(10.dp))
             }

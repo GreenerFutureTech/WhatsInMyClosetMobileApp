@@ -72,13 +72,14 @@ fun MessageListScreen(
 
                 ) {
                     items(state.getLatestMessageResults) { message ->
-                        val isSender = message.sender.id == viewModel.currentUser?.id
+                        val isSender =
+                            message.sender.id == (viewModel.currentUser.value?.id ?: true)
                         val otherUser = if (isSender) message.receiver else message.sender
 
                         MessageList(
                             user = otherUser,
                             lastMessage = message.content,
-                            isUnread = !message.isRead,
+                            isUnread = !message.isRead && message.sender.id == otherUser.id,
                             onClick = {
                                 viewModel.updateRead(message.id)
                                 navController.navigate(Routes.ChatScreen(otherUser.id.toString()))
