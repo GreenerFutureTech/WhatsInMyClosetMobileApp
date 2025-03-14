@@ -36,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.greenthread.whatsinmycloset.app.Routes
@@ -157,6 +158,36 @@ fun WardrobeHeader(itemCount: Int) {
                 .padding(16.dp)
                 .align(Alignment.CenterHorizontally)
         )
+    }
+}
+
+@Composable
+fun HomeSection(
+    title: StringResource? = null,
+    modifier: Modifier = Modifier,
+    showSeeAll: Boolean = true,
+    content: @Composable () -> Unit
+){
+    Column(modifier) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            title?.let{
+                Text(
+                    stringResource(title),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                )
+            }
+            if(showSeeAll) {
+                SeeAllButton{}
+            }
+        }
+        content()
     }
 }
 
