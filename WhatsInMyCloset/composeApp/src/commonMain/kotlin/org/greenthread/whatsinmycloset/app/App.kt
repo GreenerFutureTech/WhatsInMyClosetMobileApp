@@ -2,19 +2,21 @@ package org.greenthread.whatsinmycloset.app
 
 import AllSwapsScreen
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.ShoppingCart
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -334,58 +336,53 @@ fun BottomNavigationBar(navController: NavController) {
         )
 
     // Current route
-    val currentDestination = navController.currentBackStackEntryAsState().value?.destination?.route
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination?.route
 
-    LaunchedEffect(currentDestination) {
-        println("Current Destination: $currentDestination")
+    // Extract the last part of the route (e.g., "HomeTab")
+    val currentTab = currentDestination?.substringAfterLast(".")
 
-    }
-
-    val selectedIndex = tabs.indexOfFirst { it.first::class.simpleName == currentDestination }
-
-    LaunchedEffect(selectedIndex) {
-        println("Selected Index: $selectedIndex")
-    }
-
-    val safeSelectedIndex = if (selectedIndex >= 0) selectedIndex else 0
-
-//    TabRow(
-//        selectedTabIndex = if (selectedIndex >= 0) selectedIndex else 0
-//    ) {
-//        tabs.forEachIndexed { index, (route, icon) ->
-//            Tab(
-//                selected = index == selectedIndex,
-//                onClick = { navController.navigate(route) },
-//                text = { Text(route::class.simpleName ?: "Null tab name") },
-//                icon = { Icon(imageVector = icon, contentDescription = null) }
-//            )
-//        }
-//    }
+    val selectedIndex = tabs.indexOfFirst { it.first::class.simpleName == currentTab }
 
     NavigationBar () {
-        tabs.forEachIndexed { index, (route, icon) ->
-            val isSelected = index == safeSelectedIndex
+        tabs.take(2).forEachIndexed { index, (route, icon) ->
+            val isSelected = currentTab == route::class.simpleName
             val formattedLabel = route::class.simpleName?.removeSuffix("Tab") ?: "Null tab name"
 
             NavigationBarItem(
                 selected = isSelected,
                 onClick = {
-                    if(!isSelected) {
-                        navController.navigate(route) {
-                            launchSingleTop = true
-                            restoreState = true
-                            println("Route: $route")
-                            println("Route name: ${route::class.simpleName}")
-                        }
+                    navController.navigate(route) {
+                        launchSingleTop = true
+                        restoreState = true
                     }
                 },
                 icon = { Icon(imageVector = icon, contentDescription = null) },
-                label = { Text(formattedLabel) },
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = MaterialTheme.colorScheme.primary, // Highlight selected icon
-                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant, // Dim unselected icons
-                    indicatorColor = MaterialTheme.colorScheme.primaryContainer // Background of selected tab
-                )
+                label = { Text(formattedLabel) }
+            )
+        }
+
+        // Display action bar only on the home tab
+        val homeTabIndex = 0
+        val showFab = homeTabIndex == selectedIndex
+        if (showFab) {
+            AddNewItem {  }
+        }
+
+        tabs.takeLast(2).forEachIndexed { index, (route, icon) ->
+            val isSelected = currentTab == route::class.simpleName
+            val formattedLabel = route::class.simpleName?.removeSuffix("Tab") ?: "Null tab name"
+
+            NavigationBarItem(
+                selected = isSelected,
+                onClick = {
+                    navController.navigate(route) {
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                icon = { Icon(imageVector = icon, contentDescription = null) },
+                label = { Text(formattedLabel) }
             )
         }
     }
@@ -436,4 +433,17 @@ fun AppTopBar(
             }
         }
     )
+}
+
+// FAB to add new item in the wardrobe
+// It redirects the user to the screen AddItemScreen
+@Composable
+fun AddNewItem(onClick: () -> Unit) {
+    FloatingActionButton(
+        onClick = { onClick() },
+        shape = CircleShape,
+        containerColor = MaterialTheme.colorScheme.primary
+    ){
+        Icon(Icons.Filled.Add, "Add new item")
+    }
 }
