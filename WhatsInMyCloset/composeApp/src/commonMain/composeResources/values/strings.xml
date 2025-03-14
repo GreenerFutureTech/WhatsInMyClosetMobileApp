@@ -12,4 +12,16 @@
     <string name="complete_swap_dialog_message">Are you sure you want to complete this swap?</string>
     <string name="delete_swap_dialog_title">Delete Swap</string>
     <string name="delete_swap_dialog_message">Are you sure you want to delete this swap?</string>
+
+    <!-- Home tab strings -->
+    <string name="category_label_tops">Tops</string>
+    <string name="category_label_bottoms">Bottoms</string>
+    <string name="category_label_accessories">Accessories</string>
+    <string name="category_label_footwear">Footwear</string>
+    <string name="categories_section_title">Categories</string>
+    <string name="favourite_section_title">Favourite Outfits</string>
+    <string name="actions_section_title">Actions</string>
+    <string name="see_all_button">See All</string>
+    <string name="create_outfit_button">Create Outfit</string>
+    <string name="outfit_day_button">Outfit of the Day</string>
 </resources>
