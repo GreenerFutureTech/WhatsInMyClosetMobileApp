@@ -6,32 +6,26 @@ import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 
 
-class OutfitRepository (private val user: User) // Pass the logged-in user's account)
+class OutfitTags (private val user: User) // Pass the logged-in user's account)
 {
     // Default repository names
-    public val defaultRepositories = setOf(
+    public val defaultTags = setOf(
         "Business Casuals",
         "Formals",
-        "Casuals",
-        "Public Outfits"
+        "Casuals"
     )
 
     // StateFlow for default repositories
-    private val _outfitFolders = MutableStateFlow(defaultRepositories)
-    val outfitFolders: StateFlow<Set<String>> = _outfitFolders
+    private val _outfitTags = MutableStateFlow(defaultTags)
+    val outfitTags: StateFlow<Set<String>> = _outfitTags
 
     // StateFlow for user-created repositories
-    private val _userRepositories = MutableStateFlow<Set<String>>(emptySet())
-    val userRepositories: StateFlow<Set<String>> = _userRepositories
+    private val _userTags = MutableStateFlow<Set<String>>(emptySet())
+    val userTags: StateFlow<Set<String>> = _userTags
 
     // Combined list of default and user-created repositories
-    val allRepositories: Set<String>
-        get() = _outfitFolders.value + _userRepositories.value
-
-    fun getAllRepos() : Set<String>
-    {
-        return allRepositories
-    }
+    val allTags: Set<String>
+        get() = _outfitTags.value + _userTags.value
 
     // List of saved outfits
     private val _savedOutfits = MutableStateFlow<List<Outfit>>(emptyList())
@@ -40,21 +34,21 @@ class OutfitRepository (private val user: User) // Pass the logged-in user's acc
     /**
      * Add a new user-created repository name.
      */
-    fun addUserRepository(name: String) {
-        if (name.isNotBlank() && name !in allRepositories) {
-            _userRepositories.value = _userRepositories.value + name
+    fun updateTags(name: String) {
+        if (name.isNotBlank() && name !in allTags) {
+            _userTags.value = _userTags.value + name
         }
     }
 
     /**
-     * Remove a user-created repository name.
+     * Remove a user-created tag
      */
     fun removeUserRepository(name: String) {
-        _userRepositories.value = _userRepositories.value - name
+        _userTags.value = _userTags.value - name
     }
 
     /**
-     * Get all saved outfits for the logged in user from the selected repository
+     * Get all saved outfits for the logged in user from the selected tags
      */
     fun getSavedOutfits(): List<Outfit> {
         return _savedOutfits.value
@@ -64,15 +58,15 @@ class OutfitRepository (private val user: User) // Pass the logged-in user's acc
      * Save an outfit to the repository
      */
     fun saveOutfit(outfit: Outfit,
-                   selectedFolders: List<String>? = null,
-                   selectedFolder: String? = null)
+                   selectedTags: List<String>? = null,
+                   selectedTag: String? = null)
     {
         // Save the outfit to the user's account
-        if (selectedFolders != null || selectedFolder != null)
+        if (selectedTags != null || selectedTag != null)
         {
-            if (selectedFolders != null)
+            if (selectedTags != null)
             {
-                user.addOutfit(outfit, selectedFolders)
+                user.addOutfit(outfit, selectedTags)
             }
             /*else
             {
@@ -82,7 +76,7 @@ class OutfitRepository (private val user: User) // Pass the logged-in user's acc
     }
 
     /**
-     * Delete a saved outfit for the logged-in user.
+     * Delete a tag from the outfit for the logged-in user.
      */
     fun removeOutfit(outfitId: String) {
         user.removeOutfit(outfitId)

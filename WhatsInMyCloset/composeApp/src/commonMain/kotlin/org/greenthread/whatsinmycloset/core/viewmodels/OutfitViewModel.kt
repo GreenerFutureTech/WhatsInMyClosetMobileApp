@@ -11,7 +11,7 @@ import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.domain.models.OffsetData
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
-import org.greenthread.whatsinmycloset.core.repositories.OutfitRepository
+import org.greenthread.whatsinmycloset.core.repositories.OutfitTags
 
 
 /* this viewmodel handles the following:
@@ -48,14 +48,11 @@ open class OutfitViewModel
     val calendarEvents: StateFlow<List<String>> = _calendarEvents.asStateFlow()
 
     // State for OutfitSaveScreen
-    private val outfitRepository = OutfitRepository(user)
-    open val outfitFolders: StateFlow<Set<String>> = outfitRepository.outfitFolders
+    private val outfitTag = OutfitTags(user)
+    open val outfitTags: StateFlow<Set<String>> = outfitTag.outfitTags
 
-    private val _selectedFolder = MutableStateFlow<String?>(null)
-    open val selectedFolder: StateFlow<String?> = _selectedFolder.asStateFlow()
-
-    private val _selectedFolders = MutableStateFlow<List<String>>(emptyList())
-    open val selectedFolders: StateFlow<List<String>> = _selectedFolders.asStateFlow()
+    private val _tags = MutableStateFlow<Set<String>>(emptySet())
+    open val tags: StateFlow<Set<String>> = _tags.asStateFlow()
 
     private val _isPublic = MutableStateFlow(false)
     open val isPublic: StateFlow<Boolean> = _isPublic.asStateFlow()
@@ -84,51 +81,51 @@ open class OutfitViewModel
         savedStateHandle[selectedItemsKey] = _clothingItems.value
     }
 
-    // Update selected folder (single selection)
-    open fun updateSelectedFolder(folder: String?) {
-        _selectedFolder.value = folder
-    }
-
     // Update selected folders (multiple selection)
-    open fun updateSelectedFolders(folder: String) {
-        val currentFolders = _selectedFolders.value.toMutableList()
-        if (currentFolders.contains(folder)) {
-            currentFolders.remove(folder)
+    open fun updateSelectedTags(tagName: String) {
+        val currentTags = _tags.value.toMutableSet()
+        if (currentTags.contains(tagName)) {
+            currentTags.remove(tagName) // Remove the tag if it exists
         } else {
-            currentFolders.add(folder)
+            currentTags.add(tagName) // Add the tag if it doesn't exist
         }
-        _selectedFolders.value = currentFolders
+        _tags.value = currentTags
     }
 
     // Toggle public state
     open fun toggleIsPublic(isPublic: Boolean) {
         _isPublic.value = isPublic
-        if (isPublic) {
-            _selectedFolders.value = listOf("Public Outfits")
+
+        if (isPublic)
+        {
+            val currentTags = _tags.value.toMutableSet()
+            if (currentTags.contains("Public")) {
+                currentTags.remove("Public") // Remove the tag if it exists
+            } else {
+                currentTags.add("Public") // Add the tag if it doesn't exist
+            }
+
+            _tags.value = currentTags
         }
     }
 
     // Add a new folder using outfitRepository class
-    open fun addFolder(folderName: String) {
-        outfitRepository.addUserRepository(folderName)
+    open fun addTag(tagName: String) {
+        outfitTag.updateTags(tagName)
     }
 
     // ADD OUTFIT COORDINATES - SO HOWEVER USER SAVES THE OUTFIT,
     // THE NEXT TIME USER WANTS TO VIEW THE OUTFIT
     // IT CAN SAME COORDINATES
     // Save the outfit and update isOutfitSaved state
-    open fun saveOutfit(outfit: Outfit, selectedFolders: List<String>? = null,
+    open fun saveOutfit(outfit: Outfit, selectedTags: List<String>? = null,
                         selectedFolder: String?) {
         // Save the outfit to the selected folder
-        if (selectedFolders != null || selectedFolder != null) {
-            if(selectedFolders != null)
+        if (selectedTags != null || selectedFolder != null) {
+            if(selectedTags != null)
             {
-                outfitRepository.saveOutfit(outfit, selectedFolders)
+                outfitTag.saveOutfit(outfit, selectedTags)
             }
-            /*else
-            {
-                outfitRepository.saveOutfit(outfit, selectedFolder)
-            }*/
         }
 
 
@@ -192,8 +189,7 @@ open class OutfitViewModel
     open fun clearOutfitState() {
         _currentOutfit.value = null // Clear the current outfit
         _clothingItems.value = emptyList() // Clear selected clothing items
-        _selectedFolder.value = null // Clear selected folder
-        _selectedFolders.value = emptyList() // Clear selected folders
+        _tags.value = emptySet() // Clear selected folder
         _calendarEvents.value = emptyList()
         _isPublic.value = false // Reset public state
         _isOutfitSaved.value = false // Reset outfit saved state

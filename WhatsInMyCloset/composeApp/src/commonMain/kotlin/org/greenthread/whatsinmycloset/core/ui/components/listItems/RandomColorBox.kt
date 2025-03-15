@@ -51,7 +51,7 @@ fun RandomColourBox(item: ListItem) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(item.height)
+            .height(50.dp)
             .padding(4.dp)
             .background(item.color, shape = RoundedCornerShape(10.dp))
     )
@@ -63,7 +63,7 @@ fun LazyGridColourBox(items: List<ListItem>) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(32.dp)
+            contentPadding = PaddingValues(5.dp)
         ) {
             items(items) { item ->
                 RandomColourBox(item = item)

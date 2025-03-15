@@ -36,15 +36,17 @@ fun OutfitSaveScreen(
 ) {
     WhatsInMyClosetTheme {
         val isOutfitSaved by outfitViewModel.isOutfitSaved.collectAsState()
-        val outfitFolders by outfitViewModel.outfitFolders.collectAsState()
-        val selectedFolder by outfitViewModel.selectedFolder.collectAsState()
-        val selectedFolders by outfitViewModel.selectedFolders.collectAsState()
+        val outfitFolders by outfitViewModel.outfitTags.collectAsState()
+        //val selectedTags by outfitViewModel.tags.collectAsState()
+        //val selectedTag by outfitViewModel.tag.collectAsState()
         val isPublic by outfitViewModel.isPublic.collectAsState()
 
         // retrieve the current outfit user wants to save
         val currentOutfit by outfitViewModel.currentOutfit.collectAsState()
 
-        var showCreateFolderDialog by remember { mutableStateOf(false) }
+        // Local UI state for highlighting tags
+        val (selectedTags, setSelectedTags) = remember { mutableStateOf(setOf<String>()) }
+        var showCreateTagDialog by remember { mutableStateOf(false) }
         var showDiscardDialog by remember { mutableStateOf(false) }
 
         if (isOutfitSaved) {
@@ -84,15 +86,8 @@ fun OutfitSaveScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     items(outfitFolders.toList()) { folder ->
-                        // Determine if folder is selected (either one folder or multiple)
-                        val isSelected = if (selectedFolders.isNotEmpty()) {
-                            selectedFolders.contains(folder) || (isPublic && folder == "Public Outfits")
-                        } else {
-                            selectedFolder == folder || (isPublic && folder == "Public Outfits")
-                        }
-
-                        println(isSelected)
-                        println(selectedFolder)
+                        // Determine if folder is selected based on local UI state
+                        val isSelected = selectedTags.contains(folder)
 
                         Box(
                             modifier = Modifier
@@ -104,12 +99,13 @@ fun OutfitSaveScreen(
                                     shape = RoundedCornerShape(8.dp)
                                 )
                                 .clickable {
-                                    if (selectedFolders.isNotEmpty() != null) {
-                                        outfitViewModel.updateSelectedFolders(folder)
+                                    // Update local UI state for highlighting
+                                    val updatedTags = if (selectedTags.contains(folder)) {
+                                        selectedTags - folder // Remove folder from the set
                                     } else {
-                                        outfitViewModel.updateSelectedFolder(if (selectedFolder == folder) null
-                                        else folder)
+                                        selectedTags + folder // Add folder to the set
                                     }
+                                    setSelectedTags(updatedTags) // Directly update the state
                                 }
                                 .padding(16.dp)
                         ) {
@@ -135,6 +131,9 @@ fun OutfitSaveScreen(
 
                 Spacer(modifier = Modifier.height(10.dp))
 
+                // Calculate if the Done button should be enabled
+                val isDoneEnabled = selectedTags.isNotEmpty() || isPublic
+
                 // Footer with Done button
                 OutfitScreenFooter(
                     onDone = {
@@ -142,39 +141,36 @@ fun OutfitSaveScreen(
                         // Get current outfit from the viewmodel
                         currentOutfit?.let { outfit ->
                             println("Saving outfit: $outfit") // Debugging statement
-                            if(selectedFolders.isNotEmpty())
+                            if(selectedTags.isNotEmpty())
                             {
-                                outfitViewModel.saveOutfit(outfit, selectedFolders,
-                                    null)
-                            }
-                            else
-                            {
-                                outfitViewModel.saveOutfit(outfit, null,
-                                    selectedFolder)
+                                // update the selected tags
+                                outfitViewModel.updateSelectedTags(selectedTags.toString())
+                                outfitViewModel.saveOutfit(outfit, selectedTags.toList(), null)
                             }
                         }
                         onDone() // Trigger the onDone callback
+                        setSelectedTags(emptySet()) // Clear local UI state
                     },
-                    isDoneEnabled = selectedFolders.isNotEmpty() || selectedFolder != null
+                    isDoneEnabled = isDoneEnabled
                 )
 
                 Spacer(modifier = Modifier.height(10.dp))
 
                 // Button to open the "Create New Folder" dialog
                 Button(
-                    onClick = { showCreateFolderDialog = true},
+                    onClick = { showCreateTagDialog = true},
                     modifier = Modifier.padding(8.dp)
                 ) {
-                    Text("+ Create New Outfit Folder")
+                    Text("+ Create New Outfit Tag")
                 }
 
-                // Show CreateNewOutfitFolder when the button is clicked
-                if (showCreateFolderDialog) {
-                    CreateNewOutfitFolder(
-                        onDismiss = { showCreateFolderDialog = false },
-                        onCreate = { folderName ->
-                            outfitViewModel.addFolder(folderName) // Update repository
-                            showCreateFolderDialog = false // Close the dialog after creating the folder
+                // Show CreateNewOutfitTag when the button is clicked
+                if (showCreateTagDialog) {
+                    CreateNewOutfitTag(
+                        onDismiss = { showCreateTagDialog = false },
+                        onCreate = { tagName ->
+                            outfitViewModel.addTag(tagName) // Update repository
+                            showCreateTagDialog = false // Close the dialog after creating the folder
                         }
                     )
                 }
@@ -219,11 +215,11 @@ fun DiscardSavingDialog(
 
 
 @Composable
-fun CreateNewOutfitFolder(
+fun CreateNewOutfitTag(
     onDismiss: () -> Unit,
     onCreate: (String) -> Unit
 ) {
-    var newFolderName by remember { mutableStateOf("") }
+    var newTagName by remember { mutableStateOf("") }
 
     Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -237,33 +233,27 @@ fun CreateNewOutfitFolder(
                 modifier = Modifier.padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("New Outfit Folder", style = MaterialTheme.typography.headlineMedium)
-
-                Spacer(modifier = Modifier.height(8.dp))
+                Text("New Outfit Tag", style = MaterialTheme.typography.headlineMedium)
 
                 OutlinedTextField(
-                    value = newFolderName,
-                    onValueChange = { newFolderName = it },
-                    label = { Text("Folder Name") },
+                    value = newTagName,
+                    onValueChange = { newTagName = it },
+                    label = { Text("Tag Name") },
                     modifier = Modifier.fillMaxWidth()
                 )
-
-                Spacer(modifier = Modifier.height(8.dp))
 
                 // Save Button
                 Button(
                     onClick = {
-                        if (newFolderName.isNotBlank()) {
-                            onCreate(newFolderName) // Pass the new folder name
-                            newFolderName = "" // Reset input
+                        if (newTagName.isNotBlank()) {
+                            onCreate(newTagName) // Pass the new folder name
+                            newTagName = "" // Reset input
                         }
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Create")
                 }
-
-                Spacer(modifier = Modifier.height(8.dp))
 
                 // Cancel Button
                 TextButton(onClick = onDismiss) {
@@ -285,14 +275,22 @@ fun OutfitSaved(
     var showDialog by remember { mutableStateOf(true) }
 
     // Retrieve folder names and isPublic state from the ViewModel
-    val folderNames by viewModel.selectedFolders.collectAsState()
-    val isPublic by viewModel.isPublic.collectAsState()
+    val tagNames by viewModel.tags.collectAsState()
+
+    var tagNamesText = ""
 
     // Check if the dialog should be shown
     if (showDialog) {
         // Generate the message about the folders
-        val folderNamesText = folderNames.joinToString(", ")
-        val publicText = if (isPublic) "Your outfit is now public." else ""
+        if(tagNames.isNotEmpty())
+        {
+            tagNamesText = tagNames.joinToString(", ")
+        }
+
+        var msgStr: String = tagNamesText
+        if(tagNames.isNotEmpty()) {
+            msgStr = "Your outfit has been saved with following tag(s) ${tagNamesText}."
+        }
 
         AlertDialog(
             onDismissRequest = {
@@ -302,8 +300,7 @@ fun OutfitSaved(
             title = { Text(text = "Outfit Saved") },
             text = {
                 Text(
-                    text = "Your outfit has been saved in the following folder(s): " +
-                            "$folderNamesText. $publicText"
+                    text = msgStr
                 )
             },
             confirmButton = {
