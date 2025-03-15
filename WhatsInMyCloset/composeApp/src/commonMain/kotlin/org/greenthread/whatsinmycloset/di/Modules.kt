@@ -6,9 +6,11 @@ import org.greenthread.whatsinmycloset.core.data.HttpClientFactory
 import org.greenthread.whatsinmycloset.core.data.MyClosetDatabase
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.domain.models.User
+import org.greenthread.whatsinmycloset.core.managers.OutfitManager
 import org.greenthread.whatsinmycloset.core.managers.WardrobeManager
 import org.greenthread.whatsinmycloset.core.network.KtorRemoteDataSource
 import org.greenthread.whatsinmycloset.core.network.RemoteClosetDataSource
+import org.greenthread.whatsinmycloset.core.repositories.OutfitTags
 import org.greenthread.whatsinmycloset.core.repositories.WardrobeRepository
 import org.greenthread.whatsinmycloset.core.repository.ClosetRepository
 import org.greenthread.whatsinmycloset.core.repository.DefaultClosetRepository
@@ -39,6 +41,7 @@ val sharedModule = module {
     singleOf(::WardrobeRepository).bind<WardrobeRepository>()
     singleOf(::WardrobeManager).bind<WardrobeManager>()
     singleOf(::UserManager).bind<UserManager>()
+    singleOf(::OutfitManager).bind<OutfitManager>()
 
 
     single {
@@ -63,7 +66,21 @@ val sharedModule = module {
     single { User(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
     } // Replace with actual user info
 
-    viewModel { OutfitViewModel(get(), get()) } // Pass Account and SavedStateHandle
+    // Define OutfitTags
+    single { OutfitTags(get()) } // Inject User into OutfitTags
+
+    // Define OutfitManager
+    single { OutfitManager(get()) } // Inject OutfitTags into OutfitManager
+
+    // Define the OutfitViewModel with explicit parameters
+    viewModel {
+        OutfitViewModel(
+            user = get(), // Inject the User instance
+            outfitManager = get(), // Inject the OutfitManager instance
+            outfitTags = get(), // Inject the OutfitTags instance
+            savedStateHandle = null // Optional parameter, can be null
+        )
+    }
 }
 
 

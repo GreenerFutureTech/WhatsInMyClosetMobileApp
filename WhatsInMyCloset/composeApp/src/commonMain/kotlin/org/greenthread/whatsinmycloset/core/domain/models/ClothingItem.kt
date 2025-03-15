@@ -24,11 +24,12 @@ data class ClothingItem(
     val mediaUrl: String? = "",
     val tags: List<String> = listOf(""),
     val position: OffsetData? = null, // Add position data
+    val temporaryPosition: OffsetData? = null,
     val createdAt: String = ""
 )
 
 @Serializable
-data class OffsetData(
+class OffsetData(
     val x: Float,
     val y: Float
 )

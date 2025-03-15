@@ -1,6 +1,5 @@
 package org.greenthread.whatsinmycloset.core.ui.components.models
 
-import kotlinx.serialization.Serializable
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 
 class Wardrobe(wardrobeName: String, id: String, createdAt: String, lastUpdate: String, userId: String) {

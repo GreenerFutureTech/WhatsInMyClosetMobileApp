@@ -204,6 +204,10 @@ fun OutfitScreen(
             DiscardOutfitDialog(
                 onConfirm = {
                     showExitDialog = false
+                    // Discard the current outfit and create a new one
+                    outfitViewModel.discardCurrentOutfit()
+                    outfitViewModel.clearOutfitState() // Clear the outfit state
+                    clothingItemViewModel.clearClothingItemState() // Clear the selected items state
                     navController.navigate(Routes.HomeTab) // Navigate to Home Tab
                 },
                 onDismiss = { showExitDialog = false }

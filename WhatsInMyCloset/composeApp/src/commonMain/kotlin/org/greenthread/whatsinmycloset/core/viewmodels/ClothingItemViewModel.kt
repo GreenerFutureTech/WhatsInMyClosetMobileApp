@@ -3,16 +3,11 @@ package org.greenthread.whatsinmycloset.core.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.mapLatest
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Contextual
-import kotlinx.serialization.Serializable
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.managers.WardrobeManager

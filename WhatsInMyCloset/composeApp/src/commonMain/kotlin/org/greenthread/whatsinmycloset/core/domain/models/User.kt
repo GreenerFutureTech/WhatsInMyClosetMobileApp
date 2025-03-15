@@ -1,5 +1,6 @@
 package org.greenthread.whatsinmycloset.core.domain.models
 
+import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
 
 class User(
@@ -22,12 +23,6 @@ class User(
     fun retrieveUserId() : Int?
     {
         return id
-    }
-
-    fun outfitCount() : Int
-    {
-        // number of outfits user has created - used for outfit id
-        return outfits.size // Return the number of outfits
     }
 
     fun addOutfit(outfit: Outfit, selectedTags: List<String>) {
