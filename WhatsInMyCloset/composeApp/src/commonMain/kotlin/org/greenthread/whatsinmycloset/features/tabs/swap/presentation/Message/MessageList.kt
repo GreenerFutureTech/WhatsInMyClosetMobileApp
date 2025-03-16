@@ -12,24 +12,24 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import org.greenthread.whatsinmycloset.core.dto.MessageUserDto
-import org.greenthread.whatsinmycloset.core.dto.UserDto
 import org.jetbrains.compose.resources.ExperimentalResourceApi
-import org.jetbrains.compose.resources.Font
 import whatsinmycloset.composeapp.generated.resources.Res
 
 @Composable
@@ -54,14 +54,16 @@ fun MessageList(
                 .fillMaxWidth()
 
         ) {
-            @OptIn(ExperimentalResourceApi::class) // TEMP for /drawable image
+            var loadFailed by remember { mutableStateOf(false) }
+            @OptIn(ExperimentalResourceApi::class)
             AsyncImage(
-                model = user.profilePicture ?: Res.getUri("drawable/defaultUser.png"), // TODO: REMOVE drawable
+                model = if (loadFailed) Res.getUri("drawable/defaultUser.png") else user.profilePicture,
                 contentDescription = "Profile Image",
                 modifier = Modifier
                     .size(50.dp)
                     .clip(CircleShape)
-                    .border(1.dp, Color.LightGray, CircleShape)
+                    .border(1.dp, Color.LightGray, CircleShape),
+                onError = { loadFailed = true }
             )
             Spacer(modifier = Modifier.width(8.dp))
             Column {
