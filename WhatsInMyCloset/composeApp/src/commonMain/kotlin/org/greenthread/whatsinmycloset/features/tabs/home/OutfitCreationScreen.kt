@@ -141,7 +141,7 @@ fun OutfitScreen(
                         item {
                             Button(
                                 onClick = {
-                                    // Create the outfit, pass user's id and outfit id
+                                    // Create the outfit, pass selected items
                                     outfitViewModel.createOutfit(selectedItems)
 
                                     // Navigate to the OutfitSaveScreen

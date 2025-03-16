@@ -19,7 +19,13 @@ enum class DefaultTags(val tagName: String)
     }
 }
 
-/* This class focuses on managing tags */
+/*
+    Manages tags for outfits, including adding, removing, and updating tags.
+
+    Ensures that tags are synchronized with the database.
+
+*/
+
 class OutfitTags (
     private val user: User
 ) // Pass the logged-in user's account)

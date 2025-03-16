@@ -3,15 +3,17 @@ package org.greenthread.whatsinmycloset.core.domain.models
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.greenthread.whatsinmycloset.core.data.daos.ItemDao
 import org.greenthread.whatsinmycloset.core.dto.OutfitDto
 import org.greenthread.whatsinmycloset.core.persistence.OutfitEntity
+import org.greenthread.whatsinmycloset.core.persistence.toClothingItem
 
 /*
 * This class provide methods for conversion to/from OutfitDto and OutfitEntity
 * */
 class Outfit(
     val id: String,
-    val userId: String,
+    val userId: Int? = null,    // matches with User class
     val public: Boolean,
     val favorite: Boolean,
     val mediaURL: String = "",
@@ -21,58 +23,6 @@ class Outfit(
     val createdAt: String = Clock.System.now().toLocalDateTime(
         TimeZone.currentSystemDefault()).toString()
 ) {
-    companion object {
-        fun createOutfit(
-            userId: String,
-            clothingItems: List<ClothingItem>,
-            name: String = "Summer Look",
-            public: Boolean = true,
-            favorite: Boolean = true,
-            mediaURL: String = "",
-            tags: List<String>? = null
-        ): Outfit {
-            val outfitId = "outfit_${Clock.System.now().toEpochMilliseconds()}" // Generate a unique ID
-            return Outfit(
-                id = outfitId,
-                userId = userId,
-                public = public,
-                favorite = favorite,
-                mediaURL = mediaURL,
-                name = name,
-                tags = tags,
-                items = clothingItems
-            )
-        }
-
-        // Convert from DTO to Domain Model
-        fun fromDto(outfitDto: OutfitDto): Outfit {
-            return Outfit(
-                id = outfitDto.id,
-                userId = outfitDto.userId,
-                public = outfitDto.public,
-                favorite = outfitDto.favorite,
-                mediaURL = outfitDto.mediaURL,
-                name = outfitDto.name,
-                tags = outfitDto.tags,
-                items = outfitDto.items
-            )
-        }
-
-        // Convert from Entity to Domain Model
-        fun fromEntity(outfitEntity: OutfitEntity): Outfit {
-            return Outfit(
-                id = outfitEntity.id,
-                userId = outfitEntity.userId,
-                public = outfitEntity.public,
-                favorite = outfitEntity.favorite,
-                mediaURL = outfitEntity.mediaURL,
-                name = outfitEntity.name,
-                tags = outfitEntity.tags,
-                items = outfitEntity.items
-            )
-        }
-    }
-
     // Convert Domain Model to DTO
     fun toDto(): OutfitDto {
         return OutfitDto(
@@ -89,16 +39,15 @@ class Outfit(
     }
 
     // Convert Domain Model to Entity
-    fun toEntity(): OutfitEntity {
+    fun toEntity(userId: Int?= null): OutfitEntity {
         return OutfitEntity(
-            id = id,
+            outfitId = id,
             userId = userId,
             public = public,
             favorite = favorite,
             mediaURL = mediaURL,
             name = name,
             tags = tags,
-            items = items,
             createdAt = createdAt
         )
     }

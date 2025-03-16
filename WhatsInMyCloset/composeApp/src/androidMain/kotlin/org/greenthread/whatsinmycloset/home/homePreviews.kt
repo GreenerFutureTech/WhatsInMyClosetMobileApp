@@ -44,7 +44,7 @@ fun PreviewWardrobeScreen() {
     // Create an outfit
     val summerLook = Outfit(
         id = "outfit1",
-        userId = "1",
+        userId = 1,
         public = true,
         favorite = true,
         mediaURL = "",

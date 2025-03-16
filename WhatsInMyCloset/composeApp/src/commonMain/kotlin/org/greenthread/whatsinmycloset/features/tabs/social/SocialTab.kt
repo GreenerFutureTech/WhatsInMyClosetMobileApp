@@ -57,7 +57,7 @@ fun SocialTabScreen(user: User?, onNavigate: (String) -> Unit) {
             val newLook =
                 Outfit(
                     id = "$i",
-                    userId = "1",
+                    userId = currentUser?.id,
                     public = true,
                     favorite = true,
                     mediaURL = "",

@@ -133,7 +133,7 @@ fun OutfitSaveScreen(
                             println("Saving outfit: $outfit with tags ${selectedTags}") // Debugging statement
                             if(selectedTags.isNotEmpty())
                             {
-                                outfitViewModel.saveOutfit(outfit, selectedTags.toList(), null)
+                                outfitViewModel.saveOutfit(outfit, selectedTags.toList())
                             }
                         }
                         onDone() // Trigger the onDone callback

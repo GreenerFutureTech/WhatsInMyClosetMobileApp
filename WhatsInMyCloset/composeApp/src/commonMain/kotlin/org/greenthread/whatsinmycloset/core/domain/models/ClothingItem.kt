@@ -9,8 +9,14 @@ enum class ClothingCategory(val categoryName: String) {
     ACCESSORIES("Accessories");
 
     companion object {
-        fun fromString(name: String): ClothingCategory? {
-            return values().find { it.categoryName.equals(name, ignoreCase = true) }
+        fun fromString(value: String): ClothingCategory {
+            return when (value.lowercase()) {
+                "tops" -> TOPS
+                "bottoms" -> BOTTOMS
+                "footwear" -> FOOTWEAR
+                "accessories" -> ACCESSORIES
+                else -> throw IllegalArgumentException("Unknown category: $value")
+            }
         }
     }
 }
@@ -18,7 +24,7 @@ enum class ClothingCategory(val categoryName: String) {
 @Serializable
 data class ClothingItem(
     val id: String = "",
-    val name: String, // Name of the item (e.g., "Red Dress")
+    val name: String = "", // Name of the item (e.g., "Red Dress")
     val wardrobeId: String = "",
     val itemType: ClothingCategory,
     val mediaUrl: String? = "",

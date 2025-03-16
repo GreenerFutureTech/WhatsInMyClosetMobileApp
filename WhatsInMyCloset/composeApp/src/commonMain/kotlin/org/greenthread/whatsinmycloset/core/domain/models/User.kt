@@ -4,7 +4,7 @@ import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
 
 class User(
-    val id: Int? = null,
+    val id: Int?,
     val username: String,
     val email: String,
     val name: String,

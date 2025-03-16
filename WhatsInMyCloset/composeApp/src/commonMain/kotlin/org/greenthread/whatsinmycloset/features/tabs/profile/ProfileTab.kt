@@ -59,7 +59,7 @@ fun ProfileTabScreen(userState: StateFlow<User?>, onNavigate: () -> Unit) {
         val outfits = List(numberOfOutfits) { i ->
             Outfit(
                 id = "outfit1",
-                userId = "1",
+                userId = currentUser?.id,
                 public = true,
                 favorite = true,
                 mediaURL = "",
