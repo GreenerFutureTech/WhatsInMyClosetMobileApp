@@ -6,6 +6,13 @@
     <string name="error_no_internet">Couldn't reach server, please check your internet connection.</string>
     <string name="error_too_many_requests">Your quota seems to be exceeded.</string>
     <string name="error_serialization">Couldn't parse data.</string>
+    <string name="my_outfits_title">My Outfits</string>
+    <string name="available_swap_title">Available for Swap</string>
+    <string name="this_week_outfits_title">This Week's Outfits</string>
+    <string name="add_friend_button">Add Friend</string>
+    <string name="remove_friend_button">Remove Friend</string>
+    <string name="friendship_status_already_friends">You're Friends!</string>
+    <string name="friendship_status_pending_request">Request Pending</string>
     <string name="complete_swap">Complete Swap</string>
     <string name="delete">Delete</string>
     <string name="complete_swap_dialog_title">Complete Swap</string>
