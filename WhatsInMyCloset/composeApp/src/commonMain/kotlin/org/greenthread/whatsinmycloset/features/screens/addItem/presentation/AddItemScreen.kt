@@ -21,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,6 +48,29 @@ fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManage
 
     var bitmap by remember { mutableStateOf<ImageBitmap?>(null) }
     var bitmapFile : Any? = null
+
+    var hasSegmented by remember { mutableStateOf(false) } // Prevent re-segmentation
+
+    LaunchedEffect(itemImage) {
+        itemImage?.let { imageBytes ->
+            println("Segmentation part 1")
+
+            bitmap = imageBytes.toImageBitmap()
+            bitmapFile = imageBytes.toBitmap()
+
+            if (!hasSegmented) {  // Only run segmentation once
+                hasSegmented = true
+                subjectSegmentation(imageBytes) { result ->
+                    if (result != null) {
+                        println("Segmentation successful!")
+                        bitmap = result  // ✅ Triggers recomposition once
+                    } else {
+                        println("Segmentation failed!")
+                    }
+                }
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -80,30 +104,13 @@ fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManage
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        itemImage?.let { imageBytes ->
-            println("Segmentation part 1")
-
-            bitmap = imageBytes.toImageBitmap()
-            bitmapFile = imageBytes.toBitmap()
-
-            subjectSegmentation(imageBytes) { result ->
-                if (result != null) {
-                    println("Segmentation successful!")
-                    bitmap = result
-
-                } else {
-                    println("Segmentation failed!")
-                    // Handle the failure
-                }
-            }
-
-            bitmap?.let { img ->
-                Image(
-                    bitmap = img,
-                    contentDescription = "Captured Image",
-                    modifier = Modifier.size(300.dp)
-                )
-            }
+        bitmap?.let { img ->
+            Image(
+                bitmap = img,
+                contentDescription = "Captured Image",
+                modifier = Modifier.size(300.dp)
+            )
+        }
 
         }
         Spacer(modifier = Modifier.height(16.dp))
@@ -131,7 +138,7 @@ fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManage
         }) {
             Text("Add Item")
         }
-    }
+
 }
 
 /*
