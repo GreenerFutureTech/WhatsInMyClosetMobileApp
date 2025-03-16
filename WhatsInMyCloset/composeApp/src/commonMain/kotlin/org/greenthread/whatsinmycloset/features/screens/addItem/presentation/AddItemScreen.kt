@@ -33,6 +33,8 @@ import kotlinx.datetime.Clock
 import org.greenthread.whatsinmycloset.CameraManager
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.dto.ItemDto
+import org.greenthread.whatsinmycloset.subjectSegmentation
+import org.greenthread.whatsinmycloset.toBitmap
 import org.greenthread.whatsinmycloset.toImageBitmap
 import kotlin.random.Random
 
@@ -43,7 +45,8 @@ fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManage
     var selectedCategory by remember { mutableStateOf<String?>("Tops") }
     var selectedWardrobe by remember { mutableStateOf<String?>("Winter Collection") }
 
-    var bitmap : ImageBitmap
+    var bitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+    var bitmapFile : Any? = null
 
     Column(
         modifier = Modifier
@@ -78,12 +81,30 @@ fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManage
         Spacer(modifier = Modifier.height(16.dp))
 
         itemImage?.let { imageBytes ->
+            println("Segmentation part 1")
+
             bitmap = imageBytes.toImageBitmap()
-            Image(
-                bitmap = bitmap,
-                contentDescription = "Captured Image",
-                modifier = Modifier.size(300.dp)
-            )
+            bitmapFile = imageBytes.toBitmap()
+
+            subjectSegmentation(imageBytes) { result ->
+                if (result != null) {
+                    println("Segmentation successful!")
+                    bitmap = result
+
+                } else {
+                    println("Segmentation failed!")
+                    // Handle the failure
+                }
+            }
+
+            bitmap?.let { img ->
+                Image(
+                    bitmap = img,
+                    contentDescription = "Captured Image",
+                    modifier = Modifier.size(300.dp)
+                )
+            }
+
         }
         Spacer(modifier = Modifier.height(16.dp))
 

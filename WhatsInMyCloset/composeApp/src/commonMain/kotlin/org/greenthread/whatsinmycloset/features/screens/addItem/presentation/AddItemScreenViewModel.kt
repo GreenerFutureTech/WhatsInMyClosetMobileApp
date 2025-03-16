@@ -26,15 +26,14 @@ class AddItemScreenViewModel(
         return cachedWardrobes
     }
 
-    fun addItem(item: ItemDto, image: ByteArray?, callback: (Boolean, String?) -> Unit) {
+    fun addItem(item: ItemDto, image: Any?, callback: (Boolean, String?) -> Unit) {
         viewModelScope.launch {
             try {
                 val mediaUrl = image?.let {
-                    val result = httpRepository.uploadFile(it)
+                    val result = httpRepository.uploadTest("fileName.bmp", it as ByteArray)
                     if (result.isSuccess()) result.getOrNull() else null
                 }
-
-                val newItem = mediaUrl?.let { item.copy(mediaUrl = it) }
+/*                val newItem = mediaUrl?.let { item.copy(mediaUrl = it) }
 
                 val createResult = newItem?.let { httpRepository.createItem(it) }
 
@@ -44,7 +43,7 @@ class AddItemScreenViewModel(
                     } else {
                         callback(false, "Failed to create item")
                     }
-                }
+                }*/
             } catch (e: Exception) {
                 callback(false, e.message)
             }

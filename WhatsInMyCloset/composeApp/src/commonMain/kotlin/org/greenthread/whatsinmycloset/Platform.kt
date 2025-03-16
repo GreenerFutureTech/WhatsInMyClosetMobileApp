@@ -18,6 +18,9 @@ expect class CameraManager {
 }
 
 expect fun ByteArray.toImageBitmap(): ImageBitmap
+expect fun ByteArray.toBitmap(): Any
+
+expect fun subjectSegmentation(byteArray: ByteArray, onResult: (ImageBitmap?) -> Unit)
 
 // The Room compiler generates the `actual` implementations.
 @Suppress("NO_ACTUAL_FOR_EXPECT")

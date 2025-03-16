@@ -35,6 +35,8 @@ navigationTesting = "2.8.7"
 coreKtx = "1.6.1"
 lifecycleViewmodelCompose = "2.9.0-alpha10"
 identityJvm = "202411.1"
+mlkit-subject-segmentation = "16.0.0-beta1"
+
 
 [libraries]
 firebase-auth = { module = "dev.gitlive:firebase-auth", version.ref = "firebaseAuth" }
@@ -43,6 +45,7 @@ image-loader = { module = "io.github.qdsfdhvh:image-loader", version.ref = "imag
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
+mlkit-subject-segmentation = { module = "com.google.android.gms:play-services-mlkit-subject-segmentation", version.ref = "mlkit-subject-segmentation" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core-ktx" }
 androidx-test-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidx-test-junit" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "androidx-espresso-core" }

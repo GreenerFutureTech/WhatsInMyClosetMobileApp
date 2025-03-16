@@ -1,10 +1,12 @@
 package org.greenthread.whatsinmycloset.core.network
 
+import com.seiko.imageloader.Bitmap
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.delete
+import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.get
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
@@ -15,6 +17,13 @@ import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.client.statement.*
+import io.ktor.http.path
+import io.ktor.utils.io.InternalAPI
+import io.ktor.utils.io.core.buildPacket
+import io.ktor.utils.io.core.writeFully
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.greenthread.whatsinmycloset.core.data.safeCall
@@ -89,7 +98,10 @@ class KtorRemoteDataSource(
         }
     }
 
-    override suspend fun getChatHistory(userId: Int, otherUserId: Int): Result<List<MessageDto>, DataError.Remote> {
+    override suspend fun getChatHistory(
+        userId: Int,
+        otherUserId: Int
+    ): Result<List<MessageDto>, DataError.Remote> {
         return safeCall {
             httpClient.get(
                 urlString = "$BASE_URL/messages/chat/$userId/$otherUserId"
@@ -105,7 +117,11 @@ class KtorRemoteDataSource(
         }
     }
 
-    override suspend fun sendMessage(senderId: Int, receiverId: Int, content: String): Result<MessageDto, DataError.Remote> {
+    override suspend fun sendMessage(
+        senderId: Int,
+        receiverId: Int,
+        content: String
+    ): Result<MessageDto, DataError.Remote> {
         return safeCall {
             val request = SendMessageRequest(
                 senderId = senderId,
@@ -188,7 +204,10 @@ class KtorRemoteDataSource(
         }
     }
 
-    suspend fun createItemWithFileUpload(item: ItemDto, file: ByteArray?): Result<ItemDto, DataError.Remote> {
+    suspend fun createItemWithFileUpload(
+        item: ItemDto,
+        file: ByteArray?
+    ): Result<ItemDto, DataError.Remote> {
         return safeCall {
             httpClient.post("$BASE_URL/item/upload") {
                 contentType(ContentType.MultiPart.FormData)
@@ -204,7 +223,10 @@ class KtorRemoteDataSource(
                             // Optional file upload
                             file?.let {
                                 append("file", it, Headers.build {
-                                    append(HttpHeaders.ContentDisposition, "form-data; name=\"file\"; filename=\"file.jpg\"")
+                                    append(
+                                        HttpHeaders.ContentDisposition,
+                                        "form-data; name=\"file\"; filename=\"file.jpg\""
+                                    )
                                 })
                             }
                         }
@@ -215,37 +237,47 @@ class KtorRemoteDataSource(
     }
 
 
-    suspend fun uploadFile(file: ByteArray): Result<String, DataError.Remote> {
-        return safeCall {
-            println("Uploading File...")
-
-            val response = httpClient.post("$BASE_URL/blob/upload") {
-                contentType(ContentType.MultiPart.FormData)
-                setBody(
-                    MultiPartFormDataContent(
-                        formData {
-                            append(
-                                key = "file", // Ensure this matches the expected field name
-                                value = file,
-                                headers = Headers.build {
-                                    append(HttpHeaders.ContentDisposition, "form-data; name=\"file\"; filename=\"file.png\"")
-                                    append(HttpHeaders.ContentType, "image/png")
+    suspend fun uploadFile(
+        byteArray: Any?,
+        fileName: String = "image.bmp"
+    ): Result<String, DataError.Remote> {
+        val data = byteArray as ByteArray
+            return safeCall {
+                val response: HttpResponse = httpClient.post("https://green-api-c9h6f7huhuezbuhv.eastus2-01.azurewebsites.net/blob/upload") {
+                    contentType(ContentType.MultiPart.FormData)
+                    setBody(
+                        MultiPartFormDataContent(
+                            formData {
+                                appendInput(
+                                    key = "file",
+                                    headers = Headers.build {
+                                        append(HttpHeaders.ContentDisposition, "form-data; name=\"file\"; filename=\"$fileName\"")
+                                        append(HttpHeaders.ContentType, "image/bmp") // Ensure correct MIME type
+                                    }) {
+                                    buildPacket { writeFully(data) }
                                 }
-                            )
-                        }
+                            }
+                        )
                     )
-                )
+                }
+                response
             }
-
-            println("Upload Response: ${response.status}")
-            println("Response Body: ${response.bodyAsText()}")
-
-            response.body()
-        }
     }
 
+    suspend fun uploadTest(filename: String, imageBytes: ByteArray): Result<String, DataError.Remote> {
+        return safeCall {
+            httpClient.post("https://green-api-c9h6f7huhuezbuhv.eastus2-01.azurewebsites.net/blob/upload") {
 
-
-
-
+                setBody(MultiPartFormDataContent(
+                    formData {
+                        append("file", imageBytes, Headers.build {
+                            append(HttpHeaders.ContentType, "image/bmp")
+                            append(HttpHeaders.ContentDisposition, "name=\"file.bmp\"; filename=test.bmp")
+                        })
+                    }
+                ))
+            }
+        }
+    }
 }
+
