@@ -49,22 +49,7 @@ fun PreviewWardrobeScreen() {
         favorite = true,
         mediaURL = "",
         name = "Summer Look",
-        items = listOf(
-            ClothingItem(
-                id = "1",
-                name = "Blue Top",
-                itemType = ClothingCategory.TOPS,
-                mediaUrl = null,
-                tags = listOf("casual", "summer")
-            ),
-            ClothingItem(
-                id = "2",
-                name = "Denim Jeans",
-                itemType = ClothingCategory.BOTTOMS,
-                mediaUrl = null,
-                tags = listOf("casual", "summer")
-            ),
-        ),
+        itemIds = listOf("1", "10", "9"),
         createdAt = "08/03/2025"
     )
     user.addOutfit(summerLook, listOf("Busines Casuals", "Casuals"))

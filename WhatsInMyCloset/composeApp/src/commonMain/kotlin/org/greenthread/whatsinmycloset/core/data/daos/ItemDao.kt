@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import org.greenthread.whatsinmycloset.core.persistence.ItemEntity
+import org.greenthread.whatsinmycloset.core.persistence.ItemPosition
 
 @Dao
 interface ItemDao {
@@ -31,4 +32,14 @@ interface ItemDao {
 
     @Delete
     suspend fun delete(item: ItemEntity)
+
+    // Function to fetch item positions for an outfit
+    @Query("""
+        SELECT itemId, position FROM outfit_item_join
+        WHERE outfitId = :outfitId
+    """)
+    suspend fun getItemPositionsForOutfit(outfitId: String): List<ItemPosition>
+
+    @Query("SELECT * FROM items WHERE id = :itemId")
+    suspend fun getItemById(itemId: String): ItemEntity?
 }

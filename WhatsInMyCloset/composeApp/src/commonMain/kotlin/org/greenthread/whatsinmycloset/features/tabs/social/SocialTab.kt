@@ -31,26 +31,7 @@ fun SocialTabScreen(user: User?, onNavigate: (String) -> Unit) {
         // Create a user profile
         val currentUser = user
 
-        val testClothingItems = listOf(
-            ClothingItem(
-                id = "1",
-                name = "Red Sweater",
-                wardrobeId = "1",
-                itemType = ClothingCategory.TOPS,
-                mediaUrl = "url_to_sweater.png", // Local resource key or remote URL
-                tags= listOf("red", "casual"),
-                createdAt = "20202020"
-            ),
-            ClothingItem(
-                id = "2",
-                name = "Pink Pattern Leggings",
-                wardrobeId = "1",
-                itemType = ClothingCategory.BOTTOMS,
-                mediaUrl = "url_to_leggings.png", // Local resource key or remote URL
-                tags= listOf("pink", "casual"),
-                createdAt = "20202020"
-            )
-        )
+        val testItemIds = listOf("9", "2", "15")
 
         // Generate outfits
         for (i in 0 until 10) {
@@ -62,7 +43,7 @@ fun SocialTabScreen(user: User?, onNavigate: (String) -> Unit) {
                     favorite = true,
                     mediaURL = "",
                     name = "Look${i}",
-                    items = testClothingItems,
+                    itemIds = testItemIds,
                     createdAt = "08/03/2025"
                 )
             currentUser?.addOutfit(newLook, listOf("Public Outfits", "Fancy"))

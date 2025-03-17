@@ -15,12 +15,12 @@ import org.greenthread.whatsinmycloset.core.persistence.toClothingItem
 class Outfit(
     val id: String,
     val userId: Int? = null,    // matches with User class
-    val public: Boolean,
-    val favorite: Boolean,
+    val public: Boolean = false,
+    val favorite: Boolean = false,
     val mediaURL: String = "",
     val name: String = "",
     val tags: List<String>? = null,
-    val items: List<ClothingItem>,
+    val itemIds: List<String>, // Store item IDs instead of full objects
     val itemPositions: Map<String, OffsetData> = emptyMap(), // Map of item IDs to their positions
     val createdAt: String = Clock.System.now().toLocalDateTime(
         TimeZone.currentSystemDefault()).toString()
@@ -35,7 +35,7 @@ class Outfit(
             mediaURL = mediaURL,
             name = name,
             tags = tags,
-            items = items,
+            itemIds = itemIds,
             itemPositions = itemPositions,
             createdAt = createdAt
         )
@@ -51,23 +51,6 @@ class Outfit(
             mediaURL = mediaURL,
             name = name,
             tags = tags,
-            itemPositions = itemPositions,
-            createdAt = createdAt
-        )
-    }
-
-    // Update tags
-    fun updateTags(newTags: List<String>): Outfit {
-        return Outfit(
-            id = id,
-            userId = userId,
-            public = public,
-            favorite = favorite,
-            mediaURL = mediaURL,
-            name = name,
-            tags = newTags,
-            items = items,
-            itemPositions = itemPositions,
             createdAt = createdAt
         )
     }

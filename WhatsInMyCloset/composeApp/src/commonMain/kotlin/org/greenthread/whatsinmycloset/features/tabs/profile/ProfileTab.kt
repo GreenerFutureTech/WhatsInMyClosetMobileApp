@@ -58,22 +58,7 @@ fun ProfileTabScreen(userState: StateFlow<User?>, onNavigate: () -> Unit) {
                 favorite = true,
                 mediaURL = "",
                 name = "Summer Look",
-                items = listOf(
-                    ClothingItem(
-                        id = "1",
-                        name = "Blue Top",
-                        itemType = ClothingCategory.TOPS,
-                        mediaUrl = null,
-                        tags = listOf("casual", "summer")
-                    ),
-                    ClothingItem(
-                        id = "2",
-                        name = "Denim Jeans",
-                        itemType = ClothingCategory.BOTTOMS,
-                        mediaUrl = null,
-                        tags = listOf("casual", "summer")
-                    ),
-                ),
+                itemIds = listOf("1", "2"),
                 createdAt = "08/03/2025"
             )
         }

@@ -18,7 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import org.greenthread.whatsinmycloset.core.domain.models.Account
+//import org.greenthread.whatsinmycloset.core.domain.models.Account
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.domain.models.generateSampleClothingItems
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.LazyGridColourBox
@@ -32,7 +32,7 @@ import whatsinmycloset.composeapp.generated.resources.Res
 import whatsinmycloset.composeapp.generated.resources.add_friend_button
 import whatsinmycloset.composeapp.generated.resources.this_week_outfits_title
 
-@Composable
+/*@Composable
 fun FriendProfileScreen() {
     var showContent by remember { mutableStateOf(false) }
     // Create a user profile
@@ -109,7 +109,7 @@ fun FriendProfileScreen() {
             LazyGridColourBox(items = randomItems)
         }
     }
-}
+}*/
 
 @Composable
 fun ManageFriendButton(onClick: () -> Unit, action: StringResource) {

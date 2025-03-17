@@ -54,11 +54,6 @@ fun OutfitScreen(
 ) {
 
     WhatsInMyClosetTheme {
-        // for testing - populate the categories with random items
-        val allCategories = ClothingCategory.values()
-        val categoryItemsMap = allCategories.associateWith { category ->
-            generateRandomClothingItems(category.toString(), 18)
-        }
 
         // Track selected wardrobe in the Composable
         var selectedWardrobe by remember { mutableStateOf(clothingItemViewModel.defaultWardrobe) }
@@ -67,9 +62,10 @@ fun OutfitScreen(
         LaunchedEffect(selectedWardrobe) {
             println("DEBUG: Initializing clothing items for wardrobe: ${selectedWardrobe?.wardrobeName}...")
 
-            val allItems = categoryItemsMap.values.flatten() // Combine all category items
+            // fetch items for selected wardrobe
             if (selectedWardrobe != null) {
-                clothingItemViewModel.initializeClothingItems(allItems, selectedWardrobe!!.id)
+                // For each category, fetch items for the selected wardrobe
+                clothingItemViewModel.getItemsByCategoryAndWardrobe("Tops", selectedWardrobe)
             }
         }
 
@@ -142,7 +138,7 @@ fun OutfitScreen(
                             Button(
                                 onClick = {
                                     // Create the outfit, pass selected items
-                                    outfitViewModel.createOutfit(selectedItems)
+                                    outfitViewModel.createOutfit(name="New Outfit") // allow user to add a name
 
                                     // Navigate to the OutfitSaveScreen
                                     navController.navigate(
@@ -645,14 +641,19 @@ fun CategoryItemDetailScreen(
 
 ) {
 
-    // Fetch the item details from the ViewModel using both itemId and category
-    val selectedItem = remember(wardrobeId, itemId, category) {
-        viewModel.getClothingItemDetails(wardrobeId, itemId, category)
-    }
+    // State to hold the selected item
+    var selectedItem by remember { mutableStateOf<ClothingItem?>(null) }
 
-    // Fetch the wardrobe name using the wardrobeId from the selected item
-    val wardrobeName = remember(selectedItem) {
-        viewModel.wardrobes.value.find { it.id == selectedItem?.wardrobeId }?.wardrobeName
+    // State to hold the wardrobe name
+    var wardrobeName by remember { mutableStateOf("Unknown Wardrobe") }
+
+    // Fetch the item details when the screen is first launched
+    LaunchedEffect(wardrobeId, itemId, category) {
+        val item = viewModel.getItemDetail(wardrobeId, itemId, category)
+        selectedItem = item
+
+        // Fetch the wardrobe name using the wardrobeId from the selected item
+        wardrobeName = viewModel.wardrobes.value.find { it.id == item?.wardrobeId }?.wardrobeName
             ?: "Unknown Wardrobe"
     }
 
@@ -704,7 +705,7 @@ fun CategoryItemDetailScreen(
             // Display the clothing item image
             Image(
                 painter = painterResource(Res.drawable.top1), // Using dynamic resource
-                contentDescription = selectedItem.name,
+                contentDescription = selectedItem!!.name,
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxSize()

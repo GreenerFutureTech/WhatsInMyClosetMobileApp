@@ -10,6 +10,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.LocalDate
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
+import org.greenthread.whatsinmycloset.core.domain.models.OffsetData
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.persistence.OutfitItemJoin
@@ -58,40 +59,38 @@ open class OutfitManager(
     // Create a new outfit
     open suspend fun createOutfit(
         name: String,
-        clothingItems: List<ClothingItem>,
+        itemIds: List<String>,
         tags: List<String> = emptyList(),
         isPublic: Boolean = false,
         favourite: Boolean = true
     ): Outfit {
         val userId = currentUser?.id ?: throw IllegalStateException("User ID is required")
+
         return Outfit(
             id = generateOutfitId(), // Generate a unique ID for the outfit
             name = name,
             userId = userId,
-            items = clothingItems,
+            itemIds = itemIds,
             tags = tags,
             public = isPublic,
             favorite = favourite
         )
     }
 
-    suspend fun saveOutfit(outfit: Outfit, selectedTags: List<String>?) {
-
-        // convert outfit domain to outfit entity
+    suspend fun saveOutfit(outfit: Outfit) {
+        // Convert the Outfit domain model to OutfitEntity
         val outfitEntity = outfit.toEntity(outfit.userId)
 
-        // save outfit entity to db
+        // Save the outfit entity to the database
         outfitRepository.insertOutfit(outfitEntity)
 
         // Save the relationship between the outfit and its items
-        outfit.items.forEach { item ->
-            // join items to outfit when saving (many-to-many relationship)
-            outfitRepository.insertOutfitItemJoin(OutfitItemJoin(outfit.id, item.id))
-        }
+        outfit.itemIds.forEach { itemId ->
+            // Get the position for this itemId
+            val position = outfit.itemPositions[itemId] ?: OffsetData(0f, 0f) // Default position if not found
 
-        // Update tags if provided
-        if (selectedTags != null) {
-            outfitTags.updateTags(selectedTags.toSet())
+            // Join items to outfit when saving (many-to-many relationship)
+            outfitRepository.insertOutfitItemJoin(OutfitItemJoin(outfit.id, itemId, position))
         }
 
         // Update the cached list of outfits

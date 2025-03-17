@@ -1,4 +1,4 @@
-package org.greenthread.whatsinmycloset.social
+/*package org.greenthread.whatsinmycloset.social
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
@@ -8,4 +8,4 @@ import org.greenthread.whatsinmycloset.features.tabs.profile.FriendProfileScreen
 @Preview(showSystemUi = true, showBackground = true)
 fun FriendProfilePreview() {
     FriendProfileScreen()
-}
+}*/

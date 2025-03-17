@@ -28,6 +28,7 @@ open class OutfitViewModel
     instead of being instantiated directly */
     private val outfitManager: OutfitManager,
     private val outfitTags: OutfitTags,
+    private val clothingItemViewModel: ClothingItemViewModel,
     private val itemDao: ItemDao // Inject ItemDao to fetch items dynamically
     )
     : ViewModel()
@@ -129,12 +130,14 @@ open class OutfitViewModel
     fun saveOutfit(selectedTags: List<String>) {
         viewModelScope.launch {
             // Get the current outfit being created
-            // This is the outfit user now wants to save
             val currentOutfit = _currentOutfit.value
             if (currentOutfit == null) {
                 // Handle the case where there is no current outfit
                 return@launch
             }
+
+            // Extract item IDs from the selected clothing items
+            val itemIds = _clothingItems.value.map { it.id }
 
             // Update the outfit with the temporary positions
             val updatedOutfit = Outfit(
@@ -142,14 +145,19 @@ open class OutfitViewModel
                 userId = currentOutfit.userId,
                 name = currentOutfit.name,
                 public = currentOutfit.public,
-                items = _clothingItems.value, // Use the current list of clothing items
+                itemIds = itemIds, // Pass item IDs
                 favorite = currentOutfit.favorite,
                 tags = currentOutfit.tags,
                 itemPositions = _temporaryPositions.value // Include item positions
             )
 
+            // Update tags so next time user opens the save screen newly added tags are present
+            if (selectedTags != null) {
+                outfitTags.updateTags(selectedTags.toSet())
+            }
+
             // Delegate saving operation to OutfitManager
-            outfitManager.saveOutfit(updatedOutfit, selectedTags)
+            outfitManager.saveOutfit(updatedOutfit)
 
             // Clear temporary positions after saving
             _temporaryPositions.value = emptyMap()
@@ -170,16 +178,19 @@ open class OutfitViewModel
 
     // Create an outfit using outfit manager
     open fun createOutfit(
-        clothingItems: List<ClothingItem>,
         name: String = "",
         tags: List<String> = emptyList(),
         isPublic: Boolean = false,
         favourite: Boolean = false
     ) {
+
+        // Get the selected item IDs from the ClothingItemViewModel
+        val selectedItemIds = clothingItemViewModel.selectedItems.value.map{it.id}
+
         viewModelScope.launch {
             val outfit = outfitManager.createOutfit(
                 name = name,
-                clothingItems = clothingItems,
+                itemIds  = selectedItemIds,
                 tags = tags,
                 isPublic = isPublic,
                 favourite = favourite

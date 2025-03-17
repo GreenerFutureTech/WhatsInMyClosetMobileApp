@@ -17,6 +17,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import org.greenthread.whatsinmycloset.core.domain.models.OffsetData
 
 @Entity(
     tableName = "outfit_item_join",
@@ -39,5 +40,11 @@ import androidx.room.PrimaryKey
 )
 data class OutfitItemJoin(
     val outfitId: String, // Foreign key to OutfitEntity
-    val itemId: String    // Foreign key to ItemEntity
+    val itemId: String,   // Foreign key to ItemEntity
+    val position: OffsetData // Position of the item in the outfit
+)
+
+data class ItemPosition(
+    val itemId: String,
+    val position: OffsetData
 )

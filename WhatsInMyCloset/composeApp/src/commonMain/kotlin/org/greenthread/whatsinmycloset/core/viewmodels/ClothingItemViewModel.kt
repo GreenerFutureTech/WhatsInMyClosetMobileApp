@@ -33,11 +33,6 @@ ViewModel() {
     private val _wardrobes = MutableStateFlow<List<Wardrobe>>(emptyList())
     val wardrobes: StateFlow<List<Wardrobe>> = _wardrobes.asStateFlow()
 
-    private val _clothingItems = MutableStateFlow<List<ClothingItem>>(emptyList())
-
-    // all items that will be displayed for the selected category
-    val clothingItems: StateFlow<List<ClothingItem>> = _clothingItems.asStateFlow()
-
     private val _selectedItems = MutableStateFlow<List<ClothingItem>>(emptyList())
 
     // all selected items that from the selected category
@@ -64,18 +59,18 @@ ViewModel() {
         _selectedItems.value = (_selectedItems.value + items).distinctBy { it.id to it.itemType }
     }
 
-    // Fetch the details of a specific clothing item by its ID
-    // this info will come from DB eventually
-    fun getClothingItemDetails
-                (wardrobeId: String, itemId: String, category: ClothingCategory)
-    : ClothingItem?
-    {
+    // Fetch the details of a specific clothing item by its ID, wardrobeId, and category
+    suspend fun getItemDetail(wardrobeId: String, itemId: String, category: ClothingCategory): ClothingItem? {
         println("DEBUG, Searching for item: id=$itemId, category=$category, wardrobeId=$wardrobeId")
-        println("DEBUG, Current items: ${_clothingItems.value}")
 
-        // Get the item from all items that match the ID, category, and wardrobe ID
-        return _clothingItems.value.find { item ->
-            item.id == itemId && item.itemType == category && item.wardrobeId == wardrobeId
+        // Fetch the item from the database using ItemDao
+        val itemEntity = itemDao.getItemById(itemId)
+
+        // If the item exists and matches the wardrobeId and category, convert it to ClothingItem
+        return if (itemEntity != null && itemEntity.wardrobeId == wardrobeId && itemEntity.itemType == category.toString()) {
+            itemEntity.toClothingItem()
+        } else {
+            null
         }
     }
 
@@ -117,16 +112,8 @@ ViewModel() {
             }
         }
     }
-
-    // Function to initialize clothing items for each wardrobe
-    fun initializeClothingItems(newItems: List<ClothingItem>, wardrobeId: String) {
-        val updatedItems = newItems.map { it.copy(wardrobeId = wardrobeId) } // Associate items with the wardrobe
-        _clothingItems.value = _clothingItems.value + updatedItems
-    }
-
     // Clear selected items
     fun clearClothingItemState() {
-        _clothingItems.value = emptyList()
         _selectedItems.value = emptyList()
     }
 

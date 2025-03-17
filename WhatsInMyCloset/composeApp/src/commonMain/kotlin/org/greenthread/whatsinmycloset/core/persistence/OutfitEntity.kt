@@ -25,19 +25,24 @@ data class OutfitEntity(
     val mediaURL: String = "",
     val name: String = "", // Name of the outfit (e.g., "Summer Look")
     val tags: List<String>? = null,
-    val itemPositions: Map<String, OffsetData>?, // This will be converted to JSON
     val createdAt: String = ""
 )
 
 suspend fun OutfitEntity.toOutfit(itemDao: ItemDao): Outfit {
     val itemEntities = itemDao.getItemsForOutfit(outfitId) // fetches the associated items using the join table
-    val items = itemEntities.map { it.toClothingItem() } // map ItemEntity to ClothingItem
+
+    val itemPositionsList = itemDao.getItemPositionsForOutfit(outfitId) // Fetch positions as List<ItemPosition>
+
+    // Convert List<ItemPosition> to Map<String, OffsetData>
+    val itemPositions = itemPositionsList.associate { it.itemId to it.position }
+
     return Outfit(
         id = outfitId,
         userId = userId,
         name = name,
         public = public,
-        items = items,
+        itemIds = itemEntities.map { it.id },
+        itemPositions = itemPositions,
         favorite = favorite,
         tags = tags
     )

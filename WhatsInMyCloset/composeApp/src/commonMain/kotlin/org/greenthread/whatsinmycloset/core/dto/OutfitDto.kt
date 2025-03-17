@@ -21,8 +21,7 @@ data class OutfitDto(
     val mediaURL: String = "",
     val name: String = "", // Name of the outfit (e.g., "Summer Look")
     val tags: List<String>? = null,
-    val items: List<ClothingItem>, // use the ClothingItem class as an outfit will consist of
-    // one or more clothing items
+    val itemIds: List<String>, // Store item IDs instead of full objects
     val itemPositions: Map<String, OffsetData>, // Include item positions
     val createdAt: String = ""
 )
@@ -36,7 +35,6 @@ fun OutfitDto.toEntity(userId: Int): OutfitEntity {
         mediaURL = mediaURL,
         name = name,
         tags = tags,
-        itemPositions = itemPositions,
         createdAt = createdAt
     )
 }
