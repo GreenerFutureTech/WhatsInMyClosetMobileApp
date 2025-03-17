@@ -169,7 +169,6 @@ open class OutfitViewModel
 
     // when user clicks on "Create New Outfit" button
     // Discard the current outfit and clear selected clothing items
-    // Discard the current outfit and clear selected clothing items
     open fun discardCurrentOutfit() {
         _currentOutfit.value = null
         _clothingItems.value = emptyList() // Clear selected clothing items
@@ -179,13 +178,14 @@ open class OutfitViewModel
     // Create an outfit using outfit manager
     open fun createOutfit(
         name: String = "",
+        selectedItems: List<ClothingItem>,
         tags: List<String> = emptyList(),
         isPublic: Boolean = false,
         favourite: Boolean = false
     ) {
 
-        // Get the selected item IDs from the ClothingItemViewModel
-        val selectedItemIds = clothingItemViewModel.selectedItems.value.map{it.id}
+        /// Extract item IDs from the selected items
+        val selectedItemIds = selectedItems.map { it.id }
 
         viewModelScope.launch {
             val outfit = outfitManager.createOutfit(

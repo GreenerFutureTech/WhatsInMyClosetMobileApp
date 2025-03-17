@@ -74,6 +74,17 @@ ViewModel() {
         }
     }
 
+    // get selected item details - for testing
+    fun getItemDetailTest(itemId: String): ClothingItem? {
+        println("DEBUG, Searching for item: id=$itemId")
+
+        // Get the current list of categoryItems
+        val items = _categoryItems.value
+
+        // Find the item with the matching itemId
+        return items.find { it.id == itemId }
+    }
+
     val sampleWardrobes = listOf(
         WardrobeEntity(
             id = "123",
@@ -115,6 +126,32 @@ ViewModel() {
     // Clear selected items
     fun clearClothingItemState() {
         _selectedItems.value = emptyList()
+    }
+
+    fun fetchSampleClothingItems() {
+        viewModelScope.launch {
+            val sampleItems = listOf(
+                ClothingItem(
+                    id = "1",
+                    name = "Test Shirt",
+                    mediaUrl = "https://greenthreaditems.blob.core.windows.net/images/test_shirt.png",
+                    itemType = ClothingCategory.TOPS
+                ),
+                ClothingItem(
+                    id = "2",
+                    name = "Test Pants",
+                    mediaUrl = "https://greenthreaditems.blob.core.windows.net/images/test_pants.png",
+                    itemType = ClothingCategory.BOTTOMS
+                ),
+                ClothingItem(
+                    id = "3",
+                    name = "Test Hat",
+                    mediaUrl = "https://greenthreaditems.blob.core.windows.net/images/test_hat.png",
+                    itemType = ClothingCategory.ACCESSORIES
+                )
+            )
+            _categoryItems.value = sampleItems
+        }
     }
 
 }
