@@ -58,7 +58,7 @@ sealed interface Routes {
     data object MessageListScreen : Routes
 
     @Serializable
-    data class ChatScreen(val userId: String) : Routes
+    data object ChatScreen : Routes
 
     @Serializable
     data class WardrobeItemsScreen(val id: String) : Routes

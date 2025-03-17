@@ -7,6 +7,5 @@ data class MessageListState(
     val isLoading: Boolean = true,
     val getLatestMessageResults: List<MessageDto> = emptyList(),
     val getUserInfo: UserDto? = null,
-    //val getOtherUserInfo: UserDto? = null,
     val getChatHistory: List<MessageDto> = emptyList()
 )
