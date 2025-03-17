@@ -137,6 +137,14 @@ actual fun subjectSegmentation(byteArray: ByteArray, onResult: (ImageBitmap?) ->
         }
 }
 
+actual fun bitmapToByteArray(bitmap: Any): ByteArray {
+    val bitmapBMP = bitmap as Bitmap
+
+    val stream = ByteArrayOutputStream()
+    bitmapBMP.compress(Bitmap.CompressFormat.PNG, 100, stream) // Choose PNG, JPEG, or WEBP
+    return stream.toByteArray()
+}
+
 actual class DatabaseFactory(
     private val context: Context
 ) {

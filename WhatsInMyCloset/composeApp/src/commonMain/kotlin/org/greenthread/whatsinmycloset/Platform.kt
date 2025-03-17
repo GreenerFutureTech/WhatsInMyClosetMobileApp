@@ -22,6 +22,8 @@ expect fun ByteArray.toBitmap(): Any
 
 expect fun subjectSegmentation(byteArray: ByteArray, onResult: (ImageBitmap?) -> Unit)
 
+expect fun bitmapToByteArray(bitmap: Any): ByteArray
+
 // The Room compiler generates the `actual` implementations.
 @Suppress("NO_ACTUAL_FOR_EXPECT")
 expect object AppDatabaseConstructor : RoomDatabaseConstructor<MyClosetDatabase> {

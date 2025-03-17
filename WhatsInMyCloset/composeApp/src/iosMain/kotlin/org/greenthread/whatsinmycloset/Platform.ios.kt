@@ -44,6 +44,15 @@ actual fun ByteArray.toBitmap(): Any {
     return ImageBitmap(10,10)
 }
 
+actual fun bitmapToByteArray(bitmap: Any): ByteArray {
+/*    val bitmapBMP = bitmap as Bitmap
+
+    val stream = ByteArrayOutputStream()
+    bitmapBMP.compress(Bitmap.CompressFormat.PNG, 100, stream) // Choose PNG, JPEG, or WEBP
+    return stream.toByteArray()*/
+    return ByteArray(0)
+}
+
 actual fun subjectSegmentation(byteArray: ByteArray, onResult: (ImageBitmap?) -> Unit) {
     return
 }
