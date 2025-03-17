@@ -103,7 +103,7 @@ fun byteArrayToBitmap(byteArray: ByteArray): Bitmap? {
     return bitmap
 }
 
-actual fun subjectSegmentation(byteArray: ByteArray, onResult: (ImageBitmap?) -> Unit) {
+actual fun subjectSegmentation(byteArray: ByteArray, onResult: (ByteArray?) -> Unit) {
 
     val bitmap = byteArrayToBitmap(byteArray)
     if (bitmap == null) {
@@ -130,14 +130,14 @@ actual fun subjectSegmentation(byteArray: ByteArray, onResult: (ImageBitmap?) ->
                 bmp.copyPixelsToBuffer(byteBuffer)
                 byteBuffer.array()
             } */
-            onResult(foregroundBitmap?.asImageBitmap()) // Pass the result to the callback
+            onResult(bitmapToByteArray(foregroundBitmap)) // Pass the result to the callback
         }
         .addOnFailureListener {
             onResult(null) // Pass null on failure
         }
 }
 
-actual fun bitmapToByteArray(bitmap: Any): ByteArray {
+actual fun bitmapToByteArray(bitmap: Any?): ByteArray {
     val bitmapBMP = bitmap as Bitmap
 
     val stream = ByteArrayOutputStream()

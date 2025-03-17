@@ -44,7 +44,7 @@ actual fun ByteArray.toBitmap(): Any {
     return ImageBitmap(10,10)
 }
 
-actual fun bitmapToByteArray(bitmap: Any): ByteArray {
+actual fun bitmapToByteArray(bitmap: Any?): ByteArray {
 /*    val bitmapBMP = bitmap as Bitmap
 
     val stream = ByteArrayOutputStream()
@@ -53,7 +53,7 @@ actual fun bitmapToByteArray(bitmap: Any): ByteArray {
     return ByteArray(0)
 }
 
-actual fun subjectSegmentation(byteArray: ByteArray, onResult: (ImageBitmap?) -> Unit) {
+actual fun subjectSegmentation(byteArray: ByteArray, onResult: (ByteArray?) -> Unit) {
     return
 }
 

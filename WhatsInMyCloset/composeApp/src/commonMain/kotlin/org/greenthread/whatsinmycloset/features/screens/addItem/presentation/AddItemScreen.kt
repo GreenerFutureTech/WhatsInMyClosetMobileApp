@@ -63,7 +63,8 @@ fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManage
                 subjectSegmentation(imageBytes) { result ->
                     if (result != null) {
                         println("Segmentation successful!")
-                        bitmap = result  // ✅ Triggers recomposition once
+                        itemImage = result
+                        bitmap = result.toImageBitmap()  // ✅ Triggers recomposition once
                     } else {
                         println("Segmentation failed!")
                     }
@@ -108,7 +109,7 @@ fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManage
             Image(
                 bitmap = img,
                 contentDescription = "Captured Image",
-                modifier = Modifier.size(300.dp)
+                modifier = Modifier.size(225.dp)
             )
         }
 
