@@ -28,8 +28,6 @@ data class ItemEntity(
     val itemType: String,   // category (Tops, Bottoms, Footwear and Accessories)
     val mediaUrl: String,
     val tags: List<String>, // Converts Room 'simple-array' to List<String>
-    val position: OffsetData? = null, // Add position data (X, Y values, if this item is part of an outfit)
-    val temporaryPosition: OffsetData? = null,
     val createdAt: String
 )
 
@@ -41,8 +39,6 @@ fun ItemEntity.toClothingItem(): ClothingItem {
         itemType = ClothingCategory.fromString(this.itemType),
         mediaUrl = this.mediaUrl,
         tags = this.tags,
-        position = this.position,
-        temporaryPosition = this.temporaryPosition,
         createdAt = this.createdAt
     )
 }

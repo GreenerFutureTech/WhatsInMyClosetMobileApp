@@ -28,8 +28,7 @@ open class OutfitViewModel
     instead of being instantiated directly */
     private val outfitManager: OutfitManager,
     private val outfitTags: OutfitTags,
-    private val itemDao: ItemDao, // Inject ItemDao to fetch items dynamically
-    savedStateHandle: SavedStateHandle? = null
+    private val itemDao: ItemDao // Inject ItemDao to fetch items dynamically
     )
     : ViewModel()
 {
@@ -127,37 +126,30 @@ open class OutfitViewModel
     }
 
     // Save the outfit and finalize item positions
-    fun saveOutfit(outfit: OutfitEntity, selectedTags: List<String>) {
+    fun saveOutfit(selectedTags: List<String>) {
         viewModelScope.launch {
-            // Fetch the items dynamically for the outfit using ItemDao
-            val itemEntities = itemDao.getItemsForWardrobe("1")
-
-            // Convert ItemEntity to ClothingItem
-            val clothingItems = itemEntities.map { it.toClothingItem() }
-
-            // Apply temporary positions to the outfit's items
-            val updatedItems = clothingItems.map { item ->
-                val temporaryPosition = _temporaryPositions.value[item.id]
-                if (temporaryPosition != null) {
-                    item.copy(temporaryPosition = temporaryPosition) // Update the item's position
-                } else {
-                    item
-                }
+            // Get the current outfit being created
+            // This is the outfit user now wants to save
+            val currentOutfit = _currentOutfit.value
+            if (currentOutfit == null) {
+                // Handle the case where there is no current outfit
+                return@launch
             }
 
-            // Convert OutfitEntity to Outfit using the fetched items
-            val outfitDomain = Outfit(
-                id = outfit.outfitId,
-                userId = outfit.userId,
-                name = outfit.name,
-                public = outfit.public,
-                items = updatedItems,
-                favorite = outfit.favorite,
-                tags = outfit.tags
+            // Update the outfit with the temporary positions
+            val updatedOutfit = Outfit(
+                id = currentOutfit.outfitId,
+                userId = currentOutfit.userId,
+                name = currentOutfit.name,
+                public = currentOutfit.public,
+                items = _clothingItems.value, // Use the current list of clothing items
+                favorite = currentOutfit.favorite,
+                tags = currentOutfit.tags,
+                itemPositions = _temporaryPositions.value // Include item positions
             )
 
             // Delegate saving operation to OutfitManager
-            outfitManager.saveOutfit(outfitDomain, selectedTags)
+            outfitManager.saveOutfit(updatedOutfit, selectedTags)
 
             // Clear temporary positions after saving
             _temporaryPositions.value = emptyMap()

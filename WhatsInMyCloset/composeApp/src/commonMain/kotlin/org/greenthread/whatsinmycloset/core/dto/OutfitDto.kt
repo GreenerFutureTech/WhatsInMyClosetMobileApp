@@ -2,6 +2,7 @@ package org.greenthread.whatsinmycloset.core.dto
 
 import kotlinx.serialization.Serializable
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
+import org.greenthread.whatsinmycloset.core.domain.models.OffsetData
 import org.greenthread.whatsinmycloset.core.persistence.OutfitEntity
 
 /*
@@ -22,6 +23,7 @@ data class OutfitDto(
     val tags: List<String>? = null,
     val items: List<ClothingItem>, // use the ClothingItem class as an outfit will consist of
     // one or more clothing items
+    val itemPositions: Map<String, OffsetData>, // Include item positions
     val createdAt: String = ""
 )
 
@@ -34,6 +36,7 @@ fun OutfitDto.toEntity(userId: Int): OutfitEntity {
         mediaURL = mediaURL,
         name = name,
         tags = tags,
+        itemPositions = itemPositions,
         createdAt = createdAt
     )
 }

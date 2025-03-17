@@ -26,10 +26,6 @@ interface OutfitDao {
     @Insert
     suspend fun insertOutfit(outfit: OutfitEntity)
 
-    // Insert a clothing item
-    @Insert
-    suspend fun insertItem(item: ItemEntity)
-
     // Insert a relationship between an outfit and a clothing item
     @Insert
     suspend fun insertOutfitItemJoin(join: OutfitItemJoin)

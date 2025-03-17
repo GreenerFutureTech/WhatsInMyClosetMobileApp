@@ -28,7 +28,7 @@ enum class DefaultTags(val tagName: String)
 
 class OutfitTags (
     private val user: User
-) // Pass the logged-in user's account)
+)
 {
     // StateFlow for all tags
     private val _allTags = MutableStateFlow(DefaultTags.getAllTagNames())

@@ -76,7 +76,11 @@ open class OutfitManager(
     }
 
     suspend fun saveOutfit(outfit: Outfit, selectedTags: List<String>?) {
+
+        // convert outfit domain to outfit entity
         val outfitEntity = outfit.toEntity(outfit.userId)
+
+        // save outfit entity to db
         outfitRepository.insertOutfit(outfitEntity)
 
         // Save the relationship between the outfit and its items

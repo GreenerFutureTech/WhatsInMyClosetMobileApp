@@ -3,6 +3,7 @@ package org.greenthread.whatsinmycloset.core.domain.models
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlinx.serialization.Serializable
 import org.greenthread.whatsinmycloset.core.data.daos.ItemDao
 import org.greenthread.whatsinmycloset.core.dto.OutfitDto
 import org.greenthread.whatsinmycloset.core.persistence.OutfitEntity
@@ -20,6 +21,7 @@ class Outfit(
     val name: String = "",
     val tags: List<String>? = null,
     val items: List<ClothingItem>,
+    val itemPositions: Map<String, OffsetData> = emptyMap(), // Map of item IDs to their positions
     val createdAt: String = Clock.System.now().toLocalDateTime(
         TimeZone.currentSystemDefault()).toString()
 ) {
@@ -34,6 +36,7 @@ class Outfit(
             name = name,
             tags = tags,
             items = items,
+            itemPositions = itemPositions,
             createdAt = createdAt
         )
     }
@@ -48,6 +51,7 @@ class Outfit(
             mediaURL = mediaURL,
             name = name,
             tags = tags,
+            itemPositions = itemPositions,
             createdAt = createdAt
         )
     }
@@ -63,23 +67,15 @@ class Outfit(
             name = name,
             tags = newTags,
             items = items,
+            itemPositions = itemPositions,
             createdAt = createdAt
         )
     }
 
-    // Add a tag
-    fun addTag(tag: String): Outfit {
-        val updatedTags = tags?.toMutableList() ?: mutableListOf()
-        if (!updatedTags.contains(tag)) {
-            updatedTags.add(tag)
-        }
-        return updateTags(updatedTags)
-    }
-
-    // Remove a tag
-    fun removeTag(tag: String): Outfit {
-        val updatedTags = tags?.toMutableList() ?: mutableListOf()
-        updatedTags.remove(tag)
-        return updateTags(updatedTags)
-    }
 }
+
+@Serializable
+class OffsetData(
+    val x: Float,
+    val y: Float
+)

@@ -42,7 +42,9 @@ val sharedModule = module {
     singleOf(::WardrobeRepository).bind<WardrobeRepository>()
     singleOf(::WardrobeManager).bind<WardrobeManager>()
     singleOf(::UserManager).bind<UserManager>()
-
+    singleOf(::OutfitRepository).bind<OutfitRepository>()
+    singleOf(::OutfitManager).bind<OutfitManager>()
+    singleOf(::OutfitTags).bind<OutfitTags>()
 
     single {
         get<DatabaseFactory>().create()
@@ -63,6 +65,7 @@ val sharedModule = module {
     viewModelOf(::MessageViewModel)
 
     viewModelOf(::ClothingItemViewModel)
+    viewModelOf(::OutfitViewModel)
 
     single {
         User(99999123, "TestName",
@@ -73,25 +76,6 @@ val sharedModule = module {
         registeredAt = "01-01-2025",
         updatedAt = "01-01-2025")
     } // Replace with actual user info
-
-    // Define OutfitRepository
-    single<OutfitRepository> { OutfitRepository(get(), get()) } // Inject OutfitDao and ItemDao
-
-    // Define OutfitManager (depends on OutfitRepository, OutfitTags, and UserManager)
-    single<OutfitManager> { OutfitManager(get(), get(), get()) }
-
-    // Define OutfitTags
-    single { OutfitTags(get()) } // Inject User into OutfitTags
-
-    // Define the OutfitViewModel with explicit parameters
-    viewModel {
-        OutfitViewModel(
-            outfitManager = get(), // Inject the OutfitManager instance
-            outfitTags = get(), // Inject the OutfitTags instance
-            itemDao = get(), // Inject the ItemDao instance
-            savedStateHandle = null // Optional parameter, can be null
-        )
-    }
 }
 
 

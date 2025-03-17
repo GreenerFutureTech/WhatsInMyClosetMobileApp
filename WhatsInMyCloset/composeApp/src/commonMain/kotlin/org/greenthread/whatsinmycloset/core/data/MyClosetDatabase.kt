@@ -15,7 +15,7 @@ import org.greenthread.whatsinmycloset.core.persistence.OutfitItemJoin
 import org.greenthread.whatsinmycloset.core.persistence.WardrobeEntity
 
 @Database(
-    version = 2,    // incremented for room to update hash for new tables created
+    version = 1,    // incremented for room to update hash for new tables created
     entities = [
         WardrobeEntity::class,
         ItemEntity::class,

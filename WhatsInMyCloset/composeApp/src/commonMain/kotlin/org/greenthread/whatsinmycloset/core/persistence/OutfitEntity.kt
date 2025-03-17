@@ -7,6 +7,7 @@ import androidx.room.PrimaryKey
 import org.greenthread.whatsinmycloset.core.data.daos.ItemDao
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
+import org.greenthread.whatsinmycloset.core.domain.models.OffsetData
 
 /* Represents the persistence model for outfits in the Room database.
     Maps between the domain model (Outfit) and the database entity.
@@ -24,6 +25,7 @@ data class OutfitEntity(
     val mediaURL: String = "",
     val name: String = "", // Name of the outfit (e.g., "Summer Look")
     val tags: List<String>? = null,
+    val itemPositions: Map<String, OffsetData>?, // This will be converted to JSON
     val createdAt: String = ""
 )
 
