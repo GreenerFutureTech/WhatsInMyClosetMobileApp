@@ -6,10 +6,30 @@
     <string name="error_no_internet">Couldn't reach server, please check your internet connection.</string>
     <string name="error_too_many_requests">Your quota seems to be exceeded.</string>
     <string name="error_serialization">Couldn't parse data.</string>
+    <string name="my_outfits_title">My Outfits</string>
+    <string name="available_swap_title">Available for Swap</string>
+    <string name="this_week_outfits_title">This Week's Outfits</string>
+    <string name="add_friend_button">Add Friend</string>
+    <string name="remove_friend_button">Remove Friend</string>
+    <string name="friendship_status_already_friends">You're Friends!</string>
+    <string name="friendship_status_pending_request">Request Pending</string>
     <string name="complete_swap">Complete Swap</string>
     <string name="delete">Delete</string>
     <string name="complete_swap_dialog_title">Complete Swap</string>
     <string name="complete_swap_dialog_message">Are you sure you want to complete this swap?</string>
     <string name="delete_swap_dialog_title">Delete Swap</string>
     <string name="delete_swap_dialog_message">Are you sure you want to delete this swap?</string>
+
+    <!-- Home tab strings -->
+    <string name="category_label_tops">Tops</string>
+    <string name="category_label_bottoms">Bottoms</string>
+    <string name="category_label_accessories">Accessories</string>
+    <string name="category_label_footwear">Footwear</string>
+    <string name="categories_section_title">Categories</string>
+    <string name="favourite_section_title">Favourite Outfits</string>
+    <string name="actions_section_title">Actions</string>
+    <string name="see_all_button">See All</string>
+    <string name="create_outfit_button">Create Outfit</string>
+    <string name="outfit_day_button">Outfit of the Day</string>
+    <string name="no_wardrobe_found">No wardrobe found!</string>
 </resources>
