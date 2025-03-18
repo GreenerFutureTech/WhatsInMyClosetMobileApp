@@ -117,9 +117,9 @@ fun SettingsScreen(navController: NavController, loginViewModel: LoginViewModel)
                 title = "Log out",
                 message = "Are you sure you want to log out?",
                 onConfirm = {
-                    showDialogLogout = false;
-                    loginViewModel.userManager.updateUser(null);
-                    navController.navigate(Routes.LoginTab);
+                    showDialogLogout = false
+                    loginViewModel.userManager.updateUser(null)
+                    navController.navigate(Routes.LoginTab)
 
                 },
                 onDismiss = { showDialogLogout = false }
@@ -131,9 +131,9 @@ fun SettingsScreen(navController: NavController, loginViewModel: LoginViewModel)
                 title = "Delete Account",
                 message = "Are you sure you want to delete your account?",
                 onConfirm = {
-                    showDialogDeleteAccount = false;
-                    loginViewModel.userManager.updateUser(null);
-                    navController.navigate(Routes.LoginTab);
+                    showDialogDeleteAccount = false
+                    loginViewModel.userManager.updateUser(null)
+                    navController.navigate(Routes.LoginTab)
                 },
                 onDismiss = { showDialogDeleteAccount = false }
             )
