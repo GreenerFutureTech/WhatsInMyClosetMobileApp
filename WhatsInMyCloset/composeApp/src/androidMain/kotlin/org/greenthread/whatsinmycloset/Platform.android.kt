@@ -121,20 +121,20 @@ actual fun subjectSegmentation(byteArray: ByteArray, onResult: (ByteArray?) -> U
     val segmenter = SubjectSegmentation.getClient(options)
     var foregroundBitmap: Bitmap? = null
 
-    segmenter.process(image)
+/*    segmenter.process(image)
         .addOnSuccessListener { result ->
             foregroundBitmap = result.foregroundBitmap
-            /* val segmentedByteArray = foregroundBitmap?.let { bmp ->
+            *//* val segmentedByteArray = foregroundBitmap?.let { bmp ->
                 val size = bmp.rowBytes * bmp.height
                 val byteBuffer = ByteBuffer.allocate(size)
                 bmp.copyPixelsToBuffer(byteBuffer)
                 byteBuffer.array()
-            } */
+            } *//*
             onResult(bitmapToByteArray(foregroundBitmap)) // Pass the result to the callback
         }
         .addOnFailureListener {
             onResult(null) // Pass null on failure
-        }
+        }*/
 }
 
 actual fun bitmapToByteArray(bitmap: Any?): ByteArray {
