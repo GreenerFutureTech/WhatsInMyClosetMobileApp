@@ -20,10 +20,6 @@ class AddSwapViewModel(
     }
 
     private fun fetchWardrobes() {
-        viewModelScope.launch {
-            _wardrobes.value = wardrobeManager.getWardrobes()
-        }
+        _wardrobes.value = wardrobeManager.cachedWardrobes
     }
-
-
 }
