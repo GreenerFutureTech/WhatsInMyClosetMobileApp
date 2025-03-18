@@ -17,6 +17,10 @@ expect class CameraManager {
     fun TakePhotoButton(onPhotoTaken: (ByteArray) -> Unit)
 }
 
+expect class FCMTokenService {
+    fun getToken(callback: (String?) -> Unit)
+}
+
 expect fun ByteArray.toImageBitmap(): ImageBitmap
 
 // The Room compiler generates the `actual` implementations.

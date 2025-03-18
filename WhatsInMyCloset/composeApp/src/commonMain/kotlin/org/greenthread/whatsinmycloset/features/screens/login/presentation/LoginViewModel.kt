@@ -16,12 +16,14 @@ import org.greenthread.whatsinmycloset.features.screens.login.domain.LoginAction
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.greenthread.whatsinmycloset.FCMTokenService
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 
 
 class LoginViewModel(
     private val userRepository: ClosetRepository,
-    val userManager: UserManager
+    val userManager: UserManager,
+    private val fcmTokenService: FCMTokenService
 ): ViewModel() {
     private val auth = Firebase.auth
     private val _state = mutableStateOf(LoginState())
@@ -42,6 +44,15 @@ class LoginViewModel(
         viewModelScope.launch {
             try {
                 val result = auth.signInWithEmailAndPassword(email, password)
+
+                fcmTokenService.getToken { token ->
+                    if (token != null) {
+                        // Send the token to your backend server
+                        println("FCM Token: $token")
+                    } else {
+                        println("Failed to retrieve FCM token")
+                    }
+                }
 
                 getUser(email)
 

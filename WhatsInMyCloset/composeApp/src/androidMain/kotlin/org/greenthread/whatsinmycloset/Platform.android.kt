@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.google.firebase.messaging.FirebaseMessaging
 import org.greenthread.whatsinmycloset.core.data.MyClosetDatabase
 
 class AndroidPlatform : Platform {
@@ -91,5 +92,19 @@ actual class DatabaseFactory(
             context = appContext,
             name = dbFile.absolutePath
         )
+    }
+}
+
+actual class FCMTokenService(
+    private val context: Context
+) {
+    actual fun getToken(callback: (String?) -> Unit) {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                callback(task.result)
+            } else {
+                callback(null)
+            }
+        }
     }
 }

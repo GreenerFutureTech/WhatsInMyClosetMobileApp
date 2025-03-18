@@ -10,6 +10,8 @@ import org.greenthread.whatsinmycloset.core.data.MyClosetDatabase
 import platform.UIKit.UIDevice
 import platform.UIKit.*
 
+// NEED TO FIX THIS
+
 class IOSPlatform: Platform {
     override val name: String = "iOS"
 }
@@ -35,6 +37,11 @@ actual fun ByteArray.toImageBitmap(): ImageBitmap {
     //val nsData = this.toNSData()
     //val uiImage = UIImage(data = nsData)
     return ImageBitmap(10,10)
+}
+
+actual class FCMTokenService {
+    actual fun getToken(callback: (String?) -> Unit) {
+    }
 }
 
 actual class DatabaseFactory {

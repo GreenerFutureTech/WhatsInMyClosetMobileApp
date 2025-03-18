@@ -119,8 +119,10 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.identity.jvm)
     implementation(libs.androidx.core.ktx)
+    implementation(libs.firebase.messaging.ktx)
     debugImplementation(compose.uiTooling)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
+    implementation(platform("com.google.firebase:firebase-bom:33.10.0"))
 }
 
 

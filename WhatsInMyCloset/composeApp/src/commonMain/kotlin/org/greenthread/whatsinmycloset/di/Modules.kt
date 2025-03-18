@@ -2,6 +2,7 @@ package org.greenthread.whatsinmycloset.di
 
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import org.greenthread.whatsinmycloset.DatabaseFactory
+import org.greenthread.whatsinmycloset.FCMTokenService
 import org.greenthread.whatsinmycloset.core.data.HttpClientFactory
 import org.greenthread.whatsinmycloset.core.data.MyClosetDatabase
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
@@ -39,7 +40,6 @@ val sharedModule = module {
     singleOf(::WardrobeRepository).bind<WardrobeRepository>()
     singleOf(::WardrobeManager).bind<WardrobeManager>()
     singleOf(::UserManager).bind<UserManager>()
-
 
     single {
         get<DatabaseFactory>().create()
