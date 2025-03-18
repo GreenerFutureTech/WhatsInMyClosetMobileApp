@@ -37,9 +37,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import org.greenthread.whatsinmycloset.app.Routes
+import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginViewModel
 
 @Composable
-fun SettingsScreen(navController: NavController) {
+fun SettingsScreen(navController: NavController, loginViewModel: LoginViewModel) {
     var isToggleOn by remember { mutableStateOf(false) }
     var showDialogLogout by remember { mutableStateOf(false) }
     var showDialogDeleteAccount by remember { mutableStateOf(false) }
@@ -114,7 +116,12 @@ fun SettingsScreen(navController: NavController) {
             ConfirmationDialog(
                 title = "Log out",
                 message = "Are you sure you want to log out?",
-                onConfirm = { showDialogLogout = false },
+                onConfirm = {
+                    showDialogLogout = false;
+                    loginViewModel.userManager.updateUser(null);
+                    navController.navigate(Routes.LoginTab);
+
+                },
                 onDismiss = { showDialogLogout = false }
             )
         }
@@ -123,7 +130,11 @@ fun SettingsScreen(navController: NavController) {
             ConfirmationDialog(
                 title = "Delete Account",
                 message = "Are you sure you want to delete your account?",
-                onConfirm = { showDialogDeleteAccount = false },
+                onConfirm = {
+                    showDialogDeleteAccount = false;
+                    loginViewModel.userManager.updateUser(null);
+                    navController.navigate(Routes.LoginTab);
+                },
                 onDismiss = { showDialogDeleteAccount = false }
             )
         }

@@ -21,7 +21,7 @@ import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 
 class LoginViewModel(
     private val userRepository: ClosetRepository,
-    private val userManager: UserManager
+    val userManager: UserManager
 ): ViewModel() {
     private val auth = Firebase.auth
     private val _state = mutableStateOf(LoginState())

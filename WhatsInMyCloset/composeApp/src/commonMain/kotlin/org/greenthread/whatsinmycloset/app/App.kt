@@ -315,8 +315,11 @@ fun App(
                 }
 
                 composable<Routes.SettingsScreen> {
+                    val viewModel: LoginViewModel = koinViewModel()
+
                     SettingsScreen(
-                        navController = navController
+                        navController = navController,
+                        viewModel
                     )
                 }
             }
