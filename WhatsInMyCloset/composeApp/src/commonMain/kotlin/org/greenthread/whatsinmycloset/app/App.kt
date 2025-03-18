@@ -57,6 +57,8 @@ import org.greenthread.whatsinmycloset.features.tabs.home.presentation.HomeTabVi
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabScreen
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabViewModel
 import org.greenthread.whatsinmycloset.features.tabs.social.SocialTabScreen
+import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.AddSwapRoot
+import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.AddSwapViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.ChatScreen
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.MessageListScreen
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.MessageViewModel
@@ -256,7 +258,8 @@ fun App(
                                 navController.navigate(Routes.SwapDetailsScreen(swap.itemId.id))
                             },
                             onAllSwapClick = { navController.navigate(Routes.AllSwapScreen) },
-                            onMessageClick = { navController.navigate(Routes.MessageListScreen)}
+                            onMessageClick = { navController.navigate(Routes.MessageListScreen)},
+                            onAddSwapClick = { navController.navigate(Routes.AddSwapScreen)}
                         )
                     }
 
@@ -271,6 +274,13 @@ fun App(
                                 selectedSwapViewModel.onSelectSwap(swap)
                                 navController.navigate(Routes.SwapDetailsScreen(swap.itemId.id))
                             }
+                        )
+                    }
+
+                    composable<Routes.AddSwapScreen>{
+                        val viewModel: AddSwapViewModel = koinViewModel()
+                        AddSwapRoot(
+                            viewModel = viewModel
                         )
                     }
 

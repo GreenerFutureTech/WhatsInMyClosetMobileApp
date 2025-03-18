@@ -14,6 +14,7 @@ import org.greenthread.whatsinmycloset.core.repository.ClosetRepository
 import org.greenthread.whatsinmycloset.core.repository.DefaultClosetRepository
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SelectedSwapViewModel
+import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.AddSwapViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.MessageViewModel
@@ -54,6 +55,7 @@ val sharedModule = module {
     viewModelOf(::ProfileTabViewModel)
 
     viewModelOf(::SelectedSwapViewModel)
+    viewModelOf(::AddSwapViewModel)
     viewModelOf(::SwapViewModel)
     viewModelOf(::LoginViewModel)
     viewModelOf(::MessageViewModel)

@@ -53,6 +53,10 @@ sealed interface Routes {
     data object ProfileDetailsScreen : Routes
     @Serializable
     data class SwapDetailsScreen(val swap: String) : Routes
+
+    @Serializable
+    data object AddSwapScreen : Routes
+
     @Serializable
     data object SocialDetailsScreen : Routes
 
