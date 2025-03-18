@@ -11,6 +11,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,9 +19,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import org.greenthread.whatsinmycloset.core.domain.models.Account
+import kotlinx.coroutines.flow.StateFlow
+import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
+import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
-import org.greenthread.whatsinmycloset.core.domain.models.generateSampleClothingItems
+import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.LazyGridColourBox
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.LazyRowColourBox
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.generateRandomItems
@@ -33,26 +36,46 @@ import whatsinmycloset.composeapp.generated.resources.add_friend_button
 import whatsinmycloset.composeapp.generated.resources.this_week_outfits_title
 
 @Composable
-fun FriendProfileScreen() {
+fun FriendProfileScreen(userState: StateFlow<User?>, onNavigate: () -> Unit) {
     var showContent by remember { mutableStateOf(false) }
     // Create a user profile
-    val user = Account("friend123", "Monica Geller")
+    val currentUser by userState.collectAsState()
 
     // Generate outfits
-    val numberOfOutfits = 5
+    val numberOfOutfits = 10
     val outfits = List(numberOfOutfits) { i ->
         Outfit(
-            id = "outfit$i",
-            name = "Look$i",
-            itemIds = generateSampleClothingItems()
+            id = "outfit1",
+            userId = "1",
+            public = true,
+            favorite = true,
+            mediaURL = "",
+            name = "Summer Look",
+            items = listOf(
+                ClothingItem(
+                    id = "1",
+                    name = "Blue Top",
+                    itemType = ClothingCategory.TOPS,
+                    mediaUrl = null,
+                    tags = listOf("casual", "summer")
+                ),
+                ClothingItem(
+                    id = "2",
+                    name = "Denim Jeans",
+                    itemType = ClothingCategory.BOTTOMS,
+                    mediaUrl = null,
+                    tags = listOf("casual", "summer")
+                ),
+            ),
+            createdAt = "08/03/2025"
         )
     }
 
     // Add generated outfits to the user
-    outfits.forEach { user.addOutfit(it) }
+    outfits.forEach { currentUser?.addOutfit(it, listOf("Public Outfits", "Fancy")) }
 
-    val randomItems = generateRandomItems(user.getAllOutfits().size) // Generate 10 random items for the preview
-    val swapItems = generateRandomItems(3)
+    val randomItems = generateRandomItems(currentUser?.getAllOutfits()?.size ?: 0) // Get number of outfits
+    val swapItems = generateRandomItems(10)
 
     WhatsInMyClosetTheme {
         Column(
@@ -72,7 +95,7 @@ fun FriendProfileScreen() {
 
                 Column(Modifier.padding(16.dp)) {
                     // Username
-                    Username(user.name)
+                    Username(currentUser?.name ?: "No username found")
 
                     Spacer(modifier = Modifier.height(16.dp))
 

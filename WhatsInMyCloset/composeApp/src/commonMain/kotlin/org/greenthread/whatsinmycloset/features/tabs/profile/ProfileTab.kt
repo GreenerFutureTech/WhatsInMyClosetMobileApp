@@ -45,8 +45,6 @@ fun ProfileTabScreen(userState: StateFlow<User?>, onNavigate: () -> Unit) {
 
     WhatsInMyClosetTheme {
         var showContent by remember { mutableStateOf(false) }
-        // Create a user profile
-        //val user = Account(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
 
         // Generate outfits
         val numberOfOutfits = 10
@@ -63,14 +61,14 @@ fun ProfileTabScreen(userState: StateFlow<User?>, onNavigate: () -> Unit) {
                         id = "1",
                         name = "Blue Top",
                         itemType = ClothingCategory.TOPS,
-                        mediaUrl = null,
+                        mediaUrl = "https://greenthreaditems.blob.core.windows.net/images/c0cefce3-d34a-478b-9645-153af8616daa",
                         tags = listOf("casual", "summer")
                     ),
                     ClothingItem(
                         id = "2",
-                        name = "Denim Jeans",
+                        name = "Black Joggers",
                         itemType = ClothingCategory.BOTTOMS,
-                        mediaUrl = null,
+                        mediaUrl = "https://greenthreaditems.blob.core.windows.net/images/6c8e4696-fa91-4dcc-bc84-424e9953560d",
                         tags = listOf("casual", "summer")
                     ),
                 ),
