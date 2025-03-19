@@ -4,12 +4,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
@@ -28,11 +30,15 @@ import coil3.compose.AsyncImage
 import org.greenthread.whatsinmycloset.core.domain.models.MessageManager
 import org.greenthread.whatsinmycloset.core.dto.MessageUserDto
 import org.greenthread.whatsinmycloset.features.tabs.swap.data.MessageListState
+import org.greenthread.whatsinmycloset.theme.outlineLight
 import org.greenthread.whatsinmycloset.theme.secondaryLight
 import org.greenthread.whatsinmycloset.theme.surfaceDimLight
 import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import whatsinmycloset.composeapp.generated.resources.Res
+import whatsinmycloset.composeapp.generated.resources.no_items_found
+import whatsinmycloset.composeapp.generated.resources.swap_placeholder
 
 @Composable
 fun ChatScreen(
@@ -144,21 +150,22 @@ fun MessageInput(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        TextField(
+        OutlinedTextField(
             value = text,
             onValueChange = { text = it },
             modifier = Modifier
                 .weight(8f)
                 .padding(end = 8.dp)
-                .heightIn(min = 50.dp),
+                .heightIn(min = 40.dp),
+            shape = RoundedCornerShape(100),
             keyboardActions = KeyboardActions {
                 focusManager.clearFocus()
             },
             textStyle = TextStyle(
                 color = Color.Black,
-                fontSize = 18.sp
+                fontSize = 16.sp
             ),
-            placeholder = { Text("Let's Swap!") },
+            placeholder = { Text(stringResource(Res.string.swap_placeholder)) },
             singleLine = false
         )
 
@@ -171,7 +178,7 @@ fun MessageInput(
             },
             modifier = Modifier
                 .weight(2f)
-                .height(50.dp)
+                .height(40.dp)
                 .padding(start = 8.dp),
             shape = CircleShape
         ) {

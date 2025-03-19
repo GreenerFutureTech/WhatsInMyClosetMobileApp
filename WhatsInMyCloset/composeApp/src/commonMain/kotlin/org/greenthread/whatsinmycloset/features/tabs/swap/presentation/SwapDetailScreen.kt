@@ -37,10 +37,9 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import whatsinmycloset.composeapp.generated.resources.Res
-import whatsinmycloset.composeapp.generated.resources.complete_swap
 import whatsinmycloset.composeapp.generated.resources.complete_swap_dialog_message
 import whatsinmycloset.composeapp.generated.resources.complete_swap_dialog_title
-import whatsinmycloset.composeapp.generated.resources.delete
+import whatsinmycloset.composeapp.generated.resources.delete_button
 import whatsinmycloset.composeapp.generated.resources.delete_swap_dialog_message
 import whatsinmycloset.composeapp.generated.resources.delete_swap_dialog_title
 
@@ -84,7 +83,7 @@ fun SwapDetailScreen(
                         DropdownMenuItem(
                             text = {
                                 Text(
-                                    text = stringResource(Res.string.complete_swap),
+                                    text = stringResource(Res.string.complete_swap_dialog_title),
                                     modifier = Modifier.fillMaxWidth()
                                 )
                             },
@@ -96,7 +95,7 @@ fun SwapDetailScreen(
                         DropdownMenuItem(
                             text = {
                                 Text(
-                                    text = stringResource(Res.string.delete),
+                                    text = stringResource(Res.string.delete_button),
                                     modifier = Modifier.fillMaxWidth()
                                 )
                             },

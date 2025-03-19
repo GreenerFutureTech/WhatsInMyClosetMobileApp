@@ -46,7 +46,7 @@ import whatsinmycloset.composeapp.generated.resources.see_all_button
 import whatsinmycloset.composeapp.generated.resources.no_items_found
 import whatsinmycloset.composeapp.generated.resources.my_swap_item
 import whatsinmycloset.composeapp.generated.resources.friends_items
-import whatsinmycloset.composeapp.generated.resources.swap
+import whatsinmycloset.composeapp.generated.resources.swap_tab_title
 
 @Composable
 fun SwapScreenRoot(
@@ -132,7 +132,7 @@ fun SwapScreen(
                 modifier = Modifier.height(48.dp),
                 fontSize = 30.sp,
                 fontWeight = FontWeight.Bold,
-                text = stringResource(Res.string.swap)
+                text = stringResource(Res.string.swap_tab_title)
             )
 
             Icon(

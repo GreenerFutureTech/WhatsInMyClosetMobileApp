@@ -13,12 +13,14 @@
     <string name="remove_friend_button">Remove Friend</string>
     <string name="friendship_status_already_friends">You're Friends!</string>
     <string name="friendship_status_pending_request">Request Pending</string>
-    <string name="complete_swap">Complete Swap</string>
+
+    <!-- Swap tab strings -->
     <string name="my_swap_item">My Swap Items</string>
     <string name="friends_items">Friends' Items</string>
     <string name="no_items_found">No Items Found</string>
-    <string name="delete">Delete</string>
-    <string name="swap">SWAP</string>
+    <string name="swap_placeholder">Let's swap!</string>
+    <string name="delete_button">Delete</string>
+    <string name="swap_tab_title">SWAP</string>
     <string name="complete_swap_dialog_title">Complete Swap</string>
     <string name="complete_swap_dialog_message">Are you sure you want to complete this swap?</string>
     <string name="delete_swap_dialog_title">Delete Swap</string>
