@@ -9,8 +9,9 @@ import androidx.room.RoomDatabase
 import org.greenthread.whatsinmycloset.core.data.MyClosetDatabase
 import platform.UIKit.UIDevice
 import platform.UIKit.*
-
-// NEED TO FIX THIS
+import platform.FirebaseMessaging.FIRMessaging
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 class IOSPlatform: Platform {
     override val name: String = "iOS"
@@ -33,14 +34,33 @@ actual class CameraManager {
     }
 }
 
+actual class NotificationManager {
+    actual fun requestPermissions() {
+        // iOS implementation for requesting notification permissions
+        // This would use UNUserNotificationCenter to request authorization
+    }
+
+    actual fun initialize() {
+        // iOS implementation for initializing notifications
+        // This would register for remote notifications and handle tokens
+    }
+}
+
 actual fun ByteArray.toImageBitmap(): ImageBitmap {
     //val nsData = this.toNSData()
     //val uiImage = UIImage(data = nsData)
     return ImageBitmap(10,10)
 }
 
-actual class FCMTokenService {
-    actual fun getToken(callback: (String?) -> Unit) {
+
+
+actual suspend fun getFCMToken(): String? = suspendCoroutine { continuation ->
+    FIRMessaging.messaging().tokenWithCompletion { token, error ->
+        if (error == null) {
+            continuation.resume(token)
+        } else {
+            continuation.resume(null)
+        }
     }
 }
 

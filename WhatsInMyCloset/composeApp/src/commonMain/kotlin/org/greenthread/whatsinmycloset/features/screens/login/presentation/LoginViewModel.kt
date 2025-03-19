@@ -16,8 +16,8 @@ import org.greenthread.whatsinmycloset.features.screens.login.domain.LoginAction
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import org.greenthread.whatsinmycloset.FCMTokenService
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
+import org.greenthread.whatsinmycloset.getFCMToken
 
 
 class LoginViewModel(
@@ -69,11 +69,14 @@ class LoginViewModel(
             try {
                 val result = auth.createUserWithEmailAndPassword(email, password)
 
+                val token = getFCMToken()
+
                 val userDto = UserDto(
                     username = username,
                     email = email,
                     name = name,
-                    firebaseUid = result.user?.uid?:"",
+                    firebaseUid = result.user?.uid ?: "",
+                    fcmToken = token,
                     type = "User",
                     registeredAt = now.toString(),
                     updatedAt = now.toString(),
@@ -84,6 +87,7 @@ class LoginViewModel(
 
                 _state.value = state.copy(
                     isAuthenticated = true,
+                    isLoading = false
                 )
                 onSignupSuccess?.invoke()
             } catch (e: Exception) {
@@ -106,7 +110,7 @@ class LoginViewModel(
                 .onSuccess { getResults ->
                     println("CREATE USER  API success: $getResults")
                     _state.value = state.copy(
-                            isLoading = false,
+                        isLoading = false,
                     )
                 }
                 .onError { error ->
@@ -131,7 +135,10 @@ class LoginViewModel(
 
                     userManager.updateUser(userDto.toModel())
 
+                    val token = getFCMToken()
+
                     val updatedUser = userDto.copy(
+                        fcmToken = token,
                         lastLogin = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).toString()
                     )
                     updateUser(updatedUser)
