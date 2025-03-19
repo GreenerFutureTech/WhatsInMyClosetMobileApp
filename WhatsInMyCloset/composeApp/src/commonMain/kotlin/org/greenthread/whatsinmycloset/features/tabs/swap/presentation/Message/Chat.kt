@@ -25,6 +25,10 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.greenthread.whatsinmycloset.core.dto.MessageDto
+import org.greenthread.whatsinmycloset.theme.inverseOnSurfaceLight
+import org.greenthread.whatsinmycloset.theme.onSurfaceVariantLight
+import org.greenthread.whatsinmycloset.theme.outlineVariantLight
+import org.greenthread.whatsinmycloset.theme.tertiaryContainerLight
 
 @Composable
 fun MessageItem(
@@ -32,7 +36,7 @@ fun MessageItem(
     isSender: Boolean
 ) {
     val alignment = if (isSender) Alignment.End else Alignment.Start
-    val backgroundColor = if (isSender) Color(0xFFDCF8C6) else Color(0xFFECECEC)
+    val backgroundColor = if (isSender) tertiaryContainerLight else inverseOnSurfaceLight
     val shape = RoundedCornerShape(8.dp)
 
     Column(
@@ -49,7 +53,7 @@ fun MessageItem(
                 Text(
                     text = formatTime(message.sentAt),
                     fontSize = 12.sp,
-                    color = Color.Gray,
+                    color = onSurfaceVariantLight,
                     modifier = Modifier.padding(end = 8.dp)
                 )
             }
@@ -72,7 +76,7 @@ fun MessageItem(
                 Text(
                     text = formatTime(message.sentAt),
                     fontSize = 12.sp,
-                    color = Color.Gray,
+                    color = onSurfaceVariantLight,
                     modifier = Modifier.padding(start = 8.dp)
                 )
             }

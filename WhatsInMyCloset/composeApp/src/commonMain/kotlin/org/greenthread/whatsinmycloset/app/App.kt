@@ -297,8 +297,7 @@ fun App(
                         val viewModel: MessageViewModel = koinViewModel()
 
                         ChatScreen(
-                            viewModel = viewModel,
-                            navController = navController
+                            viewModel = viewModel
                         )
 
 

@@ -32,6 +32,7 @@ import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
+import org.greenthread.whatsinmycloset.theme.secondaryLight
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -64,13 +65,6 @@ fun SwapDetailScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-
-            TextButton(
-                onClick = onBackClick
-            ) {
-                Text(text = "Back")
-            }
-
             if (swap.userId == currentUser.id) {
                 Box {
                     IconButton(
@@ -206,8 +200,7 @@ fun SwapDetailScreen(
                         modifier = Modifier
                             .size(40.dp)
                             .clip(CircleShape)
-                            .border(1.dp, Color.Gray, CircleShape)
-                            .padding(2.dp)
+                            .border(1.dp, secondaryLight, CircleShape)
                     )
 
                     Spacer(modifier = Modifier.width(10.dp))

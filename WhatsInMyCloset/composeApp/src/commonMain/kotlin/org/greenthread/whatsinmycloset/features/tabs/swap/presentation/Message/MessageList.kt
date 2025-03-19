@@ -12,8 +12,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,6 +31,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import org.greenthread.whatsinmycloset.core.dto.MessageUserDto
+import org.greenthread.whatsinmycloset.theme.outlineLight
+import org.greenthread.whatsinmycloset.theme.secondaryLight
+import org.greenthread.whatsinmycloset.theme.surfaceDimLight
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import whatsinmycloset.composeapp.generated.resources.Res
 
@@ -43,8 +48,7 @@ fun MessageList(
         onClick = { onClick() },
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp)
-            .background(Color.White),
+            .padding(vertical = 6.dp),
         contentPadding = PaddingValues(8.dp),
         colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
     ) {
@@ -62,7 +66,7 @@ fun MessageList(
                 modifier = Modifier
                     .size(50.dp)
                     .clip(CircleShape)
-                    .border(1.dp, Color.LightGray, CircleShape),
+                    .border(1.dp, secondaryLight, CircleShape),
                 onError = { loadFailed = true }
             )
             Spacer(modifier = Modifier.width(8.dp))
@@ -87,11 +91,13 @@ fun MessageList(
                         color = Color.Gray
                     )
                 }
-
-
             }
-
-
         }
     }
+
+    HorizontalDivider(
+        modifier = Modifier.padding(vertical = 2.dp),
+        thickness = 1.dp,
+        color = surfaceDimLight
+    )
 }
