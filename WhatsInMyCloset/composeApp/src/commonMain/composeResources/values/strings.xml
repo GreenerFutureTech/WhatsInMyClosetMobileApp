@@ -32,4 +32,5 @@
     <string name="create_outfit_button">Create Outfit</string>
     <string name="outfit_day_button">Outfit of the Day</string>
     <string name="no_wardrobe_found">No wardrobe found!</string>
+    <string name="add_new_item_button">Add New Item</string>
 </resources>

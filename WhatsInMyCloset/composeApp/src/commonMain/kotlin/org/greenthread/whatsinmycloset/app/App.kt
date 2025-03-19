@@ -65,9 +65,12 @@ import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SwapDetai
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SwapScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
+import whatsinmycloset.composeapp.generated.resources.Res
+import whatsinmycloset.composeapp.generated.resources.add_new_item_button
 
 @Composable
 @Preview
@@ -363,12 +366,7 @@ fun BottomNavigationBar(navController: NavController) {
             )
         }
 
-        // Display action bar only on the home tab
-        val homeTabIndex = 0
-        val showFab = homeTabIndex == selectedIndex
-        if (showFab) {
-            AddNewItem {  }
-        }
+        AddNewItem { navController.navigate(Routes.AddItemScreen) }
 
         tabs.takeLast(2).forEachIndexed { index, (route, icon) ->
             val isSelected = currentTab == route::class.simpleName
@@ -445,6 +443,6 @@ fun AddNewItem(onClick: () -> Unit) {
         shape = CircleShape,
         containerColor = MaterialTheme.colorScheme.primary
     ){
-        Icon(Icons.Filled.Add, "Add new item")
+        Icon(Icons.Filled.Add, stringResource(Res.string.add_new_item_button))
     }
 }
