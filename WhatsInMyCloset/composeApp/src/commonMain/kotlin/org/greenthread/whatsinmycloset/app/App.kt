@@ -6,6 +6,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Person
@@ -36,7 +37,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import org.greenthread.whatsinmycloset.CameraManager
-import org.greenthread.whatsinmycloset.FCMTokenService
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
@@ -47,6 +47,8 @@ import org.greenthread.whatsinmycloset.features.screens.addItem.presentation.Add
 import org.greenthread.whatsinmycloset.features.screens.addItem.presentation.AddItemScreenViewModel
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginScreenRoot
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginViewModel
+import org.greenthread.whatsinmycloset.features.screens.notifications.presentation.NotificationsScreen
+import org.greenthread.whatsinmycloset.features.screens.notifications.presentation.NotificationsViewModel
 import org.greenthread.whatsinmycloset.features.screens.settings.SettingsScreen
 import org.greenthread.whatsinmycloset.features.screens.signup.SignupScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItemDetailScreen
@@ -323,6 +325,14 @@ fun App(
                         viewModel
                     )
                 }
+
+                composable<Routes.NotificationsScreen> {
+                    val viewModel = koinViewModel<NotificationsViewModel>()
+                    NotificationsScreen(
+                        navController = navController,
+                        viewModel = viewModel
+                    )
+                }
             }
         }
     }
@@ -427,6 +437,12 @@ fun AppTopBar(
             }
         },
         actions = {
+            IconButton(onClick = { navController.navigate(Routes.NotificationsScreen) }) {
+                Icon(
+                    Icons.Default.Notifications,
+                    contentDescription = "Notifications"
+                )
+            }
             IconButton(onClick = { navController.navigate(Routes.SettingsScreen)}) {
                 Icon(
                     Icons.Default.Settings,
