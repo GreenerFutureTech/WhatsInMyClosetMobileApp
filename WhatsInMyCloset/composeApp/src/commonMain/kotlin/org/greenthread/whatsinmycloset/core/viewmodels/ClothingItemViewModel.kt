@@ -128,6 +128,7 @@ ViewModel() {
         _selectedItems.value = emptyList()
     }
 
+    // TODO to replace with proper functionality
     fun fetchSampleClothingItems() {
         viewModelScope.launch {
             val sampleItems = listOf(

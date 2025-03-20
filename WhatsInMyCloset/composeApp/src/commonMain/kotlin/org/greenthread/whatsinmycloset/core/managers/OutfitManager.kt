@@ -64,11 +64,11 @@ open class OutfitManager(
         isPublic: Boolean = false,
         favourite: Boolean = true
     ): Outfit {
-        val userId = currentUser?.id ?: 1
+        val userId = currentUser?.id ?: 1 // TODO fix this
         //throw IllegalStateException("User ID is required") (commented for testing)
 
         return Outfit(
-            id = generateOutfitId(), // Generate a unique ID for the outfit
+            id = generateOutfitId(), // TODO* Generate a unique ID for the outfit
             name = name,
             userId = userId,
             itemIds = itemIds,

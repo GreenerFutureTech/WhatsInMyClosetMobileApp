@@ -44,7 +44,7 @@ data class OutfitItemJoin(
     val position: OffsetData // Position of the item in the outfit
 )
 
-data class ItemPosition(
+class ItemPosition(
     val itemId: String,
     val position: OffsetData
 )

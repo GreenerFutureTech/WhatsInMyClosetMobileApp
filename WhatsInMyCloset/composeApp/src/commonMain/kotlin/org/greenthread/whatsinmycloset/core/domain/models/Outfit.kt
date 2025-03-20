@@ -21,6 +21,7 @@ class Outfit(
     val name: String = "",
     val tags: List<String>? = null,
     val itemIds: List<String>, // Store item IDs instead of full objects
+    // TODO - we may not need the position below
     val itemPositions: Map<String, OffsetData> = emptyMap(), // Map of item IDs to their positions
     val createdAt: String = Clock.System.now().toLocalDateTime(
         TimeZone.currentSystemDefault()).toString()
