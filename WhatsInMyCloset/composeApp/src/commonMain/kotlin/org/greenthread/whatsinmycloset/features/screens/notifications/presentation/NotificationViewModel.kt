@@ -6,20 +6,29 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.features.screens.notifications.data.NotificationRepository
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.Notification
 
 class NotificationsViewModel (
-    private val notificationRepository: NotificationRepository
-) : ViewModel() {
+    private val notificationRepository: NotificationRepository,
+    userManager: UserManager,
+    ) : ViewModel() {
     private val _notifications = MutableStateFlow<List<Notification>>(emptyList())
     val notifications: StateFlow<List<Notification>> = _notifications.asStateFlow()
 
     init {
-        loadNotifications(userId = 1)
+        val userId = userManager.currentUser.value?.retrieveUserId()
+        loadNotifications(userId)
     }
 
-    private fun loadNotifications(userId: Int) {
+    private fun loadNotifications(userId: Int?) {
+        // If null, do nothing
+        if (userId == null) {
+            _notifications.value = emptyList()
+            return
+        }
+
         viewModelScope.launch {
             _notifications.value = notificationRepository.getNotifications(userId)
         }

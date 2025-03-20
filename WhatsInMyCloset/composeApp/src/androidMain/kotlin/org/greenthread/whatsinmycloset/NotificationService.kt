@@ -14,9 +14,7 @@ class NotificationService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        // Handle the new FCM token here
         println("New FCM Token: $token")
-        // Send the token to your backend server
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
