@@ -2,64 +2,66 @@ package org.greenthread.whatsinmycloset.core.viewmodels
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.datetime.format.DateTimeFormat
-import org.greenthread.whatsinmycloset.core.domain.models.User
+import kotlinx.coroutines.launch
+import org.greenthread.whatsinmycloset.core.data.daos.ItemDao
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.domain.models.OffsetData
+import org.greenthread.whatsinmycloset.core.managers.OutfitManager
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
-import org.greenthread.whatsinmycloset.core.repositories.OutfitRepository
+import org.greenthread.whatsinmycloset.core.persistence.OutfitEntity
+import org.greenthread.whatsinmycloset.core.persistence.toClothingItem
+import org.greenthread.whatsinmycloset.core.repositories.OutfitTags
 
+/*
+*   Manages the UI state for outfits, including selected items, tags, and temporary positions.
 
-/* this viewmodel handles the following:
-creating new folders (updating the outfit repository)
-selectedFolder state
-selectedFolders state (when user wants to save outfit in more than 1 folder)
-isPublic state (when user wants the outfit to be public)
-
-This ViewModel manages outfit creation, saving, and calendar events
-*/
-
+    Acts as an intermediary between the UI and the OutfitManager
+* */
 open class OutfitViewModel
     (
-    private val user: User, // Pass the logged-in user's account
-    savedStateHandle: SavedStateHandle? = null
+    /* The OutfitManager and OutfitTags are injected into the ViewModel
+    instead of being instantiated directly */
+    private val outfitManager: OutfitManager,
+    private val outfitTags: OutfitTags,
+    private val clothingItemViewModel: ClothingItemViewModel,
+    private val itemDao: ItemDao // Inject ItemDao to fetch items dynamically
     )
     : ViewModel()
 {
-    private var outfitCounter = 0
 
-    private val selectedCategoryKey = "selected_category"
-    private val selectedItemsKey = "selected_items"
-
+    // State for clothing items
     private val _clothingItems = MutableStateFlow<List<ClothingItem>>(emptyList())
     val clothingItems: StateFlow<List<ClothingItem>> = _clothingItems.asStateFlow()
 
+    // State for selected category
     private val _selectedCategory = MutableStateFlow<String>("")
     val selectedCategory: StateFlow<String> = _selectedCategory.asStateFlow()
 
+    // State for category items
     private val _categoryItems = MutableStateFlow<List<ClothingCategory>>(emptyList())
     val categoryItems: StateFlow<List<ClothingCategory>> = _categoryItems.asStateFlow()
 
     private val _calendarEvents = MutableStateFlow<List<String>>(emptyList())
     val calendarEvents: StateFlow<List<String>> = _calendarEvents.asStateFlow()
 
-    // State for OutfitSaveScreen
-    private val outfitRepository = OutfitRepository(user)
-    open val outfitFolders: StateFlow<Set<String>> = outfitRepository.outfitFolders
+    // State for tags
+    private val _tags = MutableStateFlow<Set<String>>(emptySet())
+    val tags: StateFlow<Set<String>> = _tags.asStateFlow()
 
-    private val _selectedFolder = MutableStateFlow<String?>(null)
-    open val selectedFolder: StateFlow<String?> = _selectedFolder.asStateFlow()
+    // State for selected tags
+    private val _selectedTags = MutableStateFlow<Set<String>>(emptySet())
+    val selectedTags: StateFlow<Set<String>> = _selectedTags.asStateFlow()
 
-    private val _selectedFolders = MutableStateFlow<List<String>>(emptyList())
-    open val selectedFolders: StateFlow<List<String>> = _selectedFolders.asStateFlow()
-
+    // State for public visibility
     private val _isPublic = MutableStateFlow(false)
     open val isPublic: StateFlow<Boolean> = _isPublic.asStateFlow()
 
+    // State for creating a new outfit
     private val _isCreateNewOutfit = MutableStateFlow(false)
     open val isCreateNewOutfit: StateFlow<Boolean> = _isCreateNewOutfit.asStateFlow()
 
@@ -68,76 +70,101 @@ open class OutfitViewModel
     open val isOutfitSaved: StateFlow<Boolean> = _isOutfitSaved.asStateFlow()
 
     // For tracking the current outfit being created
-    private val _currentOutfit = MutableStateFlow<Outfit?>(null)  // current outfit user wants to save
-    val currentOutfit: StateFlow<Outfit?> = _currentOutfit.asStateFlow()
+    private val _currentOutfit = MutableStateFlow<OutfitEntity?>(null)  // using data class
+    val currentOutfit: StateFlow<OutfitEntity?> = _currentOutfit.asStateFlow()
 
-    // Load state - ensures that critical state data is preserved during config changes
-    private fun loadState(savedStateHandle: SavedStateHandle) {
-        _selectedCategory.value = savedStateHandle.get<String>(selectedCategoryKey) ?: ""
-        _clothingItems.value = savedStateHandle.get<List<ClothingItem>>(selectedItemsKey) ?: emptyList()
-    }
+    // State for temporary positions of clothing items
+    private val _temporaryPositions = MutableStateFlow<Map<String, OffsetData>>(emptyMap())
+    val temporaryPositions: StateFlow<Map<String, OffsetData>> = _temporaryPositions.asStateFlow()
 
-    // Save state - call this function whenever the state changes
-    // (e.g., when _selectedCategory or _clothingItems is updated)
-    fun saveState(savedStateHandle: SavedStateHandle) {
-        savedStateHandle[selectedCategoryKey] = _selectedCategory.value
-        savedStateHandle[selectedItemsKey] = _clothingItems.value
-    }
-
-    // Update selected folder (single selection)
-    open fun updateSelectedFolder(folder: String?) {
-        _selectedFolder.value = folder
+    init {
+        // Initialize tags from OutfitTags
+        viewModelScope.launch {
+            outfitTags.allTags.collect { tags ->
+                _tags.value = tags // Update the tags state when OutfitTags emits new data
+            }
+        }
     }
 
     // Update selected folders (multiple selection)
-    open fun updateSelectedFolders(folder: String) {
-        val currentFolders = _selectedFolders.value.toMutableList()
-        if (currentFolders.contains(folder)) {
-            currentFolders.remove(folder)
+    fun updateSelectedTags(tagName: String) {
+        val updatedTags = _selectedTags.value.toMutableSet()
+        if (updatedTags.contains(tagName)) {
+            updatedTags.remove(tagName) // Remove the tag if it exists
         } else {
-            currentFolders.add(folder)
+            updatedTags.add(tagName) // Add the tag if it doesn't exist
         }
-        _selectedFolders.value = currentFolders
+        _selectedTags.value = updatedTags
     }
 
     // Toggle public state
     open fun toggleIsPublic(isPublic: Boolean) {
         _isPublic.value = isPublic
-        if (isPublic) {
-            _selectedFolders.value = listOf("Public Outfits")
+
+        if (isPublic)
+        {
+            updateSelectedTags("Public")
         }
     }
 
-    // Add a new folder using outfitRepository class
-    open fun addFolder(folderName: String) {
-        outfitRepository.addUserRepository(folderName)
+    // Add a new folder using outfitTags class
+    open fun addNewTag(tagName: String) {
+        outfitTags.addTag(tagName)
+
+        // The tags state will automatically update because we're observing outfitTags.allTags
+
     }
 
-    // ADD OUTFIT COORDINATES - SO HOWEVER USER SAVES THE OUTFIT,
-    // THE NEXT TIME USER WANTS TO VIEW THE OUTFIT
-    // IT CAN SAME COORDINATES
-    // Save the outfit and update isOutfitSaved state
-    open fun saveOutfit(outfit: Outfit, selectedFolders: List<String>? = null,
-                        selectedFolder: String?) {
-        // Save the outfit to the selected folder
-        if (selectedFolders != null || selectedFolder != null) {
-            if(selectedFolders != null)
-            {
-                outfitRepository.saveOutfit(outfit, selectedFolders)
+    // Remove a tag and remove from selected in case it was selected
+    fun removeTag(tagName: String) {
+        val updatedTags = _selectedTags.value.toMutableSet()
+        if (updatedTags.contains(tagName)) {
+            updatedTags.remove(tagName) // Remove the tag if it exists
+        }
+        _selectedTags.value = updatedTags
+
+        outfitTags.removeTag(tagName)
+    }
+
+    // Save the outfit and finalize item positions
+    fun saveOutfit(selectedTags: List<String>) {
+        viewModelScope.launch {
+            // Get the current outfit being created
+            val currentOutfit = _currentOutfit.value
+            if (currentOutfit == null) {
+                // Handle the case where there is no current outfit
+                return@launch
             }
-            /*else
-            {
-                outfitRepository.saveOutfit(outfit, selectedFolder)
-            }*/
+
+            // Extract item IDs from the selected clothing items
+            val itemIds = _clothingItems.value.map { it.id }
+
+            // Update the outfit with the temporary positions
+            val updatedOutfit = Outfit(
+                id = currentOutfit.outfitId,
+                userId = currentOutfit.userId,
+                name = currentOutfit.name,
+                public = currentOutfit.public,
+                itemIds = itemIds, // Pass item IDs
+                favorite = currentOutfit.favorite,
+                tags = currentOutfit.tags,
+                itemPositions = _temporaryPositions.value // Include item positions
+            )
+
+            // Update tags so next time user opens the save screen newly added tags are present
+            if (selectedTags != null) {
+                outfitTags.updateTags(selectedTags.toSet())
+            }
+
+            // Delegate saving operation to OutfitManager
+            outfitManager.saveOutfit(updatedOutfit)
+
+            // Clear temporary positions after saving
+            _temporaryPositions.value = emptyMap()
+
+            // Update state
+            _isOutfitSaved.value = true
         }
-
-
-        // Update isOutfitSaved state
-        _isOutfitSaved.value = true
-    }
-
-    private fun generateOutfitId(): String {
-        return "outfit_${outfitCounter++}"
     }
 
     // when user clicks on "Create New Outfit" button
@@ -145,46 +172,51 @@ open class OutfitViewModel
     open fun discardCurrentOutfit() {
         _currentOutfit.value = null
         _clothingItems.value = emptyList() // Clear selected clothing items
+        _temporaryPositions.value = emptyMap() // Clear temporary positions
     }
 
-    // Create an outfit
-    open fun createOutfit(clothingItems: List<ClothingItem>)
-    {
-        _isCreateNewOutfit.value = true
-        val outfitId = "outfit_${user.outfitCount() + 1}"
+    // Create an outfit using outfit manager
+    open fun createOutfit(
+        name: String = "",
+        selectedItems: List<ClothingItem>,
+        tags: List<String> = emptyList(),
+        isPublic: Boolean = false,
+        favourite: Boolean = false
+    ) {
 
-        // Create the outfit with the logged-in user's account
-        _currentOutfit.value = Outfit(
-            id = outfitId,
-            userId = user.retrieveUserId().toString(),
-            public = true,
-            favorite = true,
-            mediaURL = "",
-            name = "Summer Look",
-            items = clothingItems, // Use the passed clothing items
-            createdAt = DateTimeFormat.toString()
-        )
+        /// Extract item IDs from the selected items
+        val selectedItemIds = selectedItems.map { it.id }
+
+        viewModelScope.launch {
+            val outfit = outfitManager.createOutfit(
+                name = name,
+                itemIds  = selectedItemIds,
+                tags = tags,
+                isPublic = isPublic,
+                favourite = favourite
+            )
+
+            // Convert the Outfit (domain model) to OutfitEntity
+            val outfitEntity = outfit.toEntity()
+
+            _currentOutfit.value = outfitEntity
+            _isCreateNewOutfit.value = true
+
+            // Clear any temporary positions when creating a new outfit
+            _temporaryPositions.value = emptyMap()
+        }
     }
 
     // Function to update the position of a clothing item
     fun updateClothingItemPosition(itemId: String, newPosition: OffsetData) {
-        val currentOutfit = _currentOutfit.value
-        if (currentOutfit != null) {
-            val updatedItems = currentOutfit.items.map { item ->
-                if (item.id == itemId) {
-                    item.copy(position = newPosition)
-                } else {
-                    item
-                }
-            }
-            _currentOutfit.value = currentOutfit.copy(items = updatedItems)
-        }
+        val updatedPositions = _temporaryPositions.value.toMutableMap()
+        updatedPositions[itemId] = newPosition
+        _temporaryPositions.value = updatedPositions
     }
 
     // Add outfit to calendar
     open fun addOutfitToCalendar(date: String) {
-        val outfit = _currentOutfit.value
-        if (outfit != null) {
+        _currentOutfit.value?.let { outfit ->
             _calendarEvents.value = _calendarEvents.value + "$date: ${outfit.name}"
         }
     }
@@ -192,11 +224,15 @@ open class OutfitViewModel
     open fun clearOutfitState() {
         _currentOutfit.value = null // Clear the current outfit
         _clothingItems.value = emptyList() // Clear selected clothing items
-        _selectedFolder.value = null // Clear selected folder
-        _selectedFolders.value = emptyList() // Clear selected folders
+        _selectedTags.value = emptySet() // Clear selected folder
         _calendarEvents.value = emptyList()
         _isPublic.value = false // Reset public state
         _isOutfitSaved.value = false // Reset outfit saved state
+    }
+
+    companion object {
+        private const val selectedCategoryKey = "selected_category"
+        private const val selectedItemsKey = "selected_items"
     }
 }
 

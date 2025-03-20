@@ -1,15 +1,33 @@
 package org.greenthread.whatsinmycloset.features.tabs.home
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
@@ -36,15 +54,14 @@ fun OutfitSaveScreen(
 ) {
     WhatsInMyClosetTheme {
         val isOutfitSaved by outfitViewModel.isOutfitSaved.collectAsState()
-        val outfitFolders by outfitViewModel.outfitFolders.collectAsState()
-        val selectedFolder by outfitViewModel.selectedFolder.collectAsState()
-        val selectedFolders by outfitViewModel.selectedFolders.collectAsState()
+        val tags by outfitViewModel.tags.collectAsState()
+        val selectedTags by outfitViewModel.selectedTags.collectAsState()
         val isPublic by outfitViewModel.isPublic.collectAsState()
 
         // retrieve the current outfit user wants to save
         val currentOutfit by outfitViewModel.currentOutfit.collectAsState()
 
-        var showCreateFolderDialog by remember { mutableStateOf(false) }
+        var showCreateTagDialog by remember { mutableStateOf(false) }
         var showDiscardDialog by remember { mutableStateOf(false) }
 
         if (isOutfitSaved) {
@@ -76,64 +93,36 @@ fun OutfitSaveScreen(
                 OutfitScreenHeader(
                     onGoBack = { navController.popBackStack() },
                     onExit = { showDiscardDialog = true },
-                    title = "Save Your Outfit"
+                    title = "Select Tags"
                 )
 
                 LazyColumn(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    items(outfitFolders.toList()) { folder ->
-                        // Determine if folder is selected (either one folder or multiple)
-                        val isSelected = if (selectedFolders.isNotEmpty()) {
-                            selectedFolders.contains(folder) || (isPublic && folder == "Public Outfits")
-                        } else {
-                            selectedFolder == folder || (isPublic && folder == "Public Outfits")
-                        }
+                    items(tags.toList()) { tag ->
+                        // Determine if the tag is selected based on local UI state
+                        val isSelected = selectedTags.contains(tag)
 
-                        println(isSelected)
-                        println(selectedFolder)
+                        // Use SwipeToDeleteTag with both swipe-to-delete and click-to-select functionality
+                        SelectOrDeleteTag(
+                            tag = tag,
+                            isSelected = isSelected,
+                            onDelete = {
+                                outfitViewModel.removeTag(tag) // Remove the tag
+                            },
+                            onClick = {
+                                outfitViewModel.updateSelectedTags(tag) // Toggle tag selection
+                            }
+                        )
 
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp)
-                                .background(
-                                    if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
-                                    else MaterialTheme.colorScheme.surfaceVariant,
-                                    shape = RoundedCornerShape(8.dp)
-                                )
-                                .clickable {
-                                    if (selectedFolders.isNotEmpty() != null) {
-                                        outfitViewModel.updateSelectedFolders(folder)
-                                    } else {
-                                        outfitViewModel.updateSelectedFolder(if (selectedFolder == folder) null
-                                        else folder)
-                                    }
-                                }
-                                .padding(16.dp)
-                        ) {
-                            Text(text = folder, style = MaterialTheme.typography.bodyLarge)
-                        }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(20.dp))
-
-                // Public Checkbox
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Checkbox(
-                        checked = isPublic,
-                        onCheckedChange = { outfitViewModel.toggleIsPublic(it) }
-                    )
-                    Text(text = "Public")
-                }
-
                 Spacer(modifier = Modifier.height(10.dp))
+
+                // Calculate if the Done button should be enabled
+                val isDoneEnabled = selectedTags.isNotEmpty() || isPublic
 
                 // Footer with Done button
                 OutfitScreenFooter(
@@ -141,41 +130,36 @@ fun OutfitSaveScreen(
                         println("Done button clicked") // Debugging statement
                         // Get current outfit from the viewmodel
                         currentOutfit?.let { outfit ->
-                            println("Saving outfit: $outfit") // Debugging statement
-                            if(selectedFolders.isNotEmpty())
+                            println("Saving outfit: $outfit with tags ${selectedTags}") // Debugging statement
+                            if(selectedTags.isNotEmpty())
                             {
-                                outfitViewModel.saveOutfit(outfit, selectedFolders,
-                                    null)
-                            }
-                            else
-                            {
-                                outfitViewModel.saveOutfit(outfit, null,
-                                    selectedFolder)
+                                // save the current outfit with positions
+                                outfitViewModel.saveOutfit(selectedTags.toList())
                             }
                         }
                         onDone() // Trigger the onDone callback
                     },
-                    isDoneEnabled = selectedFolders.isNotEmpty() || selectedFolder != null
+                    isDoneEnabled = isDoneEnabled
                 )
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                // Button to open the "Create New Folder" dialog
+                // Button to open the "Create New Tag" dialog
                 Button(
-                    onClick = { showCreateFolderDialog = true},
+                    onClick = { showCreateTagDialog = true},
                     modifier = Modifier.padding(8.dp)
                 ) {
-                    Text("+ Create New Outfit Folder")
+                    Text("+ Create New Outfit Tag")
                 }
 
-                // Show CreateNewOutfitFolder when the button is clicked
-                if (showCreateFolderDialog) {
-                    CreateNewOutfitFolder(
-                        onDismiss = { showCreateFolderDialog = false },
-                        onCreate = { folderName ->
-                            outfitViewModel.addFolder(folderName) // Update repository
-                            showCreateFolderDialog = false // Close the dialog after creating the folder
-                        }
+                // Show CreateNewOutfitTag when the button is clicked
+                if (showCreateTagDialog) {
+                    CreateNewOutfitTag(
+                        onConfirm = {
+                            showCreateTagDialog = false // Close the dialog
+                        },
+                        onDismiss = { showCreateTagDialog = false },
+                        viewModel = outfitViewModel
                     )
                 }
 
@@ -185,6 +169,10 @@ fun OutfitSaveScreen(
                     DiscardSavingDialog(
                         onConfirm = {
                             showDiscardDialog = false
+                            // Discard the current outfit and create a new one
+                            outfitViewModel.discardCurrentOutfit()
+                            outfitViewModel.clearOutfitState() // Clear the outfit state
+                            clothingItemViewModel.clearClothingItemState() // Clear the selected items state
                             navController.navigate(Routes.HomeTab) // Navigate to Home Tab
                         },
                         onDismiss = { showDiscardDialog = false }
@@ -219,11 +207,13 @@ fun DiscardSavingDialog(
 
 
 @Composable
-fun CreateNewOutfitFolder(
+fun CreateNewOutfitTag(
+    onConfirm: (String) -> Unit,
     onDismiss: () -> Unit,
-    onCreate: (String) -> Unit
+    viewModel: OutfitViewModel
 ) {
-    var newFolderName by remember { mutableStateOf("") }
+    var newTagName by remember { mutableStateOf("") }
+    val maxLength = 20 // Maximum allowed characters for the tag name
 
     Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -237,36 +227,57 @@ fun CreateNewOutfitFolder(
                 modifier = Modifier.padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("New Outfit Folder", style = MaterialTheme.typography.headlineMedium)
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                OutlinedTextField(
-                    value = newFolderName,
-                    onValueChange = { newFolderName = it },
-                    label = { Text("Folder Name") },
-                    modifier = Modifier.fillMaxWidth()
+                Text(
+                    text = "New Outfit Tag",
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.padding(bottom = 16.dp)
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = newTagName,
+                    onValueChange = { if (it.length <= maxLength) newTagName = it },
+                    label = { Text("Tag Name") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        capitalization = KeyboardCapitalization.Sentences
+                    ),
+                    trailingIcon = {
+                        if (newTagName.isNotEmpty()) {
+                            IconButton(onClick = { newTagName = "" }) {
+                                Icon(Icons.Default.Close, contentDescription = "Clear")
+                            }
+                        }
+                    }
+                )
 
-                // Save Button
+                Text(
+                    text = "${newTagName.length}/$maxLength",
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.align(Alignment.End)
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Create Button
                 Button(
                     onClick = {
-                        if (newFolderName.isNotBlank()) {
-                            onCreate(newFolderName) // Pass the new folder name
-                            newFolderName = "" // Reset input
+                        if (newTagName.isNotBlank()) {
+                            viewModel.addNewTag(newTagName)
+                            onConfirm(newTagName) // Notify the caller that the operation is complete
                         }
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = newTagName.isNotBlank()
                 ) {
                     Text("Create")
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
-
                 // Cancel Button
-                TextButton(onClick = onDismiss) {
+                TextButton(
+                    onClick = onDismiss,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     Text("Cancel")
                 }
             }
@@ -285,14 +296,29 @@ fun OutfitSaved(
     var showDialog by remember { mutableStateOf(true) }
 
     // Retrieve folder names and isPublic state from the ViewModel
-    val folderNames by viewModel.selectedFolders.collectAsState()
-    val isPublic by viewModel.isPublic.collectAsState()
+    val tagNames by viewModel.selectedTags.collectAsState()
+
+    // Sort the tag names alphabetically
+    val sortedTagNames = tagNames.toList().sorted()
+
+    // Format the tag names with "and" before the last one
+    val tagNamesText = when (sortedTagNames.size) {
+        0 -> ""
+        1 -> sortedTagNames[0]
+        else -> {
+            val allButLast = sortedTagNames.dropLast(1).joinToString(", ")
+            val last = sortedTagNames.last()
+            "$allButLast and $last"
+        }
+    }
 
     // Check if the dialog should be shown
     if (showDialog) {
-        // Generate the message about the folders
-        val folderNamesText = folderNames.joinToString(", ")
-        val publicText = if (isPublic) "Your outfit is now public." else ""
+        val msgStr = if (tagNamesText.isNotEmpty()) {
+            "Your outfit has been saved with the following tag(s): $tagNamesText."
+        } else {
+            "Your outfit has been saved."
+        }
 
         AlertDialog(
             onDismissRequest = {
@@ -302,8 +328,7 @@ fun OutfitSaved(
             title = { Text(text = "Outfit Saved") },
             text = {
                 Text(
-                    text = "Your outfit has been saved in the following folder(s): " +
-                            "$folderNamesText. $publicText"
+                    text = msgStr
                 )
             },
             confirmButton = {
@@ -319,5 +344,89 @@ fun OutfitSaved(
                 }
             }
         )
+    }
+}
+
+@Composable
+fun dpToPx(dp: Dp): Float {
+    val density = LocalDensity.current.density
+    return dp.value * density
+}
+
+@Composable
+fun SelectOrDeleteTag(
+    tag: String,
+    isSelected: Boolean,
+    onDelete: () -> Unit,
+    onClick: () -> Unit
+) {
+    var swipeOffset by remember { mutableStateOf(0f) }
+    val swipeThreshold = dpToPx(100.dp) // Swipe threshold to trigger delete
+    val maxSwipeOffset = dpToPx(200.dp) // Maximum swipe offset
+
+    // Animate the swipe offset for smooth transitions
+    val animatedOffset by animateFloatAsState(
+        targetValue = swipeOffset,
+        animationSpec = tween(durationMillis = 1000)
+    )
+
+    // Calculate the background color based on swipeOffset
+    val backgroundColor = if (swipeOffset <= -swipeThreshold)
+    {
+        Color.Red   // Fully red
+    }
+    else if (swipeOffset < 0)
+    {
+        Color.Red.copy(alpha = -swipeOffset / swipeThreshold) // Gradually transition to red
+    }
+    else
+    {
+        if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
+        else MaterialTheme.colorScheme.surfaceVariant
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+    ) {
+        // Tag content
+        Box(
+            modifier = Modifier
+                .offset(x = animatedOffset.dp)
+                .fillMaxWidth()
+                .background(
+                    backgroundColor, // Use dynamic background color
+                    RoundedCornerShape(8.dp)
+                )
+                .pointerInput(Unit) {
+                    detectHorizontalDragGestures(
+                        onDragEnd = {
+                            // Snap back if the swipe doesn't exceed the threshold
+                            if (swipeOffset > -swipeThreshold) {
+                                swipeOffset = 0f
+                            }
+                        },
+                        onHorizontalDrag = { change, dragAmount ->
+                            val scaledDragAmount = dragAmount * 0.5f // Adjust this value to control swipe speed
+
+                            swipeOffset = (swipeOffset + scaledDragAmount)
+                                .coerceIn(-maxSwipeOffset, 0f)
+                            if (swipeOffset <= -swipeThreshold) {
+                                onDelete() // Trigger delete if swiped beyond the threshold
+                                swipeOffset = 0f // Reset offset after deletion
+                            }
+                        }
+                    )
+                }
+                .clickable { onClick() } // Handle click for selection
+                .padding(16.dp),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Text(
+                text = tag,
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
     }
 }
