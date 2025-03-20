@@ -8,11 +8,21 @@ class NotificationRepository(
     private val remoteDataSource: KtorRemoteDataSource
 ) {
 
-    suspend fun getNotifications(userId: Int): List<Notification> {
+    suspend fun getNotifications(userId: Int, forceRefresh: Boolean = false): List<Notification> {
+        // You can implement caching here if needed
         return remoteDataSource.getUserNotifications(userId).getOrNull() ?: emptyList()
     }
 
     fun refreshNotifications(userId: Int) {
         // You can add logic to trigger a refresh here
     }
+
+    suspend fun deleteNotification(notificationId: Int) {
+        remoteDataSource.dismissNotification(notificationId)
+    }
+
+    suspend fun clearNotification(userId: Int) {
+        remoteDataSource.clearNotification(userId)
+    }
+
 }

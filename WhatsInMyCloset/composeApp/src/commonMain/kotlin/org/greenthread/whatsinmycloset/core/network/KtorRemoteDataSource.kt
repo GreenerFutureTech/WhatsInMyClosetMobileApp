@@ -134,6 +134,30 @@ class KtorRemoteDataSource(
         }
     }
 
+    suspend fun updateNotificationRead(notificationId: Int): Result<String, DataError.Remote> {
+        return safeCall {
+            httpClient.patch(
+                urlString = "$BASE_URL/notifications/$notificationId/read"
+            )
+        }
+    }
+
+    suspend fun dismissNotification(notificationId: Int): Result<String, DataError.Remote> {
+        return safeCall {
+            httpClient.delete(
+                urlString = "$BASE_URL/notifications/$notificationId"
+            )
+        }
+    }
+
+    suspend fun clearNotification(userId: Int): Result<String, DataError.Remote> {
+        return safeCall {
+            httpClient.delete(
+                urlString = "$BASE_URL/notifications/$userId/clear"
+            )
+        }
+    }
+
     //============================= User ==================================
     override suspend fun createUser(user: UserDto): Result<UserDto, DataError.Remote> {
         return safeCall {

@@ -1,6 +1,7 @@
 package org.greenthread.whatsinmycloset.features.screens.notifications.presentation
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,12 +30,24 @@ import androidx.navigation.NavController
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.Notification
 import org.koin.compose.viewmodel.koinViewModel
 
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
+
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun NotificationsScreen(
     navController: NavController,
     viewModel: NotificationsViewModel = koinViewModel()
 ) {
     val notifications by viewModel.notifications.collectAsState()
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
+
+    val refreshState = rememberPullRefreshState(
+        refreshing = isRefreshing,
+        onRefresh = { viewModel.refresh() }
+    )
 
     Column(
         modifier = Modifier
@@ -47,37 +60,59 @@ fun NotificationsScreen(
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        if (notifications.isNotEmpty()) {
-            Button(
-                onClick = { viewModel.clearAllNotifications() },
-                modifier = Modifier.align(Alignment.End)
-            ) {
-                Text("Clear All")
-            }
-
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .pullRefresh(refreshState) // Apply pullRefresh at this level
+        ) {
             LazyColumn(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxSize()
             ) {
-                items(notifications) { notification ->
-                    NotificationItem(
-                        notification = notification,
-                        onClick = { viewModel.markAsRead(it.id) },
-                        onDismiss = { notificationId -> viewModel.dismissNotification(notificationId) }
-                    )
+                if (notifications.isNotEmpty()) {
+                    item {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 8.dp),
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            Button(onClick = { viewModel.clearAllNotifications() }) {
+                                Text("Clear All")
+                            }
+                        }
+                    }
+
+                    items(notifications) { notification ->
+                        NotificationItem(
+                            notification = notification,
+                            onClick = { viewModel.markAsRead(it.id) },
+                            onDismiss = { notificationId -> viewModel.dismissNotification(notificationId) }
+                        )
+                    }
+                } else {
+                    // Keep an "invisible" item to allow pull-to-refresh
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(top = 50.dp), // Adds spacing for the pull gesture
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("No notifications")
+                        }
+                    }
                 }
             }
-        } else {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("No notifications")
-            }
+
+            PullRefreshIndicator(
+                refreshing = isRefreshing,
+                state = refreshState,
+                modifier = Modifier.align(Alignment.TopCenter)
+            )
         }
     }
 }
-
-
 
 @Composable
 fun NotificationItem(
