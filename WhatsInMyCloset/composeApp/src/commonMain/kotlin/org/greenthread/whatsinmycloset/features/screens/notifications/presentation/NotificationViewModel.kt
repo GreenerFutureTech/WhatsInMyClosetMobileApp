@@ -11,6 +11,7 @@ import org.greenthread.whatsinmycloset.app.Routes
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.features.screens.notifications.data.NotificationRepository
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.Notification
+import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.NotificationEventBus
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.NotificationType
 
 class NotificationsViewModel(
@@ -22,6 +23,8 @@ class NotificationsViewModel(
     private val _notifications = MutableStateFlow<List<Notification>>(emptyList())
     val notifications: StateFlow<List<Notification>> = _notifications.asStateFlow()
 
+    val hasNewNotifications = NotificationEventBus.hasNewNotifications
+
     // holds the refreshing state for UI updates when refreshing
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
@@ -31,6 +34,26 @@ class NotificationsViewModel(
 
     init {
         loadNotifications(currentUserId)
+    }
+
+    /**
+     * Clears the notification icon
+     *
+     */
+    fun clearNewNotificationsState() {
+        NotificationEventBus.clearNewNotificationsState()
+    }
+
+    fun checkForUnreadNotifications(userId: Int?) {
+        if (userId == null) return
+
+        viewModelScope.launch {
+            val notifications = notificationRepository.getNotifications(userId)
+            val hasUnread = notifications.any { !it.isRead }
+            if (hasUnread) {
+                NotificationEventBus.setHasNewNotifications(true)
+            }
+        }
     }
 
     /**

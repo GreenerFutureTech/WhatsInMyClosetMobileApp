@@ -34,6 +34,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.runtime.LaunchedEffect
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
@@ -53,6 +54,11 @@ fun NotificationsScreen(
         refreshing = isRefreshing,
         onRefresh = { viewModel.refresh() }
     )
+
+    // Reset the new notifications state when the screen is opened
+    LaunchedEffect(Unit) {
+        viewModel.clearNewNotificationsState()
+    }
 
     Column(
         modifier = Modifier

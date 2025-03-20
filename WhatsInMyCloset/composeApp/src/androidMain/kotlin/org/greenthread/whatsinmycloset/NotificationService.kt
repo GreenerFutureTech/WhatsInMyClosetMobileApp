@@ -9,6 +9,10 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.NotificationEventBus
 
 class NotificationService : FirebaseMessagingService() {
 
@@ -34,12 +38,17 @@ class NotificationService : FirebaseMessagingService() {
             val message = remoteMessage.data["message"] ?: "You have a new notification"
             sendNotification(title, message)
         }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            NotificationEventBus.emitNewNotification()
+        }
     }
 
     private fun sendNotification(title: String?, messageBody: String?) {
         val channelId = "fcm_default_channel"
         val intent = Intent(this, MainActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            putExtra("NAVIGATE_TO", "notifications")
         }
         val pendingIntent = PendingIntent.getActivity(
             this, 0, intent,
