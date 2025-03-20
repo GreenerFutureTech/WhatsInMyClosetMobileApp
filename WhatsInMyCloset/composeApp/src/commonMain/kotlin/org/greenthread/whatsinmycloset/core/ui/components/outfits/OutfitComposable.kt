@@ -70,6 +70,7 @@ fun OutfitComposable(outfit: Outfit) {
         var x = 5f
         var y = 5f
 
+        // TODO look into the error
         outfit.itemIds.forEach { itemId ->
             val item = itemRepository[itemId] ?: error("Item not found: $itemId")
             LoadImage(

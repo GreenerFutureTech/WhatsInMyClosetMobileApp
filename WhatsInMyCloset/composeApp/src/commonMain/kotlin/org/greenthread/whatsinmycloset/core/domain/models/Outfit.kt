@@ -12,6 +12,7 @@ import org.greenthread.whatsinmycloset.core.persistence.toClothingItem
 /*
 * This class provide methods for conversion to/from OutfitDto and OutfitEntity
 * */
+// TODO match with ERD
 class Outfit(
     val id: String,
     val userId: Int? = null,    // matches with User class

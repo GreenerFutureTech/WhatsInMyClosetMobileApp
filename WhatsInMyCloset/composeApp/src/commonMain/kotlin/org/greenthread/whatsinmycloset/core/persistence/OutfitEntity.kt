@@ -17,6 +17,7 @@ import org.greenthread.whatsinmycloset.core.domain.models.OffsetData
     tableName = "outfits",
     indices = [Index("outfitId")]
 )
+// TODO match with ERD
 data class OutfitEntity(
     @PrimaryKey val outfitId: String, // Matches backend UUID
     val userId: Int? = null,    // matches with User.kt
