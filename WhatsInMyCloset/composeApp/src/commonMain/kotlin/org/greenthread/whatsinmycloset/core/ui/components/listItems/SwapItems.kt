@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
+import org.greenthread.whatsinmycloset.theme.onSurfaceLight
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import whatsinmycloset.composeapp.generated.resources.Res
 
@@ -48,7 +49,7 @@ fun SwapImageCard(
                 .fillMaxWidth()
                 .height(100.dp)
                 .clickable { onSwapClick() }
-                .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
+                .border(1.dp, onSurfaceLight, RoundedCornerShape(8.dp))
         ) {
             @OptIn(ExperimentalResourceApi::class)
             AsyncImage(
@@ -77,7 +78,7 @@ fun SwapOtherImageCard(onSwapClick: () -> Unit, imageUrl: String, username: Stri
                 .height(110.dp)
                 .padding(8.dp)
                 .clickable { onSwapClick() }
-                .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
+                .border(1.dp, onSurfaceLight, RoundedCornerShape(8.dp))
         ) {
             @OptIn(ExperimentalResourceApi::class)
             AsyncImage(
@@ -102,7 +103,7 @@ fun SwapOtherImageCard(onSwapClick: () -> Unit, imageUrl: String, username: Stri
                 modifier = Modifier
                     .size(20.dp)
                     .clip(CircleShape)
-                    .border(1.dp, Color.Black, CircleShape)
+                    .border(1.dp, onSurfaceLight, CircleShape)
             ))
 
             Spacer(modifier = Modifier.width(8.dp))

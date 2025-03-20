@@ -37,7 +37,16 @@ import org.greenthread.whatsinmycloset.core.ui.components.controls.SearchBar
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.SwapImageCard
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.SwapOtherImageCard
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
+import org.greenthread.whatsinmycloset.theme.onSurfaceLight
+import org.greenthread.whatsinmycloset.theme.outlineVariantLight
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import whatsinmycloset.composeapp.generated.resources.Res
+import whatsinmycloset.composeapp.generated.resources.see_all_button
+import whatsinmycloset.composeapp.generated.resources.no_items_found
+import whatsinmycloset.composeapp.generated.resources.my_swap_item
+import whatsinmycloset.composeapp.generated.resources.friends_items
+import whatsinmycloset.composeapp.generated.resources.swap_tab_title
 
 @Composable
 fun SwapScreenRoot(
@@ -123,7 +132,7 @@ fun SwapScreen(
                 modifier = Modifier.height(48.dp),
                 fontSize = 30.sp,
                 fontWeight = FontWeight.Bold,
-                text = "SWAP"
+                text = stringResource(Res.string.swap_tab_title)
             )
 
             Icon(
@@ -131,8 +140,7 @@ fun SwapScreen(
                 contentDescription = "Messages",
                 modifier = Modifier
                     .size(40.dp)
-                    .clickable { onMessageClick() },
-                tint = Color.Black
+                    .clickable { onMessageClick() }
             )
         }
 
@@ -145,9 +153,9 @@ fun SwapScreen(
         ) {
             Text(
                 modifier = Modifier,
-                fontSize = 20.sp,
+                fontSize = 17.sp,
                 fontWeight = FontWeight.Bold,
-                text = "My Swap Items"
+                text = stringResource(Res.string.my_swap_item)
             )
 
             TextButton(
@@ -155,9 +163,8 @@ fun SwapScreen(
                 modifier = Modifier
             ) {
                 Text(
-                    text = "All Swaps",
-                    fontSize = 15.sp,
-                    color = Color.Blue
+                    text = stringResource(Res.string.see_all_button),
+                    fontSize = 15.sp
                 )
             }
         }
@@ -174,7 +181,7 @@ fun SwapScreen(
                         .padding(8.dp)
                         .width(80.dp)
                         .height(95.dp)
-                        .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
+                        .border(1.dp, onSurfaceLight, RoundedCornerShape(8.dp))
                         .clickable { println("Add button clicked") },
                     contentAlignment = Alignment.Center
                 ) {
@@ -182,7 +189,7 @@ fun SwapScreen(
                         "+",
                         fontSize = 30.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.LightGray
+                        color = outlineVariantLight
                     )
                 }
             }
@@ -206,9 +213,9 @@ fun SwapScreen(
         ) {
             Text(
                 modifier = Modifier.height(30.dp),
-                fontSize = 20.sp,
+                fontSize = 17.sp,
                 fontWeight = FontWeight.Bold,
-                text = "Friends Items"
+                text = stringResource(Res.string.friends_items)
             )
 
             SearchBar(
@@ -229,10 +236,10 @@ fun SwapScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "No items found",
+                    text = stringResource(Res.string.no_items_found),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Color.Gray
+                    color = outlineVariantLight
                 )
             }
         } else {
@@ -248,7 +255,7 @@ fun SwapScreen(
                             onAction(SwapAction.OnSwapClick(item.itemId.id))
                         },
                         imageUrl = item.itemId.mediaUrl,
-                        username = "user${item.userId}"
+                        username = "user${item.userId}" // TODO: update to username
                     )
                 }
             }
