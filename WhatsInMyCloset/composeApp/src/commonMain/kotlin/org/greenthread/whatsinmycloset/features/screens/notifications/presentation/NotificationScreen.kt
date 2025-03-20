@@ -34,6 +34,11 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -86,7 +91,7 @@ fun NotificationsScreen(
                     items(notifications) { notification ->
                         NotificationItem(
                             notification = notification,
-                            onClick = { viewModel.markAsRead(it.id) },
+                            onClick = { viewModel.gotoNotification(navController, it) },
                             onDismiss = { notificationId -> viewModel.dismissNotification(notificationId) }
                         )
                     }
@@ -138,8 +143,10 @@ fun NotificationItem(
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = notification.title, style = MaterialTheme.typography.titleMedium)
                 Text(text = notification.body, style = MaterialTheme.typography.bodyMedium)
-                Text(text = "Type: ${notification.type}", style = MaterialTheme.typography.bodySmall)
-                Text(text = "Created: ${notification.createdAt}", style = MaterialTheme.typography.bodySmall)
+                Text(
+                    text = "Sent: ${getRelativeTimeSpan(notification.createdAt)}",
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
 
             // Dismiss button
@@ -148,4 +155,48 @@ fun NotificationItem(
             }
         }
     }
+}
+
+// KMP-compatible relative time formatting
+fun getRelativeTimeSpan(isoDateString: String): String {
+    try {
+        // Parse the ISO string
+        val dateTime = parseIsoDate(isoDateString)
+
+        // Get current time
+        val now = Clock.System.now()
+
+        // Calculate difference in seconds
+        val diffSeconds = (now - dateTime).inWholeSeconds
+
+        return when {
+            diffSeconds < 60 -> "Just now"
+            diffSeconds < 3600 -> "${diffSeconds / 60} minute(s) ago"
+            diffSeconds < 86400 -> "${diffSeconds / 3600} hour(s) ago"
+            diffSeconds < 172800 -> "Yesterday"
+            diffSeconds < 2592000 -> "${diffSeconds / 86400} day(s) ago"
+            diffSeconds < 31536000 -> "${diffSeconds / 2592000} month(s) ago"
+            else -> "${diffSeconds / 31536000} year(s) ago"
+        }
+    } catch (e: Exception) {
+        return isoDateString
+    }
+}
+
+// Helper function to parse ISO date string
+private fun parseIsoDate(isoDateString: String): Instant {
+    val regex = """(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})""".toRegex()
+    val matchResult = regex.find(isoDateString) ?: throw IllegalArgumentException("Invalid date format")
+
+    val (yearStr, monthStr, dayStr, hourStr, minuteStr, secondStr) = matchResult.destructured
+
+    val year = yearStr.toInt()
+    val month = monthStr.toInt()
+    val day = dayStr.toInt()
+    val hour = hourStr.toInt()
+    val minute = minuteStr.toInt()
+    val second = secondStr.toInt()
+
+    return LocalDateTime(year, month, day, hour, minute, second)
+        .toInstant(TimeZone.UTC)
 }
