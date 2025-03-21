@@ -86,15 +86,17 @@ fun App(
 ) {
     val wardrobeManager = koinInject<WardrobeManager>()
     val userManager = koinInject<UserManager>()
-    //wardrobeManager.test()
-
     val navController = rememberNavController()
+    val loginViewModel: LoginViewModel = koinViewModel()
 
+    // Get the current user from the manager
     val currentUser by userManager.currentUser.collectAsState()
 
-    val loginViewModels: LoginViewModel = koinViewModel()
-    val isLoading = loginViewModels.state.isLoading
+    // Get the current load state (Default to true)
+    val isLoading = loginViewModel.state.isLoading
 
+    // When the app launches, check the current user
+    // if not null, log them in!
     LaunchedEffect(currentUser) {
         if (currentUser == null) {
             navController.navigate(Routes.LoginTab) {
@@ -102,11 +104,6 @@ fun App(
             }
         }
     }
-
-
-    // For Testing Saving Outfit -
-    // Create an Account instance (or retrieve it from your app's logic)
-    //val account = remember { Account(userId = "user123", name = "Test User") }
 
     // Create shared ViewModels for the outfit screens
     val user: User = koinInject() // Retrieve the logged-in user's account
@@ -128,16 +125,15 @@ fun App(
         ) { innerPadding ->
             NavHost(
                 navController = navController,
-                startDestination = if (currentUser == null && !isLoading) Routes.LoginGraph else Routes.HomeGraph,                modifier = Modifier.padding(innerPadding)
+                startDestination = if (currentUser == null && !isLoading) Routes.LoginGraph else Routes.HomeGraph,
+                modifier = Modifier.padding(innerPadding)
             ) {
                 navigation<Routes.LoginGraph>(startDestination = Routes.LoginTab) {
                     composable<Routes.LoginTab> {
-                        val loginViewModel : LoginViewModel = koinViewModel()
                         LoginScreenRoot(loginViewModel, navController)
                     }
                     composable<Routes.SignUpTab> {
-                        val viewModel: LoginViewModel = koinViewModel()
-                        SignupScreenRoot(viewModel, navController)
+                        SignupScreenRoot(loginViewModel, navController)
                     }
                 }
                 navigation<Routes.HomeGraph>(startDestination = Routes.HomeTab) {

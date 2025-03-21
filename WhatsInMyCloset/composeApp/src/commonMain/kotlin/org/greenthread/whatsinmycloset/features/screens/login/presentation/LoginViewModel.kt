@@ -47,10 +47,8 @@ class LoginViewModel(
     private fun checkCurrentUser() {
         val currentUser = auth.currentUser
         if (currentUser != null) {
-            // Keep loading state true
             _state.value = state.copy(isAuthenticated = true, isLoading = true)
             getUser(currentUser.email ?: "")
-            // The loading state will be set to false in the getUser completion
         } else {
             _state.value = state.copy(isLoading = false)
         }
@@ -70,18 +68,11 @@ class LoginViewModel(
             try {
                 val result = auth.signInWithEmailAndPassword(email, password)
 
-                getUser(email)
-
-                _state.value = state.copy(
-                    isAuthenticated = true,
-                    isLoading = false
-                )
-
-                userManager.currentUser.value?.retrieveUserId()?.let { userId ->
-                    notificationsViewModel.checkForUnreadNotifications(userId)
+                if (result.user != null)
+                {
+                    getUser(email)
                 }
 
-                onLoginSuccess?.invoke()
             } catch (e: Exception) {
                 _state.value = state.copy(
                     errorMessage = e.message?: "Failed Login",
@@ -117,7 +108,6 @@ class LoginViewModel(
                 createUser(userDto)
 
                 _state.value = state.copy(
-                    isAuthenticated = true,
                     isLoading = false
                 )
                 onSignupSuccess?.invoke()

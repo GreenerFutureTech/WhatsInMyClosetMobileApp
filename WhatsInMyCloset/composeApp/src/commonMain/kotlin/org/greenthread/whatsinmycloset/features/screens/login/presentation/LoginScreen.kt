@@ -70,7 +70,7 @@ fun LoadingScreen() {
             .background(Color.White),
         contentAlignment = Alignment.Center
     ) {
-        CircularProgressIndicator() // Show a loading spinner
+        CircularProgressIndicator()
     }
 }
 

@@ -156,7 +156,7 @@ fun NotificationItem(
                 Text(text = notification.title, style = MaterialTheme.typography.titleMedium)
                 Text(text = notification.body, style = MaterialTheme.typography.bodyMedium)
                 Text(
-                    text = "${Res.string.notification_sent}: ${getRelativeTimeSpan(notification.createdAt)}",
+                    text = "${stringResource(Res.string.notification_sent)}: ${getRelativeTimeSpan(notification.createdAt)}",
                     style = MaterialTheme.typography.bodySmall
 
                 )
