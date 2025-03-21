@@ -72,11 +72,20 @@ class LoginViewModel(
                 {
                     getUser(email)
                 }
+                else
+                {
+                    _state.value = state.copy(
+                        errorMessage = "Authentication failed",
+                        isLoading = false,
+                        isAuthenticated = false
+                    )
+                }
 
             } catch (e: Exception) {
                 _state.value = state.copy(
                     errorMessage = e.message?: "Failed Login",
-                    isLoading = false
+                    isLoading = false,
+                    isAuthenticated = false
                 )
             }
         }
@@ -161,7 +170,6 @@ class LoginViewModel(
                     }
 
                     val token = getFCMToken()
-
                     val updatedUser = userDto.copy(
                         fcmToken = token,
                         lastLogin = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).toString()
@@ -170,11 +178,10 @@ class LoginViewModel(
 
                     _state.value = state.copy(
                         isLoading = false,
+                        isAuthenticated = true
                     )
 
-                    if (state.isAuthenticated) {
-                        onLoginSuccess?.invoke()
-                    }
+                    onLoginSuccess?.invoke()
                 }
                 .onError { error ->
                     println("GET USER API ERROR ${error}")

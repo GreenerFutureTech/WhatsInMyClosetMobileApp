@@ -94,16 +94,7 @@ fun App(
 
     // Get the current load state (Default to true)
     val isLoading = loginViewModel.state.isLoading
-
-    // When the app launches, check the current user
-    // if not null, log them in!
-    LaunchedEffect(currentUser) {
-        if (currentUser == null) {
-            navController.navigate(Routes.LoginTab) {
-                popUpTo(Routes.HomeTab) { inclusive = true }
-            }
-        }
-    }
+    val isAuthenticated = loginViewModel.state.isAuthenticated
 
     // Create shared ViewModels for the outfit screens
     val user: User = koinInject() // Retrieve the logged-in user's account
@@ -125,7 +116,7 @@ fun App(
         ) { innerPadding ->
             NavHost(
                 navController = navController,
-                startDestination = if (currentUser == null && !isLoading) Routes.LoginGraph else Routes.HomeGraph,
+                startDestination = Routes.LoginGraph ,
                 modifier = Modifier.padding(innerPadding)
             ) {
                 navigation<Routes.LoginGraph>(startDestination = Routes.LoginTab) {
