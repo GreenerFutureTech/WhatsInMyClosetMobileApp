@@ -27,10 +27,34 @@ class LoginViewModel(
     private val notificationsViewModel: NotificationsViewModel
 ): ViewModel() {
     private val auth = Firebase.auth
-    private val _state = mutableStateOf(LoginState())
+    private val _state = mutableStateOf(LoginState(isLoading = true))
     val state by _state
     var onLoginSuccess: (() -> Unit)? = null
     var onSignupSuccess: (() -> Unit)? = null
+
+    init {
+        checkCurrentUser()
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            auth.signOut() // Sign out from Firebase
+            userManager.updateUser(null)
+
+        }
+    }
+
+    private fun checkCurrentUser() {
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            // Keep loading state true
+            _state.value = state.copy(isAuthenticated = true, isLoading = true)
+            getUser(currentUser.email ?: "")
+            // The loading state will be set to false in the getUser completion
+        } else {
+            _state.value = state.copy(isLoading = false)
+        }
+    }
 
     fun onAction(action: LoginAction){
         when(action) {
@@ -157,6 +181,10 @@ class LoginViewModel(
                     _state.value = state.copy(
                         isLoading = false,
                     )
+
+                    if (state.isAuthenticated) {
+                        onLoginSuccess?.invoke()
+                    }
                 }
                 .onError { error ->
                     println("GET USER API ERROR ${error}")

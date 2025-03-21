@@ -12,6 +12,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Text
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -45,14 +46,32 @@ fun LoginScreenRoot(
     navController: NavController
 ) {
     viewModel.onLoginSuccess = {
-        navController.navigate(Routes.HomeTab)
+        navController.navigate(Routes.HomeTab) {
+            popUpTo(Routes.LoginTab) { inclusive = true }
+        }
     }
 
-    LoginScreen(
-        state = viewModel.state,
-        onAction = viewModel::onAction,
-        navController = navController
-    )
+    if (viewModel.state.isLoading) {
+        LoadingScreen()
+    } else {
+        LoginScreen(
+            state = viewModel.state,
+            onAction = viewModel::onAction,
+            navController = navController
+        )
+    }
+}
+
+@Composable
+fun LoadingScreen() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator() // Show a loading spinner
+    }
 }
 
 @Composable

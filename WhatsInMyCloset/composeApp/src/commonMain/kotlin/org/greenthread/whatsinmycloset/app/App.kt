@@ -90,6 +90,20 @@ fun App(
 
     val navController = rememberNavController()
 
+    val currentUser by userManager.currentUser.collectAsState()
+
+    val loginViewModels: LoginViewModel = koinViewModel()
+    val isLoading = loginViewModels.state.isLoading
+
+    LaunchedEffect(currentUser) {
+        if (currentUser == null) {
+            navController.navigate(Routes.LoginTab) {
+                popUpTo(Routes.HomeTab) { inclusive = true }
+            }
+        }
+    }
+
+
     // For Testing Saving Outfit -
     // Create an Account instance (or retrieve it from your app's logic)
     //val account = remember { Account(userId = "user123", name = "Test User") }
@@ -114,8 +128,7 @@ fun App(
         ) { innerPadding ->
             NavHost(
                 navController = navController,
-                startDestination = Routes.LoginGraph,
-                modifier = Modifier.padding(innerPadding)
+                startDestination = if (currentUser == null && !isLoading) Routes.LoginGraph else Routes.HomeGraph,                modifier = Modifier.padding(innerPadding)
             ) {
                 navigation<Routes.LoginGraph>(startDestination = Routes.LoginTab) {
                     composable<Routes.LoginTab> {
