@@ -1,20 +1,27 @@
 package org.greenthread.whatsinmycloset.core.dto
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import org.greenthread.whatsinmycloset.core.domain.models.User
+
 
 @Serializable
 data class UserDto(
     val id: Int? = null,
-    val username: String,
-    val email: String,
-    val name: String,
-    val firebaseUid: String,
+    val username: String = "",
+    val email: String = "",
+    val name: String = "",
+    val firebaseUid: String = "",
     val profilePicture: String? = null,
     val type: String? = null,
-    val registeredAt: String,
-    val updatedAt: String,
-    val lastLogin: String
+    val registeredAt: String = "",
+    val updatedAt: String = "",
+    val lastLogin: String = "",
+
+    @Transient val posts: List<String>? = null,
+    @Transient val sentMessages: List<String>? = null,
+    @Transient val receivedMessages: List<String>? = null,
+    @Transient val friends: List<String>? = null
 ) {
     fun toModel(): User {
         return User(id = id, name = name, username = username,
@@ -23,3 +30,13 @@ data class UserDto(
             registeredAt = registeredAt, updatedAt = updatedAt, lastLogin = lastLogin)
     }
 }
+
+fun UserDto.toMessageUserDto(): MessageUserDto {
+    return MessageUserDto(
+        id = this.id?: 0,
+        username = this.username,
+        name = this.name,
+        profilePicture = this.profilePicture ?: ""
+    )
+}
+
