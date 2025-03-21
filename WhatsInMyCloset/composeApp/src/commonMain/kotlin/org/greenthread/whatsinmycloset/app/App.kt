@@ -277,9 +277,11 @@ fun App(
                     composable<Routes.SwapDetailsScreen> {
                         val selectedSwapViewModel = it.sharedKoinViewModel<SelectedSwapViewModel>(navController)
                         val selectedSwap by selectedSwapViewModel.selectedSwap.collectAsStateWithLifecycle()
-                        val userAccount by userManager.currentUser.collectAsState() // Collect StateFlow as a normal value
-
-                        SwapDetailScreen(swap = selectedSwap, onBackClick = { navController.navigate(Routes.SwapTab)}, userUser = userAccount )
+                        SwapDetailScreen(
+                            swap = selectedSwap,
+                            onBackClick = { navController.navigate(Routes.SwapTab)},
+                            onRequestClick = {navController.navigate(Routes.ChatScreen)}
+                        )
                     }
 
                 }
