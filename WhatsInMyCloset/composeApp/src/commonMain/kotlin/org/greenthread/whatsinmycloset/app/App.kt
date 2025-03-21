@@ -89,13 +89,6 @@ fun App(
     val navController = rememberNavController()
     val loginViewModel: LoginViewModel = koinViewModel()
 
-    // Get the current user from the manager
-    val currentUser by userManager.currentUser.collectAsState()
-
-    // Get the current load state (Default to true)
-    val isLoading = loginViewModel.state.isLoading
-    val isAuthenticated = loginViewModel.state.isAuthenticated
-
     // Create shared ViewModels for the outfit screens
     val user: User = koinInject() // Retrieve the logged-in user's account
     val sharedClothingItemViewModel: ClothingItemViewModel = koinViewModel()

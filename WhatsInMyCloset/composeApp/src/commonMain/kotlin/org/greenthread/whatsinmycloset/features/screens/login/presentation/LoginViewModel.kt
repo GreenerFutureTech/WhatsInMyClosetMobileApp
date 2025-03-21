@@ -23,7 +23,7 @@ import org.greenthread.whatsinmycloset.getFCMToken
 
 class LoginViewModel(
     private val userRepository: ClosetRepository,
-    val userManager: UserManager,
+    private val userManager: UserManager,
     private val notificationsViewModel: NotificationsViewModel
 ): ViewModel() {
     private val auth = Firebase.auth
@@ -40,7 +40,7 @@ class LoginViewModel(
         viewModelScope.launch {
             auth.signOut() // Sign out from Firebase
             userManager.updateUser(null)
-
+            notificationsViewModel.clearNewNotificationsState()
         }
     }
 
@@ -129,7 +129,7 @@ class LoginViewModel(
         }
     }
 
-    fun createUser(user: UserDto) {
+    private fun createUser(user: UserDto) {
         viewModelScope.launch {
             println("CREATE USER : Create user")
             _state.value = state.copy(
@@ -144,7 +144,7 @@ class LoginViewModel(
                     )
                 }
                 .onError { error ->
-                    println("CREATE USER  API ERROR ${error}")
+                    println("CREATE USER  API ERROR $error")
                     _state.value = state.copy(
                         isLoading = false,
                     )
@@ -152,7 +152,7 @@ class LoginViewModel(
         }
     }
 
-    fun getUser(email: String) {
+    private fun getUser(email: String) {
         viewModelScope.launch {
             println("GET USER : Get user")
             _state.value = state.copy(
@@ -184,7 +184,7 @@ class LoginViewModel(
                     onLoginSuccess?.invoke()
                 }
                 .onError { error ->
-                    println("GET USER API ERROR ${error}")
+                    println("GET USER API ERROR $error")
                     _state.value = state.copy(
                         isLoading = false,
                     )
@@ -192,7 +192,7 @@ class LoginViewModel(
         }
     }
 
-    fun updateUser(user: UserDto) {
+    private fun updateUser(user: UserDto) {
         viewModelScope.launch {
             println("UPDATE USER : Updated user ${user.id}")
             _state.value = state.copy(
@@ -207,7 +207,7 @@ class LoginViewModel(
                     )
                 }
                 .onError { error ->
-                    println("UPDATE USER  API ERROR ${error}")
+                    println("UPDATE USER  API ERROR $error")
                     _state.value = state.copy(
                         isLoading = false,
                     )
