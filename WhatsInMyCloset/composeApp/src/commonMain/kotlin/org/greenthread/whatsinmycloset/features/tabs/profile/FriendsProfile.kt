@@ -35,6 +35,8 @@ import whatsinmycloset.composeapp.generated.resources.Res
 import whatsinmycloset.composeapp.generated.resources.add_friend_button
 import whatsinmycloset.composeapp.generated.resources.this_week_outfits_title
 
+// TODO - replace hardcoded Outfit
+
 @Composable
 fun FriendProfileScreen(userState: StateFlow<User?>, onNavigate: () -> Unit) {
     var showContent by remember { mutableStateOf(false) }
@@ -46,27 +48,12 @@ fun FriendProfileScreen(userState: StateFlow<User?>, onNavigate: () -> Unit) {
     val outfits = List(numberOfOutfits) { i ->
         Outfit(
             id = "outfit1",
-            userId = "1",
+            userId = 1,
             public = true,
             favorite = true,
             mediaURL = "",
             name = "Summer Look",
-            items = listOf(
-                ClothingItem(
-                    id = "1",
-                    name = "Blue Top",
-                    itemType = ClothingCategory.TOPS,
-                    mediaUrl = null,
-                    tags = listOf("casual", "summer")
-                ),
-                ClothingItem(
-                    id = "2",
-                    name = "Denim Jeans",
-                    itemType = ClothingCategory.BOTTOMS,
-                    mediaUrl = null,
-                    tags = listOf("casual", "summer")
-                ),
-            ),
+            itemIds = listOf("15", "7", "9"),
             createdAt = "08/03/2025"
         )
     }

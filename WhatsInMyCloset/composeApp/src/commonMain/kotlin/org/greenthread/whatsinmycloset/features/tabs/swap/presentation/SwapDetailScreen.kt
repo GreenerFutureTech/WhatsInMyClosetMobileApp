@@ -32,14 +32,14 @@ import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
+import org.greenthread.whatsinmycloset.theme.secondaryLight
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import whatsinmycloset.composeapp.generated.resources.Res
-import whatsinmycloset.composeapp.generated.resources.complete_swap
 import whatsinmycloset.composeapp.generated.resources.complete_swap_dialog_message
 import whatsinmycloset.composeapp.generated.resources.complete_swap_dialog_title
-import whatsinmycloset.composeapp.generated.resources.delete
+import whatsinmycloset.composeapp.generated.resources.delete_button
 import whatsinmycloset.composeapp.generated.resources.delete_swap_dialog_message
 import whatsinmycloset.composeapp.generated.resources.delete_swap_dialog_title
 
@@ -64,13 +64,6 @@ fun SwapDetailScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-
-            TextButton(
-                onClick = onBackClick
-            ) {
-                Text(text = "Back")
-            }
-
             if (swap.userId == currentUser.id) {
                 Box {
                     IconButton(
@@ -90,7 +83,7 @@ fun SwapDetailScreen(
                         DropdownMenuItem(
                             text = {
                                 Text(
-                                    text = stringResource(Res.string.complete_swap),
+                                    text = stringResource(Res.string.complete_swap_dialog_title),
                                     modifier = Modifier.fillMaxWidth()
                                 )
                             },
@@ -102,7 +95,7 @@ fun SwapDetailScreen(
                         DropdownMenuItem(
                             text = {
                                 Text(
-                                    text = stringResource(Res.string.delete),
+                                    text = stringResource(Res.string.delete_button),
                                     modifier = Modifier.fillMaxWidth()
                                 )
                             },
@@ -206,8 +199,7 @@ fun SwapDetailScreen(
                         modifier = Modifier
                             .size(40.dp)
                             .clip(CircleShape)
-                            .border(1.dp, Color.Gray, CircleShape)
-                            .padding(2.dp)
+                            .border(1.dp, secondaryLight, CircleShape)
                     )
 
                     Spacer(modifier = Modifier.width(10.dp))

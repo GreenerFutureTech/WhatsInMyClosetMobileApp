@@ -41,23 +41,6 @@ fun MessageListScreen(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        Column(
-            modifier = Modifier
-                .align(Alignment.TopStart)
-        ) {
-            TextButton(
-                onClick = { navController.popBackStack() }
-            ) {
-                Text(
-                    text = "Back",
-                    fontSize = 15.sp,
-                    color = Color.Blue
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-
         when {
             state.isLoading -> {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
@@ -69,7 +52,7 @@ fun MessageListScreen(
                 LazyColumn(
                     modifier = Modifier.fillMaxSize()
                         .fillMaxSize()
-                        .padding(top = 60.dp)
+                        .padding(top = 20.dp)
 
                 ) {
                     items(state.getLatestMessageResults) { message ->

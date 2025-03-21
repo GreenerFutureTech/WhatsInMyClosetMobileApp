@@ -78,12 +78,10 @@ fun HomeTabScreenRoot(
 ) {
     var showContent by remember { mutableStateOf(false) }
 
-    val scrollState = rememberScrollState()
-
     // Create a user profile
     val user = User(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
     //Relevant info is injected via HomeTabViewModel and managers
-    Column(modifier = Modifier.fillMaxWidth().verticalScroll(scrollState), horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         HomeTabScreen(
             viewModel = viewModel,
             navController = navController,
@@ -138,7 +136,11 @@ fun HomeTabScreen(
     val wardrobe = viewModel?.defaultWardrobe
 
 
-    Column {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState()) // Enable vertical scrolling
+    ) {
         WardrobeHeader(itemCount = wardrobe?.getAllItems()?.count() ?: 0)
         HomeSection(title = Res.string.categories_section_title) {
             CategoriesSection({})

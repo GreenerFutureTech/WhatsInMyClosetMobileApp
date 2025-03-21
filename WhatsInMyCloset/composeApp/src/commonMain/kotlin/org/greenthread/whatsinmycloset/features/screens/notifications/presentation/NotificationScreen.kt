@@ -40,6 +40,12 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
+import org.jetbrains.compose.resources.stringResource
+import whatsinmycloset.composeapp.generated.resources.Res
+import whatsinmycloset.composeapp.generated.resources.notification_sent
+import whatsinmycloset.composeapp.generated.resources.notification_header
+import whatsinmycloset.composeapp.generated.resources.notification_clear
+import whatsinmycloset.composeapp.generated.resources.notification_none
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -66,7 +72,7 @@ fun NotificationsScreen(
             .padding(16.dp)
     ) {
         Text(
-            text = "Notifications",
+            text = stringResource(Res.string.notification_header),
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(bottom = 16.dp)
         )
@@ -89,7 +95,7 @@ fun NotificationsScreen(
                             horizontalArrangement = Arrangement.End
                         ) {
                             Button(onClick = { viewModel.clearAllNotifications() }) {
-                                Text("Clear All")
+                                Text(stringResource(Res.string.notification_clear))
                             }
                         }
                     }
@@ -110,7 +116,7 @@ fun NotificationsScreen(
                                 .padding(top = 50.dp), // Adds spacing for the pull gesture
                             contentAlignment = Alignment.Center
                         ) {
-                            Text("No notifications")
+                            Text(stringResource(Res.string.notification_none))
                         }
                     }
                 }
@@ -150,8 +156,9 @@ fun NotificationItem(
                 Text(text = notification.title, style = MaterialTheme.typography.titleMedium)
                 Text(text = notification.body, style = MaterialTheme.typography.bodyMedium)
                 Text(
-                    text = "Sent: ${getRelativeTimeSpan(notification.createdAt)}",
+                    text = "${Res.string.notification_sent}: ${getRelativeTimeSpan(notification.createdAt)}",
                     style = MaterialTheme.typography.bodySmall
+
                 )
             }
 

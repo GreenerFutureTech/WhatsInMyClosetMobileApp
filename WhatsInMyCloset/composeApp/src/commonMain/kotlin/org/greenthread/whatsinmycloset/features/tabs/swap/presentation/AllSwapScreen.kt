@@ -26,7 +26,11 @@ import org.greenthread.whatsinmycloset.core.ui.components.listItems.SwapImageCar
 import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
+import org.greenthread.whatsinmycloset.theme.outlineVariantLight
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import whatsinmycloset.composeapp.generated.resources.Res
+import whatsinmycloset.composeapp.generated.resources.no_items_found
 
 @Composable
 fun AllSwapsScreen(
@@ -52,26 +56,6 @@ fun AllSwapsScreen(
         Column(
             modifier = Modifier.fillMaxSize().padding(10.dp)
         ) {
-
-            TextButton(onClick = { navController.popBackStack() }) {
-                Text(
-                    text = "Back",
-                    fontSize = 15.sp,
-                    color = Color.Blue
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = "All",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.padding(start = 8.dp)
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
             if (state.getUserSwapResults.isEmpty()) {
                 Column(
                     modifier = Modifier.fillMaxSize(),
@@ -79,10 +63,10 @@ fun AllSwapsScreen(
                     verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
                 ) {
                     Text(
-                        text = "No items found",
+                        text =  stringResource(Res.string.no_items_found),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Medium,
-                        color = Color.Gray
+                        color = outlineVariantLight
                     )
                 }
             } else {

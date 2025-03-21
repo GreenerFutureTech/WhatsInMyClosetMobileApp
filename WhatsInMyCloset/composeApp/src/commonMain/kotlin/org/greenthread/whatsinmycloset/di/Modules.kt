@@ -6,9 +6,12 @@ import org.greenthread.whatsinmycloset.core.data.HttpClientFactory
 import org.greenthread.whatsinmycloset.core.data.MyClosetDatabase
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.domain.models.User
+import org.greenthread.whatsinmycloset.core.managers.OutfitManager
 import org.greenthread.whatsinmycloset.core.managers.WardrobeManager
 import org.greenthread.whatsinmycloset.core.network.KtorRemoteDataSource
 import org.greenthread.whatsinmycloset.core.network.RemoteClosetDataSource
+import org.greenthread.whatsinmycloset.core.repositories.OutfitRepository
+import org.greenthread.whatsinmycloset.core.repositories.OutfitTags
 import org.greenthread.whatsinmycloset.core.repositories.WardrobeRepository
 import org.greenthread.whatsinmycloset.core.repository.ClosetRepository
 import org.greenthread.whatsinmycloset.core.repository.DefaultClosetRepository
@@ -42,6 +45,9 @@ val sharedModule = module {
     singleOf(::WardrobeManager).bind<WardrobeManager>()
     singleOf(::UserManager).bind<UserManager>()
     singleOf(::NotificationRepository).bind<NotificationRepository>()
+    singleOf(::OutfitRepository).bind<OutfitRepository>()
+    singleOf(::OutfitManager).bind<OutfitManager>()
+    singleOf(::OutfitTags).bind<OutfitTags>()
 
     single {
         get<DatabaseFactory>().create()
@@ -50,6 +56,7 @@ val sharedModule = module {
     }
     single{ get<MyClosetDatabase>().wardrobeDao()}
     single{ get<MyClosetDatabase>().itemDao()}
+    single{ get<MyClosetDatabase>().outfitDao()}
 
     viewModelOf(::HomeTabViewModel)
     viewModelOf(::AddItemScreenViewModel)
@@ -61,13 +68,19 @@ val sharedModule = module {
     viewModelOf(::MessageViewModel)
 
     viewModelOf(::ClothingItemViewModel)
+    viewModelOf(::OutfitViewModel)
 
     viewModelOf(::NotificationsViewModel)
 
-    single { User(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
+    single {
+        User(99999123, "TestName",
+        email = "testmail",
+        firebaseUuid = "",
+        lastLogin = "01-01-2025",
+        name = "testName",
+        registeredAt = "01-01-2025",
+        updatedAt = "01-01-2025")
     } // Replace with actual user info
-
-    viewModel { OutfitViewModel(get(), get()) } // Pass Account and SavedStateHandle
 }
 
 
