@@ -10,6 +10,7 @@ data class UserDto(
     val email: String,
     val name: String,
     val firebaseUid: String,
+    val fcmToken: String? = null,
     val profilePicture: String? = null,
     val type: String? = null,
     val registeredAt: String,
@@ -17,9 +18,6 @@ data class UserDto(
     val lastLogin: String
 ) {
     fun toModel(): User {
-        return User(id = id, name = name, username = username,
-            email = email, firebaseUuid = firebaseUid,
-            profilePicture = profilePicture, type = type,
-            registeredAt = registeredAt, updatedAt = updatedAt, lastLogin = lastLogin)
+        return User(id = id, name = name, username = username, email = email, firebaseUuid = firebaseUid, fcmToken = fcmToken, profilePicture = profilePicture, type = type, registeredAt = registeredAt, updatedAt = updatedAt, lastLogin = lastLogin)
     }
 }
