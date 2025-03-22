@@ -252,7 +252,9 @@ fun OutfitCollageArea(
     )
     {
         if (selectedClothingItems.isEmpty()) {
-            Text("No items selected", color = Color.Gray)
+            Text("No items selected",
+                color = Color.Gray,
+                textAlign = TextAlign.Center)
         }
         else
         {
@@ -363,8 +365,7 @@ fun ClothingCategorySelection(onSelectCategory: (ClothingCategory) -> Unit) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2), // Two columns
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(2.dp),
+            .fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(2.dp),
         horizontalArrangement = Arrangement.spacedBy(2.dp)
     ) {
@@ -375,7 +376,6 @@ fun ClothingCategorySelection(onSelectCategory: (ClothingCategory) -> Unit) {
                 onClick = { onSelectCategory(thisItem) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(2.dp)
             ) {
                 Text(
                     text = thisItem.categoryName,
@@ -591,19 +591,6 @@ fun CategoryItem(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-            /*Image(
-                painter = when (item.itemType) {
-                    ClothingCategory.TOPS -> painterResource(Res.drawable.top1)
-                    ClothingCategory.BOTTOMS -> painterResource(Res.drawable.top1)
-                    ClothingCategory.FOOTWEAR -> painterResource(Res.drawable.top1)
-                    ClothingCategory.ACCESSORIES -> painterResource(Res.drawable.top1)
-                },
-                contentDescription = item.name,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(100.dp)
-                    .clip(RoundedCornerShape(8.dp))
-            )*/
         }
     }
 }
@@ -730,21 +717,36 @@ fun OutfitScreenHeader(
     title: String
 
 ) {
-    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically)
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+    )
     {
         Text(
             text = "$title",
             style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.weight(1f), // Allow centering
+            modifier = Modifier.align(Alignment.Center), // Allow centering
             textAlign = TextAlign.Center)
 
-        Button(
+        // Exit Button - Right Aligned
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ){
+        ElevatedButton(
             onClick = onExit,
             modifier = Modifier
-                .size(65.dp))
+                .width(60.dp)  // Set width to ensure a rectangular shape
+                .height(30.dp), // Define height for a proper rectangle
+            shape = RoundedCornerShape(10.dp) // Rounded corners
+        )
         {
-            Icon(Icons.Default.Close, contentDescription = "Exit")
-        }
+            Icon(Icons.Default.Close,
+                contentDescription = "Exit",
+                modifier = Modifier.size(24.dp))
+        }}
     }
 }
 

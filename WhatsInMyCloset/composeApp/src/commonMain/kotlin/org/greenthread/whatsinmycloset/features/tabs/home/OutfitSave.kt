@@ -136,15 +136,17 @@ fun OutfitSaveScreen(
                     // Button to open the "Create New Tag" dialog
                     Button(
                         onClick = { showCreateTagDialog = true},
-                        modifier = Modifier.padding(8.dp)
+                        modifier = Modifier.width(210.dp)
                     ) {
                         Text("+ Create New Outfit Tag")
                     }
 
+                    Spacer(modifier = Modifier.height(10.dp))
+
                     // Add to Calendar button
                     Button(
                         onClick = { showCalendarDialog = true },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.width(210.dp)
                     ) {
                         Text("Add to Calendar")
                     }
