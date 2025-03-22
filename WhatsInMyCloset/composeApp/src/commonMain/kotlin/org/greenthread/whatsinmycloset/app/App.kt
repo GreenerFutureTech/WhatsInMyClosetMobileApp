@@ -24,12 +24,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -93,17 +97,30 @@ fun App(
         val sharedClothingItemViewModel: ClothingItemViewModel = koinViewModel()
         val sharedOutfitViewModel: OutfitViewModel = koinViewModel()
 
+    // Track when to display top and bottom bars
+    var showBar by rememberSaveable { mutableStateOf(true) }
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+
+    showBar = when (navBackStackEntry?.destination?.route?.substringAfterLast(".")) {
+        Routes.LoginTab.toString(), Routes.SignUpTab.toString() -> false // hide bar on login screen
+        else -> true // in all other cases show top and bottom bars
+    }
+
     WhatsInMyClosetTheme {
         Scaffold(
             topBar = {
-                AppTopBar(
-                    title = "WIMC",
-                    navController = navController,
-                    showBackButton = true
-                )
+                if(showBar) {
+                    AppTopBar(
+                        title = "WIMC",
+                        navController = navController,
+                        showBackButton = true
+                    )
+                }
             },
             bottomBar = {
-                BottomNavigationBar(navController)
+                if(showBar) {
+                    BottomNavigationBar(navController)
+                }
             }
         ) { innerPadding ->
             NavHost(
@@ -445,4 +462,10 @@ fun AddNewItem(onClick: () -> Unit) {
     ){
         Icon(Icons.Filled.Add, stringResource(Res.string.add_new_item_button))
     }
+}
+
+@Composable
+fun currentRoute(navController: NavHostController): String? {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    return navBackStackEntry?.destination?.route
 }
