@@ -31,9 +31,8 @@ class NotificationService : FirebaseMessagingService() {
             sendNotification(notification.title, notification.body)
         }
 
-        // If data payload is present, handle it
+        // If data payload is present
         if (remoteMessage.data.isNotEmpty()) {
-            // Process data payload if needed
             val title = remoteMessage.data["title"] ?: "New Message"
             val message = remoteMessage.data["message"] ?: "You have a new notification"
             sendNotification(title, message)
@@ -46,6 +45,8 @@ class NotificationService : FirebaseMessagingService() {
 
     private fun sendNotification(title: String?, messageBody: String?) {
         val channelId = "fcm_default_channel"
+
+        // Intent to navigate to notifications screen
         val intent = Intent(this, MainActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             putExtra("NAVIGATE_TO", "notifications")
@@ -55,13 +56,16 @@ class NotificationService : FirebaseMessagingService() {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
+        val notificationTitle = title ?: return
+        val notificationMessage = messageBody ?: return
+
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.drawable.ic_notification) // Create this icon in your drawable folder
-            .setContentTitle(title ?: "Notification")
-            .setContentText(messageBody ?: "You have a new notification")
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(notificationTitle)
+            .setContentText(notificationMessage)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -70,7 +74,7 @@ class NotificationService : FirebaseMessagingService() {
             val channel = NotificationChannel(
                 channelId,
                 "Channel human readable title",
-                NotificationManager.IMPORTANCE_HIGH
+                NotificationManager.IMPORTANCE_DEFAULT
             ).apply {
                 description = "FCM Notifications"
                 enableLights(true)
