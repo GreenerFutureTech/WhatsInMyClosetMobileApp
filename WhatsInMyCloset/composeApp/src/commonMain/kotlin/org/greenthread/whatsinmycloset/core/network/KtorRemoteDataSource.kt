@@ -50,7 +50,7 @@ class KtorRemoteDataSource(
     override suspend fun getOtherUsersSwaps(currentUserId: String): Result<List<OtherSwapDto>, DataError.Remote> {
         return safeCall {
             httpClient.get(
-                urlString = "$BASE_URL/swaps/others/$currentUserId"
+                urlString = "$BASE_URL/swaps/friends/$currentUserId"
             )
         }
     }
