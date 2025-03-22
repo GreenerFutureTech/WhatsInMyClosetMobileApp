@@ -51,27 +51,12 @@ fun ProfileTabScreen(userState: StateFlow<User?>, onNavigate: () -> Unit) {
         val outfits = List(numberOfOutfits) { i ->
             Outfit(
                 id = "outfit1",
-                userId = "1",
+                userId = 1,
                 public = true,
                 favorite = true,
                 mediaURL = "",
                 name = "Summer Look",
-                items = listOf(
-                    ClothingItem(
-                        id = "1",
-                        name = "Blue Top",
-                        itemType = ClothingCategory.TOPS,
-                        mediaUrl = "https://greenthreaditems.blob.core.windows.net/images/c0cefce3-d34a-478b-9645-153af8616daa",
-                        tags = listOf("casual", "summer")
-                    ),
-                    ClothingItem(
-                        id = "2",
-                        name = "Black Joggers",
-                        itemType = ClothingCategory.BOTTOMS,
-                        mediaUrl = "https://greenthreaditems.blob.core.windows.net/images/6c8e4696-fa91-4dcc-bc84-424e9953560d",
-                        tags = listOf("casual", "summer")
-                    ),
-                ),
+                itemIds = listOf("15", "7", "9"),
                 createdAt = "08/03/2025"
             )
         }

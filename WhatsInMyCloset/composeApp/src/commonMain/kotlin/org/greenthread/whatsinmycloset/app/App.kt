@@ -1,11 +1,15 @@
 package org.greenthread.whatsinmycloset.app
 
 import AllSwapsScreen
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Person
@@ -26,9 +30,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
@@ -40,6 +46,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import org.greenthread.whatsinmycloset.CameraManager
+import org.greenthread.whatsinmycloset.NotificationManager
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
@@ -50,6 +57,8 @@ import org.greenthread.whatsinmycloset.features.screens.addItem.presentation.Add
 import org.greenthread.whatsinmycloset.features.screens.addItem.presentation.AddItemScreenViewModel
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginScreenRoot
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginViewModel
+import org.greenthread.whatsinmycloset.features.screens.notifications.presentation.NotificationsScreen
+import org.greenthread.whatsinmycloset.features.screens.notifications.presentation.NotificationsViewModel
 import org.greenthread.whatsinmycloset.features.screens.settings.SettingsScreen
 import org.greenthread.whatsinmycloset.features.screens.signup.SignupScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItemDetailScreen
@@ -80,22 +89,22 @@ import whatsinmycloset.composeapp.generated.resources.add_new_item_button
 @Preview
 fun App(
     cameraManager: CameraManager?,
+    notificationManager: NotificationManager?
 ) {
+    val wardrobeManager = koinInject<WardrobeManager>()
+    val userManager = koinInject<UserManager>()
+    //wardrobeManager.test()
 
-        val wardrobeManager = koinInject<WardrobeManager>()
-        val userManager = koinInject<UserManager>()
-        //wardrobeManager.test()
+    val navController = rememberNavController()
 
-        val navController = rememberNavController()
+    // For Testing Saving Outfit -
+    // Create an Account instance (or retrieve it from your app's logic)
+    //val account = remember { Account(userId = "user123", name = "Test User") }
 
-        // For Testing Saving Outfit -
-        // Create an Account instance (or retrieve it from your app's logic)
-        //val account = remember { Account(userId = "user123", name = "Test User") }
-
-        // Create shared ViewModels for the outfit screens
-        val user: User = koinInject() // Retrieve the logged-in user's account
-        val sharedClothingItemViewModel: ClothingItemViewModel = koinViewModel()
-        val sharedOutfitViewModel: OutfitViewModel = koinViewModel()
+    // Create shared ViewModels for the outfit screens
+    val user: User = koinInject() // Retrieve the logged-in user's account
+    val sharedClothingItemViewModel: ClothingItemViewModel = koinViewModel()
+    val sharedOutfitViewModel: OutfitViewModel = koinViewModel()
 
     // Track when to display top and bottom bars
     var showBar by rememberSaveable { mutableStateOf(true) }
@@ -317,8 +326,7 @@ fun App(
                         val viewModel: MessageViewModel = koinViewModel()
 
                         ChatScreen(
-                            viewModel = viewModel,
-                            navController = navController
+                            viewModel = viewModel
                         )
 
 
@@ -340,6 +348,14 @@ fun App(
                     SettingsScreen(
                         navController = navController,
                         viewModel
+                    )
+                }
+
+                composable<Routes.NotificationsScreen> {
+                    val viewModel = koinViewModel<NotificationsViewModel>()
+                    NotificationsScreen(
+                        navController = navController,
+                        viewModel = viewModel
                     )
                 }
             }
@@ -424,12 +440,16 @@ fun AppTopBar(
     navController: NavController,
     showBackButton: Boolean = false
 ) {
+    val notificationsViewModel: NotificationsViewModel = koinViewModel()
+    val hasNewNotifications by notificationsViewModel.hasNewNotifications.collectAsState()
+
     TopAppBar(
         title = {
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium
-            )},
+            )
+        },
         navigationIcon = {
             if (showBackButton) {
                 IconButton(onClick = { navController.popBackStack() }) {
@@ -441,7 +461,25 @@ fun AppTopBar(
             }
         },
         actions = {
-            IconButton(onClick = { navController.navigate(Routes.SettingsScreen)}) {
+            // Notification Icon with Indicator
+            Box {
+                IconButton(onClick = { navController.navigate(Routes.NotificationsScreen) }) {
+                    Icon(
+                        Icons.Default.Notifications,
+                        contentDescription = "Notifications"
+                    )
+                }
+                if (hasNewNotifications) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .size(12.dp)
+                            .background(MaterialTheme.colorScheme.error, CircleShape)
+                    )
+                }
+            }
+
+            IconButton(onClick = { navController.navigate(Routes.SettingsScreen) }) {
                 Icon(
                     Icons.Default.Settings,
                     contentDescription = "Settings"

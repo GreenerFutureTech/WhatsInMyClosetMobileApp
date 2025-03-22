@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Modifier
-import org.greenthread.whatsinmycloset.features.tabs.home.CreateNewOutfitFolder
+import org.greenthread.whatsinmycloset.features.tabs.home.CreateNewOutfitTag
 import org.greenthread.whatsinmycloset.features.tabs.home.CalendarDialog
 import org.greenthread.whatsinmycloset.features.tabs.home.ConfirmationDialog
 import org.greenthread.whatsinmycloset.features.tabs.home.DiscardConfirmationDialog
@@ -195,16 +195,6 @@ fun DiscardSaveOutfitPreview() {
     DiscardSavingDialog(
         onConfirm = {  },
         onDismiss = { /* Preview dismiss */ }
-    )
-}
-
-
-@Preview
-@Composable
-fun CreateNewOutfitFolderPreview() {
-    CreateNewOutfitFolder(
-        onDismiss = { /* Preview dismiss */ },
-        onCreate = { folderName -> println("Folder created: $folderName") }
     )
 }
 

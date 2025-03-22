@@ -21,7 +21,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.runtime.Composable
@@ -34,6 +36,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil3.compose.AsyncImage
 import org.greenthread.whatsinmycloset.app.Routes
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
@@ -54,11 +57,6 @@ fun OutfitScreen(
 ) {
 
     WhatsInMyClosetTheme {
-        // for testing - populate the categories with random items
-        val allCategories = ClothingCategory.values()
-        val categoryItemsMap = allCategories.associateWith { category ->
-            generateRandomClothingItems(category.toString(), 18)
-        }
 
         // Track selected wardrobe in the Composable
         var selectedWardrobe by remember { mutableStateOf(clothingItemViewModel.defaultWardrobe) }
@@ -67,10 +65,15 @@ fun OutfitScreen(
         LaunchedEffect(selectedWardrobe) {
             println("DEBUG: Initializing clothing items for wardrobe: ${selectedWardrobe?.wardrobeName}...")
 
-            val allItems = categoryItemsMap.values.flatten() // Combine all category items
-            if (selectedWardrobe != null) {
-                clothingItemViewModel.initializeClothingItems(allItems, selectedWardrobe!!.id)
-            }
+            // fetch items for selected wardrobe
+            /*if (selectedWardrobe != null) {
+                // For each category, fetch items for the selected wardrobe
+                clothingItemViewModel.getItemsByCategoryAndWardrobe("Tops", selectedWardrobe)
+            }*/
+
+
+            // get sample items from BLOB to show on screen
+            clothingItemViewModel.fetchSampleClothingItems()
         }
 
         // Collect state from the ViewModel
@@ -108,14 +111,6 @@ fun OutfitScreen(
                     onPositionUpdate = onPositionUpdate
                 )
 
-                //Spacer(modifier = Modifier.height(4.dp))
-
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(4.dp)
-            )
-            {
                 // Clothing category selection
                 ClothingCategorySelection { selectedCategory ->
                     // Convert the selected category string to ClothingCategory enum
@@ -131,62 +126,48 @@ fun OutfitScreen(
 
                 // show additional options when there is at least one item in outfit area
                 if (selectedItems.isNotEmpty()) {
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(1), // Single column for vertical layout
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(4.dp)
-                    ) {
                         // Save Outfit button
-                        item {
-                            Button(
-                                onClick = {
-                                    // Create the outfit, pass user's id and outfit id
-                                    outfitViewModel.createOutfit(selectedItems)
+                        Button(
+                            onClick = {
+                                // Create the outfit, pass selected items
+                                outfitViewModel.createOutfit(name="New Outfit", // allow user to add a name
+                                    selectedItems = selectedItems)
 
-                                    // Navigate to the OutfitSaveScreen
-                                    navController.navigate(
-                                        Routes.OutfitSaveScreen
-                                    )
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                                enabled = selectedItems.isNotEmpty()
-                            ) {
-                                Text("Save Outfit")
-                            }
+                                // Navigate to the OutfitSaveScreen
+                                navController.navigate(
+                                    Routes.OutfitSaveScreen
+                                )
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = selectedItems.isNotEmpty()
+                        ) {
+                            Text("Save Outfit")
                         }
 
                         // Add to Calendar button
-                        item {
-                            Button(
-                                onClick = { showCalendarDialog = true },
-                                modifier = Modifier.fillMaxWidth(),
-                                enabled = selectedItems.isNotEmpty()
-                            ) {
-                                Text("Add to Calendar")
-                            }
+                        Button(
+                            onClick = { showCalendarDialog = true },
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = selectedItems.isNotEmpty()
+                        ) {
+                            Text("Add to Calendar")
                         }
 
                         // Create New Outfit button
-                        item {
-                            Button(
-                                onClick = {
-                                    // Discard the current outfit and create a new one
-                                    outfitViewModel.discardCurrentOutfit()
-                                    outfitViewModel.clearOutfitState() // Clear the outfit state
-                                    clothingItemViewModel.clearClothingItemState() // Clear the selected items state
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                                enabled = selectedItems.isNotEmpty()
-                            ) {
-                                Text("Create New Outfit")
-                            }
+                        Button(
+                            onClick = {
+                                // Discard the current outfit and create a new one
+                                outfitViewModel.discardCurrentOutfit()
+                                outfitViewModel.clearOutfitState() // Clear the outfit state
+                                clothingItemViewModel.clearClothingItemState() // Clear the selected items state
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = selectedItems.isNotEmpty()
+                        ) {
+                            Text("Create New Outfit")
                         }
-                    }
                 }
-            }
-
-        }   // end of Column
+            }   // end of Column
 
         // Show Calendar Dialog
         if (showCalendarDialog) {
@@ -204,6 +185,10 @@ fun OutfitScreen(
             DiscardOutfitDialog(
                 onConfirm = {
                     showExitDialog = false
+                    // Discard the current outfit and create a new one
+                    outfitViewModel.discardCurrentOutfit()
+                    outfitViewModel.clearOutfitState() // Clear the outfit state
+                    clothingItemViewModel.clearClothingItemState() // Clear the selected items state
                     navController.navigate(Routes.HomeTab) // Navigate to Home Tab
                 },
                 onDismiss = { showExitDialog = false }
@@ -379,18 +364,18 @@ fun DraggableClothingItem(
             .size(100.dp) // Define the size of the clothing item
             .border(2.dp, Color.Black, RoundedCornerShape(12.dp))
     ) {
-        // Content (e.g., Text or Image of clothing)
-        Text(
-            text = clothingItem.name,
-            modifier = Modifier.align(Alignment.Center),
-            color = Color.White
-        )
 
-        // Show Image
+        // Display the item image
+        AsyncImage(
+            model = clothingItem.mediaUrl, // Use the image URL from the sample data
+            contentDescription = clothingItem.name,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(100.dp)
+                .clip(RoundedCornerShape(8.dp))
+        )
     }
 }
-
-//data class OffsetData(val x: Float, val y: Float)
 
 // shows all category options
 @Composable
@@ -456,16 +441,17 @@ fun CategoryItemsScreen(
     var checked by remember { mutableStateOf(false) }   // set switch to false
 
     // Fetch items for the selected category and wardrobe whenever they change
-    LaunchedEffect(category, selectedWardrobe) {
+    /*LaunchedEffect(category, selectedWardrobe) {
         if (selectedWardrobe != null) {
             viewModel.getItemsByCategoryAndWardrobe(category, selectedWardrobe)
         }
-    }
+    }*/
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()), // Enable vertical scrolling
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
@@ -611,8 +597,24 @@ fun CategoryItem(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Display the clothing item image
-            Image(
+            // Display the item image
+            AsyncImage(
+                model = item.mediaUrl, // Use the image URL from the sample data
+                contentDescription = item.name,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(100.dp)
+                    .clip(RoundedCornerShape(8.dp))
+            )
+            // Display the clothing item name
+            Text(
+                text = item.name,
+                modifier = Modifier.padding(top = 8.dp),
+                fontSize = 14.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            /*Image(
                 painter = when (item.itemType) {
                     ClothingCategory.TOPS -> painterResource(Res.drawable.top1)
                     ClothingCategory.BOTTOMS -> painterResource(Res.drawable.top1)
@@ -624,7 +626,7 @@ fun CategoryItem(
                     .fillMaxWidth()
                     .height(100.dp)
                     .clip(RoundedCornerShape(8.dp))
-            )
+            )*/
         }
     }
 }
@@ -641,19 +643,25 @@ fun CategoryItemDetailScreen(
 
 ) {
 
-    // Fetch the item details from the ViewModel using both itemId and category
-    val selectedItem = remember(wardrobeId, itemId, category) {
-        viewModel.getClothingItemDetails(wardrobeId, itemId, category)
-    }
+    // State to hold the selected item
+    var selectedItem by remember { mutableStateOf<ClothingItem?>(null) }
 
-    // Fetch the wardrobe name using the wardrobeId from the selected item
-    val wardrobeName = remember(selectedItem) {
-        viewModel.wardrobes.value.find { it.id == selectedItem?.wardrobeId }?.wardrobeName
+    // State to hold the wardrobe name
+    var wardrobeName by remember { mutableStateOf("Unknown Wardrobe") }
+
+    // Fetch the item details when the screen is first launched
+    LaunchedEffect(wardrobeId, itemId, category) {
+        //val item = viewModel.getItemDetail(wardrobeId, itemId, category)
+        val item = viewModel.getItemDetailTest(itemId)
+        selectedItem = item
+
+        // Fetch the wardrobe name using the wardrobeId from the selected item
+        wardrobeName = viewModel.wardrobes.value.find { it.id == item?.wardrobeId }?.wardrobeName
             ?: "Unknown Wardrobe"
     }
 
-    println("DEBUG, CategoryItemDetailScreen -> " +
-            "selectedItem: $selectedItem selected wardrobe: $wardrobeName")
+    /*println("DEBUG, CategoryItemDetailScreen -> " +
+            "selectedItem: $selectedItem selected wardrobe: $wardrobeName")*/
 
     // If the item is not found, show an error message
     if (selectedItem == null) {
@@ -697,10 +705,10 @@ fun CategoryItemDetailScreen(
                 .border(2.dp, Color.Black, RoundedCornerShape(12.dp))
                 .padding(2.dp)
         ) {
-            // Display the clothing item image
-            Image(
-                painter = painterResource(Res.drawable.top1), // Using dynamic resource
-                contentDescription = selectedItem.name,
+            // Display the item image
+            AsyncImage(
+                model = selectedItem!!.mediaUrl, // Use the image URL from the sample data
+                contentDescription = selectedItem!!.name,
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxSize()
