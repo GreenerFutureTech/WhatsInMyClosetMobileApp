@@ -93,13 +93,8 @@ fun App(
 ) {
     val wardrobeManager = koinInject<WardrobeManager>()
     val userManager = koinInject<UserManager>()
-    //wardrobeManager.test()
-
     val navController = rememberNavController()
-
-    // For Testing Saving Outfit -
-    // Create an Account instance (or retrieve it from your app's logic)
-    //val account = remember { Account(userId = "user123", name = "Test User") }
+    val loginViewModel: LoginViewModel = koinViewModel()
 
     // Create shared ViewModels for the outfit screens
     val user: User = koinInject() // Retrieve the logged-in user's account
@@ -134,17 +129,15 @@ fun App(
         ) { innerPadding ->
             NavHost(
                 navController = navController,
-                startDestination = Routes.LoginGraph,
+                startDestination = Routes.LoginGraph ,
                 modifier = Modifier.padding(innerPadding)
             ) {
                 navigation<Routes.LoginGraph>(startDestination = Routes.LoginTab) {
                     composable<Routes.LoginTab> {
-                        val loginViewModel : LoginViewModel = koinViewModel()
                         LoginScreenRoot(loginViewModel, navController)
                     }
                     composable<Routes.SignUpTab> {
-                        val viewModel: LoginViewModel = koinViewModel()
-                        SignupScreenRoot(viewModel, navController)
+                        SignupScreenRoot(loginViewModel, navController)
                     }
                 }
                 navigation<Routes.HomeGraph>(startDestination = Routes.HomeTab) {
