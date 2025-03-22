@@ -166,7 +166,7 @@ fun OutfitSaveScreen(
 
             // Show Calendar Dialog
             if (showCalendarDialog) {
-                CalendarDialog(
+                OutfitDatePicker(
                     onDismiss = { showCalendarDialog = false },
                     onDateSelected = { selectedDate ->
                         outfitViewModel.addOutfitToCalendar(selectedDate) // Pass the selected date to the callback
