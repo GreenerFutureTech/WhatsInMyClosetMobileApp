@@ -36,6 +36,7 @@ import coil3.compose.AsyncImage
 import io.ktor.client.network.sockets.ConnectTimeoutException
 import org.greenthread.whatsinmycloset.core.domain.models.MessageManager
 import org.greenthread.whatsinmycloset.core.domain.models.User
+import org.greenthread.whatsinmycloset.core.dto.OtherSwapDto
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.dto.toMessageUserDto
 import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
@@ -55,35 +56,22 @@ import whatsinmycloset.composeapp.generated.resources.delete_swap_dialog_title
 
 @Composable
 fun SwapDetailScreen(
-    swap: SwapDto?,
+    swap: OtherSwapDto?,
     onBackClick: () -> Unit,
     onRequestClick: () -> Unit
 ) = swap?.let {
     val viewModel: SwapViewModel = koinViewModel()
-
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val state by viewModel.state.collectAsStateWithLifecycle(
         initialValue = SwapListState(),
         lifecycle = lifecycle
     )
-
+    val swapItem = swap.swap
+    val swapUser = swap.user
     val currentUser = viewModel.currentUser
     var menuExpanded by remember { mutableStateOf(false) }
     var showCompleteDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
-
-    LaunchedEffect(state) {
-        try {
-                viewModel.getSwapUser(swap.userId)
-
-        } catch (e: ConnectTimeoutException) {
-            println("Connection timeout occurred (could not hit backend?): ${e.message}")
-        } catch (e: Exception) {
-            println("An error occurred: ${e.message}")
-        }
-    }
-
-    val swapUser = state.swapUserInfoResults.toMessageUserDto()
     var profileLoadFailed by remember { mutableStateOf(false) }
     LaunchedEffect(swapUser.profilePicture) {
         profileLoadFailed = false
@@ -96,7 +84,7 @@ fun SwapDetailScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (swap.userId == currentUser.value?.id) {
+            if (swapItem.userId == currentUser.value?.id) {
                 Box {
                     IconButton(
                         onClick = { menuExpanded = true },
@@ -157,7 +145,7 @@ fun SwapDetailScreen(
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            viewModel.updateSwap(swap.itemId.id)
+                            viewModel.updateSwap(swapItem.itemId.id)
                             onBackClick()
                             showCompleteDialog = false
                         }
@@ -189,7 +177,7 @@ fun SwapDetailScreen(
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            viewModel.deleteSwap(swap.itemId.id)
+                            viewModel.deleteSwap(swapItem.itemId.id)
                             onBackClick()
                             showDeleteDialog = false
                         }
@@ -224,28 +212,30 @@ fun SwapDetailScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Start
                 ) {
+                    if (swapItem.userId != currentUser.value?.id) {
+                        @OptIn(ExperimentalResourceApi::class)
+                        AsyncImage(
+                            model = if (profileLoadFailed) Res.getUri("drawable/defaultUser.png") else swapUser.profilePicture,
+                            contentDescription = "Profile Image",
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(CircleShape)
+                                .border(1.dp, secondaryLight, CircleShape),
+                            onError = { profileLoadFailed = true },
+                        )
 
-                    @OptIn(ExperimentalResourceApi::class)
-                    AsyncImage(
-                        model = if (profileLoadFailed) Res.getUri("drawable/defaultUser.png") else swapUser.profilePicture,
-                        contentDescription = "Profile Image",
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(CircleShape)
-                            .border(1.dp, secondaryLight, CircleShape),
-                        onError = { profileLoadFailed = true },
-                    )
+                        Spacer(modifier = Modifier.width(10.dp))
 
-                    Spacer(modifier = Modifier.width(10.dp))
+                        Text(
+                            text = swap.user.username?: "unknown user",
+                            fontSize = 25.sp,
+                            fontWeight = FontWeight.Bold
+                        )
 
-                    Text(
-                        text = "user${swap.userId}",
-                        fontSize = 25.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                        Spacer(modifier = Modifier.height(50.dp))
+                    }
+
                 }
-
-                Spacer(modifier = Modifier.height(50.dp))
 
                 Box(
                     modifier = Modifier
@@ -258,7 +248,7 @@ fun SwapDetailScreen(
                     var swapLoadFailed by remember { mutableStateOf(false) }
                     @OptIn(ExperimentalResourceApi::class)
                     AsyncImage(
-                        model = if (swapLoadFailed) Res.getUri("drawable/noImage.png") else swap.itemId.mediaUrl,
+                        model = if (swapLoadFailed) Res.getUri("drawable/noImage.png") else swapItem.itemId.mediaUrl,
                         contentDescription = "Swap Image",
                         modifier = Modifier.fillMaxSize(),
                         onError = { swapLoadFailed = true }
@@ -272,7 +262,7 @@ fun SwapDetailScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Text(
-                        text = swap.itemId.brand,
+                        text = swapItem.itemId.brand,
                         fontSize = 30.sp,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -280,20 +270,21 @@ fun SwapDetailScreen(
                     Spacer(modifier = Modifier.height(10.dp))
 
                     Text(
-                        text = "Size: ${swap.itemId.size}",
+                        text = "Size: ${swapItem.itemId.size}",
                         fontSize = 20.sp
                     )
 
                     Spacer(modifier = Modifier.height(10.dp))
 
                     Text(
-                        text = "Condition: ${swap.itemId.condition}",
+                        text = "Condition: ${swapItem.itemId.condition}",
                         fontSize = 20.sp
                     )
 
                     Spacer(modifier = Modifier.height(30.dp))
 
-                    if (swap.userId != currentUser.value?.id) {
+                    if (swapItem.userId != currentUser.value?.id) {
+                        swapUser.id = swapItem.userId
                         MessageManager.setCurrentOtherUser(swapUser)
 
                         OutlinedButton(

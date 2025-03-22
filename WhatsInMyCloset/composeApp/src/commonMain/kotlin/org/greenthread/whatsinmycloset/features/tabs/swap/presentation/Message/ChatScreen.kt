@@ -53,12 +53,12 @@ fun ChatScreen(
     val otherUser = MessageManager.currentOtherUser
 
     if (currentUserId != null && otherUser != null) {
-        val otherUserIdInt = otherUser.id.toInt()
+        val otherUserId = otherUser.id
 
         LaunchedEffect(state) {
             try {
                 if (state.getChatHistory.isEmpty()) {
-                    viewModel.fetchChatHistory(currentUserId, otherUserIdInt)
+                    viewModel.fetchChatHistory(currentUserId, otherUserId)
                 }
             } catch (e: Exception) {
                 println("MESSAGE SCREEN ERROR: ${e.message}")
@@ -95,7 +95,7 @@ fun ChatScreen(
                 messages = state.getChatHistory
             )
             MessageInput { messageContent ->
-                viewModel.sendMessage(currentUserId, otherUserIdInt, messageContent)
+                viewModel.sendMessage(currentUserId, otherUserId, messageContent)
             }
         }
     }
