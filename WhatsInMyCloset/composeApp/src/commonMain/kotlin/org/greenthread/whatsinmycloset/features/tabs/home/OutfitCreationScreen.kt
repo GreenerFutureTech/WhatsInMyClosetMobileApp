@@ -24,6 +24,8 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.runtime.Composable
@@ -82,9 +84,6 @@ fun OutfitScreen(
         val isOutfitSaved by outfitViewModel.isOutfitSaved.collectAsState()
         var showExitDialog by remember { mutableStateOf(false) } // Exit screen
 
-        // Show calendar dialog
-        var showCalendarDialog by remember { mutableStateOf(false) }
-
         // Handle position updates
         val onPositionUpdate = { itemId: String, newPosition: OffsetData ->
             outfitViewModel.updateClothingItemPosition(itemId, newPosition)
@@ -100,8 +99,7 @@ fun OutfitScreen(
 
                 // Header
                 OutfitScreenHeader(
-                    onGoBack = { navController.popBackStack() }, // Navigate back to Home Tab,
-                    onExit = { showExitDialog = true },  // Discard Outfit Creation -- pop up
+                    onExit = { showExitDialog = true },  // Discard Outfit Creation
                     title = "Create Your Outfit"
                 )
 
@@ -144,15 +142,6 @@ fun OutfitScreen(
                             Text("Save Outfit")
                         }
 
-                        // Add to Calendar button
-                        Button(
-                            onClick = { showCalendarDialog = true },
-                            modifier = Modifier.fillMaxWidth(),
-                            enabled = selectedItems.isNotEmpty()
-                        ) {
-                            Text("Add to Calendar")
-                        }
-
                         // Create New Outfit button
                         Button(
                             onClick = {
@@ -164,21 +153,10 @@ fun OutfitScreen(
                             modifier = Modifier.fillMaxWidth(),
                             enabled = selectedItems.isNotEmpty()
                         ) {
-                            Text("Create New Outfit")
+                            Text("Reset")
                         }
                 }
             }   // end of Column
-
-        // Show Calendar Dialog
-        if (showCalendarDialog) {
-            CalendarDialog(
-                onDismiss = { showCalendarDialog = false },
-                onDateSelected = { selectedDate ->
-                    outfitViewModel.addOutfitToCalendar(selectedDate) // Pass the selected date to the callback
-                    showCalendarDialog = false // Close the dialog
-                }
-            )
-        }
 
         // Show Exit Dialog
         if (showExitDialog) {
@@ -457,7 +435,6 @@ fun CategoryItemsScreen(
 
         // Heading for the selected category
         OutfitScreenHeader(
-            onGoBack = {navController.popBackStack()},
             onExit = {navController.navigate(Routes.HomeTab)},
             title = "Select $category"
         )
@@ -691,7 +668,6 @@ fun CategoryItemDetailScreen(
 
         // Heading for the selected category
         OutfitScreenHeader(
-            onGoBack = {navController.popBackStack()},
             onExit = {navController.navigate(Routes.HomeTab)},
             title = selectedItem!!.name
         )
@@ -750,23 +726,26 @@ fun CategoryItemDetailScreen(
 
 @Composable
 fun OutfitScreenHeader(
-    onGoBack: () -> Unit,
     onExit: () -> Unit,
     title: String
 
 ) {
-    // Go Back and Exit buttons
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        Button(onClick = onGoBack, modifier = Modifier.padding(8.dp)) {
-            Text("<")
-        }
+    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically)
+    {
+        Text(
+            text = "$title",
+            style = MaterialTheme.typography.headlineMedium,
+            modifier = Modifier.weight(1f), // Allow centering
+            textAlign = TextAlign.Center)
 
-        Button(onClick = onExit, modifier = Modifier.padding(8.dp)) {
-            Text("x")
+        Button(
+            onClick = onExit,
+            modifier = Modifier
+                .size(65.dp))
+        {
+            Icon(Icons.Default.Close, contentDescription = "Exit")
         }
     }
-
-    Text(text = "$title", style = MaterialTheme.typography.headlineMedium)
 }
 
 @Composable

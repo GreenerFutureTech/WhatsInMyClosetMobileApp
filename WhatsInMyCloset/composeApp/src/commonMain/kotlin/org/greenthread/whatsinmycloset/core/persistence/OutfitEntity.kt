@@ -18,6 +18,7 @@ import org.greenthread.whatsinmycloset.core.domain.models.OffsetData
     indices = [Index("outfitId")]
 )
 // TODO match with ERD
+// TODO key value pair for itemID with x and y (nested JSON) coordinates
 data class OutfitEntity(
     @PrimaryKey val outfitId: String, // Matches backend UUID
     val userId: Int? = null,    // matches with User.kt
