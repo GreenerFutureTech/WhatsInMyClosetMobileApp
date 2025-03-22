@@ -35,6 +35,7 @@ import org.greenthread.whatsinmycloset.core.dto.SendMessageRequest
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.dto.SwapStatusDto
 import org.greenthread.whatsinmycloset.core.dto.UserDto
+import org.greenthread.whatsinmycloset.core.persistence.WardrobeEntity
 import org.greenthread.whatsinmycloset.getPlatform
 
 private val platform = getPlatform()
@@ -181,11 +182,29 @@ class KtorRemoteDataSource(
         }
     }
 
+    //Wardrobes
+    suspend fun getAllWardrobesForUser(userId: String): Result<List<WardrobeEntity>, DataError.Remote> {
+        return safeCall {
+            httpClient.get("$BASE_URL/wardrobes/user/$userId")
+        }
+    }
+
+    suspend fun AddWardrobe(wardrobe: WardrobeEntity): Result<List<WardrobeEntity>, DataError.Remote> {
+        return safeCall {
+            httpClient.post(
+                "$BASE_URL/wardrobes"
+            ) {
+                contentType(ContentType.Application.Json)
+                setBody(wardrobe)
+            }
+        }
+    }
+
     //Items
 
-    suspend fun getAllItems(): Result<List<ItemDto>, DataError.Remote> {
+    suspend fun getAllItemsForUser(userId: String): Result<List<ItemDto>, DataError.Remote> {
         return safeCall {
-            httpClient.get("$BASE_URL/item")
+            httpClient.get("$BASE_URL/item/user/$userId")
         }
     }
 

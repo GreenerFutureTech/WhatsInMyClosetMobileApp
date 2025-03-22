@@ -70,8 +70,8 @@ fun App(
     cameraManager: CameraManager?,
 ) {
     WhatsInMyClosetTheme {
-        val wardrobeManager = koinInject<WardrobeManager>()
         val userManager = koinInject<UserManager>()
+        val wardrobeManager = koinInject<WardrobeManager>()
         //wardrobeManager.test()
 
         val navController = rememberNavController()

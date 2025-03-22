@@ -50,9 +50,9 @@ class HomeTabViewModel(
 
         // Insert sample data
         CoroutineScope(Dispatchers.IO).launch {
-            wardrobeManager.insertWardrobe(sampleWardrobe)
+            //wardrobeManager.insertWardrobe(sampleWardrobe)
             // Retrieve and print wardrobes
-
+            wardrobeManager.getWardrobes()
             val wardrobes = wardrobeRepository.getWardrobes() // Collect Flow once
             val wardrobeList = wardrobes.firstOrNull()
             if (wardrobeList?.isNotEmpty() == true) {
