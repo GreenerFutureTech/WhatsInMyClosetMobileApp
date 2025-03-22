@@ -68,4 +68,7 @@ sealed interface Routes {
 
     @Serializable
     data object SettingsScreen: Routes
+
+    @Serializable
+    data object NotificationsScreen: Routes
 }

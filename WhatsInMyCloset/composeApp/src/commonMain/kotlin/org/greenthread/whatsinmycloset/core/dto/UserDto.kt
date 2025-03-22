@@ -4,7 +4,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import org.greenthread.whatsinmycloset.core.domain.models.User
 
-
 @Serializable
 data class UserDto(
     val id: Int? = null,
@@ -12,6 +11,7 @@ data class UserDto(
     val email: String = "",
     val name: String = "",
     val firebaseUid: String = "",
+    val fcmToken: String? = null,
     val profilePicture: String? = null,
     val type: String? = null,
     val registeredAt: String = "",
@@ -24,10 +24,7 @@ data class UserDto(
     @Transient val friends: List<String>? = null
 ) {
     fun toModel(): User {
-        return User(id = id, name = name, username = username,
-            email = email, firebaseUuid = firebaseUid,
-            profilePicture = profilePicture, type = type,
-            registeredAt = registeredAt, updatedAt = updatedAt, lastLogin = lastLogin)
+        return User(id = id, name = name, username = username, email = email, firebaseUuid = firebaseUid, fcmToken = fcmToken, profilePicture = profilePicture, type = type, registeredAt = registeredAt, updatedAt = updatedAt, lastLogin = lastLogin)
     }
 }
 

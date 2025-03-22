@@ -38,4 +38,11 @@
     <string name="create_outfit_button">Create Outfit</string>
     <string name="outfit_day_button">Outfit of the Day</string>
     <string name="no_wardrobe_found">No wardrobe found!</string>
+
+    <!-- Notification strings -->
+    <string name="notification_sent">Sent</string>
+    <string name="notification_header">Notifications</string>
+    <string name="notification_clear">Clear All</string>
+    <string name="notification_none">No notifications</string>
+
 </resources>

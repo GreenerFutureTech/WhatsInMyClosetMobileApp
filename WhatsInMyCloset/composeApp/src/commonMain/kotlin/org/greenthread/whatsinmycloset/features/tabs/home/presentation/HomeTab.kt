@@ -81,7 +81,7 @@ fun HomeTabScreenRoot(
     // Create a user profile
     val user = User(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
     //Relevant info is injected via HomeTabViewModel and managers
-    Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         HomeTabScreen(
             viewModel = viewModel,
             navController = navController,
