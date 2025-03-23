@@ -44,27 +44,12 @@ fun PreviewWardrobeScreen() {
     // Create an outfit
     val summerLook = Outfit(
         id = "outfit1",
-        userId = "1",
+        userId = 1,
         public = true,
         favorite = true,
         mediaURL = "",
         name = "Summer Look",
-        items = listOf(
-            ClothingItem(
-                id = "1",
-                name = "Blue Top",
-                itemType = ClothingCategory.TOPS,
-                mediaUrl = null,
-                tags = listOf("casual", "summer")
-            ),
-            ClothingItem(
-                id = "2",
-                name = "Denim Jeans",
-                itemType = ClothingCategory.BOTTOMS,
-                mediaUrl = null,
-                tags = listOf("casual", "summer")
-            ),
-        ),
+        itemIds = listOf("1", "10", "9"),
         createdAt = "08/03/2025"
     )
     user.addOutfit(summerLook, listOf("Busines Casuals", "Casuals"))
@@ -72,7 +57,7 @@ fun PreviewWardrobeScreen() {
     val mockNavController = rememberNavController()
 
     androidx.compose.material.MaterialTheme {
-        HomeTabScreen(viewModel = null, navController = mockNavController, user, {}, {})
+        HomeTabScreen(viewModel = null, navController = mockNavController, user)
     }
 }
 

@@ -1,11 +1,6 @@
 package org.greenthread.whatsinmycloset.app
 
 import kotlinx.serialization.Serializable
-import org.greenthread.whatsinmycloset.core.dto.SwapDto
-import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
-import org.greenthread.whatsinmycloset.core.domain.models.Outfit
-import org.greenthread.whatsinmycloset.core.dto.MessageUserDto
-import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
 
 sealed interface Routes {
     @Serializable
@@ -77,4 +72,7 @@ sealed interface Routes {
 
     @Serializable
     data object SettingsScreen: Routes
+
+    @Serializable
+    data object NotificationsScreen: Routes
 }

@@ -15,7 +15,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -29,11 +31,11 @@ import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedButton
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -79,62 +81,30 @@ fun HomeTabScreenRoot(
     // Create a user profile
     val user = User(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
     //Relevant info is injected via HomeTabViewModel and managers
-    Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         HomeTabScreen(
             viewModel = viewModel,
             navController = navController,
-            user,
-            onAddItemClick,
-            onCreateOutfitClick = onCreateOutfitClick
+            user = user
         )
     }
-/*        // Add some clothing items to the wardrobe
-    val redDress = ClothingItem("item1", "Red Dress", "HomeWardrobe",
-        ClothingCategory.TOPS, null, listOf("red", "fancy"))
-    val jeans = ClothingItem("item2", "Blue Jeans", "HomeWardrobe",
-        ClothingCategory.BOTTOMS, null, listOf("blue", "casual"))
-
-    val wardrobe = Wardrobe("Waterloo Wardrobe", "1234", "01-01-2025", "01-01-2025","wardrobe1")
-    user.addWardrobe(wardrobe)*/
-
-/*        // Create an outfit
-    val summerLook = Outfit(
-        id = "outfit1",
-        name = "Summer Look",
-        itemIds = listOf(
-            ClothingItem(
-                id = "1",
-                name = "Blue Top",
-                itemType = ClothingCategory.TOPS,
-                mediaUrl = null,
-                tags = listOf("casual", "summer")
-            ),
-            ClothingItem(
-                id = "2",
-                name = "Denim Jeans",
-                itemType = ClothingCategory.BOTTOMS,
-                mediaUrl = null,
-                tags = listOf("casual", "summer")
-            ),
-        )
-    )*/
-
-    //user.addOutfit(summerLook)
 }
 
 @Composable
 fun HomeTabScreen(
     viewModel: HomeTabViewModel?,
     navController: NavController,
-    user: User,
-    onAddItemClick: () -> Unit,
-    onCreateOutfitClick: () -> Unit
+    user: User
 ){
     viewModel?.testDb()
     val wardrobe = viewModel?.defaultWardrobe
 
 
-    Column {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState()) // Enable vertical scrolling
+    ) {
         WardrobeHeader(itemCount = wardrobe?.getAllItems()?.count() ?: 0)
         HomeSection(title = Res.string.categories_section_title) {
             CategoriesSection({})
@@ -148,14 +118,9 @@ fun HomeTabScreen(
             showSeeAll = false
         ) {
             BottomButtonsRow(
-                navController = navController,
-                launchAddItemScreen = onAddItemClick
+                navController = navController
             )
         }
-
-        //SeeAllButton(onClick = onSeeAllClicked)
-        //ActionButtonRow(outfit = outfitOfTheDay)
-
     }
 }
 
@@ -256,8 +221,8 @@ fun ActionButtonItem(
 
 @Composable
 fun BottomButtonsRow(
-    navController: NavController,
-    launchAddItemScreen: () -> Unit) {
+    navController: NavController
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -274,25 +239,12 @@ fun BottomButtonsRow(
             }
         )
 
+        //TODO Add action to show calendar
         ActionButtonItem(
             icon = Icons.Rounded.DateRange,
             text = Res.string.outfit_day_button,
             onClick = {  }
         )
-
-        AddNewItem(
-            onClick = { launchAddItemScreen() }
-        )
-    }
-}
-
-// TODO remove
-@Composable
-fun AddNewItem(onClick: () -> Unit) {
-    FloatingActionButton(
-        onClick = { onClick() }
-    ){
-        Icon(Icons.Filled.Add, "Add new item")
     }
 }
 
@@ -344,45 +296,6 @@ fun SeeAllButton(onClick: () -> Unit) {
     }
 }
 
-//@Composable
-//fun ActionButtonRow(outfit: String) {
-//    Column(modifier = Modifier.padding(16.dp)) {
-//        Button(
-//            onClick = {},
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .padding(16.dp)
-//        ) {
-//            Text(text = "Outfit of the day")
-//        }
-//
-//    }
-//}
-
-//@Composable
-//fun FavouriteOutfitsRow() {
-//    Box(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//    ) {
-//        // Centered Text
-//        Text(
-//            text = "Favourite Outfits",
-//            modifier = Modifier
-//                .align(Alignment.Center) // Perfectly center the text in the Box
-//        )
-//        // Button aligned to the end
-//        Button(
-//            onClick = { /* Handle button click */ },
-//            modifier = Modifier
-//                .align(Alignment.CenterEnd) // Align the button to the end (rightmost side)
-//                .padding(8.dp)
-//        ) {
-//            Text(text = "See all")
-//        }
-//    }
-//}
-
 @Composable
 fun DropdownMenuLeading(text: String) {
     // State for managing dropdown visibility
@@ -404,7 +317,7 @@ fun DropdownMenuLeading(text: String) {
             .padding(16.dp)
     ) {
         // Dropdown button
-        androidx.compose.material3.TextButton(
+        TextButton(
             onClick = { expanded = true },
             modifier = Modifier.fillMaxWidth()
         ) {

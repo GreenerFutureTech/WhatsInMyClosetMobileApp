@@ -42,7 +42,7 @@ fun SearchBar(
         colors = OutlinedTextFieldDefaults.colors(
             cursorColor = Color.Gray
         ),
-        textStyle = TextStyle(fontSize = 20.sp),
+        textStyle = TextStyle(fontSize = 16.sp),
         placeholder = {
             Text("Search..")
         },

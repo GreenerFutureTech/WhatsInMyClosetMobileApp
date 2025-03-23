@@ -1,7 +1,6 @@
 package org.greenthread.whatsinmycloset.core.dto
 
 import kotlinx.serialization.Serializable
-import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 
 @Serializable
 data class SwapDto(
