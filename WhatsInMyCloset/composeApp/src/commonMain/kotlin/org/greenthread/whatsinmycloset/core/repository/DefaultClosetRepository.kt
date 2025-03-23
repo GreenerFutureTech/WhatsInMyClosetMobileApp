@@ -18,8 +18,8 @@ class DefaultClosetRepository(
         return remoteClosetDataSource.getSwaps(userId)
     }
 
-    override suspend fun getOtherUsersSwaps(currentUserId: String): Result<List<OtherSwapDto>, DataError.Remote> {
-        return remoteClosetDataSource.getOtherUsersSwaps(currentUserId)
+    override suspend fun getFriendsSwaps(currentUserId: String): Result<List<OtherSwapDto>, DataError.Remote> {
+        return remoteClosetDataSource.getFriendsSwaps(currentUserId)
     }
 
     override suspend fun getAllSwaps(): Result<List<SwapDto>, DataError.Remote> {
