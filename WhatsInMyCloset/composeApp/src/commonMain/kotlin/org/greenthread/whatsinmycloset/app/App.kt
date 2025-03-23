@@ -28,14 +28,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -76,9 +80,12 @@ import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SwapDetai
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SwapScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
+import whatsinmycloset.composeapp.generated.resources.Res
+import whatsinmycloset.composeapp.generated.resources.add_new_item_button
 
 @Composable
 @Preview
@@ -96,17 +103,30 @@ fun App(
     val sharedClothingItemViewModel: ClothingItemViewModel = koinViewModel()
     val sharedOutfitViewModel: OutfitViewModel = koinViewModel()
 
+    // Track when to display top and bottom bars
+    var showBar by rememberSaveable { mutableStateOf(true) }
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+
+    showBar = when (navBackStackEntry?.destination?.route?.substringAfterLast(".")) {
+        Routes.LoginTab.toString(), Routes.SignUpTab.toString() -> false // hide bar on login screen
+        else -> true // in all other cases show top and bottom bars
+    }
+
     WhatsInMyClosetTheme {
         Scaffold(
             topBar = {
-                AppTopBar(
-                    title = "WIMC",
-                    navController = navController,
-                    showBackButton = true
-                )
+                if(showBar) {
+                    AppTopBar(
+                        title = "WIMC",
+                        navController = navController,
+                        showBackButton = true
+                    )
+                }
             },
             bottomBar = {
-                BottomNavigationBar(navController)
+                if(showBar) {
+                    BottomNavigationBar(navController)
+                }
             }
         ) { innerPadding ->
             NavHost(
@@ -376,12 +396,7 @@ fun BottomNavigationBar(navController: NavController) {
             )
         }
 
-        // Display action bar only on the home tab
-        val homeTabIndex = 0
-        val showFab = homeTabIndex == selectedIndex
-        if (showFab) {
-            AddNewItem {  }
-        }
+        AddNewItem { navController.navigate(Routes.AddItemScreen) }
 
         tabs.takeLast(2).forEachIndexed { index, (route, icon) ->
             val isSelected = currentTab == route::class.simpleName
@@ -480,6 +495,12 @@ fun AddNewItem(onClick: () -> Unit) {
         shape = CircleShape,
         containerColor = MaterialTheme.colorScheme.primary
     ){
-        Icon(Icons.Filled.Add, "Add new item")
+        Icon(Icons.Filled.Add, stringResource(Res.string.add_new_item_button))
     }
+}
+
+@Composable
+fun currentRoute(navController: NavHostController): String? {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    return navBackStackEntry?.destination?.route
 }
