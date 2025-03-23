@@ -17,11 +17,6 @@ data class UserDto(
     val registeredAt: String = "",
     val updatedAt: String = "",
     val lastLogin: String = "",
-
-    @Transient val posts: List<String>? = null,
-    @Transient val sentMessages: List<String>? = null,
-    @Transient val receivedMessages: List<String>? = null,
-    @Transient val friends: List<String>? = null
 ) {
     fun toModel(): User {
         return User(id = id, name = name, username = username, email = email, firebaseUuid = firebaseUid, fcmToken = fcmToken, profilePicture = profilePicture, type = type, registeredAt = registeredAt, updatedAt = updatedAt, lastLogin = lastLogin)
