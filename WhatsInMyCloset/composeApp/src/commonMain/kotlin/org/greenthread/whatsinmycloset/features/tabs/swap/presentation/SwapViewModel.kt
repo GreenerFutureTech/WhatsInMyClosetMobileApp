@@ -160,14 +160,14 @@ class SwapViewModel(
 
     fun deleteSwap(itemId: String) {
         viewModelScope.launch {
-            println("DELETE SWAP : Completed Swap: $itemId")
+            println("DELETE SWAP : DELETED Swap: $itemId")
             _state.update {
                 it.copy(
                     isLoading = true
                 )
             }
             swapRepository
-                .updateStatus(itemId)
+                .deleteSwap(itemId)
                 .onSuccess { getResults ->
                     println("DELETE SWAP API success: $getResults")
                     _state.update {
