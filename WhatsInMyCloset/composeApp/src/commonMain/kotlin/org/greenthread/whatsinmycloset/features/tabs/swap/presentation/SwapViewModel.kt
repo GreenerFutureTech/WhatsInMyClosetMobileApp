@@ -21,7 +21,7 @@ class SwapViewModel(
     val state =_state
         .onStart {
             fetchSwapData(currentUser.value?.id.toString())
-            fetchOtherSwapData(currentUser.value?.id.toString())
+            fetchFriendsSwapData(currentUser.value?.id.toString())
         }
 
     fun onAction(action: SwapAction) {
@@ -94,7 +94,7 @@ class SwapViewModel(
         }
     }
 
-    fun fetchOtherSwapData(userId: String) {
+    fun fetchFriendsSwapData(userId: String) {
         viewModelScope.launch {
             println("FETCHOTHERSWAP : Fetching other users' swap data for user: $userId")
             _state.update {
@@ -103,7 +103,7 @@ class SwapViewModel(
                 )
             }
             swapRepository
-                .getOtherUsersSwaps(userId)
+                .getFriendsSwaps(userId)
                 .onSuccess { getResults ->
                     println("FETCHOTHERSWAP API success: $getResults")
                     _state.update {

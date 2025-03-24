@@ -13,6 +13,18 @@ data class SwapDto(
 )
 
 @Serializable
+data class OtherSwapDto(
+    val swap: SwapDto,
+    val user: MessageUserDto
+)
+
+fun SwapDto.toOtherSwapDto(user: MessageUserDto): OtherSwapDto {
+    return OtherSwapDto(
+        swap = this,
+        user = user
+    )
+}
+@Serializable
 data class SwapStatusDto(
     val id: String,
     val itemId: String,

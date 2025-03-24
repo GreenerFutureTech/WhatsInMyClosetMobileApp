@@ -57,7 +57,7 @@ fun PreviewWardrobeScreen() {
     val mockNavController = rememberNavController()
 
     androidx.compose.material.MaterialTheme {
-        HomeTabScreen(viewModel = null, navController = mockNavController, user, {}, {})
+        HomeTabScreen(viewModel = null, navController = mockNavController, user)
     }
 }
 
