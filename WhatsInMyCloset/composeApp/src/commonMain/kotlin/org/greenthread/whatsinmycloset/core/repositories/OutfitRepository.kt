@@ -3,7 +3,7 @@ package org.greenthread.whatsinmycloset.core.repositories
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import org.greenthread.whatsinmycloset.core.data.daos.ItemDao
+import org.greenthread.whatsinmycloset.core.data.daos.ClothingItemDao
 import org.greenthread.whatsinmycloset.core.data.daos.OutfitDao
 import org.greenthread.whatsinmycloset.core.domain.DataError
 import org.greenthread.whatsinmycloset.core.domain.EmptyResult
@@ -21,7 +21,7 @@ import org.greenthread.whatsinmycloset.core.persistence.toOutfit
 */
 open class OutfitRepository(
     private val outfitDao: OutfitDao,
-    private val itemDao: ItemDao
+    private val itemDao: ClothingItemDao
 ) {
     suspend fun insertOutfit(outfit: OutfitEntity): EmptyResult<DataError.Local> {
         return try {

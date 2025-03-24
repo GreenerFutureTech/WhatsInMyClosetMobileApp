@@ -15,6 +15,8 @@ import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.client.statement.*
+import io.ktor.utils.io.core.buildPacket
+import io.ktor.utils.io.core.writeFully
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.greenthread.whatsinmycloset.core.data.safeCall
@@ -28,6 +30,7 @@ import org.greenthread.whatsinmycloset.core.dto.SendMessageRequest
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.dto.SwapStatusDto
 import org.greenthread.whatsinmycloset.core.dto.UserDto
+import org.greenthread.whatsinmycloset.core.persistence.WardrobeEntity
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.Notification
 import org.greenthread.whatsinmycloset.getPlatform
 
@@ -212,11 +215,29 @@ class KtorRemoteDataSource(
         }
     }
 
+    //Wardrobes
+    suspend fun getAllWardrobesForUser(userId: String): Result<List<WardrobeEntity>, DataError.Remote> {
+        return safeCall {
+            httpClient.get("$BASE_URL/wardrobes/user/$userId")
+        }
+    }
+
+    suspend fun AddWardrobe(wardrobe: WardrobeEntity): Result<List<WardrobeEntity>, DataError.Remote> {
+        return safeCall {
+            httpClient.post(
+                "$BASE_URL/wardrobes"
+            ) {
+                contentType(ContentType.Application.Json)
+                setBody(wardrobe)
+            }
+        }
+    }
+
     //Items
 
-    suspend fun getAllItems(): Result<List<ItemDto>, DataError.Remote> {
+    suspend fun getAllItemsForUser(userId: String): Result<List<ItemDto>, DataError.Remote> {
         return safeCall {
-            httpClient.get("$BASE_URL/item")
+            httpClient.get("$BASE_URL/item/user/$userId")
         }
     }
 
@@ -235,23 +256,31 @@ class KtorRemoteDataSource(
         }
     }
 
-    suspend fun createItemWithFileUpload(item: ItemDto, file: ByteArray?): Result<ItemDto, DataError.Remote> {
+    suspend fun createItemWithFileUpload(
+        item: ItemDto,
+        file: ByteArray?
+    ): Result<ItemDto, DataError.Remote> {
         return safeCall {
             httpClient.post("$BASE_URL/item/upload") {
                 contentType(ContentType.MultiPart.FormData)
                 setBody(
                     MultiPartFormDataContent(
                         formData {
-                            append("id", item.id)
+                            append("name", item.name)
                             append("wardrobeId", item.wardrobeId)
                             append("itemType", item.itemType)
                             append("tags", item.tags.joinToString(","))
+                            append("brand", item.brand)
+                            append("condition", item.condition)
+                            append("size", item.size)
                             append("createdAt", item.createdAt)
 
                             // Optional file upload
                             file?.let {
-                                append("file", it, Headers.build {
-                                    append(HttpHeaders.ContentDisposition, "form-data; name=\"file\"; filename=\"file.jpg\"")
+
+                                append("file", file, Headers.build {
+                                    append(HttpHeaders.ContentType, "image/bmp")
+                                    append(HttpHeaders.ContentDisposition, "name=\"file.bmp\"; filename=test.bmp")
                                 })
                             }
                         }
@@ -262,37 +291,47 @@ class KtorRemoteDataSource(
     }
 
 
-    suspend fun uploadFile(file: ByteArray): Result<String, DataError.Remote> {
-        return safeCall {
-            println("Uploading File...")
-
-            val response = httpClient.post("$BASE_URL/blob/upload") {
-                contentType(ContentType.MultiPart.FormData)
-                setBody(
-                    MultiPartFormDataContent(
-                        formData {
-                            append(
-                                key = "file", // Ensure this matches the expected field name
-                                value = file,
-                                headers = Headers.build {
-                                    append(HttpHeaders.ContentDisposition, "form-data; name=\"file\"; filename=\"file.png\"")
-                                    append(HttpHeaders.ContentType, "image/png")
+    suspend fun uploadFile(
+        byteArray: Any?,
+        fileName: String = "image.bmp"
+    ): Result<String, DataError.Remote> {
+        val data = byteArray as ByteArray
+            return safeCall {
+                val response: HttpResponse = httpClient.post("https://green-api-c9h6f7huhuezbuhv.eastus2-01.azurewebsites.net/blob/upload") {
+                    contentType(ContentType.MultiPart.FormData)
+                    setBody(
+                        MultiPartFormDataContent(
+                            formData {
+                                appendInput(
+                                    key = "file",
+                                    headers = Headers.build {
+                                        append(HttpHeaders.ContentDisposition, "form-data; name=\"file\"; filename=\"$fileName\"")
+                                        append(HttpHeaders.ContentType, "image/bmp") // Ensure correct MIME type
+                                    }) {
+                                    buildPacket { writeFully(data) }
                                 }
-                            )
-                        }
+                            }
+                        )
                     )
-                )
+                }
+                response
             }
-
-            println("Upload Response: ${response.status}")
-            println("Response Body: ${response.bodyAsText()}")
-
-            response.body()
-        }
     }
 
+    suspend fun uploadImage(filename: String, imageBytes: ByteArray): Result<String, DataError.Remote> {
+        return safeCall {
+            httpClient.post("https://green-api-c9h6f7huhuezbuhv.eastus2-01.azurewebsites.net/blob/upload") {
 
-
-
-
+                setBody(MultiPartFormDataContent(
+                    formData {
+                        append("file", imageBytes, Headers.build {
+                            append(HttpHeaders.ContentType, "image/bmp")
+                            append(HttpHeaders.ContentDisposition, "name=\"file.bmp\"; filename=test.bmp")
+                        })
+                    }
+                ))
+            }
+        }
+    }
 }
+
