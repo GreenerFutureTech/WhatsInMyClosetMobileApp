@@ -28,11 +28,13 @@ import androidx.navigation.NavController
 import io.ktor.client.network.sockets.ConnectTimeoutException
 import org.greenthread.whatsinmycloset.app.Routes
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
+import org.greenthread.whatsinmycloset.core.dto.MessageUserDto
+import org.greenthread.whatsinmycloset.core.dto.OtherSwapDto
 import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.Action.SwapAction
-import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.dto.UserDto
+import org.greenthread.whatsinmycloset.core.dto.toOtherSwapDto
 import org.greenthread.whatsinmycloset.core.ui.components.controls.SearchBar
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.SwapImageCard
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.SwapOtherImageCard
@@ -51,7 +53,7 @@ import whatsinmycloset.composeapp.generated.resources.swap_tab_title
 @Composable
 fun SwapScreenRoot(
     viewModel: SwapViewModel = koinViewModel(),
-    onSwapClick: (SwapDto) -> Unit,
+    onSwapClick: (OtherSwapDto) -> Unit,
     onAllSwapClick: () -> Unit,
     onMessageClick: () -> Unit,
     onAddSwapClick: () -> Unit
@@ -74,7 +76,7 @@ fun SwapScreenRoot(
                     viewModel.fetchSwapData(currentUser.value?.id.toString())
                 }
                 if (state.getOtherUserSwapResults.isEmpty()) {
-                    viewModel.fetchOtherSwapData(currentUser.value?.id.toString())
+                    viewModel.fetchFriendsSwapData(currentUser.value?.id.toString())
                 }
             } catch (e: ConnectTimeoutException) {
                 println("Connection timeout occurred (could not hit backend?): ${e.message}")
@@ -88,18 +90,27 @@ fun SwapScreenRoot(
             onAction = { action ->
                 when (action) {
                     is SwapAction.OnSwapClick -> {
-                        val selectedItem = state.getAllSwapResults.find { it.itemId.id == action.itemId }
-                    if (selectedItem != null) {
-                        onSwapClick(selectedItem)
+                        val isCurrentUserItem = state.getUserSwapResults.any { it.itemId.id == action.itemId }
+
+                        if (isCurrentUserItem) {
+                            val selectedItem = state.getUserSwapResults.find { it.itemId.id == action.itemId }
+                            if (selectedItem != null) {
+                                val currentUserDto = MessageUserDto()
+                                onSwapClick(selectedItem.toOtherSwapDto(user = currentUserDto))
+                            }
+                        } else {
+                            val selectedItem = state.getOtherUserSwapResults.find { it.swap.itemId.id == action.itemId }
+                            if (selectedItem != null) {
+                                onSwapClick(selectedItem)
+                            }
+                        }
                     }
+                    else -> Unit
                 }
-                else -> Unit
-            }
-           // viewModel.onAction(action)
-        },
-        onAllSwapClick = onAllSwapClick,
-        onMessageClick = onMessageClick,
-        onAddSwapClick = onAddSwapClick
+            },
+            onAllSwapClick = onAllSwapClick,
+            onMessageClick = onMessageClick,
+            onAddSwapClick = onAddSwapClick
         )
     }
 }
@@ -116,9 +127,9 @@ fun SwapScreen(
 
     val matchingSwaps = state.getOtherUserSwapResults.filter { swap ->
         val query = searchString.lowercase()
-        swap.itemId.brand.lowercase().contains(query) ||
-                swap.itemId.itemType.lowercase().contains(query) ||
-                swap.itemId.tags.any { it.lowercase().contains(query) }
+        swap.swap.itemId.brand.lowercase().contains(query) ||
+                swap.swap.itemId.itemType.lowercase().contains(query) ||
+                swap.swap.itemId.tags.any { it.lowercase().contains(query) }
     }
 
     Column(
@@ -255,10 +266,10 @@ fun SwapScreen(
                 itemsIndexed(displayedSwaps) { index, item ->
                     SwapOtherImageCard(
                         onSwapClick = {
-                            onAction(SwapAction.OnSwapClick(item.itemId.id))
+                            onAction(SwapAction.OnSwapClick(item.swap.itemId.id))
                         },
-                        imageUrl = item.itemId.mediaUrl,
-                        username = "user${item.userId}" // TODO: update to username
+                        imageUrl = item.swap.itemId.mediaUrl,
+                        user = item.user
                     )
                 }
             }

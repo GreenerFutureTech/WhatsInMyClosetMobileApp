@@ -51,6 +51,8 @@ import org.greenthread.whatsinmycloset.NotificationManager
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
+import org.greenthread.whatsinmycloset.core.dto.MessageUserDto
+import org.greenthread.whatsinmycloset.core.dto.toOtherSwapDto
 import org.greenthread.whatsinmycloset.core.managers.WardrobeManager
 import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.OutfitViewModel
@@ -278,7 +280,7 @@ fun App(
                             viewModel = viewModel,
                             onSwapClick = { swap ->
                                 selectedSwapViewModel.onSelectSwap(swap)
-                                navController.navigate(Routes.SwapDetailsScreen(swap.itemId.id))
+                                navController.navigate(Routes.SwapDetailsScreen(swap.swap.itemId.id))
                             },
                             onAllSwapClick = { navController.navigate(Routes.AllSwapScreen) },
                             onMessageClick = { navController.navigate(Routes.MessageListScreen)},
@@ -294,7 +296,7 @@ fun App(
                             viewModel = viewModel,
                             navController = navController,
                             onSwapClick = { swap ->
-                                selectedSwapViewModel.onSelectSwap(swap)
+                                selectedSwapViewModel.onSelectSwap(swap.toOtherSwapDto(user = MessageUserDto()))
                                 navController.navigate(Routes.SwapDetailsScreen(swap.itemId.id))
                             }
                         )
@@ -318,9 +320,11 @@ fun App(
                     composable<Routes.SwapDetailsScreen> {
                         val selectedSwapViewModel = it.sharedKoinViewModel<SelectedSwapViewModel>(navController)
                         val selectedSwap by selectedSwapViewModel.selectedSwap.collectAsStateWithLifecycle()
-                        val userAccount by userManager.currentUser.collectAsState() // Collect StateFlow as a normal value
-
-                        SwapDetailScreen(swap = selectedSwap, onBackClick = { navController.navigate(Routes.SwapTab)}, userUser = userAccount )
+                        SwapDetailScreen(
+                            swap = selectedSwap,
+                            onBackClick = { navController.navigate(Routes.SwapTab)},
+                            onRequestClick = {navController.navigate(Routes.ChatScreen)}
+                        )
                     }
 
                 }
