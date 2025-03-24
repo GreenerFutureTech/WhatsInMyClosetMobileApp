@@ -81,7 +81,7 @@ fun SwapDetailScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (swapItem.userId == currentUser.value?.id) {
