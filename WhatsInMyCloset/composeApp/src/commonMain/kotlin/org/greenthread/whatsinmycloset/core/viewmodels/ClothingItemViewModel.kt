@@ -27,7 +27,10 @@ open class ClothingItemViewModel(
     ) :
 ViewModel() {
 
-    var defaultWardrobe: Wardrobe? = wardrobeManager.cachedWardrobes.firstOrNull()
+    val cachedWardrobes = wardrobeManager.getWardrobes()
+    val cachedItems = wardrobeManager.getItems()
+    var defaultWardrobe: Wardrobe? = cachedWardrobes.firstOrNull()
+
 
     private val _wardrobes = MutableStateFlow<List<Wardrobe>>(emptyList())
     val wardrobes: StateFlow<List<Wardrobe>> = _wardrobes.asStateFlow()
@@ -77,36 +80,11 @@ ViewModel() {
     private val _categoryItems = MutableStateFlow<List<ClothingItem>>(emptyList())
     val categoryItems: StateFlow<List<ClothingItem>> = _categoryItems.asStateFlow()
 
-    val sampleWardrobes = listOf(
-        WardrobeEntity(
-            id = "123",
-            wardrobeName = "Summer Closet",
-            createdAt = "2025-03-01",
-            lastUpdate = "2025-03-07",
-            userId = "user1"),
-
-        WardrobeEntity(
-            id = "2",
-            wardrobeName = "Winter Closet",
-            createdAt = "2025-03-07",
-            lastUpdate = "2025-03-07",
-            userId = "user1"),
-
-        WardrobeEntity(
-            id = "3",
-            wardrobeName = "Fall Closet",
-            createdAt = "2025-03-04",
-            lastUpdate = "2025-03-07",
-            userId = "user1")
-    )
-
     // Insert sample wardrobes
     init {
         viewModelScope.launch {
-            for (wardrobe in sampleWardrobes) {
-                wardrobeRepository.insertWardrobe(wardrobe)
-            }
 
+            //get from wardrobe manager.
             val fetchedWardrobes = wardrobeRepository.getWardrobes().firstOrNull() ?: emptyList()
             _wardrobes.value = fetchedWardrobes
 

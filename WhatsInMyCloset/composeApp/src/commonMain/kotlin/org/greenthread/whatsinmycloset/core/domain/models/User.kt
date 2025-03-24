@@ -1,5 +1,6 @@
 package org.greenthread.whatsinmycloset.core.domain.models
 
+import org.greenthread.whatsinmycloset.core.dto.UserDto
 import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
 
 class User(
@@ -18,6 +19,20 @@ class User(
     private val outfits = mutableMapOf<String, Outfit>() // Maps outfit ID to Outfit
     private val outfitRepositories = mutableMapOf<String, MutableSet<String>>()  // Maps outfit
     // repo user wants to save the outfit in to OutfitRepository class
+
+
+    fun toUserDto(): UserDto = UserDto(
+        id = id,
+        name = name,
+        username = username,
+        email = email,
+        firebaseUid = firebaseUuid,
+        profilePicture = profilePicture,
+        type = type,
+        registeredAt = registeredAt,
+        updatedAt = updatedAt,
+        lastLogin = lastLogin
+    )
 
     fun retrieveUserId() : Int?
     {

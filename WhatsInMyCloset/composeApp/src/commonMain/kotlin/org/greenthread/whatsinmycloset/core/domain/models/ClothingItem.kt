@@ -1,6 +1,7 @@
 package org.greenthread.whatsinmycloset.core.domain.models
 
 import kotlinx.serialization.Serializable
+import org.greenthread.whatsinmycloset.core.persistence.ClothingItemEntity
 
 enum class ClothingCategory(val categoryName: String) {
     TOPS("Tops"),
@@ -26,6 +27,20 @@ data class ClothingItem(
     val position: OffsetData? = null, // Add position data
     val createdAt: String = ""
 )
+
+fun ClothingItem.toEntity(): ClothingItemEntity {
+    return ClothingItemEntity(
+        id = this.id,
+        wardrobeId = this.wardrobeId,
+        itemType = this.itemType.name, // Assuming ClothingCategory is an enum, convert it to String
+        mediaUrl = this.mediaUrl ?: "",
+        tags = this.tags,
+        condition = "", // Default or map from another property if available
+        brand = "", // Default or map from another property if available
+        size = "", // Default or map from another property if available
+        createdAt = this.createdAt
+    )
+}
 
 @Serializable
 data class OffsetData(

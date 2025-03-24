@@ -22,6 +22,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,6 +35,7 @@ import kotlinx.datetime.Clock
 import org.greenthread.whatsinmycloset.CameraManager
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.dto.ItemDto
+import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
 import org.greenthread.whatsinmycloset.subjectSegmentation
 import org.greenthread.whatsinmycloset.toBitmap
 import org.greenthread.whatsinmycloset.toImageBitmap
@@ -44,15 +46,25 @@ fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManage
     var itemName by remember { mutableStateOf("") }
     var itemImage by remember { mutableStateOf<ByteArray?>(null) }
     var selectedCategory by remember { mutableStateOf<String?>("Tops") }
-    var selectedWardrobe by remember { mutableStateOf<String?>("Winter Collection") }
+    var selectedWardrobe by remember { mutableStateOf<Wardrobe?>(null) }
 
     var bitmap by remember { mutableStateOf<ImageBitmap?>(null) }
-    var bitmapFile : Any? = null
+    var bitmapFile: Any? = null
 
     var hasSegmented by remember { mutableStateOf(false) } // Prevent re-segmentation
 
+    val cachedWardrobes by viewModel.cachedWardrobes.collectAsState()
+    if (cachedWardrobes.isNotEmpty()) {
+        selectedWardrobe = cachedWardrobes.getOrNull(0)
+    }
+
     LaunchedEffect(itemImage) {
-        itemImage?.let { imageBytes ->
+        //
+        //
+        //To enable image segmentation
+        //
+        //
+/*        itemImage?.let { imageBytes ->
             println("Segmentation part 1")
 
             bitmap = imageBytes.toImageBitmap()
@@ -70,7 +82,7 @@ fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManage
                     }
                 }
             }
-        }
+        }*/
     }
 
     Column(
@@ -81,13 +93,11 @@ fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManage
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
+        val categories =
+            listOf("Choose a Category!") + ClothingCategory.entries.map { it.categoryName }
 
-        val categories = listOf("Choose a Category!") + ClothingCategory.entries.map { it.categoryName }
-
-        val wardrobes = viewModel.getWardrobes()
         WardrobeDropdown(
-            wardrobes = wardrobes.map { it.wardrobeName },
-            selectedWardrobe = selectedWardrobe ?: "Choose a Wardrobe!",
+            wardrobes = cachedWardrobes,
             onWardrobeSelected = { selectedWardrobe = it })
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -101,6 +111,7 @@ fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManage
         // Use the TakePhotoButton composable
         cameraManager.TakePhotoButton { imageBytes ->
             itemImage = imageBytes
+            bitmap = imageBytes.toImageBitmap()
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -113,19 +124,19 @@ fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManage
             )
         }
 
-        }
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         Button(onClick = {
             val item = ItemDto(
                 id = Random.nextInt(1000, 100000).toString(),
-                wardrobeId = selectedWardrobe?: "null",
-                itemType = selectedCategory?: "null",
+                name = "donkey hat",
+                wardrobeId = selectedWardrobe?.id ?: "null",
+                itemType = selectedCategory ?: "null",
                 mediaUrl = null.toString(), // Will be set after uploading image
                 tags = emptyList(),
-                condition = "",
-                brand = "",
-                size = "",
+                condition = "yes",
+                brand = "wowee",
+                size = "xxxl",
                 createdAt = Clock.System.now().toString()
             )
 
@@ -133,13 +144,13 @@ fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManage
                 if (success) {
                     onBack()
                 } else {
-                    println("failure")
+                    //TODO: show dialogue , no connection.
                 }
             }
         }) {
             Text("Add Item")
         }
-
+    }
 }
 
 /*
@@ -217,11 +228,10 @@ fun CategoryDropdown(categories: List<String>,
 }
 
 @Composable
-fun WardrobeDropdown(wardrobes: List<String>,
-                     selectedWardrobe: String,
-                     onWardrobeSelected: (String) -> Unit) {
+fun WardrobeDropdown(wardrobes: List<Wardrobe>,
+                     onWardrobeSelected: (Wardrobe) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedWadrobe by remember { mutableStateOf(wardrobes.firstOrNull() ?: "") } // Default to the first category if available
+    var selectedWardrobe by remember { mutableStateOf(wardrobes.firstOrNull()) } // Default to the first category if available
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -237,7 +247,7 @@ fun WardrobeDropdown(wardrobes: List<String>,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = selectedWadrobe,
+                    text = selectedWardrobe?.wardrobeName ?: "Choose a Wardrobe!",
                     style = MaterialTheme.typography.headlineSmall, // Larger font size
                     modifier = Modifier.weight(1f) // Allows text to take available space
                 )
@@ -258,7 +268,7 @@ fun WardrobeDropdown(wardrobes: List<String>,
                     },
                     text = {
                         Text(
-                            text = wardrobe,
+                            text = wardrobe.wardrobeName,
                             style = MaterialTheme.typography.headlineMedium // Match font size in dropdown items
                         )
                     }

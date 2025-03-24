@@ -3,6 +3,7 @@ package org.greenthread.whatsinmycloset.core.persistence
 import androidx.room.TypeConverter
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import org.greenthread.whatsinmycloset.core.dto.UserDto
 
 class Converters {
     @TypeConverter
@@ -23,5 +24,15 @@ class Converters {
     @TypeConverter
     fun toStringList(value: String): List<String> {
         return Json.decodeFromString(value)
+    }
+
+    @TypeConverter
+    fun fromUserDto(userDto: UserDto): String {
+        return Json.encodeToString(userDto)
+    }
+
+    @TypeConverter
+    fun toUserDto(json: String): UserDto {
+        return Json.decodeFromString(json)
     }
 }

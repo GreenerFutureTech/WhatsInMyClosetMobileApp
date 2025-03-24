@@ -31,6 +31,7 @@ import org.greenthread.whatsinmycloset.app.Routes
 import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.LazyGridColourBox
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.generateRandomItems
+import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -102,12 +103,16 @@ fun HomeTabScreen(
     onAddItemClick: () -> Unit,
     onCreateOutfitClick: () -> Unit
 ){
-    viewModel?.testDb()
-    val wardrobe = viewModel?.defaultWardrobe
+    var wardrobe: Wardrobe? = null
+    val cachedWardrobes by viewModel!!.cachedWardrobes.collectAsState()
+    val cachedItems by viewModel!!.cachedItems.collectAsState()
 
+    if (cachedWardrobes.isNotEmpty()) {
+        wardrobe = cachedWardrobes.getOrNull(0)
+    }
 
     Column {
-        WardrobeHeader(itemCount = wardrobe?.getAllItems()?.count() ?: 0)
+        WardrobeHeader(itemCount = cachedItems.count() ?: 0)
         CategoriesSection({})
 
         Text(
@@ -118,7 +123,7 @@ fun HomeTabScreen(
 
         FavouriteOutfitsRow()
 
-        val randomItems = generateRandomItems(4) // Generate 10 random items for the preview
+        val randomItems = generateRandomItems(2) // Generate 10 random items for the preview
         LazyGridColourBox(items = randomItems)
 
         BottomButtonsRow(navController, onAddItemClick)

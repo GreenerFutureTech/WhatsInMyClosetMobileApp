@@ -35,7 +35,7 @@ fun PreviewWardrobeScreen() {
     val jeans = ClothingItem("item2", "Blue Jeans", "HomeWardrobe",
         ClothingCategory.BOTTOMS, null, listOf("blue", "casual"))
 
-    val wardrobe = Wardrobe("Waterloo Wardrobe", "12345", "01-01-2025", "01-01-2025", "2")
+    val wardrobe = Wardrobe("Waterloo Wardrobe", "12345", "01-01-2025", "01-01-2025", user)
     wardrobe.addItem(redDress)
     wardrobe.addItem(jeans)
 

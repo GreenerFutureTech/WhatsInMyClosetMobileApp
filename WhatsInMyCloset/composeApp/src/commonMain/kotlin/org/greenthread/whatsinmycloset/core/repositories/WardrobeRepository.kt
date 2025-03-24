@@ -11,6 +11,7 @@ import org.greenthread.whatsinmycloset.core.persistence.WardrobeEntity
 import org.greenthread.whatsinmycloset.core.domain.Result
 import org.greenthread.whatsinmycloset.core.domain.map
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
+import org.greenthread.whatsinmycloset.core.dto.toClothingItem
 import org.greenthread.whatsinmycloset.core.network.KtorRemoteDataSource
 import org.greenthread.whatsinmycloset.core.persistence.ClothingItemEntity
 import org.greenthread.whatsinmycloset.core.persistence.toItem
@@ -65,11 +66,11 @@ class WardrobeRepository(
             }
     }
 
-/*    suspend fun getItemsRemote(userId: String): Result<List<ClothingItem>, DataError.Remote> {
+    suspend fun getItemsRemote(userId: String): Result<List<ClothingItem>, DataError.Remote> {
         return remoteSource
             .getAllItemsForUser(userId)
-            .map { i ->
-                wardrobeEntities.map { it.toWardrobe() }
+            .map { itemEntities ->
+                itemEntities.map { it.toClothingItem() }
             }
-    }*/
+    }
 }

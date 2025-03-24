@@ -26,23 +26,26 @@ import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
 @Serializable
 data class ClothingItemEntity(
     @PrimaryKey
-    val id: String = "",
-    val name: String, // Name of the item (e.g., "Red Dress")
-    val wardrobeId: String = "",
-    val itemType: ClothingCategory,
-    val mediaUrl: String? = "",
-    val tags: List<String> = listOf(""),
-    val createdAt: String = ""
+    val id: String,
+    val wardrobeId: String,
+    val itemType: String,
+    val mediaUrl: String,
+    val tags: List<String>,
+    val condition: String,
+    val brand: String,
+    val size: String,
+    val createdAt: String
 )
 
 fun ClothingItemEntity.toItem(): ClothingItem {
     return ClothingItem(
-        id = id,
-        name = name, // Name of the item (e.g., "Red Dress")
-        wardrobeId = wardrobeId,
-        itemType = itemType,
-        mediaUrl = mediaUrl,
-        tags = tags,
-        createdAt = createdAt
+        id = this.id,
+        name = "", // Name is not available in ClothingItemEntity, set a default or retrieve from elsewhere
+        wardrobeId = this.wardrobeId,
+        itemType = ClothingCategory.valueOf(this.itemType), // Convert string back to ClothingCategory enum
+        mediaUrl = this.mediaUrl,
+        tags = this.tags,
+        position = null, // Position is not available in ClothingItemEntity
+        createdAt = this.createdAt
     )
 }

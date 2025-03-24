@@ -1,12 +1,9 @@
 package org.greenthread.whatsinmycloset.core.network
 
-import com.seiko.imageloader.Bitmap
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.delete
-import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.get
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
@@ -17,13 +14,8 @@ import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.client.statement.*
-import io.ktor.http.path
-import io.ktor.utils.io.InternalAPI
 import io.ktor.utils.io.core.buildPacket
 import io.ktor.utils.io.core.writeFully
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.greenthread.whatsinmycloset.core.data.safeCall
@@ -233,19 +225,21 @@ class KtorRemoteDataSource(
                 setBody(
                     MultiPartFormDataContent(
                         formData {
-                            append("id", item.id)
+                            append("name", item.name)
                             append("wardrobeId", item.wardrobeId)
                             append("itemType", item.itemType)
                             append("tags", item.tags.joinToString(","))
+                            append("brand", item.brand)
+                            append("condition", item.condition)
+                            append("size", item.size)
                             append("createdAt", item.createdAt)
 
                             // Optional file upload
                             file?.let {
-                                append("file", it, Headers.build {
-                                    append(
-                                        HttpHeaders.ContentDisposition,
-                                        "form-data; name=\"file\"; filename=\"file.jpg\""
-                                    )
+
+                                append("file", file, Headers.build {
+                                    append(HttpHeaders.ContentType, "image/bmp")
+                                    append(HttpHeaders.ContentDisposition, "name=\"file.bmp\"; filename=test.bmp")
                                 })
                             }
                         }
@@ -283,7 +277,7 @@ class KtorRemoteDataSource(
             }
     }
 
-    suspend fun uploadTest(filename: String, imageBytes: ByteArray): Result<String, DataError.Remote> {
+    suspend fun uploadImage(filename: String, imageBytes: ByteArray): Result<String, DataError.Remote> {
         return safeCall {
             httpClient.post("https://green-api-c9h6f7huhuezbuhv.eastus2-01.azurewebsites.net/blob/upload") {
 
