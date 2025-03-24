@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
@@ -19,6 +21,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -44,6 +47,11 @@ import kotlin.random.Random
 @Composable
 fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManager, onBack: () -> Unit) {
     var itemName by remember { mutableStateOf("") }
+    var itemTags by remember { mutableStateOf("") }
+    var itemBrand by remember { mutableStateOf("") }
+    var itemSize by remember { mutableStateOf("") }
+    var itemCondition by remember { mutableStateOf("") }
+
     var itemImage by remember { mutableStateOf<ByteArray?>(null) }
     var selectedCategory by remember { mutableStateOf<String?>("Tops") }
     var selectedWardrobe by remember { mutableStateOf<Wardrobe?>(null) }
@@ -88,6 +96,7 @@ fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManage
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(16.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -108,6 +117,52 @@ fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManage
             onCategorySelected = { selectedCategory = it }
         )
         Spacer(modifier = Modifier.height(16.dp))
+
+        // TextField for Name
+        OutlinedTextField(
+            value = itemName,
+            onValueChange = { itemName = it },
+            label = { Text("Item Name") },
+            singleLine = true
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // TextField for Tags
+        OutlinedTextField(
+            value = itemTags,
+            onValueChange = { itemTags = it },
+            label = { Text("Tags (comma-separated)") },
+            singleLine = true
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // TextField for Brand
+        OutlinedTextField(
+            value = itemBrand,
+            onValueChange = { itemBrand = it },
+            label = { Text("Brand") },
+            singleLine = true
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // TextField for Size
+        OutlinedTextField(
+            value = itemSize,
+            onValueChange = { itemSize = it },
+            label = { Text("Size") },
+            singleLine = true
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // TextField for Size
+        OutlinedTextField(
+            value = itemCondition,
+            onValueChange = { itemCondition = it },
+            label = { Text("Condition") },
+            singleLine = true
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
         // Use the TakePhotoButton composable
         cameraManager.TakePhotoButton { imageBytes ->
             itemImage = imageBytes
@@ -128,15 +183,15 @@ fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManage
 
         Button(onClick = {
             val item = ItemDto(
-                id = Random.nextInt(1000, 100000).toString(),
-                name = "donkey hat",
+                id = "Commemorative ID",
+                name = itemName,
                 wardrobeId = selectedWardrobe?.id ?: "null",
                 itemType = selectedCategory ?: "null",
                 mediaUrl = null.toString(), // Will be set after uploading image
-                tags = emptyList(),
-                condition = "yes",
-                brand = "wowee",
-                size = "xxxl",
+                tags = itemTags.split(",").map { it.trim() },
+                condition = itemCondition, // Consider adding UI input for this
+                brand = itemBrand,
+                size = itemSize,
                 createdAt = Clock.System.now().toString()
             )
 

@@ -17,6 +17,13 @@ expect class CameraManager {
     fun TakePhotoButton(onPhotoTaken: (ByteArray) -> Unit)
 }
 
+expect class NotificationManager {
+    fun requestPermissions()
+    fun initialize()
+}
+
+expect suspend fun getFCMToken(): String?
+
 expect fun ByteArray.toImageBitmap(): ImageBitmap
 expect fun ByteArray.toBitmap(): Any
 

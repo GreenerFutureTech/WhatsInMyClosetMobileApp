@@ -3,27 +3,27 @@ package org.greenthread.whatsinmycloset.core.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.mapLatest
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Contextual
-import kotlinx.serialization.Serializable
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.managers.WardrobeManager
 import org.greenthread.whatsinmycloset.core.persistence.WardrobeEntity
+import org.greenthread.whatsinmycloset.core.persistence.toClothingItem
 import org.greenthread.whatsinmycloset.core.repositories.WardrobeRepository
 import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
 
-// used to manage clothing items selected when creating an outfit
+/*
+* ClothingItemViewModel is responsible for managing the state and logic related to clothing items,
+* including fetching items for a specific wardrobe and category.
+* */
 open class ClothingItemViewModel(
     private val wardrobeRepository: WardrobeRepository,
-    private val wardrobeManager: WardrobeManager
+    wardrobeManager: WardrobeManager,
+    //private val itemDao: ItemDao // Inject ItemDao to fetch items
     ) :
 ViewModel() {
 
@@ -35,50 +35,57 @@ ViewModel() {
     private val _wardrobes = MutableStateFlow<List<Wardrobe>>(emptyList())
     val wardrobes: StateFlow<List<Wardrobe>> = _wardrobes.asStateFlow()
 
-    private val _clothingItems = MutableStateFlow<List<ClothingItem>>(emptyList())
-
-    // all items that will be displayed for the selected category
-    val clothingItems: StateFlow<List<ClothingItem>> = _clothingItems.asStateFlow()
-
     private val _selectedItems = MutableStateFlow<List<ClothingItem>>(emptyList())
 
     // all selected items that from the selected category
     val selectedItems: StateFlow<List<ClothingItem>> = _selectedItems.asStateFlow()
 
+    private val _categoryItems = MutableStateFlow<List<ClothingItem>>(emptyList())
+    val categoryItems: StateFlow<List<ClothingItem>> = _categoryItems.asStateFlow()
+
+    // Fetch items for a specific wardrobe and category
+    fun getItemsByCategoryAndWardrobe(category: String, wardrobe: Wardrobe?) {
+        viewModelScope.launch {
+            val selectedWardrobe = wardrobe ?: defaultWardrobe ?: return@launch
+            //val itemEntities = itemDao.getItemsForWardrobeAndCategory(selectedWardrobe.id, category)
+
+            // Convert ItemEntity to ClothingItem
+            //val clothingItems = itemEntities.map { it.toClothingItem() }
+
+            // Update the state
+            //_categoryItems.value = clothingItems
+        }
+    }
+
     fun addSelectedItems(items: List<ClothingItem>) {
         _selectedItems.value = (_selectedItems.value + items).distinctBy { it.id to it.itemType }
     }
 
-    fun addClothingItems(items: List<ClothingItem>) {
-        _clothingItems.value = _clothingItems.value + items
+    // Fetch the details of a specific clothing item by its ID, wardrobeId, and category
+    //suspend fun getItemDetail(wardrobeId: String, itemId: String, category: ClothingCategory): ClothingItem? {
+        //println("DEBUG, Searching for item: id=$itemId, category=$category, wardrobeId=$wardrobeId")
+
+        // Fetch the item from the database using ItemDao
+        //val itemEntity = itemDao.getItemById(itemId)
+
+        // If the item exists and matches the wardrobeId and category, convert it to ClothingItem
+        //return if (itemEntity != null && itemEntity.wardrobeId == wardrobeId && itemEntity.itemType == category.toString()) {
+        //    itemEntity.toClothingItem()
+        //} else {
+        //    null
+        //}
+    //}
+
+    // get selected item details - for testing
+    fun getItemDetailTest(itemId: String): ClothingItem? {
+        println("DEBUG, Searching for item: id=$itemId")
+
+        // Get the current list of categoryItems
+        val items = _categoryItems.value
+
+        // Find the item with the matching itemId
+        return items.find { it.id == itemId }
     }
-
-    fun removeClothingItem(item: ClothingItem) {
-        _clothingItems.value = _clothingItems.value - item
-    }
-
-    // clear all selected items
-    fun clearClothingItems() {
-        _clothingItems.value = emptyList()
-    }
-
-    // Fetch the details of a specific clothing item by its ID
-    // this info will come from DB eventually
-    fun getClothingItemDetails
-                (wardrobeId: String, itemId: String, category: ClothingCategory)
-    : ClothingItem?
-    {
-        println("DEBUG, Searching for item: id=$itemId, category=$category, wardrobeId=$wardrobeId")
-        println("DEBUG, Current items: ${_clothingItems.value}")
-
-        // Get the item from all items that match the ID, category, and wardrobe ID
-        return _clothingItems.value.find { item ->
-            item.id == itemId && item.itemType == category && item.wardrobeId == wardrobeId
-        }
-    }
-
-    private val _categoryItems = MutableStateFlow<List<ClothingItem>>(emptyList())
-    val categoryItems: StateFlow<List<ClothingItem>> = _categoryItems.asStateFlow()
 
     // Insert sample wardrobes
     init {
@@ -93,48 +100,35 @@ ViewModel() {
             }
         }
     }
-
-    // Fetch items by category and filter them by the selected wardrobe
-    fun getItemsByCategoryAndWardrobe(category: String, wardrobe: Wardrobe?) {
-        println("DEBUG: Fetching items for category: '$category' and wardrobe: '${wardrobe?.id}'")
-
-        viewModelScope.launch {
-            val selectedWardrobe = wardrobe ?: defaultWardrobe ?: return@launch
-
-            try {
-                clothingItems.collectLatest { items ->
-                    val filteredItems = items.filter {
-                        val itemCategory = it.itemType.toString().trim().lowercase()
-                        val belongsToWardrobe = selectedWardrobe.id == it.wardrobeId
-
-                        println("DEBUG: itemCategory = '$itemCategory', wardrobe = '${it.wardrobeId}'")
-                        itemCategory == category.trim().lowercase() && belongsToWardrobe
-                    }
-
-                    _categoryItems.value = filteredItems
-                    println("DEBUG: Filtered items count = ${filteredItems.size}")
-                }
-            } catch (e: Exception) {
-                println("ERROR: ${e.message.toString()}")
-            }
-        }
-    }
-
-    // Function to initialize clothing items for each wardrobe
-    fun initializeClothingItems(newItems: List<ClothingItem>, wardrobeId: String) {
-        val updatedItems = newItems.map { it.copy(wardrobeId = wardrobeId) } // Associate items with the wardrobe
-        _clothingItems.value = _clothingItems.value + updatedItems
-    }
-
-    open fun clearClothingItemState() {
-        println("DEBUG: Clearing clothing item state")
-        _clothingItems.value = emptyList() // Clear selected clothing items
+    // Clear selected items
+    fun clearClothingItemState() {
         _selectedItems.value = emptyList()
-        // Function to initialize clothing items for each wardrobe
-        fun initializeClothingItems(newItems: List<ClothingItem>, wardrobeId: String) {
-            val updatedItems =
-                newItems.map { it.copy(wardrobeId = wardrobeId) } // Associate items with the wardrobe
-            _clothingItems.value = _clothingItems.value + updatedItems
+    }
+
+    // TODO to replace with proper functionality
+    fun fetchSampleClothingItems() {
+        viewModelScope.launch {
+            val sampleItems = listOf(
+                ClothingItem(
+                    id = "1",
+                    name = "Test Shirt",
+                    mediaUrl = "https://greenthreaditems.blob.core.windows.net/images/test_shirt.png",
+                    itemType = ClothingCategory.TOPS
+                ),
+                ClothingItem(
+                    id = "2",
+                    name = "Test Pants",
+                    mediaUrl = "https://greenthreaditems.blob.core.windows.net/images/test_pants.png",
+                    itemType = ClothingCategory.BOTTOMS
+                ),
+                ClothingItem(
+                    id = "3",
+                    name = "Test Hat",
+                    mediaUrl = "https://greenthreaditems.blob.core.windows.net/images/test_hat.png",
+                    itemType = ClothingCategory.ACCESSORIES
+                )
+            )
+            _categoryItems.value = sampleItems
         }
     }
 

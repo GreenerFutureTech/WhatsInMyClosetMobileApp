@@ -24,8 +24,11 @@ import androidx.compose.ui.unit.sp
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.dto.MessageDto
+import org.greenthread.whatsinmycloset.theme.inverseOnSurfaceLight
+import org.greenthread.whatsinmycloset.theme.onSurfaceVariantLight
+import org.greenthread.whatsinmycloset.theme.outlineVariantLight
+import org.greenthread.whatsinmycloset.theme.tertiaryContainerLight
 
 @Composable
 fun MessageItem(
@@ -33,7 +36,7 @@ fun MessageItem(
     isSender: Boolean
 ) {
     val alignment = if (isSender) Alignment.End else Alignment.Start
-    val backgroundColor = if (isSender) Color(0xFFDCF8C6) else Color(0xFFECECEC)
+    val backgroundColor = if (isSender) tertiaryContainerLight else inverseOnSurfaceLight
     val shape = RoundedCornerShape(8.dp)
 
     Column(
@@ -42,37 +45,44 @@ fun MessageItem(
             .padding(horizontal = 8.dp, vertical = 4.dp),
         horizontalAlignment = alignment
     ) {
-        Box(
-            modifier = Modifier
-                .clip(shape)
-                .widthIn(max = 250.dp)
-                .background(backgroundColor)
-                .padding(8.dp)
+        Row(
+            verticalAlignment = Alignment.Bottom,
+            horizontalArrangement = if (isSender) Arrangement.End else Arrangement.Start
         ) {
-            Column(
-                modifier = Modifier.fillMaxWidth()
+            if (isSender) {
+                Text(
+                    text = formatTime(message.sentAt),
+                    fontSize = 12.sp,
+                    color = onSurfaceVariantLight,
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .clip(shape)
+                    .widthIn(max = 200.dp)
+                    .background(backgroundColor)
+                    .padding(horizontal = 10.dp, vertical = 8.dp)
             ) {
                 Text(
                     text = message.content,
                     fontSize = 16.sp,
                     color = Color.Black
                 )
+            }
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    Text(
-                        text = formatTime(message.sentAt),
-                        fontSize = 12.sp,
-                        color = Color.Gray
-                    )
-                }
+            if (!isSender) {
+                Text(
+                    text = formatTime(message.sentAt),
+                    fontSize = 12.sp,
+                    color = onSurfaceVariantLight,
+                    modifier = Modifier.padding(start = 8.dp)
+                )
             }
         }
     }
 }
-
 
 
 fun formatTime(isoTime: String): String {

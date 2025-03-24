@@ -45,7 +45,6 @@ fun ClothingItemEntity.toItem(): ClothingItem {
         itemType = ClothingCategory.valueOf(this.itemType), // Convert string back to ClothingCategory enum
         mediaUrl = this.mediaUrl,
         tags = this.tags,
-        position = null, // Position is not available in ClothingItemEntity
         createdAt = this.createdAt
     )
 }

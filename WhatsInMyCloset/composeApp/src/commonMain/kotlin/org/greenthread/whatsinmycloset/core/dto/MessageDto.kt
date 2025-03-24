@@ -14,10 +14,10 @@ data class MessageDto (
 
 @Serializable
 data class MessageUserDto (
-    val id: Int,
-    val username: String,
-    val name: String,
-    val profilePicture: String? = null
+    var id: Int = 0,
+    val username: String = "",
+    val name: String = "",
+    val profilePicture: String? = ""
 )
 
 @Serializable

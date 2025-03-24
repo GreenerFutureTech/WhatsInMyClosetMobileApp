@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -26,6 +27,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
+import org.greenthread.whatsinmycloset.core.dto.MessageUserDto
+import org.greenthread.whatsinmycloset.theme.onSurfaceLight
+import org.greenthread.whatsinmycloset.theme.secondaryLight
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import whatsinmycloset.composeapp.generated.resources.Res
 
@@ -48,7 +52,7 @@ fun SwapImageCard(
                 .fillMaxWidth()
                 .height(100.dp)
                 .clickable { onSwapClick() }
-                .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
+                .border(1.dp, onSurfaceLight, RoundedCornerShape(8.dp))
         ) {
             @OptIn(ExperimentalResourceApi::class)
             AsyncImage(
@@ -63,7 +67,7 @@ fun SwapImageCard(
     }
 }
 @Composable
-fun SwapOtherImageCard(onSwapClick: () -> Unit, imageUrl: String, username: String) {
+fun SwapOtherImageCard(onSwapClick: () -> Unit, imageUrl: String, user: MessageUserDto) {
     var loadFailed by remember { mutableStateOf(false) }
 
     Column(
@@ -77,7 +81,7 @@ fun SwapOtherImageCard(onSwapClick: () -> Unit, imageUrl: String, username: Stri
                 .height(110.dp)
                 .padding(8.dp)
                 .clickable { onSwapClick() }
-                .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
+                .border(1.dp, onSurfaceLight, RoundedCornerShape(8.dp))
         ) {
             @OptIn(ExperimentalResourceApi::class)
             AsyncImage(
@@ -95,24 +99,27 @@ fun SwapOtherImageCard(onSwapClick: () -> Unit, imageUrl: String, username: Stri
                 .fillMaxWidth()
                 .padding(horizontal = 8.dp)
         ) {
-            @OptIn(ExperimentalResourceApi::class) // TEMP for /drawble image
-            (AsyncImage(
-                model = Res.getUri("drawable/defaultUser.png"),// NEED TO UPDATE : UserProfileUrl
-                contentDescription = "User Image",
+            var loadFailed by remember { mutableStateOf(false) }
+            @OptIn(ExperimentalResourceApi::class)
+            AsyncImage(
+                model = if (loadFailed) Res.getUri("drawable/defaultUser.png") else user.profilePicture,
+                contentDescription = "Swap Image",
                 modifier = Modifier
-                    .size(20.dp)
-                    .clip(CircleShape)
-                    .border(1.dp, Color.Black, CircleShape)
-            ))
-
+                            .size(20.dp)
+                            .clip(CircleShape)
+                            .border(1.dp, secondaryLight, CircleShape),
+                onError = { loadFailed = true }
+            )
             Spacer(modifier = Modifier.width(8.dp))
 
-            Text(
-                text = username, // NEED TO UPDATE : username
-                fontSize = 14.sp,
-                color = Color.Black,
-                modifier = Modifier.align(Alignment.CenterVertically)
-            )
+            user.username?.let {
+                Text(
+                    text = it,
+                    fontSize = 12.sp,
+                    color = Color.Black,
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                )
+            }
         }
     }
 }

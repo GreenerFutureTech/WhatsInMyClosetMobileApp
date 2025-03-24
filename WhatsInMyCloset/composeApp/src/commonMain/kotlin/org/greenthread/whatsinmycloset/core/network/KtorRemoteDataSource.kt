@@ -1,6 +1,7 @@
 package org.greenthread.whatsinmycloset.core.network
 
 import io.ktor.client.HttpClient
+import io.ktor.client.call.body
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.delete
@@ -23,11 +24,13 @@ import org.greenthread.whatsinmycloset.core.domain.DataError
 import org.greenthread.whatsinmycloset.core.domain.Result
 import org.greenthread.whatsinmycloset.core.dto.ItemDto
 import org.greenthread.whatsinmycloset.core.dto.MessageDto
+import org.greenthread.whatsinmycloset.core.dto.OtherSwapDto
 import org.greenthread.whatsinmycloset.core.dto.SendMessageRequest
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.dto.SwapStatusDto
 import org.greenthread.whatsinmycloset.core.dto.UserDto
 import org.greenthread.whatsinmycloset.core.persistence.WardrobeEntity
+import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.Notification
 import org.greenthread.whatsinmycloset.getPlatform
 
 private val platform = getPlatform()
@@ -47,10 +50,10 @@ class KtorRemoteDataSource(
         }
     }
 
-    override suspend fun getOtherUsersSwaps(currentUserId: String): Result<List<SwapDto>, DataError.Remote> {
+    override suspend fun getFriendsSwaps(currentUserId: String): Result<List<OtherSwapDto>, DataError.Remote> {
         return safeCall {
             httpClient.get(
-                urlString = "$BASE_URL/swaps/others/$currentUserId"
+                urlString = "$BASE_URL/swaps/friends/$currentUserId"
             )
         }
     }
@@ -91,10 +94,7 @@ class KtorRemoteDataSource(
         }
     }
 
-    override suspend fun getChatHistory(
-        userId: Int,
-        otherUserId: Int
-    ): Result<List<MessageDto>, DataError.Remote> {
+    override suspend fun getChatHistory(userId: Int, otherUserId: Int): Result<List<MessageDto>, DataError.Remote> {
         return safeCall {
             httpClient.get(
                 urlString = "$BASE_URL/messages/chat/$userId/$otherUserId"
@@ -110,11 +110,7 @@ class KtorRemoteDataSource(
         }
     }
 
-    override suspend fun sendMessage(
-        senderId: Int,
-        receiverId: Int,
-        content: String
-    ): Result<MessageDto, DataError.Remote> {
+    override suspend fun sendMessage(senderId: Int, receiverId: Int, content: String): Result<MessageDto, DataError.Remote> {
         return safeCall {
             val request = SendMessageRequest(
                 senderId = senderId,
@@ -131,6 +127,38 @@ class KtorRemoteDataSource(
                 contentType(ContentType.Application.Json)
                 setBody(jsonRequest)
             }
+        }
+    }
+
+    //============================= Notification ==================================
+
+    suspend fun getUserNotifications(userId: Int): Result<List<Notification>, DataError.Remote> {
+        return safeCall {
+            httpClient.get("$BASE_URL/notifications/${userId}")
+        }
+    }
+
+    suspend fun updateNotificationRead(notificationId: Int): Result<String, DataError.Remote> {
+        return safeCall {
+            httpClient.patch(
+                urlString = "$BASE_URL/notifications/$notificationId/read"
+            )
+        }
+    }
+
+    suspend fun dismissNotification(notificationId: Int): Result<String, DataError.Remote> {
+        return safeCall {
+            httpClient.delete(
+                urlString = "$BASE_URL/notifications/$notificationId"
+            )
+        }
+    }
+
+    suspend fun clearNotification(userId: Int): Result<String, DataError.Remote> {
+        return safeCall {
+            httpClient.delete(
+                urlString = "$BASE_URL/notifications/$userId/clear"
+            )
         }
     }
 

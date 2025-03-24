@@ -1,7 +1,6 @@
 package org.greenthread.whatsinmycloset.core.dto
 
 import kotlinx.serialization.Serializable
-import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 
 @Serializable
 data class SwapDto(
@@ -13,6 +12,18 @@ data class SwapDto(
     val updatedAt: String? = null
 )
 
+@Serializable
+data class OtherSwapDto(
+    val swap: SwapDto,
+    val user: MessageUserDto
+)
+
+fun SwapDto.toOtherSwapDto(user: MessageUserDto): OtherSwapDto {
+    return OtherSwapDto(
+        swap = this,
+        user = user
+    )
+}
 @Serializable
 data class SwapStatusDto(
     val id: String,

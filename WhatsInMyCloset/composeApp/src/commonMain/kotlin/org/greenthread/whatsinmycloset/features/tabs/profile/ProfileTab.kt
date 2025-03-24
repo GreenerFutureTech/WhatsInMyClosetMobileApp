@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -25,10 +24,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.StateFlow
 import org.greenthread.whatsinmycloset.core.domain.models.User
@@ -41,9 +36,8 @@ import org.greenthread.whatsinmycloset.core.ui.components.listItems.generateRand
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.SeeAllButton
 import org.greenthread.whatsinmycloset.getScreenWidthDp
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
-import org.jetbrains.compose.resources.painterResource
 import whatsinmycloset.composeapp.generated.resources.Res
-import whatsinmycloset.composeapp.generated.resources.profileUser
+import whatsinmycloset.composeapp.generated.resources.my_outfits_title
 
 @Composable
 fun ProfileTabScreen(userState: StateFlow<User?>, onNavigate: () -> Unit) {
@@ -51,35 +45,18 @@ fun ProfileTabScreen(userState: StateFlow<User?>, onNavigate: () -> Unit) {
 
     WhatsInMyClosetTheme {
         var showContent by remember { mutableStateOf(false) }
-        // Create a user profile
-        //val user = Account(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
 
         // Generate outfits
         val numberOfOutfits = 10
         val outfits = List(numberOfOutfits) { i ->
             Outfit(
                 id = "outfit1",
-                userId = "1",
+                userId = 1,
                 public = true,
                 favorite = true,
                 mediaURL = "",
                 name = "Summer Look",
-                items = listOf(
-                    ClothingItem(
-                        id = "1",
-                        name = "Blue Top",
-                        itemType = ClothingCategory.TOPS,
-                        mediaUrl = null,
-                        tags = listOf("casual", "summer")
-                    ),
-                    ClothingItem(
-                        id = "2",
-                        name = "Denim Jeans",
-                        itemType = ClothingCategory.BOTTOMS,
-                        mediaUrl = null,
-                        tags = listOf("casual", "summer")
-                    ),
-                ),
+                itemIds = listOf("15", "7", "9"),
                 createdAt = "08/03/2025"
             )
         }
@@ -124,111 +101,10 @@ fun ProfileTabScreen(userState: StateFlow<User?>, onNavigate: () -> Unit) {
 
             LazyRowColourBox(items = swapItems)
 
-            MyOutfitsTitle()
+            MyOutfitsTitle(Res.string.my_outfits_title)
 
             LazyGridColourBox(items = randomItems)
         }
     }
 }
 
-@Composable
-fun ProfilePicture() {
-    WhatsInMyClosetTheme {
-        // Set profile picture proportional to the phone screen size
-        val screenWidth = getScreenWidthDp()
-        var imageSize = screenWidth * 0.2f // Adjust the percentage as needed
-
-        Image(
-            painter = painterResource(resource = Res.drawable.profileUser),
-            contentDescription = "Profile Image",
-            modifier = Modifier
-                .size(imageSize)
-                .clip(CircleShape)
-                .border(2.dp, MaterialTheme.colors.primary, CircleShape),
-            contentScale = ContentScale.Crop
-        )
-    }
-}
-
-@Composable
-fun Username(user: String) {
-    Text(
-        text = user,
-        style = MaterialTheme.typography.h5,
-        fontWeight = FontWeight.Bold
-    )
-}
-
-@Composable
-fun FriendsCount(friendsCount: Int) {
-    Text(
-        text = "$friendsCount friends",
-        style = MaterialTheme.typography.caption
-    )
-}
-
-@Composable
-fun SwapsCount(swapsCount: Int) {
-    Text(
-        text = "$swapsCount swaps",
-        style = MaterialTheme.typography.caption
-    )
-}
-
-@Composable
-fun MyOutfitsTitle() {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = "My Outfits",
-            style = MaterialTheme.typography.body1,
-            fontWeight = FontWeight.Bold
-        )
-    }
-}
-
-@Composable
-private fun SwapTitle() {
-    Row(
-        Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = "Available for Swap",
-            style = MaterialTheme.typography.body1,
-            fontWeight = FontWeight.Bold
-        )
-
-        SeeAllButton(
-            onClick = {}
-        )
-    }
-}
-
-@Composable
-private fun SearchBar() {
-    WhatsInMyClosetTheme {
-        TextField(
-            value = "SEARCH ...",
-            onValueChange = { },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            placeholder = { Text(text = "hint") },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions.Default.copy(
-                imeAction = ImeAction.Search
-            ),
-            keyboardActions = KeyboardActions(
-                onSearch = {
-                }
-            ),
-        )
-    }
-}

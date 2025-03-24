@@ -22,6 +22,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import org.greenthread.whatsinmycloset.app.Routes
+import org.greenthread.whatsinmycloset.core.domain.models.MessageManager
 import org.greenthread.whatsinmycloset.features.tabs.swap.data.MessageListState
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -40,23 +41,6 @@ fun MessageListScreen(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        Column(
-            modifier = Modifier
-                .align(Alignment.TopStart)
-        ) {
-            TextButton(
-                onClick = { navController.popBackStack() }
-            ) {
-                Text(
-                    text = "Back",
-                    fontSize = 15.sp,
-                    color = Color.Blue
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-
         when {
             state.isLoading -> {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
@@ -68,7 +52,7 @@ fun MessageListScreen(
                 LazyColumn(
                     modifier = Modifier.fillMaxSize()
                         .fillMaxSize()
-                        .padding(top = 60.dp)
+                        .padding(top = 20.dp)
 
                 ) {
                     items(state.getLatestMessageResults) { message ->
@@ -82,7 +66,8 @@ fun MessageListScreen(
                             isUnread = !message.isRead && message.sender.id == otherUser.id,
                             onClick = {
                                 viewModel.updateRead(message.id)
-                                navController.navigate(Routes.ChatScreen(otherUser.id.toString()))
+                                MessageManager.setCurrentOtherUser(otherUser)
+                                navController.navigate(Routes.ChatScreen)
                             }
                         )
                     }

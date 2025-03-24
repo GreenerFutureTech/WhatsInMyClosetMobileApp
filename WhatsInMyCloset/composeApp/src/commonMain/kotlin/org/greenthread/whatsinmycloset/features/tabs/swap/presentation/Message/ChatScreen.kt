@@ -4,21 +4,20 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.input.InputTransformation.Companion.keyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Button
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
@@ -27,22 +26,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import coil3.compose.AsyncImage
-import io.ktor.client.network.sockets.ConnectTimeoutException
-import org.greenthread.whatsinmycloset.core.domain.models.UserManager
+import org.greenthread.whatsinmycloset.core.domain.models.MessageManager
 import org.greenthread.whatsinmycloset.core.dto.MessageUserDto
-import org.greenthread.whatsinmycloset.core.dto.UserDto
 import org.greenthread.whatsinmycloset.features.tabs.swap.data.MessageListState
+import org.greenthread.whatsinmycloset.theme.outlineLight
+import org.greenthread.whatsinmycloset.theme.secondaryLight
+import org.greenthread.whatsinmycloset.theme.surfaceDimLight
 import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import whatsinmycloset.composeapp.generated.resources.Res
+import whatsinmycloset.composeapp.generated.resources.no_items_found
+import whatsinmycloset.composeapp.generated.resources.swap_placeholder
 
 @Composable
 fun ChatScreen(
     viewModel: MessageViewModel = koinViewModel(),
-    otherUserId: String,
-    navController: NavController
 ) {
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val state by viewModel.state.collectAsStateWithLifecycle(
@@ -50,21 +50,18 @@ fun ChatScreen(
         lifecycle = lifecycle
     )
     val currentUserId = viewModel.currentUser.value?.id
-    val otherUserIdInt = otherUserId.toInt()
+    val otherUser = MessageManager.currentOtherUser
 
-    if (currentUserId != null) {
+    if (currentUserId != null && otherUser != null) {
+        val otherUserId = otherUser.id
+
         LaunchedEffect(state) {
             try {
                 if (state.getChatHistory.isEmpty()) {
-                    viewModel.fetchChatHistory(currentUserId, otherUserIdInt)
+                    viewModel.fetchChatHistory(currentUserId, otherUserId)
                 }
-//                if (state.getOtherUserInfo == null) {
-//                    viewModel.fetchUserById(otherUserIdInt)
-//                }
-            } catch (e: ConnectTimeoutException) {
-                println("Connection timeout occurred (could not hit backend?): ${e.message}")
             } catch (e: Exception) {
-                println("An error occurred: ${e.message}")
+                println("MESSAGE SCREEN ERROR: ${e.message}")
             }
         }
 
@@ -77,26 +74,20 @@ fun ChatScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
             ) {
-                TextButton(
-                    onClick = { navController.popBackStack() },
-                ) {
-                    Text(
-                        text = "Back",
-                        fontSize = 15.sp,
-                        color = Color.Blue
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-//                state.getOtherUserInfo?.let { user ->
-//                    ChatTitle(user)
-//                }
-
+                ChatTitle(
+                    user = otherUser,
+                    modifier = Modifier.weight(1f)
+                )
             }
 
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 4.dp),
+                thickness = 1.dp,
+                color = surfaceDimLight
+            )
 
             ChatList(
                 modifier = Modifier.weight(1f),
@@ -104,41 +95,46 @@ fun ChatScreen(
                 messages = state.getChatHistory
             )
             MessageInput { messageContent ->
-                viewModel.sendMessage(currentUserId, otherUserIdInt, messageContent)
+                viewModel.sendMessage(currentUserId, otherUserId, messageContent)
             }
-
         }
     }
 }
 
-//@Composable
-//fun ChatTitle(user: UserDto){
-//    Row(
-//        verticalAlignment = Alignment.CenterVertically,
-//        modifier = Modifier
-//            .fillMaxWidth()
-//
-//    ) {
-//        @OptIn(ExperimentalResourceApi::class) // TEMP for /drawable image
-//        (AsyncImage(
-//        model = user.profilePicture ?: Res.getUri("drawable/defaultUser.png"), // TODO: REMOVE drawable
-//        contentDescription = "Profile Image",
-//        modifier = Modifier
-//            .size(50.dp)
-//            .clip(CircleShape)
-//            .border(1.dp, Color.LightGray, CircleShape)
-//    ))
-//        Spacer(modifier = Modifier.width(8.dp))
-//        Column {
-//            Text(
-//                text = user.username,
-//                fontWeight = FontWeight.Bold,
-//                fontSize = 26.sp,
-//                color = Color.Black
-//            )
-//        }
-//    }
-//}
+@Composable
+fun ChatTitle(
+    user: MessageUserDto,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .padding(horizontal = 10.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.Start
+    ) {
+        var loadFailed by remember { mutableStateOf(false) }
+        @OptIn(ExperimentalResourceApi::class)
+        AsyncImage(
+            model = if(loadFailed) Res.getUri("drawable/defaultUser.png") else user.profilePicture,
+            contentDescription = "Profile Image",
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .border(1.dp, secondaryLight, CircleShape),
+            onError = { loadFailed = true }
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Column {
+            Text(
+                text = user.username,
+                fontWeight = FontWeight.Medium,
+                fontSize = 20.sp,
+                color = Color.Black
+            )
+        }
+    }
+}
 
 @Composable
 fun MessageInput(
@@ -154,21 +150,22 @@ fun MessageInput(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        TextField(
+        OutlinedTextField(
             value = text,
             onValueChange = { text = it },
             modifier = Modifier
                 .weight(8f)
                 .padding(end = 8.dp)
-                .heightIn(min = 50.dp),
+                .heightIn(min = 40.dp),
+            shape = RoundedCornerShape(100),
             keyboardActions = KeyboardActions {
                 focusManager.clearFocus()
             },
             textStyle = TextStyle(
                 color = Color.Black,
-                fontSize = 18.sp
+                fontSize = 16.sp
             ),
-            placeholder = { Text("Let's Swap!") },
+            placeholder = { Text(stringResource(Res.string.swap_placeholder)) },
             singleLine = false
         )
 
@@ -181,7 +178,7 @@ fun MessageInput(
             },
             modifier = Modifier
                 .weight(2f)
-                .height(50.dp)
+                .height(40.dp)
                 .padding(start = 8.dp),
             shape = CircleShape
         ) {

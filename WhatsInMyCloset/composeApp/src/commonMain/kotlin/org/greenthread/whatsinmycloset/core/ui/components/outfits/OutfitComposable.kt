@@ -70,16 +70,20 @@ fun OutfitComposable(outfit: Outfit) {
         var x = 5f
         var y = 5f
 
-        outfit.items.forEach { itemId ->
-            val item = itemRepository[itemId.id] ?: error("Item not found: $itemId")
-            LoadImage(
-                imageKey = item.mediaUrl.toString(),
-                contentDescription = item.name,
-                x = x,
-                y = y
-            )
-            x += 60f
-            y += 50f
+        outfit.itemIds.forEach { itemId ->
+            val item = itemRepository[itemId]
+            if (item != null) {
+                LoadImage(
+                    imageKey = item.mediaUrl.toString(),
+                    contentDescription = item.name,
+                    x = x,
+                    y = y
+                )
+                x += 60f
+                y += 50f
+            } else {
+                println("OutfitComposable Item not found: $itemId")
+            }
         }
     }
 }

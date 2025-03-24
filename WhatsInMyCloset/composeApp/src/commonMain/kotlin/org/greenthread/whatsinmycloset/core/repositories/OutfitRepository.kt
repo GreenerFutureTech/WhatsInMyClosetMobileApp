@@ -1,91 +1,64 @@
 package org.greenthread.whatsinmycloset.core.repositories
 
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import org.greenthread.whatsinmycloset.core.domain.models.User
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import org.greenthread.whatsinmycloset.core.data.daos.ClothingItemDao
+import org.greenthread.whatsinmycloset.core.data.daos.OutfitDao
+import org.greenthread.whatsinmycloset.core.domain.DataError
+import org.greenthread.whatsinmycloset.core.domain.EmptyResult
+import org.greenthread.whatsinmycloset.core.domain.Result
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
+import org.greenthread.whatsinmycloset.core.persistence.OutfitEntity
+import org.greenthread.whatsinmycloset.core.persistence.OutfitItemJoin
+import org.greenthread.whatsinmycloset.core.persistence.toOutfit
 
+/*
+    Handles database operations for outfits, including inserting, deleting, and fetching outfits.
 
-class OutfitRepository (private val user: User) // Pass the logged-in user's account)
-{
-    // Default repository names
-    public val defaultRepositories = setOf(
-        "Business Casuals",
-        "Formals",
-        "Casuals",
-        "Public Outfits"
-    )
+    Acts as an intermediary between the OutfitManager and the DAO layer
 
-    // StateFlow for default repositories
-    private val _outfitFolders = MutableStateFlow(defaultRepositories)
-    val outfitFolders: StateFlow<Set<String>> = _outfitFolders
-
-    // StateFlow for user-created repositories
-    private val _userRepositories = MutableStateFlow<Set<String>>(emptySet())
-    val userRepositories: StateFlow<Set<String>> = _userRepositories
-
-    // Combined list of default and user-created repositories
-    val allRepositories: Set<String>
-        get() = _outfitFolders.value + _userRepositories.value
-
-    fun getAllRepos() : Set<String>
-    {
-        return allRepositories
-    }
-
-    // List of saved outfits
-    private val _savedOutfits = MutableStateFlow<List<Outfit>>(emptyList())
-    val savedOutfits: StateFlow<List<Outfit>> = _savedOutfits
-
-    /**
-     * Add a new user-created repository name.
-     */
-    fun addUserRepository(name: String) {
-        if (name.isNotBlank() && name !in allRepositories) {
-            _userRepositories.value = _userRepositories.value + name
+*/
+open class OutfitRepository(
+    private val outfitDao: OutfitDao,
+    private val itemDao: ClothingItemDao
+) {
+    suspend fun insertOutfit(outfit: OutfitEntity): EmptyResult<DataError.Local> {
+        return try {
+            outfitDao.insertOutfit(outfit)
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Result.Error(DataError.Local.DISK_FULL)
         }
     }
 
-    /**
-     * Remove a user-created repository name.
-     */
-    fun removeUserRepository(name: String) {
-        _userRepositories.value = _userRepositories.value - name
+    suspend fun deleteOutfit(outfit: OutfitEntity) {
+        outfitDao.deleteOutfit(outfit.outfitId) // Delegate to OutfitDao
     }
 
-    /**
-     * Get all saved outfits for the logged in user from the selected repository
-     */
-    fun getSavedOutfits(): List<Outfit> {
-        return _savedOutfits.value
+    // Insert a relationship between an outfit and a clothing item
+    suspend fun insertOutfitItemJoin(join: OutfitItemJoin) {
+        outfitDao.insertOutfitItemJoin(join) // Delegate to OutfitDao
     }
 
-    /**
-     * Save an outfit to the repository
-     */
-    fun saveOutfit(outfit: Outfit,
-                   selectedFolders: List<String>? = null,
-                   selectedFolder: String? = null)
-    {
-        // Save the outfit to the user's account
-        if (selectedFolders != null || selectedFolder != null)
-        {
-            if (selectedFolders != null)
-            {
-                user.addOutfit(outfit, selectedFolders)
+    // get a specific outfit by ID
+    suspend fun getOutfitById(outfitId: String, userId: Int): OutfitEntity? {
+        val outfits = outfitDao.getOutfits(userId).first() // Collect the first emission of the Flow
+
+        return outfits.find { it.outfitId == outfitId } // Find the outfit by ID
+    }
+
+    // get a specific outfit by outfit name
+    suspend fun getOutfitByName(outfitName: String, userId: Int): OutfitEntity? {
+        val outfits = outfitDao.getOutfits(userId).first() // Collect the first emission of the Flow
+        return outfits.find { it.name == outfitName } // Find the outfit by name
+    }
+
+    // get all outfits
+    open fun getOutfits(userId: Int): Flow<List<Outfit>> {
+        return outfitDao.getOutfits(userId)
+            .map { outfitEntities ->
+                outfitEntities.map { it.toOutfit(itemDao) } // Convert entities to domain models
             }
-            /*else
-            {
-                account.addOutfit(outfit, selectedFolder)
-            }*/
-        }
-    }
-
-    /**
-     * Delete a saved outfit for the logged-in user.
-     */
-    fun removeOutfit(outfitId: String) {
-        user.removeOutfit(outfitId)
-        _savedOutfits.value = _savedOutfits.value.filter { it.id != outfitId }
     }
 }

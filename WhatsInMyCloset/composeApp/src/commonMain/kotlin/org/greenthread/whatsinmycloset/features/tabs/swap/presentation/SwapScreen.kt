@@ -28,21 +28,32 @@ import androidx.navigation.NavController
 import io.ktor.client.network.sockets.ConnectTimeoutException
 import org.greenthread.whatsinmycloset.app.Routes
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
+import org.greenthread.whatsinmycloset.core.dto.MessageUserDto
+import org.greenthread.whatsinmycloset.core.dto.OtherSwapDto
 import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.Action.SwapAction
-import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.dto.UserDto
+import org.greenthread.whatsinmycloset.core.dto.toOtherSwapDto
 import org.greenthread.whatsinmycloset.core.ui.components.controls.SearchBar
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.SwapImageCard
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.SwapOtherImageCard
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
+import org.greenthread.whatsinmycloset.theme.onSurfaceLight
+import org.greenthread.whatsinmycloset.theme.outlineVariantLight
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import whatsinmycloset.composeapp.generated.resources.Res
+import whatsinmycloset.composeapp.generated.resources.see_all_button
+import whatsinmycloset.composeapp.generated.resources.no_items_found
+import whatsinmycloset.composeapp.generated.resources.my_swap_item
+import whatsinmycloset.composeapp.generated.resources.friends_items
+import whatsinmycloset.composeapp.generated.resources.swap_tab_title
 
 @Composable
 fun SwapScreenRoot(
     viewModel: SwapViewModel = koinViewModel(),
-    onSwapClick: (SwapDto) -> Unit,
+    onSwapClick: (OtherSwapDto) -> Unit,
     onAllSwapClick: () -> Unit,
     onMessageClick: () -> Unit
 ) {
@@ -64,7 +75,7 @@ fun SwapScreenRoot(
                     viewModel.fetchSwapData(currentUser.value?.id.toString())
                 }
                 if (state.getOtherUserSwapResults.isEmpty()) {
-                    viewModel.fetchOtherSwapData(currentUser.value?.id.toString())
+                    viewModel.fetchFriendsSwapData(currentUser.value?.id.toString())
                 }
             } catch (e: ConnectTimeoutException) {
                 println("Connection timeout occurred (could not hit backend?): ${e.message}")
@@ -73,22 +84,33 @@ fun SwapScreenRoot(
             }
         }
 
+
+
         SwapScreen(
             state = state,
             onAction = { action ->
                 when (action) {
                     is SwapAction.OnSwapClick -> {
-                        val selectedItem = state.getAllSwapResults.find { it.itemId.id == action.itemId }
-                    if (selectedItem != null) {
-                        onSwapClick(selectedItem)
+                        val isCurrentUserItem = state.getUserSwapResults.any { it.itemId.id == action.itemId }
+
+                        if (isCurrentUserItem) {
+                            val selectedItem = state.getUserSwapResults.find { it.itemId.id == action.itemId }
+                            if (selectedItem != null) {
+                                val currentUserDto = MessageUserDto()
+                                onSwapClick(selectedItem.toOtherSwapDto(user = currentUserDto))
+                            }
+                        } else {
+                            val selectedItem = state.getOtherUserSwapResults.find { it.swap.itemId.id == action.itemId }
+                            if (selectedItem != null) {
+                                onSwapClick(selectedItem)
+                            }
+                        }
                     }
+                    else -> Unit
                 }
-                else -> Unit
-            }
-           // viewModel.onAction(action)
-        },
-        onAllSwapClick = onAllSwapClick,
-        onMessageClick = onMessageClick
+            },
+            onAllSwapClick = onAllSwapClick,
+            onMessageClick = onMessageClick
         )
     }
 }
@@ -104,9 +126,9 @@ fun SwapScreen(
 
     val matchingSwaps = state.getOtherUserSwapResults.filter { swap ->
         val query = searchString.lowercase()
-        swap.itemId.brand.lowercase().contains(query) ||
-                swap.itemId.itemType.lowercase().contains(query) ||
-                swap.itemId.tags.any { it.lowercase().contains(query) }
+        swap.swap.itemId.brand.lowercase().contains(query) ||
+                swap.swap.itemId.itemType.lowercase().contains(query) ||
+                swap.swap.itemId.tags.any { it.lowercase().contains(query) }
     }
 
     Column(
@@ -123,7 +145,7 @@ fun SwapScreen(
                 modifier = Modifier.height(48.dp),
                 fontSize = 30.sp,
                 fontWeight = FontWeight.Bold,
-                text = "SWAP"
+                text = stringResource(Res.string.swap_tab_title)
             )
 
             Icon(
@@ -131,8 +153,7 @@ fun SwapScreen(
                 contentDescription = "Messages",
                 modifier = Modifier
                     .size(40.dp)
-                    .clickable { onMessageClick() },
-                tint = Color.Black
+                    .clickable { onMessageClick() }
             )
         }
 
@@ -145,9 +166,9 @@ fun SwapScreen(
         ) {
             Text(
                 modifier = Modifier,
-                fontSize = 20.sp,
+                fontSize = 17.sp,
                 fontWeight = FontWeight.Bold,
-                text = "My Swap Items"
+                text = stringResource(Res.string.my_swap_item)
             )
 
             TextButton(
@@ -155,9 +176,8 @@ fun SwapScreen(
                 modifier = Modifier
             ) {
                 Text(
-                    text = "All Swaps",
-                    fontSize = 15.sp,
-                    color = Color.Blue
+                    text = stringResource(Res.string.see_all_button),
+                    fontSize = 15.sp
                 )
             }
         }
@@ -174,7 +194,7 @@ fun SwapScreen(
                         .padding(8.dp)
                         .width(80.dp)
                         .height(95.dp)
-                        .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
+                        .border(1.dp, onSurfaceLight, RoundedCornerShape(8.dp))
                         .clickable { println("Add button clicked") },
                     contentAlignment = Alignment.Center
                 ) {
@@ -182,7 +202,7 @@ fun SwapScreen(
                         "+",
                         fontSize = 30.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.LightGray
+                        color = outlineVariantLight
                     )
                 }
             }
@@ -206,9 +226,9 @@ fun SwapScreen(
         ) {
             Text(
                 modifier = Modifier.height(30.dp),
-                fontSize = 20.sp,
+                fontSize = 17.sp,
                 fontWeight = FontWeight.Bold,
-                text = "Friends Items"
+                text = stringResource(Res.string.friends_items)
             )
 
             SearchBar(
@@ -229,10 +249,10 @@ fun SwapScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "No items found",
+                    text = stringResource(Res.string.no_items_found),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Color.Gray
+                    color = outlineVariantLight
                 )
             }
         } else {
@@ -245,10 +265,10 @@ fun SwapScreen(
                 itemsIndexed(displayedSwaps) { index, item ->
                     SwapOtherImageCard(
                         onSwapClick = {
-                            onAction(SwapAction.OnSwapClick(item.itemId.id))
+                            onAction(SwapAction.OnSwapClick(item.swap.itemId.id))
                         },
-                        imageUrl = item.itemId.mediaUrl,
-                        username = "user${item.userId}"
+                        imageUrl = item.swap.itemId.mediaUrl,
+                        user = item.user
                     )
                 }
             }
