@@ -14,9 +14,9 @@ data class MessageDto (
 
 @Serializable
 data class MessageUserDto (
-    val id: Int,
-    val username: String,
-    val name: String,
+    var id: Int = 0,
+    val username: String = "",
+    val name: String = "",
     val profilePicture: String? = ""
 )
 
