@@ -31,6 +31,9 @@ data class ClothingItem(
     val tags: List<String> = listOf(""),
     //val position: OffsetData? = null, // Add position data
     //val temporaryPosition: OffsetData? = null,
+    val condition: String? = "",
+    val brand: String? = "",
+    val size: String? = "",
     val createdAt: String = ""
 )
 

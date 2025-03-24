@@ -53,6 +53,9 @@ sealed interface Routes {
     data object AddSwapScreen : Routes
 
     @Serializable
+    data object AddSwapItemScreen : Routes
+
+    @Serializable
     data object SocialDetailsScreen : Routes
 
     @Serializable

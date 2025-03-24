@@ -1,5 +1,6 @@
 package org.greenthread.whatsinmycloset.app
 
+import AddSwapItemRoot
 import AllSwapsScreen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -70,7 +71,7 @@ import org.greenthread.whatsinmycloset.features.tabs.home.presentation.HomeTabVi
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabScreen
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabViewModel
 import org.greenthread.whatsinmycloset.features.tabs.social.SocialTabScreen
-import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.AddSwapRoot
+import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.AddSwap.AddSwapRoot
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.AddSwapViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.ChatScreen
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.MessageListScreen
@@ -302,6 +303,14 @@ fun App(
                     composable<Routes.AddSwapScreen>{
                         val viewModel: AddSwapViewModel = koinViewModel()
                         AddSwapRoot(
+                            viewModel = viewModel,
+                            onWardrobeClick = { navController.navigate(Routes.AddSwapItemScreen) }
+                        )
+                    }
+
+                    composable<Routes.AddSwapItemScreen> {
+                        val viewModel: AddSwapViewModel = koinViewModel()
+                        AddSwapItemRoot(
                             viewModel = viewModel
                         )
                     }
