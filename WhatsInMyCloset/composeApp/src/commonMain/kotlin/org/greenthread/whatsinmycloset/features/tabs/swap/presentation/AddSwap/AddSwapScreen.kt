@@ -17,7 +17,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
-import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.AddSwapViewModel
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -26,7 +25,7 @@ fun AddSwapRoot(
     viewModel: AddSwapViewModel = koinViewModel(),
     onWardrobeClick : () -> Unit
 ) {
-    val wardrobes by viewModel.wardrobes.collectAsState()
+    val wardrobes by viewModel!!.cachedWardrobes.collectAsState()
 
     WhatsInMyClosetTheme {
         Column(

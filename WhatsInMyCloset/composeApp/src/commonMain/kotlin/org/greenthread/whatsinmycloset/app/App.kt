@@ -74,7 +74,7 @@ import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabScreen
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabViewModel
 import org.greenthread.whatsinmycloset.features.tabs.social.SocialTabScreen
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.AddSwap.AddSwapRoot
-import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.AddSwapViewModel
+import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.AddSwap.AddSwapViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.ChatScreen
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.MessageListScreen
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.MessageViewModel

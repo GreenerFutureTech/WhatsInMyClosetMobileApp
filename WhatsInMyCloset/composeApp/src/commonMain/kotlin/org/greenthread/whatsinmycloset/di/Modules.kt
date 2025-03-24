@@ -18,7 +18,7 @@ import org.greenthread.whatsinmycloset.core.repository.DefaultClosetRepository
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginViewModel
 import org.greenthread.whatsinmycloset.features.screens.notifications.presentation.NotificationsViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SelectedSwapViewModel
-import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.AddSwapViewModel
+import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.AddSwap.AddSwapViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.MessageViewModel
@@ -29,7 +29,6 @@ import org.greenthread.whatsinmycloset.features.screens.notifications.data.Notif
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
-import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
 import org.koin.dsl.module

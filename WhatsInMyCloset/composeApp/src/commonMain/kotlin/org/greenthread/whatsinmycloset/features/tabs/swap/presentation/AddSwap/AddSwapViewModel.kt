@@ -1,4 +1,4 @@
-package org.greenthread.whatsinmycloset.features.tabs.swap.presentation
+package org.greenthread.whatsinmycloset.features.tabs.swap.presentation.AddSwap
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.domain.onError
 import org.greenthread.whatsinmycloset.core.domain.onSuccess
@@ -24,18 +25,10 @@ class AddSwapViewModel(
     private val userManager: UserManager
 ) : ViewModel() {
     private val _state = MutableStateFlow(SwapListState())
-    private val _wardrobes = MutableStateFlow<List<Wardrobe>>(emptyList())
 
-    val wardrobes: StateFlow<List<Wardrobe>> get() = _wardrobes
+    val cachedWardrobes: StateFlow<List<Wardrobe>> = wardrobeManager.cachedWardrobes
+    val cachedItems: StateFlow<List<ClothingItem>> = wardrobeManager.cachedItems
     val currentUser = userManager.currentUser
-
-    init {
-        fetchWardrobes()
-    }
-
-    private fun fetchWardrobes() {
-        _wardrobes.value = wardrobeManager.cachedWardrobes
-    }
 
     fun createSwap(itemIds: List<String>) {
         val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())

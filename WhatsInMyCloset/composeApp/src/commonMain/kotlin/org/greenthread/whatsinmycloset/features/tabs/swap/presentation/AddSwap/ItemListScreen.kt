@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
@@ -29,7 +30,7 @@ import coil3.compose.AsyncImage
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.CategoriesSection
-import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.AddSwapViewModel
+import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.AddSwap.AddSwapViewModel
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 import org.greenthread.whatsinmycloset.theme.inversePrimaryLight
 import org.greenthread.whatsinmycloset.theme.onSurfaceLight
@@ -42,14 +43,15 @@ fun AddSwapItemRoot(
     viewModel: AddSwapViewModel = koinViewModel(),
     onAddClick: () -> Unit
 ) {
+    val cachedItems by viewModel!!.cachedItems.collectAsState()
     var selectedItems by remember { mutableStateOf<Set<String>>(emptySet()) }
     var selectedCategory by remember { mutableStateOf<ClothingCategory?>(null) }
 
     val filteredItems = remember(selectedCategory) {
         if (selectedCategory == null) {
-            sampleSwapItem()
+            cachedItems
         } else {
-            sampleSwapItem().filter { it.itemType == selectedCategory }
+            cachedItems.filter { it.itemType == selectedCategory }
         }
     }
 
@@ -146,32 +148,4 @@ fun ItemImageCard(
             )
         }
     }
-}
-
-
-// TEMP
-fun sampleSwapItem(): List<ClothingItem> {
-    return listOf(
-        ClothingItem(
-            id = "c9f8af7e-9b70-47e1-92be-6457bfcf6325",
-            name = "Cool Pants",
-            wardrobeId = "f676c47d-d1cc-4128-9bb3-1f9f164022b2",
-            itemType = ClothingCategory.BOTTOMS,
-            mediaUrl = "https://greenthreaditems.blob.core.windows.net/images/test_pants.png",
-            tags = listOf("casual", "summer"),
-            condition = "Like New",
-            brand = "Nike",
-            size = "Small"
-        ),
-        ClothingItem(
-            id = "3f7ca26f-3502-46ea-be92-39aacdb6da4a",
-            name = "Cool Jacket",
-            itemType = ClothingCategory.TOPS,
-            mediaUrl = "https://greenthreaditems.blob.core.windows.net/images/test_shirt2.png",
-            tags = listOf("casual", "summer"),
-            condition = "Like New",
-            brand = "Gap",
-            size = "Small"
-        )
-    )
 }
