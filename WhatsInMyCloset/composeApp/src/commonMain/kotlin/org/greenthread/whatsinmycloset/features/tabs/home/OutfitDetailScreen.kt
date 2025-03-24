@@ -9,4 +9,10 @@ fun OutfitDetailScreen(
     navController: NavController,
 ) {
 
+    OutfitScreenHeader(
+        onExit = { navController.popBackStack() },  // go to prev screen
+        title = "Outfit {Name}" // TODO show outfit name in title
+    )
+
+    // TODO Use Outfit Composable here to show the outfit
 }

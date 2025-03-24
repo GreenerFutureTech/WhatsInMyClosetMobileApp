@@ -233,6 +233,7 @@ fun OutfitOfTheDayCalendar(
                     showDiscardDialog = false
                 }) {
                     Text("Yes")
+                    navController.navigate(Routes.HomeTab)  // go baqck to home tab
                 }
             },
             dismissButton = {
