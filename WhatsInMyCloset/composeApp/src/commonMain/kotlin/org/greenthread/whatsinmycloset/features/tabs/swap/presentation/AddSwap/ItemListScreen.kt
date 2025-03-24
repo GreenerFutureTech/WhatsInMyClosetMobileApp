@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
+import org.greenthread.whatsinmycloset.features.tabs.home.presentation.CategoriesSection
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.AddSwapViewModel
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 import org.greenthread.whatsinmycloset.theme.inversePrimaryLight
@@ -42,11 +43,19 @@ fun AddSwapItemRoot(
     onAddClick: () -> Unit
 ) {
     var selectedItems by remember { mutableStateOf<Set<String>>(emptySet()) }
+    var selectedCategory by remember { mutableStateOf<ClothingCategory?>(null) }
+
+    val filteredItems = remember(selectedCategory) {
+        if (selectedCategory == null) {
+            sampleSwapItem()
+        } else {
+            sampleSwapItem().filter { it.itemType == selectedCategory }
+        }
+    }
 
     WhatsInMyClosetTheme {
         Column(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
@@ -74,11 +83,15 @@ fun AddSwapItemRoot(
                 }
             }
 
+            CategoriesSection { category ->
+                selectedCategory = category
+            }
+
             LazyVerticalGrid(
                 columns = GridCells.Fixed(3),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                items(sampleSwapItem()) { item ->
+                items(filteredItems) { item ->
                     ItemImageCard(
                         imageUrl = item.mediaUrl ?: "",
                         isSelected = selectedItems.contains(item.id),

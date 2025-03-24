@@ -49,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import androidx.navigation.NavController
 import org.greenthread.whatsinmycloset.app.Routes
+import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.LazyRowColourBox
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.generateRandomItems
@@ -180,13 +181,16 @@ private data class ImageVectorStringPair(
 )
 
 @Composable
-fun CategoriesSection(onCategoryClick: (String) -> Unit) {
+fun CategoriesSection(
+    onCategoryClick: (ClothingCategory) -> Unit
+) {
+
     val itemCategories = listOf(
-        Icons.Rounded.Home to Res.string.category_label_tops,
-        Icons.Default.Add to Res.string.category_label_bottoms,
-        Icons.Default.PlayArrow to Res.string.category_label_accessories,
-        Icons.Default.Call to Res.string.category_label_footwear
-    ).map { ImageVectorStringPair(it.first, it.second) }
+        Icons.Rounded.Home to Res.string.category_label_tops to ClothingCategory.TOPS,
+        Icons.Default.Add to Res.string.category_label_bottoms to ClothingCategory.BOTTOMS,
+        Icons.Default.PlayArrow to Res.string.category_label_accessories to ClothingCategory.ACCESSORIES,
+        Icons.Default.Call to Res.string.category_label_footwear to ClothingCategory.FOOTWEAR
+    )
 
     LazyRow(
         modifier = Modifier
@@ -194,11 +198,11 @@ fun CategoriesSection(onCategoryClick: (String) -> Unit) {
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        items(itemCategories) { item ->
+        items(itemCategories) { (iconTextPair, category) ->
             CategoryItem(
-                icon = item.icon,
-                text = stringResource(item.text),
-                onClick = { onCategoryClick(item.text.toString()) },
+                icon = iconTextPair.first,
+                text = stringResource(iconTextPair.second),
+                onClick = { onCategoryClick(category) },
             )
         }
     }
@@ -259,7 +263,7 @@ fun CategoryItem(icon: ImageVector?, text: String?, onClick: (() -> Unit)? = nul
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .size(88.dp)
+                .size(80.dp)
                 .background(color = MaterialTheme.colorScheme.surfaceVariant, shape = CircleShape)
         ) {
             // Icon
