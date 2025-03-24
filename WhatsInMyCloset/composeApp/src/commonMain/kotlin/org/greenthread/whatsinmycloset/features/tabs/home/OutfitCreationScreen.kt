@@ -533,7 +533,7 @@ fun CategoryItemsScreen(
                     }
 
                     viewModel.addSelectedItems(selectedItems) // Add selected items to the ViewModel
-                    navController.navigate(Routes.CreateOutfitScreen)
+                    navController.navigate(Routes.CreateOutfitScreen.Default)
                          // Navigate to Outfit Screen with selected items
                 },
                 isDoneEnabled = selectedItemKeys.isNotEmpty()

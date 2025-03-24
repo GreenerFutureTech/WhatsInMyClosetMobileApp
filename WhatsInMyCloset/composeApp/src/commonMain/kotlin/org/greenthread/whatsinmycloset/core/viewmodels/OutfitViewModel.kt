@@ -1,5 +1,6 @@
 package org.greenthread.whatsinmycloset.core.viewmodels
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -215,6 +216,13 @@ open class OutfitViewModel
         _temporaryPositions.value = updatedPositions
     }
 
+    private val _selectedDate = MutableStateFlow<String?>(null)
+    val selectedDate: StateFlow<String?> = _selectedDate
+
+    fun setSelectedDate(date: String) {
+        _selectedDate.value = date
+    }
+
     // Add outfit to calendar
     // TODO Update date in Calendar Entity
     open fun addOutfitToCalendar(dateString: String) {
@@ -225,6 +233,8 @@ open class OutfitViewModel
             _calendarEvents.value = _calendarEvents.value + "$localDate: ${outfit.name}"
         }
     }
+
+    // TODO get outfit for the dates for calendar
 
     open fun clearOutfitState() {
         _currentOutfit.value = null // Clear the current outfit

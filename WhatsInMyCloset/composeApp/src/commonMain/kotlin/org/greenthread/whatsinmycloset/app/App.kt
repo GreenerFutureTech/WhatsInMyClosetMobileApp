@@ -45,6 +45,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import kotlinx.datetime.LocalDate
 import org.greenthread.whatsinmycloset.CameraManager
 import org.greenthread.whatsinmycloset.NotificationManager
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
@@ -65,6 +66,8 @@ import org.greenthread.whatsinmycloset.features.screens.settings.SettingsScreen
 import org.greenthread.whatsinmycloset.features.screens.signup.SignupScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItemDetailScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItemsScreen
+import org.greenthread.whatsinmycloset.features.tabs.home.OutfitDetailScreen
+import org.greenthread.whatsinmycloset.features.tabs.home.OutfitOfTheDayCalendar
 import org.greenthread.whatsinmycloset.features.tabs.home.OutfitSaveScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.OutfitScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.HomeTabScreenRoot
@@ -157,7 +160,7 @@ fun App(
                             onCreateOutfitClick =
                             {
                                 if (navController.currentBackStackEntry != null) {
-                                    navController.navigate(Routes.CreateOutfitScreen)
+                                    navController.navigate(Routes.CreateOutfitScreen.Default)
                                 }
                             }
                         )
@@ -175,13 +178,36 @@ fun App(
 
                     // -- Create Outfit Screens Routes below -- //
 
+                    composable<Routes.OutfitOfTheDay> {
+
+                        OutfitOfTheDayCalendar(
+                            navController = navController,
+                            outfitViewModel = sharedOutfitViewModel
+                        )
+                    }
+
+                    composable<Routes.OutfitDetailScreen> { backStackEntry ->
+                        val outfitId = backStackEntry.arguments?.getString("outfitId")
+                        if (outfitId != null) {
+                            OutfitDetailScreen(outfitId, navController)
+                        }
+                    }
+
                     // add CreateOutfitScreen Route to separate composable in nav graph
-                    composable<Routes.CreateOutfitScreen> {
+                    composable<Routes.CreateOutfitScreen> { backStackEntry ->
+                        // when user navigates to create outfit screen from outfit calendar
+                        val dateString = backStackEntry.arguments?.getString("date")
+                        val selectedDate = dateString?.let { LocalDate.parse(it) }
 
                         OutfitScreen(
                             navController = navController,
                             clothingItemViewModel = sharedClothingItemViewModel,
-                            outfitViewModel = sharedOutfitViewModel
+                            outfitViewModel = sharedOutfitViewModel.apply {
+                                if (selectedDate != null) {
+                                    // Set the selected date in ViewModel if provided
+                                    setSelectedDate(selectedDate.toString())
+                                }
+                            }
                         )
                     }
 
@@ -201,7 +227,7 @@ fun App(
                                 navController = navController,
                                 category = categoryEnum.categoryName,
                                 onBack = { navController.popBackStack() },
-                                onDone = {Routes.CreateOutfitScreen },
+                                onDone = {Routes.CreateOutfitScreen.Default},
                                 viewModel = sharedClothingItemViewModel
                             )
                         } else {
