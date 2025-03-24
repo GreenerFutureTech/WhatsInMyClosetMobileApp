@@ -75,7 +75,7 @@ fun SwapScreenRoot(
                     viewModel.fetchSwapData(currentUser.value?.id.toString())
                 }
                 if (state.getOtherUserSwapResults.isEmpty()) {
-                    viewModel.fetchOtherSwapData(currentUser.value?.id.toString())
+                    viewModel.fetchFriendsSwapData(currentUser.value?.id.toString())
                 }
             } catch (e: ConnectTimeoutException) {
                 println("Connection timeout occurred (could not hit backend?): ${e.message}")
