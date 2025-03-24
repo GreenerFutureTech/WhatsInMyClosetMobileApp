@@ -1,7 +1,9 @@
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -10,6 +12,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -36,22 +39,40 @@ import whatsinmycloset.composeapp.generated.resources.Res
 @Composable
 fun AddSwapItemRoot(
     viewModel: AddSwapViewModel = koinViewModel(),
+    onAddClick: () -> Unit
 ) {
     var selectedItems by remember { mutableStateOf<Set<String>>(emptySet()) }
 
     WhatsInMyClosetTheme {
         Column(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = "Selected ${selectedItems.size} Item(s)",
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.SemiBold
-            )
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Selected ${selectedItems.size} Item(s)",
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.SemiBold
+                )
+
+                Button(
+                    onClick = {
+                        val selectedItemIds = selectedItems.toList()
+                        viewModel.createSwap(selectedItemIds)
+                        onAddClick()
+                    },
+                    enabled = selectedItems.isNotEmpty()
+                ) {
+                    Text("Add")
+                }
+            }
 
             LazyVerticalGrid(
                 columns = GridCells.Fixed(3),
@@ -74,6 +95,7 @@ fun AddSwapItemRoot(
         }
     }
 }
+
 
 @Composable
 fun ItemImageCard(
@@ -129,7 +151,7 @@ fun sampleSwapItem(): List<ClothingItem> {
             size = "Small"
         ),
         ClothingItem(
-            id = "84baae93-b65e-4eab-9b53-5ad190d0f150",
+            id = "3f7ca26f-3502-46ea-be92-39aacdb6da4a",
             name = "Cool Jacket",
             itemType = ClothingCategory.TOPS,
             mediaUrl = "https://greenthreaditems.blob.core.windows.net/images/test_shirt2.png",

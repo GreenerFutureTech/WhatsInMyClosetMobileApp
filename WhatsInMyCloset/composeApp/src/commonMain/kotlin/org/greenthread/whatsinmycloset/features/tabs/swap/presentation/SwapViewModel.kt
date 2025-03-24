@@ -187,47 +187,5 @@ class SwapViewModel(
         }
     }
 
-    fun createSwap(itemId: String) {
-        val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 
-        val swap = currentUser.value?.id?.let {
-            CreateSwapRequestDto(
-                userId = it,
-                status = "available",
-                registeredAt = now.toString(),
-                updatedAt = now.toString(),
-                itemId = itemId
-            )
-        }
-        if(swap != null)
-        {
-            viewModelScope.launch {
-                println("CREATE SWAP : Created Swap: $itemId")
-                _state.update {
-                    it.copy(
-                        isLoading = true
-                    )
-                }
-                swapRepository
-                    .createSwap(swap)
-                    .onSuccess { getResults ->
-                        println("CREATE SWAP API success: $getResults")
-                        _state.update {
-                            it.copy(
-                                isLoading = false,
-                            )
-                        }
-                    }
-                    .onError { error ->
-                        println("CREATE SWAP API ERROR ${error}")
-                        _state.update {
-                            it.copy(
-                                isLoading = false
-                            )
-                        }
-                    }
-            }
-        }
-
-    }
 }

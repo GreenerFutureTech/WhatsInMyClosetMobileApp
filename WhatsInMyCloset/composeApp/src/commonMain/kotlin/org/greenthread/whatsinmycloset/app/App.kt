@@ -313,7 +313,8 @@ fun App(
                     composable<Routes.AddSwapItemScreen> {
                         val viewModel: AddSwapViewModel = koinViewModel()
                         AddSwapItemRoot(
-                            viewModel = viewModel
+                            viewModel = viewModel,
+                            onAddClick = { navController.navigate(Routes.SwapTab) }
                         )
                     }
 
