@@ -9,7 +9,7 @@ import kotlinx.datetime.toLocalDateTime
 object DateUtils {
     fun millisToLocalDate(millis: Long): String {
         return Instant.fromEpochMilliseconds(millis)
-            .toLocalDateTime(TimeZone.currentSystemDefault())
+            .toLocalDateTime(TimeZone.UTC) // Use UTC to avoid timezone shifts
             .date
             .toString() // Returns format: 2024-03-24
     }
