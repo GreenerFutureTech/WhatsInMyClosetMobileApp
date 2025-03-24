@@ -24,6 +24,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key.Companion.Calendar
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -31,7 +32,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.greenthread.whatsinmycloset.app.Routes
+import org.greenthread.whatsinmycloset.core.utilities.DateUtils
 import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.OutfitViewModel
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
@@ -169,8 +176,9 @@ fun OutfitSaveScreen(
                 OutfitDatePicker(
                     onDismiss = { showCalendarDialog = false },
                     onDateSelected = { selectedDate ->
-                        outfitViewModel.addOutfitToCalendar(selectedDate) // Pass the selected date to the callback
-                        showCalendarDialog = false // Close the dialog
+                        val dateToUse = selectedDate.ifEmpty { DateUtils.getCurrentDate() }
+                        outfitViewModel.addOutfitToCalendar(dateToUse)
+                        //showCalendarDialog = false
                     }
                 )
             }

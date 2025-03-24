@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDate
 import org.greenthread.whatsinmycloset.core.data.daos.ItemDao
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
@@ -215,9 +216,13 @@ open class OutfitViewModel
     }
 
     // Add outfit to calendar
-    open fun addOutfitToCalendar(date: String) {
+    // TODO Update date in Calendar Entity
+    open fun addOutfitToCalendar(dateString: String) {
+
+        val localDate = kotlinx.datetime.LocalDate.parse(dateString)
+
         _currentOutfit.value?.let { outfit ->
-            _calendarEvents.value = _calendarEvents.value + "$date: ${outfit.name}"
+            _calendarEvents.value = _calendarEvents.value + "$localDate: ${outfit.name}"
         }
     }
 
