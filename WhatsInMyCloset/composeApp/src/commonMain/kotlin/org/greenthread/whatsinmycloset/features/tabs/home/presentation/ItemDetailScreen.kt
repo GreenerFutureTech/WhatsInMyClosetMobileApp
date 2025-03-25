@@ -87,7 +87,7 @@ fun ItemDetailScreen(
                             )
                             Text(
                                 text = item.name ?: "",
-                                fontSize = 14.sp,
+                                fontSize = 16.sp,
                                 fontWeight = FontWeight.SemiBold
                             )
                         }
@@ -98,7 +98,7 @@ fun ItemDetailScreen(
                             color = outlineVariantLight
                         )
 
-                        Column(modifier = Modifier.padding(bottom = 8.dp)) {
+                        Column(modifier = Modifier.padding(top = 8.dp)) {
                             Text(
                                 text = stringResource(Res.string.item_brand),
                                 fontSize = 12.sp,
@@ -107,8 +107,8 @@ fun ItemDetailScreen(
                             )
                             Text(
                                 text = item.brand ?: "",
-                                fontSize = 22.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.SemiBold,
                                 modifier = Modifier.padding(bottom = 8.dp)
                             )
 
@@ -129,7 +129,7 @@ fun ItemDetailScreen(
                             )
                             Text(
                                 text = item.size ?: "",
-                                fontSize = 14.sp,
+                                fontSize = 16.sp,
                                 fontWeight = FontWeight.SemiBold
                             )
                         }

@@ -272,7 +272,7 @@ fun SwapDetailScreen(
                         )
                         Text(
                             text = swapItem.itemId.brand,
-                            fontSize = 22.sp,
+                            fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(bottom = 8.dp)
                         )
@@ -294,7 +294,7 @@ fun SwapDetailScreen(
                         )
                         Text(
                             text = swapItem.itemId.size,
-                            fontSize = 14.sp,
+                            fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold
                         )
                     }
@@ -314,7 +314,7 @@ fun SwapDetailScreen(
                         )
                         Text(
                             text = swapItem.itemId.condition,
-                            fontSize = 14.sp,
+                            fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold
                         )
                     }
