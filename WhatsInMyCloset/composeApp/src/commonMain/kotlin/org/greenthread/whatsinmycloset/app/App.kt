@@ -62,6 +62,8 @@ import org.greenthread.whatsinmycloset.features.screens.login.presentation.Login
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginViewModel
 import org.greenthread.whatsinmycloset.features.screens.notifications.presentation.NotificationsScreen
 import org.greenthread.whatsinmycloset.features.screens.notifications.presentation.NotificationsViewModel
+import org.greenthread.whatsinmycloset.features.screens.settings.EditProfileScreen
+import org.greenthread.whatsinmycloset.features.screens.settings.EditProfileViewModel
 import org.greenthread.whatsinmycloset.features.screens.settings.SettingsScreen
 import org.greenthread.whatsinmycloset.features.screens.signup.SignupScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItemDetailScreen
@@ -372,6 +374,13 @@ fun App(
                     val viewModel = koinViewModel<NotificationsViewModel>()
                     NotificationsScreen(
                         navController = navController,
+                        viewModel = viewModel
+                    )
+                }
+
+                composable<Routes.EditProfileScreen> {
+                    val viewModel = koinViewModel<EditProfileViewModel>()
+                    EditProfileScreen(
                         viewModel = viewModel
                     )
                 }

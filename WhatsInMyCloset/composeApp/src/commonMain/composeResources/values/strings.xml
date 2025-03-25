@@ -42,6 +42,10 @@
     <string name="outfit_day_button">Outfit of the Day</string>
     <string name="no_wardrobe_found">No wardrobe found!</string>
     <string name="add_new_item_button">Add New Item</string>
+    <string name="email_text">Email</string>
+    <string name="name_text">Name</string>
+    <string name="username_text">Username</string>
+
 
     <!-- Notification strings -->
     <string name="notification_sent">Sent</string>

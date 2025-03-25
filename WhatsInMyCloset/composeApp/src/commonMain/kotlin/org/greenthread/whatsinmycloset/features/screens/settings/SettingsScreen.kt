@@ -59,7 +59,7 @@ fun SettingsScreen(navController: NavController, loginViewModel: LoginViewModel)
         // Navigation Buttons
         SettingsItem(
             title = "Edit Profile",
-            onClick = { },
+            onClick = { navController.navigate(Routes.EditProfileScreen) },
             leftIcon = Icons.Default.AccountCircle,
             rightIcon = Icons.Default.PlayArrow
         )

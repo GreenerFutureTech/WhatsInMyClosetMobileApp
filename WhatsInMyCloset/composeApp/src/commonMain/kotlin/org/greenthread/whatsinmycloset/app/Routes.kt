@@ -78,4 +78,7 @@ sealed interface Routes {
 
     @Serializable
     data object NotificationsScreen: Routes
+
+    @Serializable
+    data object EditProfileScreen: Routes
 }

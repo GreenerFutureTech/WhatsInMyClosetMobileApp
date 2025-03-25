@@ -27,6 +27,7 @@ import org.greenthread.whatsinmycloset.features.tabs.home.presentation.HomeTabVi
 import org.greenthread.whatsinmycloset.features.screens.addItem.presentation.AddItemScreenViewModel
 import org.greenthread.whatsinmycloset.features.screens.notifications.data.NotificationRepository
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabViewModel
+import org.greenthread.whatsinmycloset.features.screens.settings.EditProfileViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
@@ -72,6 +73,8 @@ val sharedModule = module {
     viewModelOf(::OutfitViewModel)
 
     viewModelOf(::NotificationsViewModel)
+
+    viewModelOf(::EditProfileViewModel)
 
     single {
         User(99999123, "TestName",
