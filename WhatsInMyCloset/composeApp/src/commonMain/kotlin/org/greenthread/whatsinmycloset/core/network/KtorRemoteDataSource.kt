@@ -22,6 +22,7 @@ import kotlinx.serialization.json.Json
 import org.greenthread.whatsinmycloset.core.data.safeCall
 import org.greenthread.whatsinmycloset.core.domain.DataError
 import org.greenthread.whatsinmycloset.core.domain.Result
+import org.greenthread.whatsinmycloset.core.dto.CreateSwapRequestDto
 import org.greenthread.whatsinmycloset.core.dto.ItemDto
 import org.greenthread.whatsinmycloset.core.dto.MessageDto
 import org.greenthread.whatsinmycloset.core.dto.OtherSwapDto
@@ -63,6 +64,18 @@ class KtorRemoteDataSource(
             httpClient.get(
                 urlString = "$BASE_URL/swaps"
             )
+        }
+    }
+
+    override suspend fun createSwap(swap: CreateSwapRequestDto): Result<CreateSwapRequestDto, DataError.Remote> {
+        return safeCall {
+            println("CREATE SWAP REQUEST : ${swap}")
+            httpClient.post(
+                urlString = "$BASE_URL/swaps"
+            ) {
+                contentType(ContentType.Application.Json)
+                setBody(swap)
+            }
         }
     }
 
