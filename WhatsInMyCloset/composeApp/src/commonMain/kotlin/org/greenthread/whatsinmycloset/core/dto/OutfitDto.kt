@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.domain.models.OffsetData
 import org.greenthread.whatsinmycloset.core.persistence.OutfitEntity
+import org.greenthread.whatsinmycloset.features.tabs.social.data.OutfitState
 
 /*
 *   Represents the data transfer object (DTO) for Outfit
@@ -16,25 +17,34 @@ import org.greenthread.whatsinmycloset.core.persistence.OutfitEntity
 data class OutfitDto(
     val id: String, // Unique identifier for the outfit
     val userId: Int? = null,    // matches with User.kt
-    val public: Boolean,
-    val favorite: Boolean,
-    val mediaURL: String = "",
+//    val public: Boolean,
+//    val favorite: Boolean,
+//    val mediaURL: String = "",
     val name: String = "", // Name of the outfit (e.g., "Summer Look")
     val tags: List<String>? = null,
     val itemIds: List<String>, // Store item IDs instead of full objects
-    val itemPositions: Map<String, OffsetData>, // Include item positions
-    val createdAt: String = ""
-)
-
-fun OutfitDto.toEntity(userId: Int): OutfitEntity {
-    return OutfitEntity(
-        outfitId = id,
-        userId = userId,
-        public = public,
-        favorite = favorite,
-        mediaURL = mediaURL,
-        name = name,
-        tags = tags,
-        createdAt = createdAt
-    )
+//    val itemPositions: Map<String, OffsetData>, // Include item positions
+//    val createdAt: String = ""
+){
+    fun toOutfitState(): OutfitState {
+        return OutfitState(
+            outfitId = this.id,
+            itemIds = this.itemIds,
+            items = emptyList(),
+            isLoading = true
+        )
+    }
 }
+
+//fun OutfitDto.toEntity(userId: Int): OutfitEntity {
+//    return OutfitEntity(
+//        outfitId = id,
+//        userId = userId,
+//        public = public,
+//        favorite = favorite,
+//        mediaURL = mediaURL,
+//        name = name,
+//        tags = tags,
+//        createdAt = createdAt
+//    )
+//}

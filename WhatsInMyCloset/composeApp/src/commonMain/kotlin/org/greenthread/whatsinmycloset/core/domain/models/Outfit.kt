@@ -28,20 +28,20 @@ class Outfit(
         TimeZone.currentSystemDefault()).toString()
 ) {
     // Convert Domain Model to DTO
-    fun toDto(): OutfitDto {
-        return OutfitDto(
-            id = id,
-            userId = userId,
-            public = public,
-            favorite = favorite,
-            mediaURL = mediaURL,
-            name = name,
-            tags = tags,
-            itemIds = itemIds,
-            itemPositions = itemPositions,
-            createdAt = createdAt
-        )
-    }
+//    fun toDto(): OutfitDto {
+//        return OutfitDto(
+//            id = id,
+//            userId = userId,
+//            public = public,
+//            favorite = favorite,
+//            mediaURL = mediaURL,
+//            name = name,
+//            tags = tags,
+//            itemIds = itemIds,
+//            itemPositions = itemPositions,
+//            createdAt = createdAt
+//        )
+//    }
 
     // Convert Domain Model to Entity
     fun toEntity(userId: Int?= null): OutfitEntity {
