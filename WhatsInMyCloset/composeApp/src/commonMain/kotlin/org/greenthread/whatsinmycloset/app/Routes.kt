@@ -81,4 +81,7 @@ sealed interface Routes {
 
     @Serializable
     data class HomeCategoryItemScreen(val category: String) : Routes
+
+    @Serializable
+    data class ItemDetailScreen(val itemId: String) : Routes
 }

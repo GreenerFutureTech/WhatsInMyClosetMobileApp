@@ -72,6 +72,8 @@ import org.greenthread.whatsinmycloset.features.tabs.home.OutfitScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.CategoryItemsViewModel
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.HomeTabScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.HomeTabViewModel
+import org.greenthread.whatsinmycloset.features.tabs.home.presentation.ItemDetailScreen
+import org.greenthread.whatsinmycloset.features.tabs.home.presentation.SelectedItemViewModel
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabScreen
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabViewModel
 import org.greenthread.whatsinmycloset.features.tabs.social.SocialTabScreen
@@ -171,10 +173,24 @@ fun App(
                     composable<Routes.HomeCategoryItemScreen> { backStackEntry ->
                         val category = backStackEntry.arguments?.getString("category") ?: ""
                         val viewModel = koinViewModel<CategoryItemsViewModel>()
+                        val selectedItemViewModel = backStackEntry.sharedKoinViewModel<SelectedItemViewModel>(navController)
 
                         CategoryItemScreen(
                             categoryName = category,
-                            viewModel = viewModel
+                            viewModel = viewModel,
+                            onItemClick = { item ->
+                                selectedItemViewModel.onSelectItem(item)
+                                navController.navigate(Routes.ItemDetailScreen(item.id))
+                            }
+                        )
+                    }
+
+                    composable<Routes.ItemDetailScreen> {
+                        val selectedItemViewModel = it.sharedKoinViewModel<SelectedItemViewModel>(navController)
+                        val selectedItem by selectedItemViewModel.selectedItem.collectAsStateWithLifecycle()
+
+                        ItemDetailScreen(
+                            item = selectedItem
                         )
                     }
 

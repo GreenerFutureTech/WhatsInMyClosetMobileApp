@@ -45,9 +45,9 @@ fun ClothingItem.toEntity(): ClothingItemEntity {
         itemType = this.itemType.name, // Assuming ClothingCategory is an enum, convert it to String
         mediaUrl = this.mediaUrl ?: "",
         tags = this.tags,
-        condition = "", // Default or map from another property if available
-        brand = "", // Default or map from another property if available
-        size = "", // Default or map from another property if available
+        condition = this.condition ?:"", // Default or map from another property if available
+        brand = this.brand ?: "", // Default or map from another property if available
+        size = this.size ?: "", // Default or map from another property if available
         createdAt = this.createdAt
     )
 }

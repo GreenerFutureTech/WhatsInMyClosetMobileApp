@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import whatsinmycloset.composeapp.generated.resources.no_item_category
 import coil3.compose.AsyncImage
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
+import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.CategoryItemsViewModel
 import whatsinmycloset.composeapp.generated.resources.Res
 import org.greenthread.whatsinmycloset.theme.onSurfaceLight
@@ -39,6 +40,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun CategoryItemScreen(
     categoryName: String,
     viewModel: CategoryItemsViewModel = koinViewModel(),
+    onItemClick: (ClothingItem) -> Unit
 ) {
     val category = remember(categoryName) {
         ClothingCategory.valueOf(categoryName)
@@ -86,7 +88,7 @@ fun CategoryItemScreen(
                     items(items) { item ->
                         CategoryItemCard(
                             imageUrl = item.mediaUrl ?: "",
-                            onItemClick = {}// itemdetail screen
+                            onItemClick = {onItemClick(item)}
                         )
                     }
                 }
