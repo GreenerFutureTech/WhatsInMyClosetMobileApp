@@ -73,18 +73,22 @@ open class OutfitManager(
         )
     }
 
-    suspend fun saveOutfit(outfit: Outfit) {
-        println("$outfit saved")
-        /*return withContext(Dispatchers.IO) {
-            when (val result = outfitRepository.insertOutfit(outfit.toEntity())) {
-                is EmptyResult.Success -> {
-                    // Update cache only after successful DB operation
-                    _savedOutfits.update { current -> current + outfit }
-                    result
-                }
-                is EmptyResult.Error -> result
+
+    suspend fun saveOutfit(outfit: Outfit): Boolean {
+        val userId = userManager.currentUser.value?.id ?: return false
+
+        return try {
+            if (outfitRepository.saveOutfit(outfit)) {
+                _savedOutfits.update { it + outfit }
+                println("Outfit saved successfully: ${outfit.id}")
+                true
+            } else {
+                println("Outfit save failure: ${outfit.id}")
+                false
             }
-        }*/
+        } catch (e: Exception) {
+            false
+        }
     }
 
     suspend fun removeOutfit(outfitId: String): Boolean {

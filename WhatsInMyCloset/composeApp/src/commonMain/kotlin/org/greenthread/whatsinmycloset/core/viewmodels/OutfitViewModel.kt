@@ -29,6 +29,7 @@ import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
 open class OutfitViewModel(
     private val outfitManager: OutfitManager,
     private val outfitTags: OutfitTags,
+    private val clothingItemViewModel: ClothingItemViewModel,
     private val wardrobeManager: WardrobeManager,
     private val userManager: UserManager
 ) : ViewModel() {
@@ -82,59 +83,6 @@ open class OutfitViewModel(
                 _tags.value = tags
             }
         }
-
-        // Initialize wardrobe selection with first available wardrobe
-        viewModelScope.launch {
-            cachedWardrobes.collectLatest { wardrobes ->
-                if (wardrobes.isNotEmpty() && selectedWardrobe.value == null) {
-                    selectedWardrobe.value = wardrobes.first().id
-                }
-                // Apply filters whenever wardrobes or items change
-                applyFilters(_cachedItems.value)
-            }
-        }
-
-        // Observe items and apply filters when they change
-        viewModelScope.launch {
-            _cachedItems.collectLatest { items ->
-                applyFilters(items)
-            }
-        }
-    }
-
-    // Filtering functions
-    fun setCategoryFilter(category: String?) {
-        _selectedCategory.value = category
-        applyFilters(_cachedItems.value)
-    }
-
-    fun setWardrobeFilter(wardrobeId: String?) {
-        selectedWardrobe.value = wardrobeId
-        applyFilters(_cachedItems.value)
-    }
-
-    private fun applyFilters(items: List<ClothingItem>) {
-        _filteredItems.value = items
-            .filter { item ->
-                _selectedCategory.value?.let { selectedCategory ->
-                    try {
-                        // Convert the item's string category to enum for comparison
-                        val itemCategory = ClothingCategory.fromString(selectedCategory)
-                        itemCategory == item.itemType
-                    } catch (e: IllegalArgumentException) {
-                        false // Skip items with unknown categories
-                    }
-                } ?: true // No category filter selected, include all items
-            }
-            .filter { item ->
-                selectedWardrobe.value?.let { wardrobeId ->
-                    item.wardrobeId == wardrobeId
-                } ?: true
-            }
-    }
-
-    fun getItemsByWardrobe(wardrobeId: String): List<ClothingItem> {
-        return _cachedItems.value.filter { it.wardrobeId == wardrobeId }
     }
 
     // Tag management
@@ -182,39 +130,28 @@ open class OutfitViewModel(
         _temporaryPositions.value = emptyMap()
     }
 
-    fun createOutfit(
-        name: String = "",
-        selectedItems: List<ClothingItem>,
-        tags: List<String> = emptyList(),
-        onSuccess: (() -> Unit)? = null,
-        onError: ((Throwable) -> Unit)? = null
-    ) {
+    fun createOutfit(name: String, onSuccess: () -> Unit) {
         viewModelScope.launch {
-            try {
-                val itemsWithPositions = selectedItems.associate { item ->
-                    item.id to (_temporaryPositions.value[item.id] ?: OffsetData(0f, 0f))
-                }
-
-                val outfit = outfitManager.createOutfit(
-                    name = name,
-                    items = itemsWithPositions,
-                    tags = tags
-                )
-
-                _currentOutfit.value = outfit.toEntity()
-                _isCreateNewOutfit.value = true
-                _temporaryPositions.value = emptyMap()
-                onSuccess?.invoke()
-            } catch (e: Exception) {
-                onError?.invoke(e)
+            val selectedItems = clothingItemViewModel.selectedItems.value
+            val itemsWithPositions = selectedItems.associate { item ->
+                item.id to (_temporaryPositions.value[item.id] ?: OffsetData(0f, 0f))
             }
+
+            val outfit = outfitManager.createOutfit(
+                name = name,
+                items = itemsWithPositions,
+                tags = _selectedTags.value.toList()
+            )
+
+            _currentOutfit.value = outfit.toEntity()
+            onSuccess()
         }
     }
 
     // Item position management
-    fun updateClothingItemPosition(itemId: String, newPosition: OffsetData) {
+    fun updateItemPosition(itemId: String, position: OffsetData) {
         _temporaryPositions.value = _temporaryPositions.value.toMutableMap().apply {
-            put(itemId, newPosition)
+            put(itemId, position)
         }
     }
 

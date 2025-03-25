@@ -20,29 +20,15 @@ data class OutfitDto(
     val id: String,
     val creatorId: Int,
     val name: String = "",
-    val items: Map<String, OffsetData>,
+    val items: Map<String, OffsetDataDto>,
     val tags: List<String> = emptyList(),
     val calendarDates: List<String> = emptyList(),
     val createdAt: String = ""
-){
-    companion object {
-        private val json = Json { ignoreUnknownKeys = true }
-    }
+)
 
-    fun toEntity(): OutfitEntity {
-        return OutfitEntity(
-            outfitId = id,
-            name = name,
-            creatorId = creatorId,
-            items = json.encodeToString(
-                items.map { (itemId, offset) ->
-                    OutfitItem(itemId, offset.x, offset.y)
-                }
-            ),
-            tags = json.encodeToString(tags),
-            calendarDates = json.encodeToString(calendarDates),
-            createdAt = createdAt
-        )
-    }
-}
+@Serializable
+data class OffsetDataDto(
+    val x: Float,
+    val y: Float
+)
 

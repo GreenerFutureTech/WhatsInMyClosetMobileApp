@@ -6,6 +6,7 @@ import org.greenthread.whatsinmycloset.core.domain.Result
 import org.greenthread.whatsinmycloset.core.dto.CreateSwapRequestDto
 import org.greenthread.whatsinmycloset.core.dto.MessageDto
 import org.greenthread.whatsinmycloset.core.dto.OtherSwapDto
+import org.greenthread.whatsinmycloset.core.dto.OutfitDto
 import org.greenthread.whatsinmycloset.core.dto.SendMessageRequest
 import org.greenthread.whatsinmycloset.core.dto.SwapStatusDto
 import org.greenthread.whatsinmycloset.core.dto.UserDto
@@ -31,4 +32,7 @@ interface RemoteClosetDataSource {
     suspend fun getUserById(userId: Int): Result<UserDto, DataError.Remote>
     suspend fun updateUser(user: UserDto): Result<UserDto, DataError.Remote>
 
+    // Outfits
+    suspend fun getAllOutfitsForUser(userId: String): Result<List<OutfitDto>, DataError.Remote>
+    suspend fun postOutfitForUser(outfit: OutfitDto): Result<List<OutfitDto>, DataError.Remote>
 }
