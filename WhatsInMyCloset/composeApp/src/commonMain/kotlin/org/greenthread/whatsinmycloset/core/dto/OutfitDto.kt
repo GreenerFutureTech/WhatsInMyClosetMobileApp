@@ -1,9 +1,12 @@
 package org.greenthread.whatsinmycloset.core.dto
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.domain.models.OffsetData
 import org.greenthread.whatsinmycloset.core.persistence.OutfitEntity
+import org.greenthread.whatsinmycloset.core.persistence.OutfitItem
 
 /*
 *   Represents the data transfer object (DTO) for Outfit
@@ -14,27 +17,32 @@ import org.greenthread.whatsinmycloset.core.persistence.OutfitEntity
 
 @Serializable
 data class OutfitDto(
-    val id: String, // Unique identifier for the outfit
-    val userId: Int? = null,    // matches with User.kt
-    val public: Boolean,
-    val favorite: Boolean,
-    val mediaURL: String = "",
-    val name: String = "", // Name of the outfit (e.g., "Summer Look")
-    val tags: List<String>? = null,
-    val itemIds: List<String>, // Store item IDs instead of full objects
-    val itemPositions: Map<String, OffsetData>, // Include item positions
+    val id: String,
+    val creatorId: Int,
+    val name: String = "",
+    val items: Map<String, OffsetData>,
+    val tags: List<String> = emptyList(),
+    val calendarDates: List<String> = emptyList(),
     val createdAt: String = ""
-)
+){
+    companion object {
+        private val json = Json { ignoreUnknownKeys = true }
+    }
 
-fun OutfitDto.toEntity(userId: Int): OutfitEntity {
-    return OutfitEntity(
-        outfitId = id,
-        userId = userId,
-        public = public,
-        favorite = favorite,
-        mediaURL = mediaURL,
-        name = name,
-        tags = tags,
-        createdAt = createdAt
-    )
+    fun toEntity(): OutfitEntity {
+        return OutfitEntity(
+            outfitId = id,
+            name = name,
+            creatorId = creatorId,
+            items = json.encodeToString(
+                items.map { (itemId, offset) ->
+                    OutfitItem(itemId, offset.x, offset.y)
+                }
+            ),
+            tags = json.encodeToString(tags),
+            calendarDates = json.encodeToString(calendarDates),
+            createdAt = createdAt
+        )
+    }
 }
+

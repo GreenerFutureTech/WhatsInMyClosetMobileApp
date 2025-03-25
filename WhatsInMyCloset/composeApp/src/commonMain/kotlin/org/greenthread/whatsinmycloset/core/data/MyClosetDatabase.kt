@@ -11,16 +11,14 @@ import org.greenthread.whatsinmycloset.core.data.daos.WardrobeDao
 import org.greenthread.whatsinmycloset.core.persistence.Converters
 import org.greenthread.whatsinmycloset.core.persistence.ItemEntity
 import org.greenthread.whatsinmycloset.core.persistence.OutfitEntity
-import org.greenthread.whatsinmycloset.core.persistence.OutfitItemJoin
 import org.greenthread.whatsinmycloset.core.persistence.WardrobeEntity
 
 @Database(
-    version = 1,    // incremented for room to update hash for new tables created
+    version = 1,
     entities = [
         WardrobeEntity::class,
         ItemEntity::class,
-        OutfitEntity::class,
-        OutfitItemJoin::class
+        OutfitEntity::class
     ]
 )
 @TypeConverters(

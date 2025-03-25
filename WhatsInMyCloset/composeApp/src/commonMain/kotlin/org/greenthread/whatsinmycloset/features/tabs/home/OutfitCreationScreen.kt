@@ -127,13 +127,12 @@ fun OutfitScreen(
                         // Save Outfit button
                         Button(
                             onClick = {
-                                // Create the outfit, pass selected items
-                                outfitViewModel.createOutfit(name="New Outfit", // allow user to add a name
-                                    selectedItems = selectedItems)
-
-                                // Navigate to the OutfitSaveScreen
-                                navController.navigate(
-                                    Routes.OutfitSaveScreen
+                                outfitViewModel.createOutfit(
+                                    name = "New Outfit",    // TODO take name from user else Default Name
+                                    selectedItems = selectedItems,
+                                    onSuccess = {
+                                        navController.navigate(Routes.OutfitSaveScreen)
+                                    }
                                 )
                             },
                             modifier = Modifier.fillMaxWidth(),
@@ -258,30 +257,31 @@ fun OutfitCollageArea(
         }
         else
         {
-            val itemPositions = remember { mutableStateListOf<OffsetData>() }
+            // Track positions by item ID instead of index
+            val itemPositions = remember { mutableStateMapOf<String, OffsetData>() }
 
-            // Ensure items retain their positions when added
-            LaunchedEffect(selectedClothingItems.size) {
-                selectedClothingItems.forEachIndexed { index, _ ->
-                    if (index >= itemPositions.size) {
-                        val x = (index * 120f).coerceIn(0f, canvasWidth - 100f)
-                        val y = (index * 80f).coerceIn(0f, canvasHeight - 100f) // Stagger Y positions
-
-                        itemPositions.add(OffsetData(x, y))
+            // Initialize positions for new items
+            LaunchedEffect(selectedClothingItems) {
+                selectedClothingItems.forEach { item ->
+                    if (!itemPositions.containsKey(item.id)) {
+                        // Calculate initial position (you can adjust this logic)
+                        val x = (itemPositions.size * 120f).coerceIn(0f, canvasWidth - 100f)
+                        val y = (itemPositions.size * 80f).coerceIn(0f, canvasHeight - 100f)
+                        itemPositions[item.id] = OffsetData(x, y)
+                        onPositionUpdate(item.id, OffsetData(x, y))
                     }
                 }
             }
 
             // Loop through selectedClothingItems and display them
-            selectedClothingItems.forEachIndexed { index, clothingItem ->
+            selectedClothingItems.forEach { clothingItem ->
                 DraggableClothingItem(
                     clothingItem = clothingItem,
-                    itemIndex = index,
-                    itemPositions = itemPositions,
+                    initialPosition = itemPositions[clothingItem.id] ?: OffsetData(0f, 0f),
                     canvasWidth = canvasWidth,
                     canvasHeight = canvasHeight,
                     onPositionUpdate = { newPosition ->
-                        // Notify parent of position change
+                        itemPositions[clothingItem.id] = newPosition
                         onPositionUpdate(clothingItem.id, newPosition)
                     }
                 )
@@ -296,49 +296,31 @@ fun OutfitCollageArea(
 @Composable
 fun DraggableClothingItem(
     clothingItem: ClothingItem,
-    itemIndex: Int,
-    itemPositions: MutableList<OffsetData>,
+    initialPosition: OffsetData,
     canvasWidth: Float,
     canvasHeight: Float,
     onPositionUpdate: (OffsetData) -> Unit
 ) {
-    val defaultPosition = OffsetData(100f, 100f)
-    val position = remember {
-        mutableStateOf(
-            if (itemIndex < itemPositions.size) itemPositions[itemIndex] else defaultPosition
-        )
-    }
-
-    // Only update if the position has changed
-    LaunchedEffect(itemPositions) {
-        if (itemIndex < itemPositions.size && position.value != itemPositions[itemIndex]) {
-            position.value = itemPositions[itemIndex]
-        }
-    }
+    var position by remember { mutableStateOf(initialPosition) }
 
     Box(
         modifier = Modifier
-            .offset { IntOffset(position.value.x.toInt(), position.value.y.toInt()) }
+            .offset { IntOffset(position.x.toInt(), position.y.toInt()) }
             .pointerInput(Unit) {
                 detectDragGestures { _, dragAmount ->
 
-                    val newX = (position.value.x + dragAmount.x)
+                    val newX = (position.x + dragAmount.x)
                         .coerceIn(0f, canvasWidth - 300f)
-                    val newY = (position.value.y + dragAmount.y)
+                    val newY = (position.y + dragAmount.y)
                         .coerceIn(0f, canvasHeight - 275f)
 
                     println("NEW X: $newX")
                     println("NEW Y: $newY")
 
-                    val newPosition = OffsetData(newX, newY)
-                    position.value = OffsetData(newX, newY)
-
-                    if (itemIndex < itemPositions.size) {
-                        itemPositions[itemIndex] = position.value
-                    }
+                    position = OffsetData(newX, newY)
 
                     // Notify parent of position change
-                    onPositionUpdate(newPosition)
+                    onPositionUpdate(position)
                 }
             }
             .size(100.dp) // Define the size of the clothing item

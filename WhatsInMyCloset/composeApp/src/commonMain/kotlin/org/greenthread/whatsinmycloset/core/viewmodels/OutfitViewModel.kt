@@ -131,41 +131,24 @@ open class OutfitViewModel
     // Save the outfit and finalize item positions
     fun saveOutfit(selectedTags: List<String>) {
         viewModelScope.launch {
-            // Get the current outfit being created
-            val currentOutfit = _currentOutfit.value
-            if (currentOutfit == null) {
-                // Handle the case where there is no current outfit
-                return@launch
-            }
+            val currentOutfit = _currentOutfit.value ?: return@launch
 
-            // Extract item IDs from the selected clothing items
-            val itemIds = _clothingItems.value.map { it.id }
-
-            // Update the outfit with the temporary positions
             val updatedOutfit = Outfit(
                 id = currentOutfit.outfitId,
-                userId = currentOutfit.userId,
                 name = currentOutfit.name,
-                public = currentOutfit.public,
-                itemIds = itemIds, // Pass item IDs
-                favorite = currentOutfit.favorite,
-                tags = currentOutfit.tags,
-                itemPositions = _temporaryPositions.value // Include item positions
+                creatorId = currentOutfit.creatorId,
+                items = _temporaryPositions.value, // Use the stored positions
+                tags = selectedTags,
+                calendarDates = _calendarEvents.value.mapNotNull {
+                    it.substringBefore(":").trim().let { dateStr ->
+                        runCatching { LocalDate.parse(dateStr) }.getOrNull()
+                    }
+                }
             )
 
-            // Update tags so next time user opens the save screen newly added tags are present
-            if (selectedTags != null) {
-                outfitTags.updateTags(selectedTags.toSet())
-            }
-
-            // Delegate saving operation to OutfitManager
             outfitManager.saveOutfit(updatedOutfit)
-
-            // Clear temporary positions after saving
-            _temporaryPositions.value = emptyMap()
-
-            // Update state
             _isOutfitSaved.value = true
+            _temporaryPositions.value = emptyMap()
         }
     }
 
@@ -180,40 +163,41 @@ open class OutfitViewModel
     // Create an outfit using outfit manager
     open fun createOutfit(
         name: String = "",
-        selectedItems: List<ClothingItem>,
+        selectedItems: List<ClothingItem>,  // Accept list of clothing items
         tags: List<String> = emptyList(),
-        isPublic: Boolean = false,
-        favourite: Boolean = false
+        onSuccess: (() -> Unit)? = null,
+        onError: ((Throwable) -> Unit)? = null
     ) {
-
-        /// Extract item IDs from the selected items
-        val selectedItemIds = selectedItems.map { it.id }
-
         viewModelScope.launch {
-            val outfit = outfitManager.createOutfit(
-                name = name,
-                itemIds  = selectedItemIds,
-                tags = tags,
-                isPublic = isPublic,
-                favourite = favourite
-            )
+            try {
+                // Combine selected items with their positions from temporaryPositions
+                val itemsWithPositions = selectedItems.associate { item ->
+                    item.id to (_temporaryPositions.value[item.id] ?: OffsetData(0f, 0f))
+                }
 
-            // Convert the Outfit (domain model) to OutfitEntity
-            val outfitEntity = outfit.toEntity()
+                val outfit = outfitManager.createOutfit(
+                    name = name,
+                    items = itemsWithPositions,  // Pass the map of item IDs to positions
+                    tags = tags
+                )
 
-            _currentOutfit.value = outfitEntity
-            _isCreateNewOutfit.value = true
+                _currentOutfit.value = outfit.toEntity()
+                _isCreateNewOutfit.value = true
+                _temporaryPositions.value = emptyMap()
 
-            // Clear any temporary positions when creating a new outfit
-            _temporaryPositions.value = emptyMap()
+                onSuccess?.invoke()
+            } catch (e: Exception) {
+                onError?.invoke(e)
+                // Log error or show user message
+            }
         }
     }
 
     // Function to update the position of a clothing item
     fun updateClothingItemPosition(itemId: String, newPosition: OffsetData) {
-        val updatedPositions = _temporaryPositions.value.toMutableMap()
-        updatedPositions[itemId] = newPosition
-        _temporaryPositions.value = updatedPositions
+        _temporaryPositions.value = _temporaryPositions.value.toMutableMap().apply {
+            put(itemId, newPosition)
+        }
     }
 
     private val _selectedDate = MutableStateFlow<String?>(null)

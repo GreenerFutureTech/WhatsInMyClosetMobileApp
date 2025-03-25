@@ -42,7 +42,7 @@ fun PreviewWardrobeScreen() {
     user.addWardrobe(wardrobe)
 
     // Create an outfit
-    val summerLook = Outfit(
+    /*val summerLook = Outfit(
         id = "outfit1",
         userId = 1,
         public = true,
@@ -52,7 +52,7 @@ fun PreviewWardrobeScreen() {
         itemIds = listOf("1", "10", "9"),
         createdAt = "08/03/2025"
     )
-    user.addOutfit(summerLook, listOf("Busines Casuals", "Casuals"))
+    user.addOutfit(summerLook, listOf("Busines Casuals", "Casuals"))*/
 
     val mockNavController = rememberNavController()
 

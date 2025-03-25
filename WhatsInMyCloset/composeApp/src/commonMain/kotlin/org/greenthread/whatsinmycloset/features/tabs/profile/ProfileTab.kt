@@ -47,7 +47,7 @@ fun ProfileTabScreen(userState: StateFlow<User?>, onNavigate: () -> Unit) {
         var showContent by remember { mutableStateOf(false) }
 
         // Generate outfits
-        val numberOfOutfits = 10
+        /*val numberOfOutfits = 10
         val outfits = List(numberOfOutfits) { i ->
             Outfit(
                 id = "outfit1",
@@ -62,7 +62,7 @@ fun ProfileTabScreen(userState: StateFlow<User?>, onNavigate: () -> Unit) {
         }
 
         // Add generated outfits to the user
-        outfits.forEach { currentUser?.addOutfit(it, listOf("Public Outfits", "Fancy")) }
+        outfits.forEach { currentUser?.addOutfit(it, listOf("Public Outfits", "Fancy")) }*/
 
         val randomItems = generateRandomItems(currentUser?.getAllOutfits()?.size ?: 0) // Generate 10 random items for the preview
         val swapItems = generateRandomItems(10)

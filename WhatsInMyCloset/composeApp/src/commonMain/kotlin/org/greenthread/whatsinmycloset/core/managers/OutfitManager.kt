@@ -6,16 +6,23 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first // Import the first function for Flow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
-import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import org.greenthread.whatsinmycloset.core.domain.DataError
+import org.greenthread.whatsinmycloset.core.domain.EmptyResult
 import org.greenthread.whatsinmycloset.core.domain.models.OffsetData
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
-import org.greenthread.whatsinmycloset.core.persistence.OutfitItemJoin
+import org.greenthread.whatsinmycloset.core.domain.models.toEntity
+import org.greenthread.whatsinmycloset.core.persistence.OutfitItem
 import org.greenthread.whatsinmycloset.core.repositories.OutfitRepository
-import org.greenthread.whatsinmycloset.core.repositories.OutfitTags
+import org.greenthread.whatsinmycloset.core.domain.EmptyResult.Success
+import org.greenthread.whatsinmycloset.core.domain.EmptyResult.Error
 
 /*
 * Manages business logic for outfits, including creating, saving, updating, and retrieving outfits.
@@ -24,14 +31,13 @@ import org.greenthread.whatsinmycloset.core.repositories.OutfitTags
 
 open class OutfitManager(
     private val outfitRepository: OutfitRepository,
-    private val outfitTags: OutfitTags,
     private val userManager: UserManager // Inject current user's info
 )
 {
     private val _savedOutfits = MutableStateFlow<List<Outfit>>(emptyList())
     val savedOutfits: StateFlow<List<Outfit>> get() = _savedOutfits
 
-    private val currentUser = userManager.getUser() // Get the current user
+    private val currentUser = userManager.currentUser // Get the current user
 
     init {
         CoroutineScope(Dispatchers.IO).launch {
@@ -48,7 +54,7 @@ open class OutfitManager(
         return withContext(Dispatchers.IO) {
             if (currentUser != null) {
                 // Use user ID if available, otherwise fall back to a default value
-                val userId = currentUser.id ?: throw IllegalStateException("User ID is required")
+                val userId = currentUser.value?.id ?: throw IllegalStateException("User ID is required")
                 outfitRepository.getOutfits(userId).first() // Collect the first emission of the Flo
             } else {
                 emptyList() // Return an empty list if no user is logged in
@@ -59,65 +65,61 @@ open class OutfitManager(
     // Create a new outfit
     open suspend fun createOutfit(
         name: String,
-        itemIds: List<String>,
-        tags: List<String> = emptyList(),
-        isPublic: Boolean = false,
-        favourite: Boolean = true
+        items: Map<String, OffsetData>,
+        tags: List<String> = emptyList()
     ): Outfit {
-        val userId = currentUser?.id ?: 1 // TODO fix this
+        val userId = currentUser.value?.id ?: throw IllegalStateException("User ID is required") // TODO fix this
         //throw IllegalStateException("User ID is required") (commented for testing)
 
         return Outfit(
-            id = generateOutfitId(), // TODO* Generate a unique ID for the outfit
+            id = generateOutfitId(),
             name = name,
-            userId = userId,
-            itemIds = itemIds,
+            creatorId = userId,
+            items = items,
             tags = tags,
-            public = isPublic,
-            favorite = favourite
+            calendarDates = emptyList(),
+            createdAt = Clock.System.now().toLocalDateTime
+                (TimeZone.currentSystemDefault()).toString()
         )
     }
 
-    suspend fun saveOutfit(outfit: Outfit) {
-        // Convert the Outfit domain model to OutfitEntity
-        val outfitEntity = outfit.toEntity(outfit.userId)
-
-        // Save the outfit entity to the database
-        outfitRepository.insertOutfit(outfitEntity)
-
-        // Save the relationship between the outfit and its items
-        outfit.itemIds.forEach { itemId ->
-            // Get the position for this itemId
-            val position = outfit.itemPositions[itemId] ?: OffsetData(0f, 0f) // Default position if not found
-
-            // Join items to outfit when saving (many-to-many relationship)
-            outfitRepository.insertOutfitItemJoin(OutfitItemJoin(outfit.id, itemId, position))
+    suspend fun saveOutfit(outfit: Outfit): EmptyResult<DataError.Local> {
+        return withContext(Dispatchers.IO) {
+            when (val result = outfitRepository.insertOutfit(outfit.toEntity())) {
+                is EmptyResult.Success -> {
+                    // Update cache only after successful DB operation
+                    _savedOutfits.update { current -> current + outfit }
+                    result
+                }
+                is EmptyResult.Error -> result
+            }
         }
-
-        // Update the cached list of outfits
-        _savedOutfits.value = _savedOutfits.value + outfit
     }
 
-    suspend fun removeOutfit(outfitId: String) {
-        withContext(Dispatchers.IO) {
-            val currentUser = userManager.getUser() // Get the current user
-            if (currentUser != null) {
-                // Use user ID if available, otherwise fall back to username
-                val userId = currentUser.id ?: throw IllegalStateException("User ID is required")
-                val outfitEntity = outfitRepository.getOutfitById(outfitId, userId)
-                if (outfitEntity != null) {
-                    outfitRepository.deleteOutfit(outfitEntity)
-                }
+    suspend fun removeOutfit(outfitId: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                val userId = userManager.currentUser.value?.id
+                    ?: throw IllegalStateException("User not logged in")
 
-                // Update the cached list of outfits
-                _savedOutfits.value = _savedOutfits.value.filter { it.id != outfitId }
+                outfitRepository.getOutfits(userId).first()
+                    .find { it.id == outfitId }
+                    ?.let { outfit ->
+                        outfitRepository.deleteOutfit(outfit.toEntity())
+                        _savedOutfits.value = _savedOutfits.value.filter { it.id != outfitId }
+                        true
+                    } ?: false
+            } catch (e: Exception) {
+                false
             }
         }
     }
 
     // Helper function to generate a unique outfit ID
     private fun generateOutfitId(): String {
-        return "outfit_${LocalDate}"
+        return "outfit_${
+            Clock.System.now().toLocalDateTime(
+            TimeZone.currentSystemDefault()).toString()}"
     }
 
 }

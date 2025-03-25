@@ -34,9 +34,14 @@ fun SocialTabScreen(user: User?, onNavigate: (String) -> Unit) {
         val testItemIds = listOf("9", "2", "15")
 
         // Generate outfits
-        for (i in 0 until 10) {
+        /*for (i in 0 until 10) {
             val newLook =
                 Outfit(
+                    id = "$i",
+                    name = "Look${i}",
+                    creatorId = user.id,
+                    items = items,
+                    tags = tags
                     id = "$i",
                     userId = currentUser?.id,
                     public = true,
@@ -47,7 +52,7 @@ fun SocialTabScreen(user: User?, onNavigate: (String) -> Unit) {
                     createdAt = "08/03/2025"
                 )
             currentUser?.addOutfit(newLook, listOf("Public Outfits", "Fancy"))
-        }
+        }*/
 
         // Generate posts
         val postsList = mutableListOf<Post>()
