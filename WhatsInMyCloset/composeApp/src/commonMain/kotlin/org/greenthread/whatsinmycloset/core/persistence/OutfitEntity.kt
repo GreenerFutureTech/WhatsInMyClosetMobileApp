@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import org.greenthread.whatsinmycloset.core.data.daos.ItemDao
+import org.greenthread.whatsinmycloset.core.data.daos.ClothingItemDao
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.domain.models.OffsetData
@@ -29,7 +29,7 @@ data class OutfitEntity(
     val createdAt: String = ""
 )
 
-suspend fun OutfitEntity.toOutfit(itemDao: ItemDao): Outfit {
+suspend fun OutfitEntity.toOutfit(itemDao: ClothingItemDao): Outfit {
     val itemEntities = itemDao.getItemsForOutfit(outfitId) // fetches the associated items using the join table
 
     val itemPositionsList = itemDao.getItemPositionsForOutfit(outfitId) // Fetch positions as List<ItemPosition>

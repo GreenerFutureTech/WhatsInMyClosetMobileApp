@@ -1,6 +1,8 @@
 package org.greenthread.whatsinmycloset.app
 
+import AddSwapItemRoot
 import AllSwapsScreen
+import CategoryItemScreen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -67,10 +69,15 @@ import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItemDetailScre
 import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItemsScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.OutfitSaveScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.OutfitScreen
+import org.greenthread.whatsinmycloset.features.tabs.home.presentation.CategoryItemsViewModel
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.HomeTabScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.HomeTabViewModel
+import org.greenthread.whatsinmycloset.features.tabs.home.presentation.ItemDetailScreen
+import org.greenthread.whatsinmycloset.features.tabs.home.presentation.SelectedItemViewModel
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabScreen
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabViewModel
+import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.AddSwap.AddSwapRoot
+import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.AddSwap.AddSwapViewModel
 import org.greenthread.whatsinmycloset.features.tabs.social.presentation.PostDetailScreen
 import org.greenthread.whatsinmycloset.features.tabs.social.presentation.PostViewModel
 import org.greenthread.whatsinmycloset.features.tabs.social.presentation.SocialTabScreen
@@ -164,6 +171,31 @@ fun App(
                             }
                         )
                     }
+
+                    composable<Routes.HomeCategoryItemScreen> { backStackEntry ->
+                        val category = backStackEntry.arguments?.getString("category") ?: ""
+                        val viewModel = koinViewModel<CategoryItemsViewModel>()
+                        val selectedItemViewModel = backStackEntry.sharedKoinViewModel<SelectedItemViewModel>(navController)
+
+                        CategoryItemScreen(
+                            categoryName = category,
+                            viewModel = viewModel,
+                            onItemClick = { item ->
+                                selectedItemViewModel.onSelectItem(item)
+                                navController.navigate(Routes.ItemDetailScreen(item.id))
+                            }
+                        )
+                    }
+
+                    composable<Routes.ItemDetailScreen> {
+                        val selectedItemViewModel = it.sharedKoinViewModel<SelectedItemViewModel>(navController)
+                        val selectedItem by selectedItemViewModel.selectedItem.collectAsStateWithLifecycle()
+
+                        ItemDetailScreen(
+                            item = selectedItem
+                        )
+                    }
+
                     composable<Routes.AddItemScreen> {
                         if (cameraManager != null) {
                             val viewmodel = koinViewModel<AddItemScreenViewModel>()
@@ -282,7 +314,8 @@ fun App(
                                 navController.navigate(Routes.SwapDetailsScreen(swap.swap.itemId.id))
                             },
                             onAllSwapClick = { navController.navigate(Routes.AllSwapScreen) },
-                            onMessageClick = { navController.navigate(Routes.MessageListScreen)}
+                            onMessageClick = { navController.navigate(Routes.MessageListScreen)},
+                            onAddSwapClick = { navController.navigate(Routes.AddSwapScreen)}
                         )
                     }
 
@@ -297,6 +330,22 @@ fun App(
                                 selectedSwapViewModel.onSelectSwap(swap.toOtherSwapDto(user = MessageUserDto()))
                                 navController.navigate(Routes.SwapDetailsScreen(swap.itemId.id))
                             }
+                        )
+                    }
+
+                    composable<Routes.AddSwapScreen>{
+                        val viewModel: AddSwapViewModel = koinViewModel()
+                        AddSwapRoot(
+                            viewModel = viewModel,
+                            onWardrobeClick = { navController.navigate(Routes.AddSwapItemScreen) }
+                        )
+                    }
+
+                    composable<Routes.AddSwapItemScreen> {
+                        val viewModel: AddSwapViewModel = koinViewModel()
+                        AddSwapItemRoot(
+                            viewModel = viewModel,
+                            onAddClick = { navController.navigate(Routes.SwapTab) }
                         )
                     }
 

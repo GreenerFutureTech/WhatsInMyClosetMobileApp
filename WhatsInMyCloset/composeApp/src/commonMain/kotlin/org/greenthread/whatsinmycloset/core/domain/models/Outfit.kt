@@ -4,7 +4,6 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.Serializable
-import org.greenthread.whatsinmycloset.core.data.daos.ItemDao
 import org.greenthread.whatsinmycloset.core.dto.OutfitDto
 import org.greenthread.whatsinmycloset.core.persistence.OutfitEntity
 import org.greenthread.whatsinmycloset.core.persistence.toClothingItem

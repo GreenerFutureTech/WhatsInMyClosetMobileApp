@@ -11,6 +11,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
@@ -37,11 +38,10 @@ import io.ktor.client.network.sockets.ConnectTimeoutException
 import org.greenthread.whatsinmycloset.core.domain.models.MessageManager
 import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.dto.OtherSwapDto
-import org.greenthread.whatsinmycloset.core.dto.SwapDto
-import org.greenthread.whatsinmycloset.core.dto.toMessageUserDto
 import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
+import org.greenthread.whatsinmycloset.theme.outlineVariantLight
 import org.greenthread.whatsinmycloset.theme.primaryLight
 import org.greenthread.whatsinmycloset.theme.secondaryLight
 import org.jetbrains.compose.resources.ExperimentalResourceApi
@@ -53,6 +53,9 @@ import whatsinmycloset.composeapp.generated.resources.complete_swap_dialog_title
 import whatsinmycloset.composeapp.generated.resources.delete_button
 import whatsinmycloset.composeapp.generated.resources.delete_swap_dialog_message
 import whatsinmycloset.composeapp.generated.resources.delete_swap_dialog_title
+import whatsinmycloset.composeapp.generated.resources.item_size
+import whatsinmycloset.composeapp.generated.resources.item_condition
+import whatsinmycloset.composeapp.generated.resources.item_brand
 
 @Composable
 fun SwapDetailScreen(
@@ -81,7 +84,7 @@ fun SwapDetailScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (swapItem.userId == currentUser.value?.id) {
@@ -257,28 +260,69 @@ fun SwapDetailScreen(
 
                 Column(
                     modifier = Modifier
-                        .padding(8.dp)
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp)
                 ) {
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Column(modifier = Modifier.padding(bottom = 8.dp)) {
+                        Text(
+                            text = stringResource(Res.string.item_brand),
+                            fontSize = 12.sp,
+                            color = Color.Gray,
+                            modifier = Modifier.padding(bottom = 4.dp)
+                        )
+                        Text(
+                            text = swapItem.itemId.brand,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
 
-                    Text(
-                        text = swapItem.itemId.brand,
-                        fontSize = 30.sp,
-                        fontWeight = FontWeight.SemiBold
+                    }
+
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        thickness = 1.dp,
+                        color = outlineVariantLight
                     )
 
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Column(modifier = Modifier.padding(bottom = 8.dp)) {
+                        Text(
+                            text = stringResource(Res.string.item_size),
+                            fontSize = 12.sp,
+                            color = Color.Gray,
+                            modifier = Modifier.padding(bottom = 4.dp)
+                        )
+                        Text(
+                            text = swapItem.itemId.size,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
 
-                    Text(
-                        text = "Size: ${swapItem.itemId.size}",
-                        fontSize = 20.sp
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        thickness = 1.dp,
+                        color = outlineVariantLight
                     )
 
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Column(modifier = Modifier.padding(top = 8.dp)) {
+                        Text(
+                            text = stringResource(Res.string.item_condition),
+                            fontSize = 12.sp,
+                            color = Color.Gray,
+                            modifier = Modifier.padding(bottom = 4.dp)
+                        )
+                        Text(
+                            text = swapItem.itemId.condition,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
 
-                    Text(
-                        text = "Condition: ${swapItem.itemId.condition}",
-                        fontSize = 20.sp
+                    HorizontalDivider(
+                        modifier = Modifier.padding(top = 12.dp),
+                        thickness = 1.dp,
+                        color = outlineVariantLight
                     )
 
                     Spacer(modifier = Modifier.height(30.dp))

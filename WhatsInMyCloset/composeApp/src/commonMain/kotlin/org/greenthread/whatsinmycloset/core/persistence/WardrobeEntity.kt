@@ -3,6 +3,7 @@ package org.greenthread.whatsinmycloset.core.persistence
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
+import org.greenthread.whatsinmycloset.core.dto.UserDto
 import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
 
 @Entity(tableName = "wardrobe")
@@ -12,7 +13,7 @@ data class WardrobeEntity(
     val wardrobeName: String,
     val createdAt: String,
     val lastUpdate: String,
-    val userId: String // Foreign key reference to User
+    val user: UserDto // Foreign key reference to User
 )
 
 fun Wardrobe.toWardrobeEntity(): WardrobeEntity {
@@ -21,7 +22,7 @@ fun Wardrobe.toWardrobeEntity(): WardrobeEntity {
         wardrobeName = wardrobeName,
         createdAt = createdAt,
         lastUpdate = lastUpdate,
-        userId = userId,
+        user = user.toUserDto(),
     )
 }
 
@@ -31,6 +32,6 @@ fun WardrobeEntity.toWardrobe(): Wardrobe {
         wardrobeName = wardrobeName,
         createdAt = createdAt,
         lastUpdate = lastUpdate,
-        userId = userId,
+        user = user.toModel()
     )
 }

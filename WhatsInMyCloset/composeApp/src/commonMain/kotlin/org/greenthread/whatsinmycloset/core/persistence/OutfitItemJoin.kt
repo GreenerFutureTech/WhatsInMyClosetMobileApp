@@ -30,7 +30,7 @@ import org.greenthread.whatsinmycloset.core.domain.models.OffsetData
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
-            entity = ItemEntity::class,
+            entity = ClothingItemEntity::class,
             parentColumns = ["id"],
             childColumns = ["itemId"],
             onDelete = ForeignKey.CASCADE

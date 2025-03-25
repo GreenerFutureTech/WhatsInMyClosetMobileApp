@@ -9,7 +9,7 @@ data class SwapDto(
     val userId: Int,
     val status: String,
     val registeredAt: String,
-    val updatedAt: String? = null
+    val updatedAt: String? = ""
 )
 
 @Serializable
@@ -31,7 +31,17 @@ data class SwapStatusDto(
     val userId: Int,
     val status: String,
     val registeredAt: String,
-    val updatedAt: String? = null
+    val updatedAt: String? = ""
+)
+
+@Serializable
+data class CreateSwapRequestDto(
+    val id: String? = null,
+    val itemId: String,
+    val userId: Int,
+    val status: String,
+    val registeredAt: String,
+    val updatedAt: String? = ""
 )
 
 

@@ -5,20 +5,20 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
 import androidx.room.TypeConverters
-import org.greenthread.whatsinmycloset.core.data.daos.ItemDao
+import org.greenthread.whatsinmycloset.core.data.daos.ClothingItemDao
 import org.greenthread.whatsinmycloset.core.data.daos.OutfitDao
 import org.greenthread.whatsinmycloset.core.data.daos.WardrobeDao
+import org.greenthread.whatsinmycloset.core.persistence.ClothingItemEntity
 import org.greenthread.whatsinmycloset.core.persistence.Converters
-import org.greenthread.whatsinmycloset.core.persistence.ItemEntity
 import org.greenthread.whatsinmycloset.core.persistence.OutfitEntity
 import org.greenthread.whatsinmycloset.core.persistence.OutfitItemJoin
 import org.greenthread.whatsinmycloset.core.persistence.WardrobeEntity
 
 @Database(
-    version = 1,    // incremented for room to update hash for new tables created
+    version = 1,
     entities = [
         WardrobeEntity::class,
-        ItemEntity::class,
+        ClothingItemEntity::class,
         OutfitEntity::class,
         OutfitItemJoin::class
     ]
@@ -29,8 +29,8 @@ import org.greenthread.whatsinmycloset.core.persistence.WardrobeEntity
 @ConstructedBy(ClosetDatabaseConstructor::class)
 abstract class MyClosetDatabase : RoomDatabase() {
     abstract fun wardrobeDao(): WardrobeDao
-    abstract fun itemDao(): ItemDao
     abstract fun outfitDao(): OutfitDao
+    abstract fun itemDao(): ClothingItemDao
 
     companion object {
         const val DB_NAME = "my_closet.db"
