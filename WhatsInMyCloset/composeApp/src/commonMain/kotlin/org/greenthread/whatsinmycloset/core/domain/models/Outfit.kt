@@ -18,7 +18,7 @@ import org.greenthread.whatsinmycloset.core.persistence.OutfitItem
 * */
 class Outfit(
     val id: String,
-    val name: String = "",
+    val name: String,
     val creatorId: Int,
     val items: Map<String, OffsetData> = emptyMap(), // itemId to position mapping
     val tags: List<String> = emptyList(),

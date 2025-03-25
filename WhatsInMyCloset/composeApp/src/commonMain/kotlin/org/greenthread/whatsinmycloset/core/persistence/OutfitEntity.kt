@@ -32,7 +32,7 @@ data class OutfitEntity(
 
     // Direct list of items with their positions
     @Embedded(prefix = "item_")
-    val items: String,                  // Serialized JSON for List<OutfitItem>
+    val items: String? = null,                  // Serialized JSON for List<OutfitItem>
 
     val tags: String,                   // Serialized JSON for List<String>
     val calendarDates: String,          // Serialized JSON for List<String>
@@ -53,11 +53,11 @@ data class OutfitEntity(
         ): OutfitEntity {
             return OutfitEntity(
                 outfitId = outfitId,
-                name = name,
+                name = name ?: "",  // Ensure non-null default
                 creatorId = creatorId,
-                items = json.encodeToString(items),
-                tags = json.encodeToString(tags),
-                calendarDates = json.encodeToString(calendarDates)
+                items = json.encodeToString(items ?: emptyList()), // Handle null case
+                tags = json.encodeToString(tags ?: emptyList()),
+                calendarDates = json.encodeToString(calendarDates ?: emptyList())
             )
         }
     }

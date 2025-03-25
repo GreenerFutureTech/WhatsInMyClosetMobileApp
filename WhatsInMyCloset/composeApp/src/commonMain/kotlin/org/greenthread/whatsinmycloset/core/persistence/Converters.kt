@@ -5,7 +5,6 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.greenthread.whatsinmycloset.core.domain.models.OffsetData
 import kotlinx.serialization.serializer
-import kotlinx.serialization.encodeToString
 import org.greenthread.whatsinmycloset.core.dto.UserDto
 
 class Converters {
@@ -20,46 +19,27 @@ class Converters {
         json.decodeFromString(jsonString)
 
     @TypeConverter
+    fun offsetMapToString(map: Map<String, OffsetData>): String =
+        json.encodeToString(map)
+
+    @TypeConverter
+    fun stringToOffsetMap(jsonString: String): Map<String, OffsetData> =
+        json.decodeFromString(jsonString)
+
+    @TypeConverter
+    fun fromUserDto(userDto: UserDto): String =
+        json.encodeToString(userDto)
+
+    @TypeConverter
+    fun toUserDto(jsonString: String): UserDto =
+        json.decodeFromString(jsonString)
+
+    // Only keep one pair of converters for List<String>
+    @TypeConverter
     fun stringListToString(list: List<String>): String =
         json.encodeToString(list)
 
     @TypeConverter
     fun stringToStringList(jsonString: String): List<String> =
-        json.decodeFromString(jsonString)
-
-    @TypeConverter
-    fun offsetMapToString(map: Map<String, OffsetData>): String =
-        json.encodeToString(map)
-
-    @TypeConverter
-    fun toItemPositionsMap(jsonString: String?): Map<String, OffsetData>? {
-        return jsonString?.let {
-            json.decodeFromString(
-                serializer<Map<String, OffsetData>>(),
-                it
-            )
-        }
-    }
-
-    @TypeConverter
-    fun fromStringList(value: List<String>): String {
-        return Json.encodeToString(value)
-    }
-
-    @TypeConverter
-    fun toStringList(value: String): List<String> {
-        return Json.decodeFromString(value)
-    }
-
-    @TypeConverter
-    fun fromUserDto(userDto: UserDto): String {
-        return Json.encodeToString(userDto)
-    }
-
-    @TypeConverter
-    fun toUserDto(json: String): UserDto {
-        return Json.decodeFromString(json)
-    }
-    fun stringToOffsetMap(jsonString: String): Map<String, OffsetData> =
         json.decodeFromString(jsonString)
 }

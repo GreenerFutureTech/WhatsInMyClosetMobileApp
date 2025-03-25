@@ -60,102 +60,96 @@ fun OutfitScreen(
 
     WhatsInMyClosetTheme {
 
-        // Track selected wardrobe in the Composable
-        var selectedWardrobe by remember { mutableStateOf(clothingItemViewModel.defaultWardrobe) }
-
-        // Initialize clothing items for the selected wardrobe (default when screen first launches)
-        LaunchedEffect(selectedWardrobe) {
-            println("DEBUG: Initializing clothing items for wardrobe: ${selectedWardrobe?.wardrobeName}...")
-
-            // fetch items for selected wardrobe
-            /*if (selectedWardrobe != null) {
-                // For each category, fetch items for the selected wardrobe
-                clothingItemViewModel.getItemsByCategoryAndWardrobe("Tops", selectedWardrobe)
-            }*/
-
-
-            // get sample items from BLOB to show on screen
-            clothingItemViewModel.fetchSampleClothingItems()
+        // Collect state from ViewModels
+        val wardrobes by outfitViewModel.cachedWardrobes.collectAsState()
+        val selectedWardrobeId by remember(outfitViewModel) {
+            derivedStateOf { outfitViewModel.selectedWardrobe.value }
         }
-
-        // Collect state from the ViewModel
         val selectedItems by clothingItemViewModel.selectedItems.collectAsState()
         val isCreateNewOutfit by outfitViewModel.isCreateNewOutfit.collectAsState()
         val isOutfitSaved by outfitViewModel.isOutfitSaved.collectAsState()
-        var showExitDialog by remember { mutableStateOf(false) } // Exit screen
+
+        var showExitDialog by remember { mutableStateOf(false) }
+
+        // Initialize default wardrobe selection
+        LaunchedEffect(wardrobes) {
+            if (wardrobes.isNotEmpty() && selectedWardrobeId == null) {
+                outfitViewModel.setWardrobeFilter(wardrobes.first().id)
+            }
+        }
 
         // Handle position updates
         val onPositionUpdate = { itemId: String, newPosition: OffsetData ->
             outfitViewModel.updateClothingItemPosition(itemId, newPosition)
         }
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(2.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        )
+        {
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(2.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+            // Header
+            OutfitScreenHeader(
+                onExit = { showExitDialog = true },  // Discard Outfit Creation
+                title = "Create Your Outfit"
             )
-            {
 
-                // Header
-                OutfitScreenHeader(
-                    onExit = { showExitDialog = true },  // Discard Outfit Creation
-                    title = "Create Your Outfit"
-                )
+            // Outfit collage area will show the selectedClothingItems
+            OutfitCollageArea(
+                selectedClothingItems = selectedItems,
+                onPositionUpdate = onPositionUpdate
+            )
 
-                // Outfit collage area will show the selectedClothingItems
-                OutfitCollageArea(
-                    selectedClothingItems = selectedItems,
-                    onPositionUpdate = onPositionUpdate
-                )
+            // Clothing category selection
+            ClothingCategorySelection { selectedCategory ->
+                // Convert the selected category string to ClothingCategory enum
+                val categoryEnum = ClothingCategory.fromString(selectedCategory.categoryName)
+                if (categoryEnum != null) {
+                    // Navigate to the category items screen showing all items in that category
+                    navController.navigate(Routes.CategoryItemScreen(categoryEnum.toString()))
+                } else {
+                    // Handle invalid category (e.g., show an error message)
+                    println("Invalid category selected: ${selectedCategory.categoryName}")
+                }
+            }
 
-                // Clothing category selection
-                ClothingCategorySelection { selectedCategory ->
-                    // Convert the selected category string to ClothingCategory enum
-                    val categoryEnum = ClothingCategory.fromString(selectedCategory.categoryName)
-                    if (categoryEnum != null) {
-                        // Navigate to the category items screen showing all items in that category
-                        navController.navigate(Routes.CategoryItemScreen(categoryEnum.toString()))
-                    } else {
-                        // Handle invalid category (e.g., show an error message)
-                        println("Invalid category selected: ${selectedCategory.categoryName}")
-                    }
+            // show additional options when there is at least one item in outfit area
+            if (selectedItems.isNotEmpty()) {
+                // Save Outfit button
+                Button(
+                    onClick = {
+                        outfitViewModel.createOutfit(
+                            name = "New Outfit",    // TODO take name from user else Default Name
+                            selectedItems = selectedItems,
+                            onSuccess = {
+                                navController.navigate(Routes.OutfitSaveScreen)
+                            }
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = selectedItems.isNotEmpty()
+                ) {
+                    Text("Save Outfit")
                 }
 
-                // show additional options when there is at least one item in outfit area
-                if (selectedItems.isNotEmpty()) {
-                        // Save Outfit button
-                        Button(
-                            onClick = {
-                                outfitViewModel.createOutfit(
-                                    name = "New Outfit",    // TODO take name from user else Default Name
-                                    selectedItems = selectedItems,
-                                    onSuccess = {
-                                        navController.navigate(Routes.OutfitSaveScreen)
-                                    }
-                                )
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            enabled = selectedItems.isNotEmpty()
-                        ) {
-                            Text("Save Outfit")
-                        }
-
-                        // Create New Outfit button
-                        Button(
-                            onClick = {
-                                // Discard the current outfit and create a new one
-                                outfitViewModel.discardCurrentOutfit()
-                                outfitViewModel.clearOutfitState() // Clear the outfit state
-                                clothingItemViewModel.clearClothingItemState() // Clear the selected items state
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            enabled = selectedItems.isNotEmpty()
-                        ) {
-                            Text("Reset")
-                        }
+                // Create New Outfit button
+                Button(
+                    onClick = {
+                        // Discard the current outfit and create a new one
+                        outfitViewModel.discardCurrentOutfit()
+                        outfitViewModel.clearOutfitState() // Clear the outfit state
+                        clothingItemViewModel.clearClothingItemState() // Clear the selected items state
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = selectedItems.isNotEmpty()
+                ) {
+                    Text("Reset")
                 }
-            }   // end of Column
+            }
+        }   // end of Column
+
 
         // Show Exit Dialog
         if (showExitDialog) {
