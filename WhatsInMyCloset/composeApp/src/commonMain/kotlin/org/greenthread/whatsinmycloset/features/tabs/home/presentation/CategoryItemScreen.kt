@@ -43,14 +43,24 @@ fun CategoryItemScreen(
     onItemClick: (ClothingItem) -> Unit
 ) {
     val category = remember(categoryName) {
-        ClothingCategory.valueOf(categoryName)
+        if (categoryName != "All") {
+            ClothingCategory.valueOf(categoryName)
+        } else {
+            null
+        }
     }
 
     LaunchedEffect(category) {
-        viewModel.loadItemsByCategory(category)
+        if (category != null) {
+            viewModel.loadItemsByCategory(category)
+        }
+    }
+    val items by if (categoryName == "All") {
+        viewModel.cachedItems.collectAsState()
+    } else {
+        viewModel.categoryItems.collectAsState()
     }
 
-    val items by viewModel.categoryItems.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
     Column(
@@ -59,7 +69,7 @@ fun CategoryItemScreen(
             .padding(16.dp)
     ) {
         Text(
-            text = category.name,
+            text = category?.name?:"All",
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 16.dp)
         )

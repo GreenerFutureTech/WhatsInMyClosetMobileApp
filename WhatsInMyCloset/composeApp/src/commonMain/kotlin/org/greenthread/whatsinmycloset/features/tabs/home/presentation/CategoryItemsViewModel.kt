@@ -15,6 +15,7 @@ class CategoryItemsViewModel(
 ) : ViewModel() {
     private val _categoryItems = MutableStateFlow<List<ClothingItem>>(emptyList())
     val categoryItems: StateFlow<List<ClothingItem>> = _categoryItems
+    val cachedItems: StateFlow<List<ClothingItem>> = wardrobeManager.cachedItems
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading

@@ -116,17 +116,18 @@ fun HomeTabScreen(
             .verticalScroll(rememberScrollState()) // Enable vertical scrolling
     ) {
         WardrobeHeader(itemCount = cachedItems.count() ?: 0)
-        HomeSection(title = Res.string.categories_section_title) {
+        HomeSection(title = Res.string.categories_section_title, navController = navController) {
             CategoriesSection({category ->  navController.navigate(Routes.HomeCategoryItemScreen(category.name))
             })
         }
         DropdownMenuLeading(wardrobe?.wardrobeName ?: stringResource(Res.string.no_wardrobe_found))
-        HomeSection(title = Res.string.favourite_section_title) {
+        HomeSection(title = Res.string.favourite_section_title, navController = navController) {
             FavouriteRow()
         }
         HomeSection(
             title = null,
-            showSeeAll = false
+            showSeeAll = false,
+            navController = navController
         ) {
             BottomButtonsRow(
                 navController = navController
@@ -140,6 +141,7 @@ fun HomeSection(
     title: StringResource? = null,
     modifier: Modifier = Modifier,
     showSeeAll: Boolean = true,
+    navController: NavController,
     content: @Composable () -> Unit
 ){
     Column(modifier) {
@@ -158,7 +160,9 @@ fun HomeSection(
                 )
             }
             if(showSeeAll) {
-                SeeAllButton{}
+                SeeAllButton(onClick = {
+                    navController.navigate(Routes.HomeCategoryItemScreen("All"))
+                })
             }
         }
         content()
