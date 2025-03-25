@@ -50,6 +50,7 @@ import androidx.navigation.compose.rememberNavController
 import org.greenthread.whatsinmycloset.CameraManager
 import org.greenthread.whatsinmycloset.NotificationManager
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
+import org.greenthread.whatsinmycloset.core.domain.models.MessageManager
 import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.dto.MessageUserDto
@@ -350,10 +351,29 @@ fun App(
                     composable<Routes.SwapDetailsScreen> {
                         val selectedSwapViewModel = it.sharedKoinViewModel<SelectedSwapViewModel>(navController)
                         val selectedSwap by selectedSwapViewModel.selectedSwap.collectAsStateWithLifecycle()
+                        val messageViewModel: MessageViewModel = koinViewModel()
+                        val currentUser by messageViewModel.currentUser.collectAsStateWithLifecycle()
+
                         SwapDetailScreen(
                             swap = selectedSwap,
                             onBackClick = { navController.navigate(Routes.SwapTab)},
-                            onRequestClick = {navController.navigate(Routes.ChatScreen)}
+                            onRequestClick = { swapItem ->
+                                // Navigate to chat
+                                navController.navigate(Routes.ChatScreen)
+
+                                val otherUser = MessageManager.currentOtherUser
+
+                                val currentUserId = currentUser?.id
+
+                                if (currentUser != null && otherUser != null && currentUserId != null) {
+                                    val initialMessage = "I'm interested in this item: ${selectedSwap?.swap?.itemId?.name} ${selectedSwap?.swap?.itemId?.size}"
+                                    messageViewModel.sendMessage(
+                                        senderId = currentUserId,
+                                        receiverId = otherUser.id,
+                                        content = initialMessage
+                                    )
+                                }
+                            }
                         )
                     }
 
