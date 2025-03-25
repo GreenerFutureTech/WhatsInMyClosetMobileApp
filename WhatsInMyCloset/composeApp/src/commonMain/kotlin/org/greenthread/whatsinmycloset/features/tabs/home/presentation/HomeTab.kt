@@ -117,7 +117,8 @@ fun HomeTabScreen(
     ) {
         WardrobeHeader(itemCount = cachedItems.count() ?: 0)
         HomeSection(title = Res.string.categories_section_title) {
-            CategoriesSection({})
+            CategoriesSection({category ->  navController.navigate(Routes.HomeCategoryItemScreen(category.name))
+            })
         }
         DropdownMenuLeading(wardrobe?.wardrobeName ?: stringResource(Res.string.no_wardrobe_found))
         HomeSection(title = Res.string.favourite_section_title) {

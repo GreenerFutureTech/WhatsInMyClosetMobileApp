@@ -1,0 +1,134 @@
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import whatsinmycloset.composeapp.generated.resources.no_item_category
+import coil3.compose.AsyncImage
+import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
+import org.greenthread.whatsinmycloset.features.tabs.home.presentation.CategoryItemsViewModel
+import whatsinmycloset.composeapp.generated.resources.Res
+import org.greenthread.whatsinmycloset.theme.onSurfaceLight
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
+
+@Composable
+fun CategoryItemScreen(
+    categoryName: String,
+    viewModel: CategoryItemsViewModel = koinViewModel(),
+) {
+    val category = remember(categoryName) {
+        ClothingCategory.valueOf(categoryName)
+    }
+
+    LaunchedEffect(category) {
+        viewModel.loadItemsByCategory(category)
+    }
+
+    val items by viewModel.categoryItems.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Text(
+            text = category.name,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+
+        when {
+            isLoading -> {
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+            items.isEmpty() -> {
+                Text(
+                    text = stringResource(Res.string.no_item_category),
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
+            }
+            else -> {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    items(items) { item ->
+                        CategoryItemCard(
+                            imageUrl = item.mediaUrl ?: "",
+                            onItemClick = {}// itemdetail screen
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+fun CategoryItemCard(
+    imageUrl: String,
+    onItemClick: () -> Unit
+) {
+    var loadFailed by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier
+            .width(125.dp)
+            .height(110.dp)
+            .padding(8.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(100.dp)
+                .clickable { onItemClick() }
+                .border(
+                    width = 1.dp,
+                    color = onSurfaceLight,
+                    shape = RoundedCornerShape(8.dp)
+                )
+        ) {
+            @OptIn(ExperimentalResourceApi::class)
+            AsyncImage(
+                model = if (loadFailed) Res.getUri("drawable/noImage.png") else imageUrl,
+                contentDescription = "Clothing Image",
+                modifier = Modifier
+                    .matchParentSize()
+                    .clip(RoundedCornerShape(8.dp)),
+                onError = { loadFailed = true }
+            )
+        }
+    }
+}

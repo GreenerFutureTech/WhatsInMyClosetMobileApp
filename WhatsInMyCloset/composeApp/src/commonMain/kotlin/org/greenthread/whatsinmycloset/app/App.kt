@@ -2,6 +2,7 @@ package org.greenthread.whatsinmycloset.app
 
 import AddSwapItemRoot
 import AllSwapsScreen
+import CategoryItemScreen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -68,6 +69,7 @@ import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItemDetailScre
 import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItemsScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.OutfitSaveScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.OutfitScreen
+import org.greenthread.whatsinmycloset.features.tabs.home.presentation.CategoryItemsViewModel
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.HomeTabScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.HomeTabViewModel
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabScreen
@@ -165,6 +167,17 @@ fun App(
                             }
                         )
                     }
+
+                    composable<Routes.HomeCategoryItemScreen> { backStackEntry ->
+                        val category = backStackEntry.arguments?.getString("category") ?: ""
+                        val viewModel = koinViewModel<CategoryItemsViewModel>()
+
+                        CategoryItemScreen(
+                            categoryName = category,
+                            viewModel = viewModel
+                        )
+                    }
+
                     composable<Routes.AddItemScreen> {
                         if (cameraManager != null) {
                             val viewmodel = koinViewModel<AddItemScreenViewModel>()
