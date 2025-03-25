@@ -24,7 +24,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Place
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.rounded.Build
 import androidx.compose.material.icons.rounded.DateRange
 import androidx.compose.material.icons.rounded.Home
@@ -57,10 +56,13 @@ import org.greenthread.whatsinmycloset.core.ui.components.listItems.LazyRowColou
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.generateRandomItems
 import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
+import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import whatsinmycloset.composeapp.generated.resources.Res
+import whatsinmycloset.composeapp.generated.resources.bottom
 import whatsinmycloset.composeapp.generated.resources.categories_section_title
 import whatsinmycloset.composeapp.generated.resources.category_label_accessories
 import whatsinmycloset.composeapp.generated.resources.category_label_bottoms
@@ -68,10 +70,12 @@ import whatsinmycloset.composeapp.generated.resources.category_label_footwear
 import whatsinmycloset.composeapp.generated.resources.category_label_tops
 import whatsinmycloset.composeapp.generated.resources.create_outfit_button
 import whatsinmycloset.composeapp.generated.resources.favourite_section_title
+import whatsinmycloset.composeapp.generated.resources.glasses
 import whatsinmycloset.composeapp.generated.resources.no_wardrobe_found
 import whatsinmycloset.composeapp.generated.resources.outfit_day_button
 import whatsinmycloset.composeapp.generated.resources.see_all_button
-
+import whatsinmycloset.composeapp.generated.resources.top
+import whatsinmycloset.composeapp.generated.resources.shoe
 
 
 @Composable
@@ -112,16 +116,18 @@ fun HomeTabScreen(
             .verticalScroll(rememberScrollState()) // Enable vertical scrolling
     ) {
         WardrobeHeader(itemCount = cachedItems.count() ?: 0)
-        HomeSection(title = Res.string.categories_section_title) {
-            CategoriesSection({})
+        HomeSection(title = Res.string.categories_section_title, navController = navController) {
+            CategoriesSection({category ->  navController.navigate(Routes.HomeCategoryItemScreen(category.name))
+            })
         }
         DropdownMenuLeading(wardrobe?.wardrobeName ?: stringResource(Res.string.no_wardrobe_found))
-        HomeSection(title = Res.string.favourite_section_title) {
+        HomeSection(title = Res.string.favourite_section_title, navController = navController) {
             FavouriteRow()
         }
         HomeSection(
             title = null,
-            showSeeAll = false
+            showSeeAll = false,
+            navController = navController
         ) {
             BottomButtonsRow(
                 navController = navController
@@ -135,6 +141,7 @@ fun HomeSection(
     title: StringResource? = null,
     modifier: Modifier = Modifier,
     showSeeAll: Boolean = true,
+    navController: NavController,
     content: @Composable () -> Unit
 ){
     Column(modifier) {
@@ -153,7 +160,9 @@ fun HomeSection(
                 )
             }
             if(showSeeAll) {
-                SeeAllButton{}
+                SeeAllButton(onClick = {
+                    navController.navigate(Routes.HomeCategoryItemScreen("All"))
+                })
             }
         }
         content()
@@ -191,16 +200,16 @@ fun CategoriesSection(
 ) {
 
     val itemCategories = listOf(
-        Icons.Rounded.Home to Res.string.category_label_tops to ClothingCategory.TOPS,
-        Icons.Default.Add to Res.string.category_label_bottoms to ClothingCategory.BOTTOMS,
-        Icons.Default.PlayArrow to Res.string.category_label_accessories to ClothingCategory.ACCESSORIES,
-        Icons.Default.Call to Res.string.category_label_footwear to ClothingCategory.FOOTWEAR
+        Res.drawable.top to Res.string.category_label_tops to ClothingCategory.TOPS,
+        Res.drawable.bottom to Res.string.category_label_bottoms to ClothingCategory.BOTTOMS,
+        Res.drawable.glasses to Res.string.category_label_accessories to ClothingCategory.ACCESSORIES,
+        Res.drawable.shoe to Res.string.category_label_footwear to ClothingCategory.FOOTWEAR
     )
 
     LazyRow(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(10.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         items(itemCategories) { (iconTextPair, category) ->
@@ -260,7 +269,7 @@ fun BottomButtonsRow(
 }
 
 @Composable
-fun CategoryItem(icon: ImageVector?, text: String?, onClick: (() -> Unit)? = null) {
+fun CategoryItem(icon: DrawableResource?, text: String?, onClick: (() -> Unit)? = null) {
     Column(
         modifier = Modifier
             .padding(8.dp)
@@ -270,15 +279,15 @@ fun CategoryItem(icon: ImageVector?, text: String?, onClick: (() -> Unit)? = nul
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .size(80.dp)
+                .size(70.dp)
                 .background(color = MaterialTheme.colorScheme.surfaceVariant, shape = CircleShape)
         ) {
             // Icon
             icon?.let {
                 Icon(
-                    imageVector = icon,
+                    painterResource(icon),
                     contentDescription = text, // Accessibility description
-                    modifier = Modifier.size(48.dp)
+                    modifier = Modifier.size(40.dp)
                 )
             }
         }

@@ -89,11 +89,11 @@ fun FriendProfileScreen(userState: StateFlow<User?>, onNavigate: () -> Unit) {
                     SwapsCount(10)
                 }
 
-                CategoryItem(
-                    icon = Icons.Default.Star,
-                    text = "Super Swapper",
-                    onClick = {}
-                )
+//                CategoryItem(
+//                    icon = Icons.Default.Star,
+//                    text = "Super Swapper",
+//                    onClick = {}
+//                )
             }
 
             SearchBar()
