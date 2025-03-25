@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import android.widget.Toast
@@ -105,20 +106,21 @@ actual class PhotoManager(private val context: Context) {
     actual fun SelectPhotoButton(onPhotoSelected: (ByteArray) -> Unit) {
         val galleryLauncher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.GetContent()
-        ) { uri ->
+        ) { uri: Uri? ->
             uri?.let {
-                val inputStream = context.contentResolver.openInputStream(it)
-                val bitmap = BitmapFactory.decodeStream(inputStream)
-                inputStream?.close()
-
-                bitmap?.let {
-                    val stream = ByteArrayOutputStream()
-                    it.compress(Bitmap.CompressFormat.JPEG, 100, stream)
-                    onPhotoSelected(stream.toByteArray())
+                try {
+                    val bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, it)
+                    bitmap?.let { bmp ->
+                        val stream = ByteArrayOutputStream()
+                        bmp.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+                        onPhotoSelected(stream.toByteArray())
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    Toast.makeText(context, "Error loading image", Toast.LENGTH_SHORT).show()
                 }
             }
         }
-
         val permissionLauncher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.RequestPermission()
         ) { isGranted ->
