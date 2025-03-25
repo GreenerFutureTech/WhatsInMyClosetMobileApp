@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import org.greenthread.whatsinmycloset.core.domain.getOrNull
 import org.greenthread.whatsinmycloset.core.domain.isSuccess
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
@@ -38,9 +40,19 @@ class AddItemScreenViewModel(
         viewModelScope.launch {
             try {
                 //BLOB UPLOAD
-                val mediaUrl = image?.let {
-                    val result = httpRepository.uploadImage("fileName.bmp", it as ByteArray)
-                    if (result.isSuccess()) result.getOrNull() else null
+                val mediaUrl = image?.let { img ->
+                    val result = httpRepository.uploadImage("fileName.bmp", img as ByteArray)
+                    if (result.isSuccess()) {
+                        result.getOrNull()?.let { jsonResponse ->
+                            try {
+                                Json.decodeFromString<UploadResponse>(jsonResponse).url
+                            } catch (e: Exception) {
+                                null // Parsing failed
+                            }
+                        }
+                    } else {
+                        null // Upload failed
+                    }
                 }
 
                 // Ensure mediaUrl is copied to item.mediaUrl
@@ -48,7 +60,7 @@ class AddItemScreenViewModel(
 
                 //Item + URL
                 val itemUploadRequest = mediaUrl?.let {
-                    val result = httpRepository.createItem(item)
+                    val result = httpRepository.createItem(updatedItem)
                     if (result.isSuccess() && result.getOrNull() != null) {
                         wardrobeManager.insertItem(result.getOrNull()!!.toClothingItem())
                         result.getOrNull()
@@ -92,3 +104,9 @@ class AddItemScreenViewModel(
         }
     }
 }
+
+@Serializable
+data class UploadResponse(
+    val message: String,
+    val url: String  // Must match JSON key ("url")
+)
