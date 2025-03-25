@@ -26,16 +26,12 @@ import org.greenthread.whatsinmycloset.core.domain.models.OffsetData
     indices = [Index("outfitId")]
 )
 data class OutfitEntity(
-    @PrimaryKey val outfitId: String,   // Matches backend UUID
-    val name: String = "",              // Name of the outfit (e.g., "Summer Look")
-    val creatorId: Int,                 // Matches with User ID
-
-    // Direct list of items with their positions
-    @Embedded(prefix = "item_")
-    val items: String? = null,                  // Serialized JSON for List<OutfitItem>
-
-    val tags: String,                   // Serialized JSON for List<String>
-    val calendarDates: String,          // Serialized JSON for List<String>
+    @PrimaryKey val outfitId: String,
+    val name: String = "",
+    val creatorId: Int,
+    val items: String, // JSON string of Map<String, OffsetData>
+    val tags: String = "[]", // Default empty list JSON
+    val calendarDates: String = "[]", // Default empty list JSON
     val createdAt: String = Clock.System.now().toLocalDateTime(
         TimeZone.currentSystemDefault()).toString()
 ) {
@@ -47,17 +43,17 @@ data class OutfitEntity(
             outfitId: String,
             name: String = "",
             creatorId: Int,
-            items: List<OutfitItem>,
-            tags: List<String>,
-            calendarDates: List<String>
+            items: Map<String, OffsetData>,
+            tags: List<String> = emptyList(),
+            calendarDates: List<String> = emptyList()
         ): OutfitEntity {
             return OutfitEntity(
                 outfitId = outfitId,
-                name = name ?: "",  // Ensure non-null default
+                name = name,
                 creatorId = creatorId,
-                items = json.encodeToString(items ?: emptyList()), // Handle null case
-                tags = json.encodeToString(tags ?: emptyList()),
-                calendarDates = json.encodeToString(calendarDates ?: emptyList())
+                items = json.encodeToString(items),
+                tags = json.encodeToString(tags),
+                calendarDates = json.encodeToString(calendarDates)
             )
         }
     }
@@ -68,9 +64,14 @@ data class OutfitEntity(
         val items = outfit.getItems() // Returns List<OutfitItem>
         val tags = outfit.getTags()   // Returns List<String>
      */
-    fun getItems(): List<OutfitItem> = json.decodeFromString(items)
-    fun getTags(): List<String> = json.decodeFromString(tags)
-    fun getCalendarDates(): List<String> = json.decodeFromString(calendarDates)
+    fun getItems(): Map<String, OffsetData> =
+        json.decodeFromString(items) ?: emptyMap()
+
+    fun getTags(): List<String> =
+        json.decodeFromString(tags) ?: emptyList()
+
+    fun getCalendarDates(): List<String> =
+        json.decodeFromString(calendarDates) ?: emptyList()
 }
 
 @Serializable

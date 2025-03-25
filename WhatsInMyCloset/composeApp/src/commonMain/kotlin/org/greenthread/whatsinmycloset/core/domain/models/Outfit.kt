@@ -16,54 +16,48 @@ import org.greenthread.whatsinmycloset.core.persistence.OutfitItem
 * This class provide methods for conversion to/from OutfitDto and OutfitEntity
 * DOMAIN MODEL
 * */
-class Outfit(
+@Serializable
+data class Outfit(
     val id: String,
     val name: String,
     val creatorId: Int,
-    val items: Map<String, OffsetData> = emptyMap(), // itemId to position mapping
+    val items: Map<String, OffsetData> = emptyMap(),
     val tags: List<String> = emptyList(),
     val calendarDates: List<LocalDate> = emptyList(),
     val createdAt: String = Clock.System.now().toLocalDateTime(
         TimeZone.currentSystemDefault()).toString()
-){
-    companion object {
-        private val json = Json { ignoreUnknownKeys = true }
-    }
-
-    // Get just the item IDs
+) {
     val itemIds: List<String> get() = items.keys.toList()
 }
 
-// Extension functions for conversions
+private val json = Json { ignoreUnknownKeys = true }
+
+// Extension function to convert Entity to Domain
 fun OutfitEntity.toDomain(): Outfit {
     return Outfit(
         id = outfitId,
         name = name,
         creatorId = creatorId,
-        items = Json.decodeFromString<List<OutfitItem>>(items)
-            .associate { it.id to OffsetData(it.x, it.y) },
-        tags = Json.decodeFromString(tags),
-        calendarDates = Json.decodeFromString<List<String>>(calendarDates)
-            .map { LocalDate.parse(it) },
+        items = json.decodeFromString(items),
+        tags = json.decodeFromString(tags),
+        calendarDates = getCalendarDates().map { LocalDate.parse(it) },
         createdAt = createdAt
     )
 }
 
+
+// Extension function to convert Domain to Entity
 fun Outfit.toEntity(): OutfitEntity {
-    return OutfitEntity(
+    return OutfitEntity.create(
         outfitId = id,
         name = name,
         creatorId = creatorId,
-        items = Json.encodeToString(
-            items.map { (itemId, offset) ->
-                OutfitItem(itemId, offset.x, offset.y)
-            }
-        ),
-        tags = Json.encodeToString(tags),
-        calendarDates = Json.encodeToString(calendarDates.map { it.toString() }),
-        createdAt = createdAt
+        items = items,
+        tags = tags,
+        calendarDates = calendarDates.map { it.toString() }
     )
 }
+
 
 @Serializable
 class OffsetData(

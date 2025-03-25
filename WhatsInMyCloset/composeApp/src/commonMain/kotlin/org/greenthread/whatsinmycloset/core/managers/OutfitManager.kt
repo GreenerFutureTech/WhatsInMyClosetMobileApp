@@ -39,16 +39,6 @@ open class OutfitManager(
 
     private val currentUser = userManager.currentUser // Get the current user
 
-    init {
-        CoroutineScope(Dispatchers.IO).launch {
-            if (_savedOutfits.value.isEmpty()) {
-                _savedOutfits.value = getOutfits() // Collect Flow once
-                println("GreenThread Inside OutfitManager.init (Did refresh cache)")
-            }
-            println("GreenThread Inside OutfitManager.init (Did not refresh cache)")
-        }
-    }
-
     // Get outfits for the current user
     open suspend fun getOutfits(): List<Outfit> {
         return withContext(Dispatchers.IO) {
@@ -83,8 +73,9 @@ open class OutfitManager(
         )
     }
 
-    suspend fun saveOutfit(outfit: Outfit): EmptyResult<DataError.Local> {
-        return withContext(Dispatchers.IO) {
+    suspend fun saveOutfit(outfit: Outfit) {
+        println("$outfit saved")
+        /*return withContext(Dispatchers.IO) {
             when (val result = outfitRepository.insertOutfit(outfit.toEntity())) {
                 is EmptyResult.Success -> {
                     // Update cache only after successful DB operation
@@ -93,7 +84,7 @@ open class OutfitManager(
                 }
                 is EmptyResult.Error -> result
             }
-        }
+        }*/
     }
 
     suspend fun removeOutfit(outfitId: String): Boolean {
