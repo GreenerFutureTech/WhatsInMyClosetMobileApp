@@ -48,6 +48,7 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import org.greenthread.whatsinmycloset.CameraManager
 import org.greenthread.whatsinmycloset.NotificationManager
+import org.greenthread.whatsinmycloset.PhotoManager
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
@@ -96,7 +97,8 @@ import whatsinmycloset.composeapp.generated.resources.add_new_item_button
 @Preview
 fun App(
     cameraManager: CameraManager?,
-    notificationManager: NotificationManager?
+    notificationManager: NotificationManager?,
+    photoManager: PhotoManager?
 ) {
     val wardrobeManager = koinInject<WardrobeManager>()
     val userManager = koinInject<UserManager>()
@@ -380,9 +382,12 @@ fun App(
 
                 composable<Routes.EditProfileScreen> {
                     val viewModel = koinViewModel<EditProfileViewModel>()
-                    EditProfileScreen(
-                        viewModel = viewModel
-                    )
+                    if (photoManager != null) {
+                        EditProfileScreen(
+                            viewModel = viewModel,
+                            photoManager = photoManager
+                        )
+                    }
                 }
             }
         }
