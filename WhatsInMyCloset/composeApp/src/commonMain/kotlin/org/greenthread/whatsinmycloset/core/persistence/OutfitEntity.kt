@@ -4,6 +4,7 @@ import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import org.greenthread.whatsinmycloset.core.data.daos.ClothingItemDao
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import kotlinx.datetime.Clock

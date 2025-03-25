@@ -4,6 +4,8 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
+import org.greenthread.whatsinmycloset.core.persistence.ClothingItemEntity
+import org.greenthread.whatsinmycloset.core.persistence.ItemEntity
 import org.greenthread.whatsinmycloset.core.persistence.OutfitEntity
 
 /* For Room database operations

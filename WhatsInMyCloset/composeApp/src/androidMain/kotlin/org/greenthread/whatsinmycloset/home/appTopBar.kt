@@ -355,7 +355,8 @@ fun AddNewItem(onClick: () -> Unit) {
         shape = CircleShape,
         containerColor = MaterialTheme.colorScheme.primary
     ){
-        Icon(Icons.Filled.Add, "Add new item")
+        //Icon(Icons.Filled.Add, "Add new item")
+        Text("Add Item!")
     }
 }
 

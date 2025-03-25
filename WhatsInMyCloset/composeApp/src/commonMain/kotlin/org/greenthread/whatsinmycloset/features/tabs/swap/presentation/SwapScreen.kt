@@ -55,7 +55,8 @@ fun SwapScreenRoot(
     viewModel: SwapViewModel = koinViewModel(),
     onSwapClick: (OtherSwapDto) -> Unit,
     onAllSwapClick: () -> Unit,
-    onMessageClick: () -> Unit
+    onMessageClick: () -> Unit,
+    onAddSwapClick: () -> Unit
 ) {
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val state by viewModel.state.collectAsStateWithLifecycle(
@@ -84,8 +85,6 @@ fun SwapScreenRoot(
             }
         }
 
-
-
         SwapScreen(
             state = state,
             onAction = { action ->
@@ -110,7 +109,8 @@ fun SwapScreenRoot(
                 }
             },
             onAllSwapClick = onAllSwapClick,
-            onMessageClick = onMessageClick
+            onMessageClick = onMessageClick,
+            onAddSwapClick = onAddSwapClick
         )
     }
 }
@@ -120,7 +120,8 @@ fun SwapScreen(
     state: SwapListState,
     onAction: (SwapAction) -> Unit,
     onAllSwapClick: () -> Unit,
-    onMessageClick: () -> Unit
+    onMessageClick: () -> Unit,
+    onAddSwapClick: () -> Unit
 ) {
     var searchString by remember { mutableStateOf("") }
 
@@ -195,7 +196,7 @@ fun SwapScreen(
                         .width(80.dp)
                         .height(95.dp)
                         .border(1.dp, onSurfaceLight, RoundedCornerShape(8.dp))
-                        .clickable { println("Add button clicked") },
+                        .clickable { onAddSwapClick() },
                     contentAlignment = Alignment.Center
                 ) {
                     Text(

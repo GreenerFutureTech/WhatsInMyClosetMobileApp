@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import coil3.BitmapImage
 import org.greenthread.whatsinmycloset.core.data.MyClosetDatabase
 import platform.UIKit.UIDevice
 import platform.UIKit.*
@@ -50,6 +51,25 @@ actual fun ByteArray.toImageBitmap(): ImageBitmap {
     //val nsData = this.toNSData()
     //val uiImage = UIImage(data = nsData)
     return ImageBitmap(10,10)
+}
+
+actual fun ByteArray.toBitmap(): Any {
+    //val nsData = this.toNSData()
+    //val uiImage = UIImage(data = nsData)
+    return ImageBitmap(10,10)
+}
+
+actual fun bitmapToByteArray(bitmap: Any?): ByteArray {
+/*    val bitmapBMP = bitmap as Bitmap
+
+    val stream = ByteArrayOutputStream()
+    bitmapBMP.compress(Bitmap.CompressFormat.PNG, 100, stream) // Choose PNG, JPEG, or WEBP
+    return stream.toByteArray()*/
+    return ByteArray(0)
+}
+
+actual fun subjectSegmentation(byteArray: ByteArray, onResult: (ByteArray?) -> Unit) {
+    return
 }
 
 
