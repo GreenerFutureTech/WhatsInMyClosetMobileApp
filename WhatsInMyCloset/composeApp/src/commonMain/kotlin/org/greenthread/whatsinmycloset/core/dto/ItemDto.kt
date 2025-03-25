@@ -26,6 +26,9 @@ fun ItemDto.toClothingItem(): ClothingItem {
         itemType = ClothingCategory.valueOf(this.itemType.uppercase()), // Ensure case match for enum
         mediaUrl = this.mediaUrl.ifEmpty { null }, // Convert empty string to null
         tags = this.tags.ifEmpty { listOf() }, // Ensure empty list if tags are missing
+        condition = this.condition,
+        brand = this.brand,
+        size = this.size,
         createdAt = this.createdAt
     )
 }
