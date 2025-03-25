@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import org.greenthread.whatsinmycloset.core.data.daos.ClothingItemDao
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.managers.WardrobeManager
@@ -23,7 +24,7 @@ import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
 open class ClothingItemViewModel(
     private val wardrobeRepository: WardrobeRepository,
     wardrobeManager: WardrobeManager,
-    //private val itemDao: ItemDao // Inject ItemDao to fetch items
+    private val itemDao: ClothingItemDao // Inject ItemDao to fetch items
     ) :
 ViewModel() {
 
@@ -47,13 +48,13 @@ ViewModel() {
     fun getItemsByCategoryAndWardrobe(category: String, wardrobe: Wardrobe?) {
         viewModelScope.launch {
             val selectedWardrobe = wardrobe ?: defaultWardrobe ?: return@launch
-            //val itemEntities = itemDao.getItemsForWardrobeAndCategory(selectedWardrobe.id, category)
+            val itemEntities = itemDao.getItemsForWardrobeAndCategory(selectedWardrobe.id, category)
 
             // Convert ItemEntity to ClothingItem
-            //val clothingItems = itemEntities.map { it.toClothingItem() }
+            val clothingItems = itemEntities.map { it.toClothingItem() }
 
             // Update the state
-            //_categoryItems.value = clothingItems
+            _categoryItems.value = clothingItems
         }
     }
 
@@ -62,19 +63,19 @@ ViewModel() {
     }
 
     // Fetch the details of a specific clothing item by its ID, wardrobeId, and category
-    //suspend fun getItemDetail(wardrobeId: String, itemId: String, category: ClothingCategory): ClothingItem? {
-        //println("DEBUG, Searching for item: id=$itemId, category=$category, wardrobeId=$wardrobeId")
+    suspend fun getItemDetail(wardrobeId: String, itemId: String, category: ClothingCategory): ClothingItem? {
+        println("DEBUG, Searching for item: id=$itemId, category=$category, wardrobeId=$wardrobeId")
 
         // Fetch the item from the database using ItemDao
-        //val itemEntity = itemDao.getItemById(itemId)
+        val itemEntity = itemDao.getItemById(itemId)
 
         // If the item exists and matches the wardrobeId and category, convert it to ClothingItem
-        //return if (itemEntity != null && itemEntity.wardrobeId == wardrobeId && itemEntity.itemType == category.toString()) {
-        //    itemEntity.toClothingItem()
-        //} else {
-        //    null
-        //}
-    //}
+        return if (itemEntity != null && itemEntity.wardrobeId == wardrobeId && itemEntity.itemType == category.toString()) {
+            itemEntity.toClothingItem()
+        } else {
+            null
+        }
+    }
 
     // get selected item details - for testing
     fun getItemDetailTest(itemId: String): ClothingItem? {

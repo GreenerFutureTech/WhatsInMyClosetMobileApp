@@ -284,7 +284,7 @@ class KtorRemoteDataSource(
     ): Result<String, DataError.Remote> {
         val data = byteArray as ByteArray
             return safeCall {
-                val response: HttpResponse = httpClient.post("https://green-api-c9h6f7huhuezbuhv.eastus2-01.azurewebsites.net/blob/upload") {
+                val response: HttpResponse = httpClient.post("$BASE_URL/blob/upload") {
                     contentType(ContentType.MultiPart.FormData)
                     setBody(
                         MultiPartFormDataContent(
@@ -307,7 +307,7 @@ class KtorRemoteDataSource(
 
     suspend fun uploadImage(filename: String, imageBytes: ByteArray): Result<String, DataError.Remote> {
         return safeCall {
-            httpClient.post("https://green-api-c9h6f7huhuezbuhv.eastus2-01.azurewebsites.net/blob/upload") {
+            httpClient.post("$BASE_URL/blob/upload") {
 
                 setBody(MultiPartFormDataContent(
                     formData {
