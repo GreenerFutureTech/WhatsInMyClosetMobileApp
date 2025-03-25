@@ -37,6 +37,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,9 +50,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import androidx.navigation.NavController
 import org.greenthread.whatsinmycloset.app.Routes
+import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.User
+import org.greenthread.whatsinmycloset.core.ui.components.listItems.LazyGridColourBox
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.LazyRowColourBox
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.generateRandomItems
+import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
+import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -67,8 +72,9 @@ import whatsinmycloset.composeapp.generated.resources.no_wardrobe_found
 import whatsinmycloset.composeapp.generated.resources.outfit_day_button
 import whatsinmycloset.composeapp.generated.resources.see_all_button
 
+
+
 @Composable
-@Preview
 fun HomeTabScreenRoot(
     viewModel: HomeTabViewModel,
     navController: NavController,
@@ -78,14 +84,11 @@ fun HomeTabScreenRoot(
 ) {
     var showContent by remember { mutableStateOf(false) }
 
-    // Create a user profile
-    val user = User(99999123, "TestName", email = "testmail", firebaseUuid = "", lastLogin = "01-01-2025", name = "testName", registeredAt = "01-01-2025", updatedAt = "01-01-2025")
     //Relevant info is injected via HomeTabViewModel and managers
     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         HomeTabScreen(
             viewModel = viewModel,
-            navController = navController,
-            user = user
+            navController = navController
         )
     }
 }
@@ -94,18 +97,21 @@ fun HomeTabScreenRoot(
 fun HomeTabScreen(
     viewModel: HomeTabViewModel?,
     navController: NavController,
-    user: User
 ){
-    viewModel?.testDb()
-    val wardrobe = viewModel?.defaultWardrobe
+    var wardrobe: Wardrobe? = null
+    val cachedWardrobes by viewModel!!.cachedWardrobes.collectAsState()
+    val cachedItems by viewModel!!.cachedItems.collectAsState()
 
+    if (cachedWardrobes.isNotEmpty()) {
+        wardrobe = cachedWardrobes.getOrNull(0)
+    }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .verticalScroll(rememberScrollState()) // Enable vertical scrolling
     ) {
-        WardrobeHeader(itemCount = wardrobe?.getAllItems()?.count() ?: 0)
+        WardrobeHeader(itemCount = cachedItems.count() ?: 0)
         HomeSection(title = Res.string.categories_section_title) {
             CategoriesSection({})
         }
@@ -168,25 +174,28 @@ fun WardrobeHeader(itemCount: Int) {
 }
 
 @Composable
-private fun FavouriteRow() {
+fun FavouriteRow() {
     // TODO Replace to display outfit
     val randomItems = generateRandomItems(6) // Generate random items for the preview
     LazyRowColourBox(items = randomItems)
 }
 
-private data class ImageVectorStringPair(
+data class ImageVectorStringPair(
     val icon: ImageVector,
     val text: StringResource
 )
 
 @Composable
-fun CategoriesSection(onCategoryClick: (String) -> Unit) {
+fun CategoriesSection(
+    onCategoryClick: (ClothingCategory) -> Unit
+) {
+
     val itemCategories = listOf(
-        Icons.Rounded.Home to Res.string.category_label_tops,
-        Icons.Default.Add to Res.string.category_label_bottoms,
-        Icons.Default.PlayArrow to Res.string.category_label_accessories,
-        Icons.Default.Call to Res.string.category_label_footwear
-    ).map { ImageVectorStringPair(it.first, it.second) }
+        Icons.Rounded.Home to Res.string.category_label_tops to ClothingCategory.TOPS,
+        Icons.Default.Add to Res.string.category_label_bottoms to ClothingCategory.BOTTOMS,
+        Icons.Default.PlayArrow to Res.string.category_label_accessories to ClothingCategory.ACCESSORIES,
+        Icons.Default.Call to Res.string.category_label_footwear to ClothingCategory.FOOTWEAR
+    )
 
     LazyRow(
         modifier = Modifier
@@ -194,11 +203,11 @@ fun CategoriesSection(onCategoryClick: (String) -> Unit) {
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        items(itemCategories) { item ->
+        items(itemCategories) { (iconTextPair, category) ->
             CategoryItem(
-                icon = item.icon,
-                text = stringResource(item.text),
-                onClick = { onCategoryClick(item.text.toString()) },
+                icon = iconTextPair.first,
+                text = stringResource(iconTextPair.second),
+                onClick = { onCategoryClick(category) },
             )
         }
     }
@@ -261,7 +270,7 @@ fun CategoryItem(icon: ImageVector?, text: String?, onClick: (() -> Unit)? = nul
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .size(88.dp)
+                .size(80.dp)
                 .background(color = MaterialTheme.colorScheme.surfaceVariant, shape = CircleShape)
         ) {
             // Icon

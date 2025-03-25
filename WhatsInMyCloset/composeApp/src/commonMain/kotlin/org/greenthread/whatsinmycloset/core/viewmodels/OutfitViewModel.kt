@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import org.greenthread.whatsinmycloset.core.data.daos.ClothingItemDao
 import kotlinx.datetime.LocalDate
 import org.greenthread.whatsinmycloset.core.data.daos.ItemDao
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
@@ -31,7 +32,7 @@ open class OutfitViewModel
     private val outfitManager: OutfitManager,
     private val outfitTags: OutfitTags,
     private val clothingItemViewModel: ClothingItemViewModel,
-    private val itemDao: ItemDao // Inject ItemDao to fetch items dynamically
+    private val itemDao: ClothingItemDao // Inject ItemDao to fetch items dynamically
     )
     : ViewModel()
 {

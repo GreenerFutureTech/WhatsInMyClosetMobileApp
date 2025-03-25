@@ -2,6 +2,7 @@ package org.greenthread.whatsinmycloset.core.repository
 
 import org.greenthread.whatsinmycloset.core.domain.DataError
 import org.greenthread.whatsinmycloset.core.domain.Result
+import org.greenthread.whatsinmycloset.core.dto.CreateSwapRequestDto
 import org.greenthread.whatsinmycloset.core.dto.MessageDto
 import org.greenthread.whatsinmycloset.core.dto.OtherSwapDto
 import org.greenthread.whatsinmycloset.core.dto.SendMessageRequest
@@ -24,6 +25,10 @@ class DefaultClosetRepository(
 
     override suspend fun getAllSwaps(): Result<List<SwapDto>, DataError.Remote> {
         return remoteClosetDataSource.getAllSwaps()
+    }
+
+    override suspend fun createSwap(swap: CreateSwapRequestDto): Result<CreateSwapRequestDto, DataError.Remote> {
+        return remoteClosetDataSource.createSwap(swap)
     }
 
     override suspend fun updateStatus(itemId: String): Result<SwapStatusDto, DataError.Remote> {

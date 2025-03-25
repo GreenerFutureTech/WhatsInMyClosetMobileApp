@@ -40,6 +40,13 @@
             android:value="false" />
 
         <!--usesCleartextTraffic: *temp* for http communication-->
+
+        <!-- ML Kit Subject Segmentation -->
+        <meta-data
+            android:name="com.google.mlkit.vision.DEPENDENCIES"
+            android:value="subject_segment" />
+        <!-- To use multiple models: android:value="subject_segment,model2,model3" -->
+
         <activity
             android:exported="true"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|mnc|colorMode|density|fontScale|fontWeightAdjustment|keyboard|layoutDirection|locale|mcc|navigation|smallestScreenSize|touchscreen|uiMode"

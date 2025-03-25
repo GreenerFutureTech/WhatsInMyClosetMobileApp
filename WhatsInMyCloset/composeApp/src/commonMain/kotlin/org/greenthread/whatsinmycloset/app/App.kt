@@ -1,5 +1,6 @@
 package org.greenthread.whatsinmycloset.app
 
+import AddSwapItemRoot
 import AllSwapsScreen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -75,6 +76,8 @@ import org.greenthread.whatsinmycloset.features.tabs.home.presentation.HomeTabVi
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabScreen
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabViewModel
 import org.greenthread.whatsinmycloset.features.tabs.social.SocialTabScreen
+import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.AddSwap.AddSwapRoot
+import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.AddSwap.AddSwapViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.ChatScreen
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.MessageListScreen
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.MessageViewModel
@@ -306,7 +309,8 @@ fun App(
                                 navController.navigate(Routes.SwapDetailsScreen(swap.swap.itemId.id))
                             },
                             onAllSwapClick = { navController.navigate(Routes.AllSwapScreen) },
-                            onMessageClick = { navController.navigate(Routes.MessageListScreen)}
+                            onMessageClick = { navController.navigate(Routes.MessageListScreen)},
+                            onAddSwapClick = { navController.navigate(Routes.AddSwapScreen)}
                         )
                     }
 
@@ -321,6 +325,22 @@ fun App(
                                 selectedSwapViewModel.onSelectSwap(swap.toOtherSwapDto(user = MessageUserDto()))
                                 navController.navigate(Routes.SwapDetailsScreen(swap.itemId.id))
                             }
+                        )
+                    }
+
+                    composable<Routes.AddSwapScreen>{
+                        val viewModel: AddSwapViewModel = koinViewModel()
+                        AddSwapRoot(
+                            viewModel = viewModel,
+                            onWardrobeClick = { navController.navigate(Routes.AddSwapItemScreen) }
+                        )
+                    }
+
+                    composable<Routes.AddSwapItemScreen> {
+                        val viewModel: AddSwapViewModel = koinViewModel()
+                        AddSwapItemRoot(
+                            viewModel = viewModel,
+                            onAddClick = { navController.navigate(Routes.SwapTab) }
                         )
                     }
 

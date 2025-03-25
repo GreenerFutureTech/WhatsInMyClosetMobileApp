@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import org.greenthread.whatsinmycloset.core.data.daos.ItemDao
+import org.greenthread.whatsinmycloset.core.data.daos.ClothingItemDao
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.managers.WardrobeManager
@@ -24,11 +24,14 @@ import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
 open class ClothingItemViewModel(
     private val wardrobeRepository: WardrobeRepository,
     wardrobeManager: WardrobeManager,
-    private val itemDao: ItemDao // Inject ItemDao to fetch items
+    private val itemDao: ClothingItemDao // Inject ItemDao to fetch items
     ) :
 ViewModel() {
 
-    var defaultWardrobe: Wardrobe? = wardrobeManager.cachedWardrobes.firstOrNull()
+    val cachedWardrobes = wardrobeManager.getWardrobes()
+    val cachedItems = wardrobeManager.getItems()
+    var defaultWardrobe: Wardrobe? = cachedWardrobes.firstOrNull()
+
 
     private val _wardrobes = MutableStateFlow<List<Wardrobe>>(emptyList())
     val wardrobes: StateFlow<List<Wardrobe>> = _wardrobes.asStateFlow()
@@ -85,36 +88,11 @@ ViewModel() {
         return items.find { it.id == itemId }
     }
 
-    val sampleWardrobes = listOf(
-        WardrobeEntity(
-            id = "123",
-            wardrobeName = "Summer Closet",
-            createdAt = "2025-03-01",
-            lastUpdate = "2025-03-07",
-            userId = "user1"),
-
-        WardrobeEntity(
-            id = "2",
-            wardrobeName = "Winter Closet",
-            createdAt = "2025-03-07",
-            lastUpdate = "2025-03-07",
-            userId = "user1"),
-
-        WardrobeEntity(
-            id = "3",
-            wardrobeName = "Fall Closet",
-            createdAt = "2025-03-04",
-            lastUpdate = "2025-03-07",
-            userId = "user1")
-    )
-
     // Insert sample wardrobes
     init {
         viewModelScope.launch {
-            for (wardrobe in sampleWardrobes) {
-                wardrobeRepository.insertWardrobe(wardrobe)
-            }
 
+            //get from wardrobe manager.
             val fetchedWardrobes = wardrobeRepository.getWardrobes().firstOrNull() ?: emptyList()
             _wardrobes.value = fetchedWardrobes
 
