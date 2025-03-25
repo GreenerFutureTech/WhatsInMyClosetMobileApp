@@ -13,8 +13,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.NotificationEventBus
+import org.greenthread.whatsinmycloset.features.tabs.swap.domain.SwapEventBus
 
 class NotificationService : FirebaseMessagingService() {
+
+    companion object {
+        var isAppInForeground = false
+    }
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
@@ -23,20 +28,29 @@ class NotificationService : FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
-        // Handle the incoming FCM message here
         println("Received FCM message: ${remoteMessage.notification?.title}")
 
-        // Display notification to the user
-        remoteMessage.notification?.let { notification ->
-            sendNotification(notification.title, notification.body)
+        if (!isAppInForeground)
+        {
+            // Prioritize data payload, otherwise use notification
+            val title = remoteMessage.data["title"] ?: remoteMessage.notification?.title ?: "New Message"
+            val message = remoteMessage.data["message"] ?: remoteMessage.notification?.body ?: "You have a new notification"
+
+            sendNotification(title, message)
         }
 
-        // If data payload is present, handle it
-        if (remoteMessage.data.isNotEmpty()) {
-            // Process data payload if needed
-            val title = remoteMessage.data["title"] ?: "New Message"
-            val message = remoteMessage.data["message"] ?: "You have a new notification"
-            sendNotification(title, message)
+        // Handle specific message types
+        when (remoteMessage.data["type"]) {
+            "new_message" -> {
+
+                val messageId = remoteMessage.data["messageId"]
+
+                println("Message ID message Service: ${messageId}")
+
+                CoroutineScope(Dispatchers.IO).launch {
+                    SwapEventBus.emitNewNotification(messageId)
+                }
+            }
         }
 
         CoroutineScope(Dispatchers.IO).launch {

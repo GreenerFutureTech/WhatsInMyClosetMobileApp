@@ -27,9 +27,11 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
+import kotlinx.coroutines.launch
 import org.greenthread.whatsinmycloset.core.domain.models.MessageManager
 import org.greenthread.whatsinmycloset.core.dto.MessageUserDto
 import org.greenthread.whatsinmycloset.features.tabs.swap.data.MessageListState
+import org.greenthread.whatsinmycloset.features.tabs.swap.domain.SwapEventBus
 import org.greenthread.whatsinmycloset.theme.outlineLight
 import org.greenthread.whatsinmycloset.theme.secondaryLight
 import org.greenthread.whatsinmycloset.theme.surfaceDimLight
@@ -51,6 +53,26 @@ fun ChatScreen(
     )
     val currentUserId = viewModel.currentUser.value?.id
     val otherUser = MessageManager.currentOtherUser
+
+    // Listen for new swap events
+    val coroutineScope = rememberCoroutineScope()
+    val newNotificationState by SwapEventBus.newNotificationEvent.collectAsState(initial = null)
+
+    // Trigger refresh when new notification arrives
+    LaunchedEffect(newNotificationState) {
+        newNotificationState?.let { _ ->
+            if (currentUserId != null && otherUser != null) {
+                coroutineScope.launch {
+                    try {
+                        // Refresh chat history when a new notification is received
+                        viewModel.fetchChatHistory(currentUserId, otherUser.id)
+                    } catch (e: Exception) {
+                        println("MESSAGE SCREEN REFRESH ERROR: ${e.message}")
+                    }
+                }
+            }
+        }
+    }
 
     if (currentUserId != null && otherUser != null) {
         val otherUserId = otherUser.id
