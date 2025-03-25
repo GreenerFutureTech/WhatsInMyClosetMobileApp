@@ -53,9 +53,9 @@ import whatsinmycloset.composeapp.generated.resources.complete_swap_dialog_title
 import whatsinmycloset.composeapp.generated.resources.delete_button
 import whatsinmycloset.composeapp.generated.resources.delete_swap_dialog_message
 import whatsinmycloset.composeapp.generated.resources.delete_swap_dialog_title
-import whatsinmycloset.composeapp.generated.resources.swap_item_size
-import whatsinmycloset.composeapp.generated.resources.swap_item_condition
-import whatsinmycloset.composeapp.generated.resources.swap_item_brand
+import whatsinmycloset.composeapp.generated.resources.item_size
+import whatsinmycloset.composeapp.generated.resources.item_condition
+import whatsinmycloset.composeapp.generated.resources.item_brand
 
 @Composable
 fun SwapDetailScreen(
@@ -265,14 +265,14 @@ fun SwapDetailScreen(
                 ) {
                     Column(modifier = Modifier.padding(bottom = 8.dp)) {
                         Text(
-                            text = stringResource(Res.string.swap_item_brand),
+                            text = stringResource(Res.string.item_brand),
                             fontSize = 12.sp,
                             color = Color.Gray,
                             modifier = Modifier.padding(bottom = 4.dp)
                         )
                         Text(
                             text = swapItem.itemId.brand,
-                            fontSize = 22.sp,
+                            fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(bottom = 8.dp)
                         )
@@ -287,14 +287,14 @@ fun SwapDetailScreen(
 
                     Column(modifier = Modifier.padding(bottom = 8.dp)) {
                         Text(
-                            text = stringResource(Res.string.swap_item_size),
+                            text = stringResource(Res.string.item_size),
                             fontSize = 12.sp,
                             color = Color.Gray,
                             modifier = Modifier.padding(bottom = 4.dp)
                         )
                         Text(
                             text = swapItem.itemId.size,
-                            fontSize = 14.sp,
+                            fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold
                         )
                     }
@@ -307,14 +307,14 @@ fun SwapDetailScreen(
 
                     Column(modifier = Modifier.padding(top = 8.dp)) {
                         Text(
-                            text = stringResource(Res.string.swap_item_condition),
+                            text = stringResource(Res.string.item_condition),
                             fontSize = 12.sp,
                             color = Color.Gray,
                             modifier = Modifier.padding(bottom = 4.dp)
                         )
                         Text(
                             text = swapItem.itemId.condition,
-                            fontSize = 14.sp,
+                            fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold
                         )
                     }
