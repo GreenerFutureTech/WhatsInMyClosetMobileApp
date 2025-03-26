@@ -4,9 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.*
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.domain.onError
 import org.greenthread.whatsinmycloset.core.domain.onSuccess
+import org.greenthread.whatsinmycloset.core.dto.CreateSwapRequestDto
 import org.greenthread.whatsinmycloset.core.repository.ClosetRepository
 import org.greenthread.whatsinmycloset.features.tabs.swap.Action.SwapAction
 import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
@@ -21,7 +25,7 @@ class SwapViewModel(
     val state =_state
         .onStart {
             fetchSwapData(currentUser.value?.id.toString())
-            fetchOtherSwapData(currentUser.value?.id.toString())
+            fetchFriendsSwapData(currentUser.value?.id.toString())
         }
 
     fun onAction(action: SwapAction) {
@@ -94,7 +98,7 @@ class SwapViewModel(
         }
     }
 
-    fun fetchOtherSwapData(userId: String) {
+    fun fetchFriendsSwapData(userId: String) {
         viewModelScope.launch {
             println("FETCHOTHERSWAP : Fetching other users' swap data for user: $userId")
             _state.update {
@@ -103,7 +107,7 @@ class SwapViewModel(
                 )
             }
             swapRepository
-                .getOtherUsersSwaps(userId)
+                .getFriendsSwaps(userId)
                 .onSuccess { getResults ->
                     println("FETCHOTHERSWAP API success: $getResults")
                     _state.update {
@@ -156,14 +160,14 @@ class SwapViewModel(
 
     fun deleteSwap(itemId: String) {
         viewModelScope.launch {
-            println("DELETE SWAP : Completed Swap: $itemId")
+            println("DELETE SWAP : DELETED Swap: $itemId")
             _state.update {
                 it.copy(
                     isLoading = true
                 )
             }
             swapRepository
-                .updateStatus(itemId)
+                .deleteSwap(itemId)
                 .onSuccess { getResults ->
                     println("DELETE SWAP API success: $getResults")
                     _state.update {
@@ -182,4 +186,6 @@ class SwapViewModel(
                 }
         }
     }
+
+
 }

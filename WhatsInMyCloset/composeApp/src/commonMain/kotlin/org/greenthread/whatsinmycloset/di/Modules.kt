@@ -18,6 +18,7 @@ import org.greenthread.whatsinmycloset.core.repository.DefaultClosetRepository
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginViewModel
 import org.greenthread.whatsinmycloset.features.screens.notifications.presentation.NotificationsViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SelectedSwapViewModel
+import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.AddSwap.AddSwapViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.MessageViewModel
@@ -26,9 +27,10 @@ import org.greenthread.whatsinmycloset.features.tabs.home.presentation.HomeTabVi
 import org.greenthread.whatsinmycloset.features.screens.addItem.presentation.AddItemScreenViewModel
 import org.greenthread.whatsinmycloset.features.screens.notifications.data.NotificationRepository
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabViewModel
+import org.greenthread.whatsinmycloset.features.tabs.home.presentation.CategoryItemsViewModel
+import org.greenthread.whatsinmycloset.features.tabs.home.presentation.SelectedItemViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
-import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -61,8 +63,11 @@ val sharedModule = module {
     viewModelOf(::HomeTabViewModel)
     viewModelOf(::AddItemScreenViewModel)
     viewModelOf(::ProfileTabViewModel)
+    viewModelOf(::CategoryItemsViewModel)
+    viewModelOf(::SelectedItemViewModel)
 
     viewModelOf(::SelectedSwapViewModel)
+    viewModelOf(::AddSwapViewModel)
     viewModelOf(::SwapViewModel)
     viewModelOf(::LoginViewModel)
     viewModelOf(::MessageViewModel)

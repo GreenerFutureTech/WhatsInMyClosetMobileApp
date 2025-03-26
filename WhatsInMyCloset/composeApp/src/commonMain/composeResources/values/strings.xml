@@ -25,6 +25,9 @@
     <string name="complete_swap_dialog_message">Are you sure you want to complete this swap?</string>
     <string name="delete_swap_dialog_title">Delete Swap</string>
     <string name="delete_swap_dialog_message">Are you sure you want to delete this swap?</string>
+    <string name="item_size">SIZE</string>
+    <string name="item_condition">CONDITION</string>
+    <string name="item_brand">BRAND</string>
 
     <!-- Home tab strings -->
     <string name="category_label_tops">Tops</string>
@@ -38,6 +41,9 @@
     <string name="create_outfit_button">Create Outfit</string>
     <string name="outfit_day_button">Outfit of the Day</string>
     <string name="no_wardrobe_found">No wardrobe found!</string>
+    <string name="add_new_item_button">Add New Item</string>
+    <string name="no_item_category">No items in this category</string>
+    <string name="item_name">NAME</string>
 
     <!-- Notification strings -->
     <string name="notification_sent">Sent</string>

@@ -1,7 +1,6 @@
 package org.greenthread.whatsinmycloset.core.network
 
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.delete
@@ -15,15 +14,20 @@ import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.client.statement.*
+import io.ktor.utils.io.core.buildPacket
+import io.ktor.utils.io.core.writeFully
 import org.greenthread.whatsinmycloset.core.data.safeCall
 import org.greenthread.whatsinmycloset.core.domain.DataError
 import org.greenthread.whatsinmycloset.core.domain.Result
+import org.greenthread.whatsinmycloset.core.dto.CreateSwapRequestDto
 import org.greenthread.whatsinmycloset.core.dto.ItemDto
 import org.greenthread.whatsinmycloset.core.dto.MessageDto
+import org.greenthread.whatsinmycloset.core.dto.OtherSwapDto
 import org.greenthread.whatsinmycloset.core.dto.SendMessageRequest
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.dto.SwapStatusDto
 import org.greenthread.whatsinmycloset.core.dto.UserDto
+import org.greenthread.whatsinmycloset.core.persistence.WardrobeEntity
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.Notification
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.NotificationDto
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.NotificationType
@@ -47,10 +51,10 @@ class KtorRemoteDataSource(
         }
     }
 
-    override suspend fun getOtherUsersSwaps(currentUserId: String): Result<List<SwapDto>, DataError.Remote> {
+    override suspend fun getFriendsSwaps(currentUserId: String): Result<List<OtherSwapDto>, DataError.Remote> {
         return safeCall {
             httpClient.get(
-                urlString = "$BASE_URL/swaps/others/$currentUserId"
+                urlString = "$BASE_URL/swaps/friends/$currentUserId"
             )
         }
     }
@@ -60,6 +64,18 @@ class KtorRemoteDataSource(
             httpClient.get(
                 urlString = "$BASE_URL/swaps"
             )
+        }
+    }
+
+    override suspend fun createSwap(swap: CreateSwapRequestDto): Result<CreateSwapRequestDto, DataError.Remote> {
+        return safeCall {
+            println("CREATE SWAP REQUEST : ${swap}")
+            httpClient.post(
+                urlString = "$BASE_URL/swaps"
+            ) {
+                contentType(ContentType.Application.Json)
+                setBody(swap)
+            }
         }
     }
 
@@ -123,6 +139,12 @@ class KtorRemoteDataSource(
                 contentType(ContentType.Application.Json)
                 setBody(request)
             }
+        }
+    }
+
+    override suspend fun getUnread(userId: Int): Result<String, DataError.Remote> {
+        return safeCall {
+            httpClient.get("$BASE_URL/messages/$userId/unread")
         }
     }
 
@@ -218,11 +240,29 @@ class KtorRemoteDataSource(
         }
     }
 
+    //Wardrobes
+    suspend fun getAllWardrobesForUser(userId: String): Result<List<WardrobeEntity>, DataError.Remote> {
+        return safeCall {
+            httpClient.get("$BASE_URL/wardrobes/user/$userId")
+        }
+    }
+
+    suspend fun AddWardrobe(wardrobe: WardrobeEntity): Result<List<WardrobeEntity>, DataError.Remote> {
+        return safeCall {
+            httpClient.post(
+                "$BASE_URL/wardrobes"
+            ) {
+                contentType(ContentType.Application.Json)
+                setBody(wardrobe)
+            }
+        }
+    }
+
     //Items
 
-    suspend fun getAllItems(): Result<List<ItemDto>, DataError.Remote> {
+    suspend fun getAllItemsForUser(userId: String): Result<List<ItemDto>, DataError.Remote> {
         return safeCall {
-            httpClient.get("$BASE_URL/item")
+            httpClient.get("$BASE_URL/item/user/$userId")
         }
     }
 
@@ -241,23 +281,31 @@ class KtorRemoteDataSource(
         }
     }
 
-    suspend fun createItemWithFileUpload(item: ItemDto, file: ByteArray?): Result<ItemDto, DataError.Remote> {
+    suspend fun createItemWithFileUpload(
+        item: ItemDto,
+        file: ByteArray?
+    ): Result<ItemDto, DataError.Remote> {
         return safeCall {
             httpClient.post("$BASE_URL/item/upload") {
                 contentType(ContentType.MultiPart.FormData)
                 setBody(
                     MultiPartFormDataContent(
                         formData {
-                            append("id", item.id)
+                            append("name", item.name)
                             append("wardrobeId", item.wardrobeId)
                             append("itemType", item.itemType)
                             append("tags", item.tags.joinToString(","))
+                            append("brand", item.brand)
+                            append("condition", item.condition)
+                            append("size", item.size)
                             append("createdAt", item.createdAt)
 
                             // Optional file upload
                             file?.let {
-                                append("file", it, Headers.build {
-                                    append(HttpHeaders.ContentDisposition, "form-data; name=\"file\"; filename=\"file.jpg\"")
+
+                                append("file", file, Headers.build {
+                                    append(HttpHeaders.ContentType, "image/bmp")
+                                    append(HttpHeaders.ContentDisposition, "name=\"file.bmp\"; filename=test.bmp")
                                 })
                             }
                         }
@@ -268,37 +316,47 @@ class KtorRemoteDataSource(
     }
 
 
-    suspend fun uploadFile(file: ByteArray): Result<String, DataError.Remote> {
-        return safeCall {
-            println("Uploading File...")
-
-            val response = httpClient.post("$BASE_URL/blob/upload") {
-                contentType(ContentType.MultiPart.FormData)
-                setBody(
-                    MultiPartFormDataContent(
-                        formData {
-                            append(
-                                key = "file", // Ensure this matches the expected field name
-                                value = file,
-                                headers = Headers.build {
-                                    append(HttpHeaders.ContentDisposition, "form-data; name=\"file\"; filename=\"file.png\"")
-                                    append(HttpHeaders.ContentType, "image/png")
+    suspend fun uploadFile(
+        byteArray: Any?,
+        fileName: String = "image.bmp"
+    ): Result<String, DataError.Remote> {
+        val data = byteArray as ByteArray
+            return safeCall {
+                val response: HttpResponse = httpClient.post("$BASE_URL/blob/upload") {
+                    contentType(ContentType.MultiPart.FormData)
+                    setBody(
+                        MultiPartFormDataContent(
+                            formData {
+                                appendInput(
+                                    key = "file",
+                                    headers = Headers.build {
+                                        append(HttpHeaders.ContentDisposition, "form-data; name=\"file\"; filename=\"$fileName\"")
+                                        append(HttpHeaders.ContentType, "image/bmp") // Ensure correct MIME type
+                                    }) {
+                                    buildPacket { writeFully(data) }
                                 }
-                            )
-                        }
+                            }
+                        )
                     )
-                )
+                }
+                response
             }
-
-            println("Upload Response: ${response.status}")
-            println("Response Body: ${response.bodyAsText()}")
-
-            response.body()
-        }
     }
 
+    suspend fun uploadImage(filename: String, imageBytes: ByteArray): Result<String, DataError.Remote> {
+        return safeCall {
+            httpClient.post("$BASE_URL/blob/upload") {
 
-
-
-
+                setBody(MultiPartFormDataContent(
+                    formData {
+                        append("file", imageBytes, Headers.build {
+                            append(HttpHeaders.ContentType, "image/bmp")
+                            append(HttpHeaders.ContentDisposition, "name=\"file.bmp\"; filename=test.bmp")
+                        })
+                    }
+                ))
+            }
+        }
+    }
 }
+

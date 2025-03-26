@@ -8,6 +8,7 @@ import androidx.room.Query
 import androidx.room.Relation
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
+import org.greenthread.whatsinmycloset.core.persistence.ClothingItemEntity
 import org.greenthread.whatsinmycloset.core.persistence.ItemEntity
 import org.greenthread.whatsinmycloset.core.persistence.OutfitEntity
 import org.greenthread.whatsinmycloset.core.persistence.OutfitItemJoin
@@ -56,5 +57,5 @@ data class OutfitWithItems(
             entityColumn = "itemId"    // Refers to the itemId column in OutfitItemJoin
         )
     )
-    val items: List<ItemEntity>
+    val items: List<ClothingItemEntity>
 )

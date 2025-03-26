@@ -18,13 +18,15 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.features.screens.notifications.presentation.NotificationsViewModel
+import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.MessageViewModel
 import org.greenthread.whatsinmycloset.getFCMToken
 
 
 class LoginViewModel(
     private val userRepository: ClosetRepository,
     private val userManager: UserManager,
-    private val notificationsViewModel: NotificationsViewModel
+    private val notificationsViewModel: NotificationsViewModel,
+    private val messageViewModel: MessageViewModel
 ): ViewModel() {
     private val auth = Firebase.auth
 
@@ -226,6 +228,7 @@ class LoginViewModel(
 
                     userManager.currentUser.value?.retrieveUserId()?.let { userId ->
                         notificationsViewModel.checkForUnreadNotifications(userId)
+                        messageViewModel.checkForUnreadNotifications(userId)
                     }
 
                     val token = getFCMToken()

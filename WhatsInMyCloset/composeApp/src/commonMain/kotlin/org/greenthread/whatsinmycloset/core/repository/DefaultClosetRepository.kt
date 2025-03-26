@@ -2,7 +2,9 @@ package org.greenthread.whatsinmycloset.core.repository
 
 import org.greenthread.whatsinmycloset.core.domain.DataError
 import org.greenthread.whatsinmycloset.core.domain.Result
+import org.greenthread.whatsinmycloset.core.dto.CreateSwapRequestDto
 import org.greenthread.whatsinmycloset.core.dto.MessageDto
+import org.greenthread.whatsinmycloset.core.dto.OtherSwapDto
 import org.greenthread.whatsinmycloset.core.dto.SendMessageRequest
 import org.greenthread.whatsinmycloset.core.network.RemoteClosetDataSource
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
@@ -17,12 +19,16 @@ class DefaultClosetRepository(
         return remoteClosetDataSource.getSwaps(userId)
     }
 
-    override suspend fun getOtherUsersSwaps(currentUserId: String): Result<List<SwapDto>, DataError.Remote> {
-        return remoteClosetDataSource.getOtherUsersSwaps(currentUserId)
+    override suspend fun getFriendsSwaps(currentUserId: String): Result<List<OtherSwapDto>, DataError.Remote> {
+        return remoteClosetDataSource.getFriendsSwaps(currentUserId)
     }
 
     override suspend fun getAllSwaps(): Result<List<SwapDto>, DataError.Remote> {
         return remoteClosetDataSource.getAllSwaps()
+    }
+
+    override suspend fun createSwap(swap: CreateSwapRequestDto): Result<CreateSwapRequestDto, DataError.Remote> {
+        return remoteClosetDataSource.createSwap(swap)
     }
 
     override suspend fun updateStatus(itemId: String): Result<SwapStatusDto, DataError.Remote> {
@@ -48,6 +54,10 @@ class DefaultClosetRepository(
 
     override suspend fun updateRead(messageId: Int): Result<String, DataError.Remote> {
         return remoteClosetDataSource.updateRead(messageId)
+    }
+
+    override suspend fun getUnread(userId: Int): Result<String, DataError.Remote> {
+        return remoteClosetDataSource.getUnread(userId)
     }
 
         //============================= User ==================================

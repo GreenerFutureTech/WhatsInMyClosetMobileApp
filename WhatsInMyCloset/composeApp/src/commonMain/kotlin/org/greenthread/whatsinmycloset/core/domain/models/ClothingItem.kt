@@ -1,12 +1,14 @@
 package org.greenthread.whatsinmycloset.core.domain.models
 
 import kotlinx.serialization.Serializable
+import org.greenthread.whatsinmycloset.core.persistence.ClothingItemEntity
 
 enum class ClothingCategory(val categoryName: String) {
     TOPS("Tops"),
     BOTTOMS("Bottoms"),
     FOOTWEAR("Footwear"),
-    ACCESSORIES("Accessories");
+    ACCESSORIES("Accessories"),
+    OTHER("Other");
 
     companion object {
         fun fromString(value: String): ClothingCategory {
@@ -15,6 +17,7 @@ enum class ClothingCategory(val categoryName: String) {
                 "bottoms" -> BOTTOMS
                 "footwear" -> FOOTWEAR
                 "accessories" -> ACCESSORIES
+                "other" -> OTHER
                 else -> throw IllegalArgumentException("Unknown category: $value")
             }
         }
@@ -31,8 +34,25 @@ data class ClothingItem(
     val tags: List<String> = listOf(""),
     //val position: OffsetData? = null, // Add position data
     //val temporaryPosition: OffsetData? = null,
+    val condition: String? = "",
+    val brand: String? = "",
+    val size: String? = "",
     val createdAt: String = ""
 )
+
+fun ClothingItem.toEntity(): ClothingItemEntity {
+    return ClothingItemEntity(
+        id = this.id,
+        wardrobeId = this.wardrobeId,
+        itemType = this.itemType.name, // Assuming ClothingCategory is an enum, convert it to String
+        mediaUrl = this.mediaUrl ?: "",
+        tags = this.tags,
+        condition = this.condition ?:"", // Default or map from another property if available
+        brand = this.brand ?: "", // Default or map from another property if available
+        size = this.size ?: "", // Default or map from another property if available
+        createdAt = this.createdAt
+    )
+}
 
 // Function to give dummy set of clothing to create a test outfit
 fun generateSampleClothingItems(): List<ClothingItem> {
@@ -73,7 +93,7 @@ fun generateRandomClothingItems(category: String, numberOfItems: Int): List<Clot
         val clothingCategory = try {
             ClothingCategory.valueOf(category.uppercase())
         } catch (e: IllegalArgumentException) {
-            ClothingCategory.TOPS // Default fallback
+            ClothingCategory.OTHER // Default fallback
         }
 
         val itemName = when (clothingCategory) {
@@ -81,6 +101,7 @@ fun generateRandomClothingItems(category: String, numberOfItems: Int): List<Clot
             ClothingCategory.BOTTOMS -> "Jeans ${index + 1}"
             ClothingCategory.FOOTWEAR -> "Sneakers ${index + 1}"
             ClothingCategory.ACCESSORIES -> "Hat ${index + 1}"
+            ClothingCategory.OTHER -> "Other ${index + 1}"
         }
 
         val tags = when (clothingCategory) {
@@ -88,6 +109,7 @@ fun generateRandomClothingItems(category: String, numberOfItems: Int): List<Clot
             ClothingCategory.BOTTOMS -> setOf("casual", "denim")
             ClothingCategory.FOOTWEAR -> setOf("sporty", "comfortable")
             ClothingCategory.ACCESSORIES -> setOf("fashionable", "outdoor")
+            ClothingCategory.OTHER -> setOf("unknown")
         }
 
         ClothingItem(

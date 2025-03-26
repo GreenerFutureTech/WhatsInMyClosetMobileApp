@@ -3,7 +3,9 @@ package org.greenthread.whatsinmycloset.core.network
 import org.greenthread.whatsinmycloset.core.domain.DataError
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.domain.Result
+import org.greenthread.whatsinmycloset.core.dto.CreateSwapRequestDto
 import org.greenthread.whatsinmycloset.core.dto.MessageDto
+import org.greenthread.whatsinmycloset.core.dto.OtherSwapDto
 import org.greenthread.whatsinmycloset.core.dto.SwapStatusDto
 import org.greenthread.whatsinmycloset.core.dto.UserDto
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.Notification
@@ -13,8 +15,9 @@ import org.greenthread.whatsinmycloset.features.screens.notifications.domain.mod
 interface RemoteClosetDataSource {
     // Swap
     suspend fun getSwaps(userId: String): Result<List<SwapDto>, DataError.Remote>
-    suspend fun getOtherUsersSwaps(currentUserId: String): Result<List<SwapDto>, DataError.Remote>
+    suspend fun getFriendsSwaps(currentUserId: String): Result<List<OtherSwapDto>, DataError.Remote>
     suspend fun getAllSwaps(): Result<List<SwapDto>, DataError.Remote>
+    suspend fun createSwap(swap: CreateSwapRequestDto): Result<CreateSwapRequestDto, DataError.Remote>
     suspend fun updateStatus(itemId: String): Result<SwapStatusDto, DataError.Remote>
     suspend fun deleteSwap(itemId: String): Result<String, DataError.Remote>
 
@@ -23,6 +26,7 @@ interface RemoteClosetDataSource {
     suspend fun getChatHistory(userId: Int, otherUserId: Int): Result<List<MessageDto>, DataError.Remote>
     suspend fun sendMessage(senderId: Int, receiverId: Int, content: String): Result<MessageDto, DataError.Remote>
     suspend fun updateRead(messageId: Int): Result<String, DataError.Remote>
+    suspend fun getUnread(userId: Int): Result<String, DataError.Remote>
 
     // User
     suspend fun createUser(user: UserDto): Result<UserDto, DataError.Remote>
