@@ -1,6 +1,7 @@
 package org.greenthread.whatsinmycloset.core.network
 
 import io.ktor.client.HttpClient
+import io.ktor.client.call.body
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.delete
@@ -16,6 +17,8 @@ import io.ktor.http.contentType
 import io.ktor.client.statement.*
 import io.ktor.utils.io.core.buildPacket
 import io.ktor.utils.io.core.writeFully
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.greenthread.whatsinmycloset.core.data.safeCall
 import org.greenthread.whatsinmycloset.core.domain.DataError
 import org.greenthread.whatsinmycloset.core.domain.Result
@@ -373,8 +376,17 @@ class KtorRemoteDataSource(
     override suspend fun postOutfitForUser(outfit: OutfitDto): Result<OutfitResponse, DataError.Remote> {
         return safeCall {
             httpClient.post("$BASE_URL/outfits") {
-                contentType(ContentType.Application.Json)
-                setBody(outfit)
+                url {
+                    parameters.append("name", outfit.name)
+                    parameters.append("userId", outfit.userId)
+                    // Send items as JSON string with id, x, y
+                    parameters.append("itemIds", Json.encodeToString(outfit.items))
+                    if (outfit.tags.isNotEmpty()) {
+                        parameters.append("tags", Json.encodeToString(outfit.tags))
+                    }
+
+                    println("Request URL: ${url.buildString()}")
+                }
             }.body()
         }
     }

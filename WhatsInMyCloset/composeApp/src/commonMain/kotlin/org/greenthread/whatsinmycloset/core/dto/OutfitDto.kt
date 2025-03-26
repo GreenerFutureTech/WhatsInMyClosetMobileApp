@@ -22,7 +22,7 @@ data class OutfitDto(
 data class OutfitResponse(
     val name: String,
     val userId: String,
-    val itemIds: List<String>,
+    val itemIds: List<OutfitItems>,
     val tags: List<String>,
     val id: String,
     val createdAt: String
