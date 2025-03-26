@@ -56,6 +56,10 @@ class DefaultClosetRepository(
         return remoteClosetDataSource.updateRead(messageId)
     }
 
+    override suspend fun getUnread(userId: Int): Result<String, DataError.Remote> {
+        return remoteClosetDataSource.getUnread(userId)
+    }
+
         //============================= User ==================================
     override suspend fun createUser(user: UserDto): Result<UserDto, DataError.Remote> {
         return remoteClosetDataSource.createUser(user)

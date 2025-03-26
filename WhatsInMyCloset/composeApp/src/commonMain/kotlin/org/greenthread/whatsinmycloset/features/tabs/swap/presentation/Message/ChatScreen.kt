@@ -7,13 +7,21 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,10 +34,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import coil3.compose.AsyncImage
+import kotlinx.coroutines.launch
+import org.greenthread.whatsinmycloset.app.Routes
 import org.greenthread.whatsinmycloset.core.domain.models.MessageManager
 import org.greenthread.whatsinmycloset.core.dto.MessageUserDto
+import org.greenthread.whatsinmycloset.features.screens.notifications.presentation.NotificationsViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.data.MessageListState
+import org.greenthread.whatsinmycloset.features.tabs.swap.domain.SwapEventBus
 import org.greenthread.whatsinmycloset.theme.outlineLight
 import org.greenthread.whatsinmycloset.theme.secondaryLight
 import org.greenthread.whatsinmycloset.theme.surfaceDimLight
@@ -51,6 +64,26 @@ fun ChatScreen(
     )
     val currentUserId = viewModel.currentUser.value?.id
     val otherUser = MessageManager.currentOtherUser
+
+    // Listen for new message events
+    val coroutineScope = rememberCoroutineScope()
+    val newNotificationState by SwapEventBus.newNotificationEvent.collectAsState(initial = null)
+
+    // Trigger refresh when new notification arrives
+    LaunchedEffect(newNotificationState) {
+        newNotificationState?.let { _ ->
+            if (currentUserId != null && otherUser != null) {
+                coroutineScope.launch {
+                    try {
+                        // Refresh chat history when a new notification is received
+                        viewModel.fetchChatHistory(currentUserId, otherUser.id)
+                    } catch (e: Exception) {
+                        println("MESSAGE SCREEN REFRESH ERROR: ${e.message}")
+                    }
+                }
+            }
+        }
+    }
 
     if (currentUserId != null && otherUser != null) {
         val otherUserId = otherUser.id
@@ -111,7 +144,7 @@ fun ChatTitle(
         modifier = modifier
             .padding(horizontal = 10.dp)
             .fillMaxWidth(),
-        horizontalArrangement = Arrangement.Start
+        horizontalArrangement = Arrangement.Center
     ) {
         var loadFailed by remember { mutableStateOf(false) }
         @OptIn(ExperimentalResourceApi::class)

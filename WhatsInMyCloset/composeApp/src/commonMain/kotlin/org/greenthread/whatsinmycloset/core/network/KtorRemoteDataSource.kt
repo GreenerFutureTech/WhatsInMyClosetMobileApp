@@ -17,6 +17,7 @@ import io.ktor.http.contentType
 import io.ktor.client.statement.*
 import io.ktor.utils.io.core.buildPacket
 import io.ktor.utils.io.core.writeFully
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.greenthread.whatsinmycloset.core.data.safeCall
@@ -140,6 +141,12 @@ class KtorRemoteDataSource(
                 contentType(ContentType.Application.Json)
                 setBody(jsonRequest)
             }
+        }
+    }
+
+    override suspend fun getUnread(userId: Int): Result<String, DataError.Remote> {
+        return safeCall {
+            httpClient.get("$BASE_URL/messages/$userId/unread")
         }
     }
 
