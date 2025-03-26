@@ -231,9 +231,9 @@ fun OutfitOfTheDayCalendar(
             confirmButton = {
                 TextButton(onClick = {
                     showDiscardDialog = false
+                    navController.navigate(Routes.HomeTab)  // Only navigate after user confirms
                 }) {
                     Text("Yes")
-                    navController.navigate(Routes.HomeTab)  // go baqck to home tab
                 }
             },
             dismissButton = {
