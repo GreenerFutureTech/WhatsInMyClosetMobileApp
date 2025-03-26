@@ -22,11 +22,13 @@ import kotlinx.serialization.json.Json
 import org.greenthread.whatsinmycloset.core.data.safeCall
 import org.greenthread.whatsinmycloset.core.domain.DataError
 import org.greenthread.whatsinmycloset.core.domain.Result
+import org.greenthread.whatsinmycloset.core.dto.CalendarDto
 import org.greenthread.whatsinmycloset.core.dto.CreateSwapRequestDto
 import org.greenthread.whatsinmycloset.core.dto.ItemDto
 import org.greenthread.whatsinmycloset.core.dto.MessageDto
 import org.greenthread.whatsinmycloset.core.dto.OtherSwapDto
 import org.greenthread.whatsinmycloset.core.dto.OutfitDto
+import org.greenthread.whatsinmycloset.core.dto.OutfitResponse
 import org.greenthread.whatsinmycloset.core.dto.SendMessageRequest
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.dto.SwapStatusDto
@@ -343,12 +345,30 @@ class KtorRemoteDataSource(
     }
 
     // outfits -- post outfits
-    override suspend fun postOutfitForUser(outfit: OutfitDto): Result<List<OutfitDto>, DataError.Remote> {
+    override suspend fun postOutfitForUser(outfit: OutfitDto): Result<OutfitResponse, DataError.Remote> {
         return safeCall {
             httpClient.post("$BASE_URL/outfits") {
                 contentType(ContentType.Application.Json)
                 setBody(outfit)
+            }.body()
+        }
+    }
+
+    // calendar -- post outfit to calendar
+    override suspend fun postOutfitToCalendar(calendarDto: CalendarDto): Result<List<CalendarDto>, DataError.Remote> {
+        return safeCall {
+            httpClient.post("$BASE_URL/calendar") {
+                contentType(ContentType.Application.Json)
+                setBody(calendarDto)
             }
+        }
+    }
+
+
+    // calendar -- get outfit from calendar
+    override suspend fun getAllOutfitsFromCalendar(userId: String): Result<List<CalendarDto>, DataError.Remote> {
+        return safeCall {
+            httpClient.get("$BASE_URL/calendar/user/$userId")
         }
     }
 

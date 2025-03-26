@@ -11,11 +11,11 @@ class Converters {
     private val json = Json { ignoreUnknownKeys = true }
 
     @TypeConverter
-    fun outfitItemsToString(items: List<OutfitItem>): String =
+    fun outfitItemsToString(items: List<OutfitItems>): String =
         json.encodeToString(items)
 
     @TypeConverter
-    fun stringToOutfitItems(jsonString: String): List<OutfitItem> =
+    fun stringToOutfitItems(jsonString: String): List<OutfitItems> =
         json.decodeFromString(jsonString)
 
     @TypeConverter

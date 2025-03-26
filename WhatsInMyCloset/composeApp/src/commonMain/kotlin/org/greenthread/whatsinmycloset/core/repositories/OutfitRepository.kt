@@ -1,22 +1,22 @@
 package org.greenthread.whatsinmycloset.core.repositories
 
+import io.ktor.serialization.JsonConvertException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.greenthread.whatsinmycloset.core.data.daos.OutfitDao
-import org.greenthread.whatsinmycloset.core.domain.DataError
-import org.greenthread.whatsinmycloset.core.domain.EmptyResult
-import org.greenthread.whatsinmycloset.core.domain.Result
 import org.greenthread.whatsinmycloset.core.domain.getOrNull
 import org.greenthread.whatsinmycloset.core.domain.isSuccess
-import org.greenthread.whatsinmycloset.core.domain.models.OffsetData
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.domain.models.toDomain
 import org.greenthread.whatsinmycloset.core.domain.models.toEntity
-import org.greenthread.whatsinmycloset.core.dto.OffsetDataDto
 import org.greenthread.whatsinmycloset.core.dto.OutfitDto
+import org.greenthread.whatsinmycloset.core.dto.OutfitResponse
 import org.greenthread.whatsinmycloset.core.network.KtorRemoteDataSource
 import org.greenthread.whatsinmycloset.core.persistence.OutfitEntity
+import org.greenthread.whatsinmycloset.core.persistence.OutfitItems
 
 /*
     Handles database operations for outfits, including inserting, deleting, and fetching outfits.
@@ -28,20 +28,47 @@ open class OutfitRepository(
     private val outfitDao: OutfitDao,
     val remoteSource: KtorRemoteDataSource
 ) {
+    // Add this JSON serializer instance
+    private val json = Json {
+        ignoreUnknownKeys = true
+        encodeDefaults = true
+    }
+
     // first insert outfit in backend and then add it to room
     suspend fun saveOutfit(outfit: Outfit): Boolean {
         return try {
             // 1. First save to backend
             val remoteResult = remoteSource.postOutfitForUser(outfit.toDto())
 
+            println("Server response: $remoteResult")
+
             // 2. If successful, save to local database
             if (remoteResult.isSuccess()) {
-                outfitDao.insertOutfit(outfit.toEntity())
+                // Use the server-generated ID for local storage
+                val serverOutfit = remoteResult.getOrNull()
+
+                if(serverOutfit != null)
+                {
+                    val entity = OutfitEntity(
+                        outfitId = serverOutfit.id, // Use server-generated ID
+                        name = serverOutfit.name,
+                        creatorId = serverOutfit.userId.toInt(),
+                        items = json.encodeToString(outfit.items),
+                        tags = json.encodeToString(outfit.tags)
+                    )
+                    outfitDao.insertOutfit(entity)
+                }
+
                 true
             } else {
                 false
             }
+        } catch (e: JsonConvertException) {
+            // Handle specific JSON parsing error
+            false
         } catch (e: Exception) {
+            // Log the actual error for debugging
+            e.printStackTrace()
             false
         }
     }
@@ -70,19 +97,15 @@ open class OutfitRepository(
     }
 
     // Add this conversion function to your Outfit class
-    private fun Outfit.toDto(): OutfitDto = OutfitDto(
-        id = this.id,
-        name = this.name,
-        creatorId = this.creatorId,
-        items = this.items.mapValues { (_, offset) ->
-            OffsetDataDto(offset.x, offset.y)
-        },
-        tags = this.tags,
-        calendarDates = this.calendarDates.map { it.toString() },
-        createdAt = this.createdAt
-    )
-
-    // Add to your OffsetData class
-    private fun OffsetData.toDto() = OffsetDataDto(x, y)
+    fun Outfit.toDto(): OutfitDto {
+        return OutfitDto(
+            name = name,
+            items = items.map { (id, offsetData) ->
+                OutfitItems(id = id, x = offsetData.x.toString(), y = offsetData.y.toString()) // Ensure correct field mapping
+            },
+            userId = creatorId.toString(),
+            tags = tags
+        )
+    }
 
 }

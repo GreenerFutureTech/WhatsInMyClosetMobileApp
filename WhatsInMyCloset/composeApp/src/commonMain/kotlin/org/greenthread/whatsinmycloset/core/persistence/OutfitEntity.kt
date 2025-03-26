@@ -76,10 +76,10 @@ data class OutfitEntity(
 
 @Serializable
 @Embeddable
-data class OutfitItem(
+data class OutfitItems(
     val id: String,  // The item ID
-    val x: Float,    // X position
-    val y: Float     // Y position
+    val x: String,    // X position
+    val y: String     // Y position
 )
 
 annotation class Embeddable

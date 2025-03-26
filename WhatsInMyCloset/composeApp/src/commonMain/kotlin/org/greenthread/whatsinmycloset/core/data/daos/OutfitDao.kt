@@ -2,6 +2,7 @@ package org.greenthread.whatsinmycloset.core.data.daos
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 import org.greenthread.whatsinmycloset.core.persistence.ClothingItemEntity
@@ -19,7 +20,7 @@ import org.greenthread.whatsinmycloset.core.persistence.OutfitEntity
 @Dao
 interface OutfitDao {
     // Insert an outfit
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)    // to avoid outfit id conflict
     suspend fun insertOutfit(outfit: OutfitEntity)
 
     // Delete an outfit

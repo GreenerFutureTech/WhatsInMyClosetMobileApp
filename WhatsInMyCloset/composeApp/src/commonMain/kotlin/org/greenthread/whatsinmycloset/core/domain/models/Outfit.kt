@@ -5,12 +5,8 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.Serializable
-import org.greenthread.whatsinmycloset.core.dto.OutfitDto
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.greenthread.whatsinmycloset.core.persistence.OutfitEntity
-import org.greenthread.whatsinmycloset.core.persistence.OutfitItem
 
 /*
 * This class provide methods for conversion to/from OutfitDto and OutfitEntity
@@ -55,6 +51,15 @@ fun Outfit.toEntity(): OutfitEntity {
         items = items,
         tags = tags,
         calendarDates = calendarDates.map { it.toString() }
+    )
+}
+
+// function to covert Outfit to Calendar Entry
+fun Outfit.toCalendarEntry(userId: String): CalendarEntry {
+    return CalendarEntry(
+        outfitId = id,
+        userId = userId,
+        date = createdAt
     )
 }
 

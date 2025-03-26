@@ -1,12 +1,7 @@
 package org.greenthread.whatsinmycloset.core.dto
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
-import org.greenthread.whatsinmycloset.core.domain.models.OffsetData
-import org.greenthread.whatsinmycloset.core.persistence.OutfitEntity
-import org.greenthread.whatsinmycloset.core.persistence.OutfitItem
+import org.greenthread.whatsinmycloset.core.persistence.OutfitItems
 
 /*
 *   Represents the data transfer object (DTO) for Outfit
@@ -17,18 +12,19 @@ import org.greenthread.whatsinmycloset.core.persistence.OutfitItem
 
 @Serializable
 data class OutfitDto(
-    val id: String,
-    val creatorId: Int,
     val name: String = "",
-    val items: Map<String, OffsetDataDto>,
+    val items: List<OutfitItems>,
+    val userId: String,
     val tags: List<String> = emptyList(),
-    val calendarDates: List<String> = emptyList(),
-    val createdAt: String = ""
 )
 
 @Serializable
-data class OffsetDataDto(
-    val x: Float,
-    val y: Float
+data class OutfitResponse(
+    val name: String,
+    val userId: String,
+    val itemIds: List<String>,
+    val tags: List<String>,
+    val id: String,
+    val createdAt: String
 )
 

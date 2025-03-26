@@ -1,28 +1,21 @@
 package org.greenthread.whatsinmycloset.core.managers
 
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first // Import the first function for Flow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
-import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import org.greenthread.whatsinmycloset.core.domain.DataError
-import org.greenthread.whatsinmycloset.core.domain.EmptyResult
 import org.greenthread.whatsinmycloset.core.domain.models.OffsetData
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.domain.models.toEntity
-import org.greenthread.whatsinmycloset.core.persistence.OutfitItem
 import org.greenthread.whatsinmycloset.core.repositories.OutfitRepository
-import org.greenthread.whatsinmycloset.core.domain.EmptyResult.Success
-import org.greenthread.whatsinmycloset.core.domain.EmptyResult.Error
+
 
 /*
 * Manages business logic for outfits, including creating, saving, updating, and retrieving outfits.
