@@ -1,5 +1,10 @@
 package org.greenthread.whatsinmycloset.features.tabs.profile.presentation
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,6 +20,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -110,6 +116,7 @@ private fun ProfileContent(
     navController: NavController,
     modifier: Modifier = Modifier
 ) {
+    val state by viewModel.state.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
     val searchResults by viewModel.searchResult.collectAsState()
 
@@ -137,10 +144,41 @@ private fun ProfileContent(
 
                 Spacer(Modifier.width(8.dp))
 
-                Button(onClick = { viewModel.searchUser() }) {
-                    Text("Search")
+                Button(onClick = {
+                    if (searchResults != null) {
+                        viewModel.clearSearchResults()
+                    } else {
+                        viewModel.searchUser()
+                    }
+                }) {
+                    Text(if (searchResults != null) "Clear" else "Search")
                 }
+            }
 
+            if (state.isSearching) {
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .align(Alignment.CenterHorizontally)
+                )
+            }
+
+            state.error?.takeIf { state.isSearching }?.let { error ->
+                Text(
+                    text = "Search failed: ${error.take(50)}", // Limiting error length
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .align(Alignment.CenterHorizontally),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+
+            AnimatedVisibility(
+                visible = searchResults != null,
+                enter = fadeIn() + expandVertically(),
+                exit = fadeOut() + shrinkVertically()
+            ) {
                 searchResults?.let { foundUser ->
                     UserSearchResult(
                         user = foundUser,
@@ -181,7 +219,6 @@ private fun ProfileContent(
             onSeeAll = onAllSwapClick
         )
 
-
         OutfitSectionTitle(Res.string.my_outfits_title)
 
     }
@@ -197,7 +234,7 @@ private fun UserSearchResult(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(vertical = 8.dp) // Adjusted padding
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
