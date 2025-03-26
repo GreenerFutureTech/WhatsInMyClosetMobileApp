@@ -1,5 +1,6 @@
 package org.greenthread.whatsinmycloset.core.viewmodels
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,6 +9,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.greenthread.whatsinmycloset.core.data.daos.ClothingItemDao
+import kotlinx.datetime.LocalDate
+import org.greenthread.whatsinmycloset.core.data.daos.ItemDao
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.domain.models.OffsetData
@@ -214,12 +217,25 @@ open class OutfitViewModel
         _temporaryPositions.value = updatedPositions
     }
 
+    private val _selectedDate = MutableStateFlow<String?>(null)
+    val selectedDate: StateFlow<String?> = _selectedDate
+
+    fun setSelectedDate(date: String) {
+        _selectedDate.value = date
+    }
+
     // Add outfit to calendar
-    open fun addOutfitToCalendar(date: String) {
+    // TODO Update date in Calendar Entity
+    open fun addOutfitToCalendar(dateString: String) {
+
+        val localDate = kotlinx.datetime.LocalDate.parse(dateString)
+
         _currentOutfit.value?.let { outfit ->
-            _calendarEvents.value = _calendarEvents.value + "$date: ${outfit.name}"
+            _calendarEvents.value = _calendarEvents.value + "$localDate: ${outfit.name}"
         }
     }
+
+    // TODO get outfit for the dates for calendar
 
     open fun clearOutfitState() {
         _currentOutfit.value = null // Clear the current outfit

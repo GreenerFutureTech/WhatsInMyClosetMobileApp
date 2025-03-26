@@ -1,7 +1,6 @@
 package org.greenthread.whatsinmycloset.core.network
 
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.delete
@@ -17,8 +16,6 @@ import io.ktor.http.contentType
 import io.ktor.client.statement.*
 import io.ktor.utils.io.core.buildPacket
 import io.ktor.utils.io.core.writeFully
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import org.greenthread.whatsinmycloset.core.data.safeCall
 import org.greenthread.whatsinmycloset.core.domain.DataError
 import org.greenthread.whatsinmycloset.core.domain.Result
@@ -32,11 +29,14 @@ import org.greenthread.whatsinmycloset.core.dto.SwapStatusDto
 import org.greenthread.whatsinmycloset.core.dto.UserDto
 import org.greenthread.whatsinmycloset.core.persistence.WardrobeEntity
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.Notification
+import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.NotificationDto
+import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.NotificationType
+import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.SendNotificationRequest
 import org.greenthread.whatsinmycloset.getPlatform
 
 private val platform = getPlatform()
 //private val BASE_URL = if (platform.name == "iOS") "http://127.0.0.1:13000" else "http://10.0.2.2:13000"
-private val BASE_URL = "https://green-api-c9h6f7huhuezbuhv.eastus2-01.azurewebsites.net"
+private const val BASE_URL = "https://green-api-c9h6f7huhuezbuhv.eastus2-01.azurewebsites.net"
 
 
 class KtorRemoteDataSource(
@@ -131,27 +131,32 @@ class KtorRemoteDataSource(
                 content = content
             )
 
-            val jsonRequest = Json.encodeToString(request)
-            println("SEND MESSAGE REQUEST ${jsonRequest}")
+            println("SEND MESSAGE REQUEST $request")
 
             httpClient.post(
                 urlString = "$BASE_URL/messages"
             ) {
                 contentType(ContentType.Application.Json)
-                setBody(jsonRequest)
+                setBody(request)
             }
+        }
+    }
+
+    override suspend fun getUnread(userId: Int): Result<String, DataError.Remote> {
+        return safeCall {
+            httpClient.get("$BASE_URL/messages/$userId/unread")
         }
     }
 
     //============================= Notification ==================================
 
-    suspend fun getUserNotifications(userId: Int): Result<List<Notification>, DataError.Remote> {
+    override suspend fun getUserNotifications(userId: Int): Result<List<Notification>, DataError.Remote> {
         return safeCall {
             httpClient.get("$BASE_URL/notifications/${userId}")
         }
     }
 
-    suspend fun updateNotificationRead(notificationId: Int): Result<String, DataError.Remote> {
+    override suspend fun updateNotificationRead(notificationId: Int): Result<String, DataError.Remote> {
         return safeCall {
             httpClient.patch(
                 urlString = "$BASE_URL/notifications/$notificationId/read"
@@ -159,7 +164,7 @@ class KtorRemoteDataSource(
         }
     }
 
-    suspend fun dismissNotification(notificationId: Int): Result<String, DataError.Remote> {
+    override suspend fun dismissNotification(notificationId: Int): Result<String, DataError.Remote> {
         return safeCall {
             httpClient.delete(
                 urlString = "$BASE_URL/notifications/$notificationId"
@@ -167,11 +172,31 @@ class KtorRemoteDataSource(
         }
     }
 
-    suspend fun clearNotification(userId: Int): Result<String, DataError.Remote> {
+    override suspend fun clearNotification(userId: Int): Result<String, DataError.Remote> {
         return safeCall {
             httpClient.delete(
                 urlString = "$BASE_URL/notifications/$userId/clear"
             )
+        }
+    }
+
+    override suspend fun sendNotification(userId: Int, title: String, body: String, type : NotificationType, extraData: Map<String, String>?): Result<NotificationDto, DataError.Remote> {
+        return safeCall {
+            val request = SendNotificationRequest(
+                userId = userId,
+                title = title,
+                body = body,
+                type = type,
+                extraData = extraData
+            )
+            println("SEND NOTIFICATION REQUEST $request")
+
+            httpClient.post(
+                urlString = "$BASE_URL/notifications"
+            ) {
+                contentType(ContentType.Application.Json)
+                setBody(request)
+            }
         }
     }
 

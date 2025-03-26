@@ -19,15 +19,32 @@ class MainActivity : ComponentActivity() {
         notificationManager.initialize()
         val photoManager = PhotoManager(this)
 
+        NotificationService.isAppInForeground = true
+
         setContent {
             val cameraManager = CameraManager(this)
-            App(cameraManager, notificationManager, photoManager)
+            App(cameraManager, photoManager)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        NotificationService.isAppInForeground = true
+    }
+
+    override fun onPause() {
+        super.onPause()
+        NotificationService.isAppInForeground = false
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        NotificationService.isAppInForeground = false
     }
 }
 
 @Preview
 @Composable
 fun AppAndroidPreview() {
-    App(null, null, null)
+    App(null, null)
 }

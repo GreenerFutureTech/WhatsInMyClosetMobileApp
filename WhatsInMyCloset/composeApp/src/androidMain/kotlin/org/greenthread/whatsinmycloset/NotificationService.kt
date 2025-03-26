@@ -13,8 +13,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.NotificationEventBus
+import org.greenthread.whatsinmycloset.features.tabs.swap.domain.SwapEventBus
 
 class NotificationService : FirebaseMessagingService() {
+
+    companion object {
+        var isAppInForeground = false
+    }
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
@@ -23,29 +28,39 @@ class NotificationService : FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
-        // Handle the incoming FCM message here
         println("Received FCM message: ${remoteMessage.notification?.title}")
 
-        // Display notification to the user
-        remoteMessage.notification?.let { notification ->
-            sendNotification(notification.title, notification.body)
+        // If app is in use, don't show push notifications
+        if (!isAppInForeground) {
+
+            if (remoteMessage.data.isNotEmpty()) {
+                val title = remoteMessage.data["title"] ?: "New Message"
+                val message = remoteMessage.data["message"] ?: "You have a new notification"
+                sendNotification(title, message)
+            }
         }
 
-        // If data payload is present, handle it
-        if (remoteMessage.data.isNotEmpty()) {
-            // Process data payload if needed
-            val title = remoteMessage.data["title"] ?: "New Message"
-            val message = remoteMessage.data["message"] ?: "You have a new notification"
-            sendNotification(title, message)
-        }
+        // Handle specific message types
+        when (remoteMessage.data["type"]) {
+            "new_message" -> {
 
-        CoroutineScope(Dispatchers.IO).launch {
-            NotificationEventBus.emitNewNotification()
+                val messageId = remoteMessage.data["messageId"]
+                CoroutineScope(Dispatchers.IO).launch {
+                    SwapEventBus.emitNewNotification(messageId)
+                }
+            }
+            else -> {
+                CoroutineScope(Dispatchers.IO).launch {
+                    NotificationEventBus.emitNewNotification()
+                }
+            }
         }
     }
 
     private fun sendNotification(title: String?, messageBody: String?) {
         val channelId = "fcm_default_channel"
+
+        // Intent to navigate to notifications screen
         val intent = Intent(this, MainActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             putExtra("NAVIGATE_TO", "notifications")
@@ -55,13 +70,16 @@ class NotificationService : FirebaseMessagingService() {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
+        val notificationTitle = title ?: return
+        val notificationMessage = messageBody ?: return
+
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.drawable.ic_notification) // Create this icon in your drawable folder
-            .setContentTitle(title ?: "Notification")
-            .setContentText(messageBody ?: "You have a new notification")
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(notificationTitle)
+            .setContentText(notificationMessage)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -70,7 +88,7 @@ class NotificationService : FirebaseMessagingService() {
             val channel = NotificationChannel(
                 channelId,
                 "Channel human readable title",
-                NotificationManager.IMPORTANCE_HIGH
+                NotificationManager.IMPORTANCE_DEFAULT
             ).apply {
                 description = "FCM Notifications"
                 enableLights(true)

@@ -8,8 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Modifier
-import org.greenthread.whatsinmycloset.features.tabs.home.CreateNewOutfitTag
-import org.greenthread.whatsinmycloset.features.tabs.home.CalendarDialog
 import org.greenthread.whatsinmycloset.features.tabs.home.ConfirmationDialog
 import org.greenthread.whatsinmycloset.features.tabs.home.DiscardConfirmationDialog
 import org.greenthread.whatsinmycloset.features.tabs.home.DiscardSavingDialog
@@ -195,18 +193,6 @@ fun DiscardSaveOutfitPreview() {
     DiscardSavingDialog(
         onConfirm = {  },
         onDismiss = { /* Preview dismiss */ }
-    )
-}
-
-
-@Preview
-@Composable
-fun AddToCalendarScreenPreview() {
-    CalendarDialog(
-        onDismiss = { /* Preview dismiss */ },
-        onDateSelected = { selectedDate ->
-            println("Selected Date: $selectedDate") // Show the selected date in the log
-        }
     )
 }
 
