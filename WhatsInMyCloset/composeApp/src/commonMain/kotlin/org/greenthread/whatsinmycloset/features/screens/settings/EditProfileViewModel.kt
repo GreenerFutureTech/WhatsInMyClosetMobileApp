@@ -39,6 +39,7 @@ class EditProfileViewModel(
                     httpRepository.updateUser(it)
                         .onSuccess { response ->
                             println("UPDATE USER API SUCCESS: $response")
+                            userManager.updateUser(updatedUser.toModel())
                             callback(true, null)
                         }
                         .onError { error ->
