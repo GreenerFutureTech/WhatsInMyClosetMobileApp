@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -65,44 +66,49 @@ fun EditProfileScreen(
     ) {
         Box(
             modifier = Modifier
-                .size(150.dp)
-                .align(Alignment.CenterHorizontally)
+                .height(200.dp)
+                .fillMaxWidth()
         ) {
-            if (selectedImage != null) {
-                Image(
-                    bitmap = selectedImage!!.toImageBitmap(),
-                    contentDescription = "Selected Profile Image",
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(CircleShape)
-                        .border(1.dp, secondaryLight, CircleShape)
-                )
-            } else {
-                @OptIn(ExperimentalResourceApi::class)
-                AsyncImage(
-                    model = if (profileLoadFailed) Res.getUri("drawable/defaultUser.png")
-                    else currentUser.value?.profilePicture,
-                    contentDescription = "Profile Image",
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(CircleShape)
-                        .border(1.dp, secondaryLight, CircleShape),
-                    onError = { profileLoadFailed = true }
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.padding(top = 10.dp))
-
-        if (isEditMode) {
 
             Box(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                contentAlignment = Alignment.Center
+                    .size(150.dp)
+                    .align(Alignment.TopCenter)
             ) {
-                photoManager.SelectPhotoButton { imageBytes ->
-                    selectedImage = imageBytes
+                if (selectedImage != null) {
+                    Image(
+                        bitmap = selectedImage!!.toImageBitmap(),
+                        contentDescription = "Selected Profile Image",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(CircleShape)
+                            .border(1.dp, secondaryLight, CircleShape)
+                    )
+                } else {
+                    @OptIn(ExperimentalResourceApi::class)
+                    AsyncImage(
+                        model = if (profileLoadFailed) Res.getUri("drawable/defaultUser.png")
+                        else currentUser.value?.profilePicture,
+                        contentDescription = "Profile Image",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(CircleShape)
+                            .border(1.dp, secondaryLight, CircleShape),
+                        onError = { profileLoadFailed = true }
+                    )
+                }
+            }
+
+            if (isEditMode) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.BottomCenter),
+                    contentAlignment = Alignment.Center
+                ) {
+                    photoManager.SelectPhotoButton { imageBytes ->
+                        selectedImage = imageBytes
+                    }
                 }
             }
         }
@@ -124,7 +130,9 @@ fun EditProfileScreen(
         }
 
         if (!isEditMode) {
+            Spacer(modifier = Modifier.padding(top = 10.dp))
             HorizontalDivider(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp))
+
             Column(modifier = Modifier.padding(bottom = 8.dp)) {
                 Text(
                     text = stringResource(Res.string.name_text),
