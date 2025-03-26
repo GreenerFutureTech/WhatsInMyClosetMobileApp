@@ -12,6 +12,7 @@ import kotlinx.coroutines.withContext
 import org.greenthread.whatsinmycloset.core.domain.DataError
 import org.greenthread.whatsinmycloset.core.domain.Result
 import org.greenthread.whatsinmycloset.core.domain.getOrNull
+import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.domain.models.toEntity
@@ -57,6 +58,10 @@ open class WardrobeManager(
 
     fun getItems(): List<ClothingItem> {
         return cachedItems.value
+    }
+
+    fun getItemsByCategory(category: ClothingCategory): List<ClothingItem> {
+        return cachedItems.value.filter { it.itemType == category }
     }
 
     // Suspending function to load wardrobes

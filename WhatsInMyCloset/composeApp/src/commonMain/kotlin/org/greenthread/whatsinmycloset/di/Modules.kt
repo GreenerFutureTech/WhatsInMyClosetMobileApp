@@ -28,6 +28,8 @@ import org.greenthread.whatsinmycloset.features.screens.addItem.presentation.Add
 import org.greenthread.whatsinmycloset.features.screens.notifications.data.NotificationRepository
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabViewModel
 import org.greenthread.whatsinmycloset.features.screens.settings.EditProfileViewModel
+import org.greenthread.whatsinmycloset.features.tabs.home.presentation.CategoryItemsViewModel
+import org.greenthread.whatsinmycloset.features.tabs.home.presentation.SelectedItemViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
@@ -62,6 +64,8 @@ val sharedModule = module {
     viewModelOf(::HomeTabViewModel)
     viewModelOf(::AddItemScreenViewModel)
     viewModelOf(::ProfileTabViewModel)
+    viewModelOf(::CategoryItemsViewModel)
+    viewModelOf(::SelectedItemViewModel)
 
     viewModelOf(::SelectedSwapViewModel)
     viewModelOf(::AddSwapViewModel)

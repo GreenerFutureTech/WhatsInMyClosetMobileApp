@@ -198,7 +198,6 @@ actual class NotificationManager(private val context: Context) {
             println("FCM TOKEN: $token")
         })
     }
-
 }
 
 actual fun ByteArray.toImageBitmap(): ImageBitmap {
