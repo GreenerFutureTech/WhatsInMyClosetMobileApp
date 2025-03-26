@@ -55,7 +55,6 @@ fun SwapScreenRoot(
     viewModel: SwapViewModel = koinViewModel(),
     onSwapClick: (OtherSwapDto) -> Unit,
     onAllSwapClick: () -> Unit,
-    onMessageClick: () -> Unit,
     onAddSwapClick: () -> Unit
 ) {
     val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -109,7 +108,6 @@ fun SwapScreenRoot(
                 }
             },
             onAllSwapClick = onAllSwapClick,
-            onMessageClick = onMessageClick,
             onAddSwapClick = onAddSwapClick
         )
     }
@@ -120,7 +118,6 @@ fun SwapScreen(
     state: SwapListState,
     onAction: (SwapAction) -> Unit,
     onAllSwapClick: () -> Unit,
-    onMessageClick: () -> Unit,
     onAddSwapClick: () -> Unit
 ) {
     var searchString by remember { mutableStateOf("") }
@@ -136,28 +133,6 @@ fun SwapScreen(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                modifier = Modifier.height(48.dp),
-                fontSize = 30.sp,
-                fontWeight = FontWeight.Bold,
-                text = stringResource(Res.string.swap_tab_title)
-            )
-
-            Icon(
-                imageVector = Icons.Default.MailOutline,
-                contentDescription = "Messages",
-                modifier = Modifier
-                    .size(40.dp)
-                    .clickable { onMessageClick() }
-            )
-        }
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()

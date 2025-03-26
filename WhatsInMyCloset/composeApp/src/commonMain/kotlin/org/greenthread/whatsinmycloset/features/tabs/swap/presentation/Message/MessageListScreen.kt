@@ -12,6 +12,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,6 +25,7 @@ import androidx.navigation.NavController
 import org.greenthread.whatsinmycloset.app.Routes
 import org.greenthread.whatsinmycloset.core.domain.models.MessageManager
 import org.greenthread.whatsinmycloset.features.tabs.swap.data.MessageListState
+import org.greenthread.whatsinmycloset.features.tabs.swap.domain.SwapEventBus
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -36,6 +38,10 @@ fun MessageListScreen(
         initialValue = MessageListState(),
         lifecycle = lifecycle
     )
+
+    LaunchedEffect(Unit) {
+        SwapEventBus.clearNewNotificationsState()
+    }
 
     Box(
         modifier = Modifier

@@ -45,16 +45,15 @@ class NotificationService : FirebaseMessagingService() {
 
                 val messageId = remoteMessage.data["messageId"]
 
-                println("Message ID message Service: ${messageId}")
-
                 CoroutineScope(Dispatchers.IO).launch {
                     SwapEventBus.emitNewNotification(messageId)
                 }
             }
-        }
-
-        CoroutineScope(Dispatchers.IO).launch {
-            NotificationEventBus.emitNewNotification()
+            else -> {
+                CoroutineScope(Dispatchers.IO).launch {
+                    NotificationEventBus.emitNewNotification()
+                }
+            }
         }
     }
 

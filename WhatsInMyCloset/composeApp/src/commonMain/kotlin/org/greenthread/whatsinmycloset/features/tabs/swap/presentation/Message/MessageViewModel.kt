@@ -3,22 +3,28 @@ package org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import org.greenthread.whatsinmycloset.core.domain.getOrNull
+import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.domain.onError
 import org.greenthread.whatsinmycloset.core.domain.onSuccess
 import org.greenthread.whatsinmycloset.core.dto.UserDto
 import org.greenthread.whatsinmycloset.core.repository.ClosetRepository
+import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.NotificationEventBus
 import org.greenthread.whatsinmycloset.features.tabs.swap.data.MessageListState
+import org.greenthread.whatsinmycloset.features.tabs.swap.domain.SwapEventBus
 
 class MessageViewModel(
     private val swapRepository: ClosetRepository,
-    val userManager: UserManager
+    userManager: UserManager
 ) : ViewModel() {
-    val currentUser = userManager.currentUser
-    val userId = currentUser.value?.id ?: throw IllegalStateException("User ID is null")
+    val currentUser: StateFlow<User?> = userManager.currentUser
 
     private val _state = MutableStateFlow(MessageListState())
     val state = _state
@@ -26,9 +32,32 @@ class MessageViewModel(
             fetchMessageList()
         }
 
-    fun fetchMessageList() {
+
+    @Serializable
+    data class UnreadResponse(val hasUnread: Boolean)
+
+    fun checkForUnreadNotifications(userId: Int?) {
+        if (userId == null) return
+
+
         viewModelScope.launch {
-            if (currentUser == null) {
+            val unread = swapRepository.getUnread(userId)
+            println("FETCH UNREAD RESPONSE: $unread")
+
+            if (unread.getOrNull() != null) {
+                val json = Json.decodeFromString<UnreadResponse>(unread.getOrNull().toString()).hasUnread
+                println("FETCH UNREAD HERE : ${json}")
+                SwapEventBus.setHasNewNotifications(json)
+            }
+        }
+    }
+
+
+
+
+    private fun fetchMessageList() {
+        viewModelScope.launch {
+            if (currentUser.value == null) {
                 println("FETCH MESSAGE LIST: Current user is null")
                 _state.update {
                     it.copy(
@@ -159,38 +188,6 @@ class MessageViewModel(
                 }
         }
     }
-
-//    fun fetchUserById(userId: Int) {
-//        viewModelScope.launch {
-//
-//            println("FETCH USER BY ID : send message from $userId")
-//            _state.update {
-//                it.copy(
-//                    isLoading = true
-//                )
-//            }
-//            swapRepository
-//                .getUserById(userId)
-//                .onSuccess { getResults ->
-//                    println("FETCH USER BY ID API success: $getResults")
-//                    _state.update {
-//                        it.copy(
-//                            isLoading = false,
-//                            getOtherUserInfo = getResults
-//                        )
-//                    }
-//                }
-//                .onError { error ->
-//                    println("SFETCH USER BY ID API ERROR ${error}")
-//                    _state.update {
-//                        it.copy(
-//                            isLoading = false,
-//                            getOtherUserInfo = null
-//                        )
-//                    }
-//                }
-//        }
-//    }
 }
 
 
