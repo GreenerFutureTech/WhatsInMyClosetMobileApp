@@ -127,6 +127,38 @@ private fun ProfileContent(
     ) {
         ProfileHeader(user, isOwnProfile, onFollowClick)
 
+        Spacer(Modifier.height(8.dp))
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            SwapsCount(
+                onClick = {},
+                swapsCount = 10,
+                modifier = Modifier
+                    .weight(1f)
+                    .wrapContentWidth(Alignment.CenterHorizontally)
+            )
+
+            if (isOwnProfile) {
+                FriendsCount(
+                    friendsCount = user.friends?.size ?: 0,
+                    modifier = Modifier
+                        .weight(1f)
+                        .wrapContentWidth(Alignment.CenterHorizontally)
+                )
+            } else {
+                user.id?.let {
+                    ManageFriendButton(
+                        viewModel = viewModel,
+                        targetUserId = it
+                    )
+                }
+            }
+        }
+
         Spacer(Modifier.height(16.dp))
 
         if (isOwnProfile) {
@@ -292,19 +324,15 @@ private fun ProfileHeader(
                 UserBadge()
             }
         }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            ProfileStats(user, isOwnProfile)
-        }
     }
 }
 
 @Composable
 private fun ProfileStats(
     user: User,
-    isOwnProfile: Boolean
+    isOwnProfile: Boolean,
+    viewModel: ProfileTabViewModel,
+    targetUserId: Int
 ) {
     Row(
         modifier = Modifier
@@ -327,13 +355,10 @@ private fun ProfileStats(
                     .wrapContentWidth(Alignment.CenterHorizontally)
             )
         } else {
-            ManageFriendButton(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-                onClick = {},
-                action = Res.string.add_friend_button
-            )
+//            ManageFriendButton(
+//                viewModel = viewModel,
+//                targetUserId = userId
+//            )
         }
     }
 }

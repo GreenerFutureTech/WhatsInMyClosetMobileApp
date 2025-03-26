@@ -18,11 +18,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,6 +36,7 @@ import coil3.compose.AsyncImage
 import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.SwapImageCard
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.SeeAllButton
+import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.Action.SwapAction
 import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
 import org.jetbrains.compose.resources.StringResource
@@ -173,22 +177,31 @@ fun UserBadge() {
 
 @Composable
 fun ManageFriendButton(
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit,
-    action: StringResource
+    viewModel: ProfileTabViewModel,
+    targetUserId: Int,
 ) {
-    Button(
-        onClick = onClick,
-        modifier = modifier,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = if (true) {    // TODO fix logic to add friend button
-                MaterialTheme.colorScheme.secondaryContainer
+    val isLoading by viewModel.isLoading.collectAsState()
+    val error by viewModel.error.collectAsState()
+
+    Column {
+        Button(
+            onClick = { viewModel.sendFriendRequest(targetUserId) },
+            enabled = !isLoading
+        ) {
+            if (isLoading) {
+                CircularProgressIndicator(modifier = Modifier.size(20.dp))
             } else {
-                MaterialTheme.colorScheme.primary
+                Text("Add Friend")
             }
-        )
-    ) {
-        Text(text = stringResource(action))
+        }
+
+        error?.let {
+            Text(
+                text = it,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        }
     }
 }
 

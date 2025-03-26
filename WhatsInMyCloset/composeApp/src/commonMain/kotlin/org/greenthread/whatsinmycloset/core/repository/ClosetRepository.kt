@@ -40,4 +40,10 @@ interface ClosetRepository {
     // Outfit
     suspend fun getAllOutfits(): Result<List<OutfitDto>, DataError.Remote>
     suspend fun getUserByUserName(username: String): Result<UserDto, DataError.Remote>
+
+    // Friend request
+    suspend fun sendFriendRequest(senderId: Int, receiverId: Int): Result<Unit, DataError.Remote>
+//    suspend fun respondToFriendRequest(requestId: Int, status: FriendshipStatus): Result<Unit, DataError.Remote>
+//    suspend fun getReceivedFriendRequests(userId: Int): Result<List<FriendRequest>, DataError.Remote>
+//    suspend fun getSentFriendRequests(userId: Int): Result<List<FriendRequest>, DataError.Remote>
 }

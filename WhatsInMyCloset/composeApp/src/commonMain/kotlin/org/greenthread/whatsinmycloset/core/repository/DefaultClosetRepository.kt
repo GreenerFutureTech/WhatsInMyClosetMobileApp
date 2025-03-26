@@ -90,5 +90,9 @@ class DefaultClosetRepository(
     override suspend fun getUserByUserName(username: String): Result<UserDto, DataError.Remote> {
         return remoteClosetDataSource.getUserByUserName(username)
     }
+
+    override suspend fun sendFriendRequest(senderId: Int, receiverId: Int): Result<Unit, DataError.Remote> {
+        return remoteClosetDataSource.sendFriendRequest(senderId, receiverId)
+    }
 }
 

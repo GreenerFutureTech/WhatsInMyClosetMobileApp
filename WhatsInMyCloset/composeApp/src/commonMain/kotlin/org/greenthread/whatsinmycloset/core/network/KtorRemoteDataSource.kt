@@ -375,5 +375,13 @@ class KtorRemoteDataSource(
             )
         }
     }
+
+    override suspend fun sendFriendRequest(senderId: Int, receiverId: Int): Result<Unit, DataError.Remote> {
+        return safeCall {
+            httpClient.post(
+                urlString = "$BASE_URL/users/$senderId/friend-request/$receiverId"
+            )
+        }
+    }
 }
 

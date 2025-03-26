@@ -18,8 +18,15 @@ class ProfileTabViewModel(
     private val userManager: UserManager
 ) : ViewModel() {
     val currentUser = userManager.currentUser
+
     private val _state = MutableStateFlow(ProfileState())
     val state = _state.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading = _isLoading.asStateFlow()
+
+    private val _error = MutableStateFlow<String?>(null)
+    val error = _error.asStateFlow()
 
     // Search related state
     private val _searchQuery = MutableStateFlow("")
@@ -91,5 +98,28 @@ class ProfileTabViewModel(
 
     fun clearSearchResults() {
         _searchResult.value = null
+    }
+
+    fun sendFriendRequest(receiverId: Int) {
+        viewModelScope.launch {
+            val senderId = currentUser.value?.id ?: run {
+                _error.value = "Not logged in"
+                return@launch
+            }
+
+            _isLoading.value = true
+            _error.value = null
+
+            userRepository.sendFriendRequest(senderId, receiverId)
+                .onSuccess {
+                    // Success! We'll add more later
+                    _error.value = "Friend request sent successfully!" // Temporary feedback
+                }
+                .onError { error ->
+                    _error.value = "Failed to send request: $error"
+                }
+
+            _isLoading.value = false
+        }
     }
 }
