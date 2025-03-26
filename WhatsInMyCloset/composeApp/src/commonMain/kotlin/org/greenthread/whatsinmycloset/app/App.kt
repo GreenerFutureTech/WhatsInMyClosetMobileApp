@@ -142,6 +142,7 @@ fun NavController.getBarVisibility(): BarVisibility {
 
         // Misc
         Routes.SettingsScreen.toString() -> BarVisibility.Custom(onlyBack = true, title = "Settings")
+        Routes.EditProfileScreen.toString() -> BarVisibility.Custom(onlyBack = true, title = "Edit Profile")
 
         // Add more specific route configurations as needed
         else -> BarVisibility.Visible
