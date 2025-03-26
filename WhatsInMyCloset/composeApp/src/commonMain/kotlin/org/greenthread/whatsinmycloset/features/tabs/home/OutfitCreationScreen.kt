@@ -24,6 +24,8 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.runtime.Composable
@@ -82,9 +84,6 @@ fun OutfitScreen(
         val isOutfitSaved by outfitViewModel.isOutfitSaved.collectAsState()
         var showExitDialog by remember { mutableStateOf(false) } // Exit screen
 
-        // Show calendar dialog
-        var showCalendarDialog by remember { mutableStateOf(false) }
-
         // Handle position updates
         val onPositionUpdate = { itemId: String, newPosition: OffsetData ->
             outfitViewModel.updateClothingItemPosition(itemId, newPosition)
@@ -100,8 +99,7 @@ fun OutfitScreen(
 
                 // Header
                 OutfitScreenHeader(
-                    onGoBack = { navController.popBackStack() }, // Navigate back to Home Tab,
-                    onExit = { showExitDialog = true },  // Discard Outfit Creation -- pop up
+                    onExit = { showExitDialog = true },  // Discard Outfit Creation
                     title = "Create Your Outfit"
                 )
 
@@ -144,15 +142,6 @@ fun OutfitScreen(
                             Text("Save Outfit")
                         }
 
-                        // Add to Calendar button
-                        Button(
-                            onClick = { showCalendarDialog = true },
-                            modifier = Modifier.fillMaxWidth(),
-                            enabled = selectedItems.isNotEmpty()
-                        ) {
-                            Text("Add to Calendar")
-                        }
-
                         // Create New Outfit button
                         Button(
                             onClick = {
@@ -164,21 +153,10 @@ fun OutfitScreen(
                             modifier = Modifier.fillMaxWidth(),
                             enabled = selectedItems.isNotEmpty()
                         ) {
-                            Text("Create New Outfit")
+                            Text("Reset")
                         }
                 }
             }   // end of Column
-
-        // Show Calendar Dialog
-        if (showCalendarDialog) {
-            CalendarDialog(
-                onDismiss = { showCalendarDialog = false },
-                onDateSelected = { selectedDate ->
-                    outfitViewModel.addOutfitToCalendar(selectedDate) // Pass the selected date to the callback
-                    showCalendarDialog = false // Close the dialog
-                }
-            )
-        }
 
         // Show Exit Dialog
         if (showExitDialog) {
@@ -274,7 +252,9 @@ fun OutfitCollageArea(
     )
     {
         if (selectedClothingItems.isEmpty()) {
-            Text("No items selected", color = Color.Gray)
+            Text("No items selected",
+                color = Color.Gray,
+                textAlign = TextAlign.Center)
         }
         else
         {
@@ -385,8 +365,7 @@ fun ClothingCategorySelection(onSelectCategory: (ClothingCategory) -> Unit) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2), // Two columns
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(2.dp),
+            .fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(2.dp),
         horizontalArrangement = Arrangement.spacedBy(2.dp)
     ) {
@@ -397,7 +376,6 @@ fun ClothingCategorySelection(onSelectCategory: (ClothingCategory) -> Unit) {
                 onClick = { onSelectCategory(thisItem) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(2.dp)
             ) {
                 Text(
                     text = thisItem.categoryName,
@@ -457,7 +435,6 @@ fun CategoryItemsScreen(
 
         // Heading for the selected category
         OutfitScreenHeader(
-            onGoBack = {navController.popBackStack()},
             onExit = {navController.navigate(Routes.HomeTab)},
             title = "Select $category"
         )
@@ -556,7 +533,7 @@ fun CategoryItemsScreen(
                     }
 
                     viewModel.addSelectedItems(selectedItems) // Add selected items to the ViewModel
-                    navController.navigate(Routes.CreateOutfitScreen)
+                    navController.navigate(Routes.CreateOutfitScreen.Default)
                          // Navigate to Outfit Screen with selected items
                 },
                 isDoneEnabled = selectedItemKeys.isNotEmpty()
@@ -614,19 +591,6 @@ fun CategoryItem(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-            /*Image(
-                painter = when (item.itemType) {
-                    ClothingCategory.TOPS -> painterResource(Res.drawable.top1)
-                    ClothingCategory.BOTTOMS -> painterResource(Res.drawable.top1)
-                    ClothingCategory.FOOTWEAR -> painterResource(Res.drawable.top1)
-                    ClothingCategory.ACCESSORIES -> painterResource(Res.drawable.top1)
-                },
-                contentDescription = item.name,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(100.dp)
-                    .clip(RoundedCornerShape(8.dp))
-            )*/
         }
     }
 }
@@ -691,7 +655,6 @@ fun CategoryItemDetailScreen(
 
         // Heading for the selected category
         OutfitScreenHeader(
-            onGoBack = {navController.popBackStack()},
             onExit = {navController.navigate(Routes.HomeTab)},
             title = selectedItem!!.name
         )
@@ -750,23 +713,41 @@ fun CategoryItemDetailScreen(
 
 @Composable
 fun OutfitScreenHeader(
-    onGoBack: () -> Unit,
     onExit: () -> Unit,
     title: String
 
 ) {
-    // Go Back and Exit buttons
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        Button(onClick = onGoBack, modifier = Modifier.padding(8.dp)) {
-            Text("<")
-        }
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+    )
+    {
+        Text(
+            text = "$title",
+            style = MaterialTheme.typography.headlineMedium,
+            modifier = Modifier.align(Alignment.Center), // Allow centering
+            textAlign = TextAlign.Center)
 
-        Button(onClick = onExit, modifier = Modifier.padding(8.dp)) {
-            Text("x")
-        }
+        // Exit Button - Right Aligned
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ){
+        ElevatedButton(
+            onClick = onExit,
+            modifier = Modifier
+                .width(60.dp)  // Set width to ensure a rectangular shape
+                .height(30.dp), // Define height for a proper rectangle
+            shape = RoundedCornerShape(10.dp) // Rounded corners
+        )
+        {
+            Icon(Icons.Default.Close,
+                contentDescription = "Exit",
+                modifier = Modifier.size(24.dp))
+        }}
     }
-
-    Text(text = "$title", style = MaterialTheme.typography.headlineMedium)
 }
 
 @Composable
