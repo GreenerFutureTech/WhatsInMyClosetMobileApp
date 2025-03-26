@@ -30,16 +30,14 @@ class NotificationService : FirebaseMessagingService() {
         super.onMessageReceived(remoteMessage)
         println("Received FCM message: ${remoteMessage.notification?.title}")
 
-        if (!isAppInForeground)
-        {
-            // Prioritize data payload, otherwise use notification
-            val title = remoteMessage.data["title"] ?: remoteMessage.notification?.title ?: "New Message"
-            val message = remoteMessage.data["message"] ?: remoteMessage.notification?.body ?: "You have a new notification"
+        // If app is in use, don't show push notifications
+        if (!isAppInForeground) {
 
-        if (remoteMessage.data.isNotEmpty()) {
-            val title = remoteMessage.data["title"] ?: "New Message"
-            val message = remoteMessage.data["message"] ?: "You have a new notification"
-            sendNotification(title, message)
+            if (remoteMessage.data.isNotEmpty()) {
+                val title = remoteMessage.data["title"] ?: "New Message"
+                val message = remoteMessage.data["message"] ?: "You have a new notification"
+                sendNotification(title, message)
+            }
         }
 
         // Handle specific message types
@@ -47,7 +45,6 @@ class NotificationService : FirebaseMessagingService() {
             "new_message" -> {
 
                 val messageId = remoteMessage.data["messageId"]
-
                 CoroutineScope(Dispatchers.IO).launch {
                     SwapEventBus.emitNewNotification(messageId)
                 }

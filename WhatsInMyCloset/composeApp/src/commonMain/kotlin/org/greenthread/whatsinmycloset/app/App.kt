@@ -4,11 +4,7 @@ import AddSwapItemRoot
 import AllSwapsScreen
 import CategoryItemScreen
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -35,11 +31,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -54,7 +47,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import org.greenthread.whatsinmycloset.CameraManager
-import org.greenthread.whatsinmycloset.NotificationManager
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.MessageManager
 import org.greenthread.whatsinmycloset.core.domain.models.User
@@ -132,7 +124,7 @@ fun NavController.getBarVisibility(): BarVisibility {
         Routes.AddSwapScreen.toString() -> BarVisibility.Custom(onlyBack = true, title = "Wardrobes")
         Routes.AddSwapItemScreen.toString() -> BarVisibility.Custom(onlyBack = true,  title = "Add To Swap")
         Routes.ChatScreen.toString() -> BarVisibility.Custom(bottomBar = false, onlyBack = true, title = "Chat")
-        Routes.MessageListScreen.toString() -> BarVisibility.Custom(title = "Messages")
+        Routes.MessageListScreen.toString() -> BarVisibility.Custom(title = "Messages", onlyBack = true)
         Routes.AllSwapScreen.toString() -> BarVisibility.Custom(title = "All Swaps", onlyBack = true)
 
         // Main Tabs
@@ -154,7 +146,6 @@ fun NavController.getBarVisibility(): BarVisibility {
 @Preview
 fun App(
     cameraManager: CameraManager?,
-    notificationManager: NotificationManager?
 ) {
     val wardrobeManager = koinInject<WardrobeManager>()
     val userManager = koinInject<UserManager>()

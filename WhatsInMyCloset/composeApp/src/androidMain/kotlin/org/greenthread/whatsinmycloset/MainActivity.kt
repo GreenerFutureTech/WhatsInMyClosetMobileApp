@@ -22,7 +22,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val cameraManager = CameraManager(this)
-            App(cameraManager, notificationManager)
+            App(cameraManager)
         }
     }
 
@@ -45,5 +45,5 @@ class MainActivity : ComponentActivity() {
 @Preview
 @Composable
 fun AppAndroidPreview() {
-    App(null, null)
+    App(null)
 }

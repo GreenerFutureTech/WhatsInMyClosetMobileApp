@@ -32,13 +32,16 @@ class MessageViewModel(
             fetchMessageList()
         }
 
+    init {
+        fetchMessageList()
+    }
+
 
     @Serializable
     data class UnreadResponse(val hasUnread: Boolean)
 
     fun checkForUnreadNotifications(userId: Int?) {
         if (userId == null) return
-
 
         viewModelScope.launch {
             val unread = swapRepository.getUnread(userId)
@@ -52,10 +55,7 @@ class MessageViewModel(
         }
     }
 
-
-
-
-    private fun fetchMessageList() {
+    fun fetchMessageList() {
         viewModelScope.launch {
             if (currentUser.value == null) {
                 println("FETCH MESSAGE LIST: Current user is null")

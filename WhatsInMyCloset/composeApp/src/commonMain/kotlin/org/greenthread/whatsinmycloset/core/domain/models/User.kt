@@ -1,8 +1,6 @@
 package org.greenthread.whatsinmycloset.core.domain.models
 
 import org.greenthread.whatsinmycloset.core.dto.UserDto
-import org.greenthread.whatsinmycloset.core.domain.models.Outfit
-import org.greenthread.whatsinmycloset.core.dto.UserDto
 import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
 
 class User(
