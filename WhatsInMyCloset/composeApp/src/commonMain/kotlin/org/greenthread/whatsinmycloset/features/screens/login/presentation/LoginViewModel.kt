@@ -48,7 +48,24 @@ class LoginViewModel(
      */
     fun logout() {
         viewModelScope.launch {
-            auth.signOut() // Sign out from Firebase
+
+            val currentUser = userManager.currentUser.value
+
+            if (currentUser != null) {
+
+                // Clear the FCM Token and update the last login
+                val updatedUser = currentUser.toDto().copy(
+                    fcmToken = "",
+                    lastLogin = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).toString()
+                )
+
+                updateUser(updatedUser)
+            }
+
+            // Sign out from Firebase
+            auth.signOut()
+
+            // Clear Local User
             userManager.updateUser(null)
             notificationsViewModel.clearNewNotificationsState()
         }
