@@ -48,6 +48,7 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import kotlinx.datetime.LocalDate
 import org.greenthread.whatsinmycloset.CameraManager
+import org.greenthread.whatsinmycloset.PhotoManager
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.MessageManager
 import org.greenthread.whatsinmycloset.core.domain.models.User
@@ -64,6 +65,8 @@ import org.greenthread.whatsinmycloset.features.screens.login.presentation.Login
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.NotificationEventBus
 import org.greenthread.whatsinmycloset.features.screens.notifications.presentation.NotificationsScreen
 import org.greenthread.whatsinmycloset.features.screens.notifications.presentation.NotificationsViewModel
+import org.greenthread.whatsinmycloset.features.screens.settings.EditProfileScreen
+import org.greenthread.whatsinmycloset.features.screens.settings.EditProfileViewModel
 import org.greenthread.whatsinmycloset.features.screens.settings.SettingsScreen
 import org.greenthread.whatsinmycloset.features.screens.signup.SignupScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItemDetailScreen
@@ -139,6 +142,7 @@ fun NavController.getBarVisibility(): BarVisibility {
 
         // Misc
         Routes.SettingsScreen.toString() -> BarVisibility.Custom(onlyBack = true, title = "Settings")
+        Routes.EditProfileScreen.toString() -> BarVisibility.Custom(onlyBack = true, title = "Edit Profile")
 
         // Add more specific route configurations as needed
         else -> BarVisibility.Visible
@@ -149,6 +153,7 @@ fun NavController.getBarVisibility(): BarVisibility {
 @Preview
 fun App(
     cameraManager: CameraManager?,
+    photoManager: PhotoManager?
 ) {
     val wardrobeManager = koinInject<WardrobeManager>()
     val userManager = koinInject<UserManager>()
@@ -492,6 +497,16 @@ fun App(
                         navController = navController,
                         viewModel = viewModel
                     )
+                }
+
+                composable<Routes.EditProfileScreen> {
+                    val viewModel = koinViewModel<EditProfileViewModel>()
+                    if (photoManager != null) {
+                        EditProfileScreen(
+                            viewModel = viewModel,
+                            photoManager = photoManager
+                        )
+                    }
                 }
             }
         }

@@ -17,12 +17,13 @@ class MainActivity : ComponentActivity() {
         notificationManager.registerPermissionLauncher(this)
         notificationManager.requestPermissions()
         notificationManager.initialize()
+        val photoManager = PhotoManager(this)
 
         NotificationService.isAppInForeground = true
 
         setContent {
             val cameraManager = CameraManager(this)
-            App(cameraManager)
+            App(cameraManager, photoManager)
         }
     }
 
@@ -45,5 +46,5 @@ class MainActivity : ComponentActivity() {
 @Preview
 @Composable
 fun AppAndroidPreview() {
-    App(null)
+    App(null, null)
 }
