@@ -23,6 +23,7 @@ import org.greenthread.whatsinmycloset.core.dto.CreateSwapRequestDto
 import org.greenthread.whatsinmycloset.core.dto.ItemDto
 import org.greenthread.whatsinmycloset.core.dto.MessageDto
 import org.greenthread.whatsinmycloset.core.dto.OtherSwapDto
+import org.greenthread.whatsinmycloset.core.dto.OutfitDto
 import org.greenthread.whatsinmycloset.core.dto.SendMessageRequest
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.dto.SwapStatusDto
@@ -275,7 +276,7 @@ class KtorRemoteDataSource(
         }
     }
 
-    suspend fun getItemById(itemId: String): Result<ItemDto, DataError.Remote> {
+    override suspend fun getItemById(itemId: String): Result<ItemDto, DataError.Remote> {
         return safeCall {
             httpClient.get("$BASE_URL/item/$itemId")
         }
@@ -356,6 +357,22 @@ class KtorRemoteDataSource(
                     }
                 ))
             }
+        }
+    }
+
+    override suspend fun getAllOutfits(): Result<List<OutfitDto>, DataError.Remote> {
+        return safeCall {
+            httpClient.get(
+                urlString = "$BASE_URL/outfits"
+            )
+        }
+    }
+
+    override suspend fun getUserByUserName(username: String): Result<UserDto, DataError.Remote> {
+        return safeCall {
+            httpClient.get(
+                urlString = "$BASE_URL/users/username/$username"
+            )
         }
     }
 }

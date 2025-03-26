@@ -14,7 +14,8 @@ class User(
     val type: String? = null,
     val registeredAt: String,
     val updatedAt: String,
-    val lastLogin: String
+    val lastLogin: String,
+    val friends: List<Friend>? = null
 ) {
     private val wardrobes = mutableMapOf<String, Wardrobe>() // Maps wardrobe ID to Wardrobe
     private val outfits = mutableMapOf<String, Outfit>() // Maps outfit ID to Outfit
@@ -32,7 +33,8 @@ class User(
         type = type,
         registeredAt = registeredAt,
         updatedAt = updatedAt,
-        lastLogin = lastLogin
+        lastLogin = lastLogin,
+        friends = friends
     )
 
     fun retrieveUserId() : Int?
@@ -41,7 +43,20 @@ class User(
     }
 
     fun toDto(): UserDto {
-        return UserDto(id = id, username = username, email = email, name = name, firebaseUid = firebaseUuid, fcmToken = fcmToken, profilePicture = profilePicture, type = type, registeredAt = registeredAt, updatedAt = updatedAt, lastLogin = lastLogin)
+        return UserDto(
+            id = id,
+            username = username,
+            email = email,
+            name = name,
+            firebaseUid = firebaseUuid,
+            fcmToken = fcmToken,
+            profilePicture = profilePicture,
+            type = type,
+            registeredAt = registeredAt,
+            updatedAt = updatedAt,
+            lastLogin = lastLogin,
+            friends = friends
+        )
     }
 
     fun addOutfit(outfit: Outfit, selectedTags: List<String>) {

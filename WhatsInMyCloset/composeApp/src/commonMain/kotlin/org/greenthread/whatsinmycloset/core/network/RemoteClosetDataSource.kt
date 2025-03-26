@@ -4,8 +4,10 @@ import org.greenthread.whatsinmycloset.core.domain.DataError
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.domain.Result
 import org.greenthread.whatsinmycloset.core.dto.CreateSwapRequestDto
+import org.greenthread.whatsinmycloset.core.dto.ItemDto
 import org.greenthread.whatsinmycloset.core.dto.MessageDto
 import org.greenthread.whatsinmycloset.core.dto.OtherSwapDto
+import org.greenthread.whatsinmycloset.core.dto.OutfitDto
 import org.greenthread.whatsinmycloset.core.dto.SwapStatusDto
 import org.greenthread.whatsinmycloset.core.dto.UserDto
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.Notification
@@ -41,5 +43,10 @@ interface RemoteClosetDataSource {
     suspend fun dismissNotification(notificationId: Int): Result<String, DataError.Remote>
     suspend fun getUserNotifications(userId: Int): Result<List<Notification>, DataError.Remote>
 
+    // Item
+    suspend fun getItemById(itemId: String): Result<ItemDto, DataError.Remote>
 
+    // Outfit
+    suspend fun getAllOutfits(): Result<List<OutfitDto>, DataError.Remote>
+    suspend fun getUserByUserName(username: String): Result<UserDto, DataError.Remote>
 }

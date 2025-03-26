@@ -3,8 +3,10 @@ package org.greenthread.whatsinmycloset.core.repository
 import org.greenthread.whatsinmycloset.core.domain.DataError
 import org.greenthread.whatsinmycloset.core.domain.Result
 import org.greenthread.whatsinmycloset.core.dto.CreateSwapRequestDto
+import org.greenthread.whatsinmycloset.core.dto.ItemDto
 import org.greenthread.whatsinmycloset.core.dto.MessageDto
 import org.greenthread.whatsinmycloset.core.dto.OtherSwapDto
+import org.greenthread.whatsinmycloset.core.dto.OutfitDto
 import org.greenthread.whatsinmycloset.core.dto.SendMessageRequest
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.dto.SwapStatusDto
@@ -31,4 +33,11 @@ interface ClosetRepository {
     suspend fun getUser(userEmail: String) : Result<UserDto,DataError.Remote>
     suspend fun getUserById(userId: Int): Result<UserDto, DataError.Remote>
     suspend fun updateUser(user: UserDto): Result<UserDto, DataError.Remote>
+
+    // Item
+    suspend fun getItemById(itemId: String): Result<ItemDto, DataError.Remote>
+
+    // Outfit
+    suspend fun getAllOutfits(): Result<List<OutfitDto>, DataError.Remote>
+    suspend fun getUserByUserName(username: String): Result<UserDto, DataError.Remote>
 }
