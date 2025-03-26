@@ -14,37 +14,28 @@ import org.greenthread.whatsinmycloset.features.tabs.social.data.OutfitState
 * */
 
 @Serializable
+data class ItemPosition(
+    val x: Int? = null,
+    val y: Int? = null,
+    val id: String? = null
+)
+
+@Serializable
 data class OutfitDto(
     val id: String, // Unique identifier for the outfit
     val userId: Int? = null,    // matches with User.kt
-//    val public: Boolean,
-//    val favorite: Boolean,
-//    val mediaURL: String = "",
-    val name: String = "", // Name of the outfit (e.g., "Summer Look")
-    val tags: List<String>? = null,
-    val itemIds: List<String>, // Store item IDs instead of full objects
-//    val itemPositions: Map<String, OffsetData>, // Include item positions
-//    val createdAt: String = ""
+    val name: String = "",
+    val itemIds: List<ItemPosition?>? = null,
+    val tags: List<String>? = null, // Name of the outfit (e.g., "Summer Look")
+    val createdAt: String = ""
+
 ){
     fun toOutfitState(): OutfitState {
         return OutfitState(
             outfitId = this.id,
-            itemIds = this.itemIds,
+            itemIds = this.itemIds?.mapNotNull { it?.id } ?: emptyList(),
             items = emptyList(),
             isLoading = true
         )
     }
 }
-
-//fun OutfitDto.toEntity(userId: Int): OutfitEntity {
-//    return OutfitEntity(
-//        outfitId = id,
-//        userId = userId,
-//        public = public,
-//        favorite = favorite,
-//        mediaURL = mediaURL,
-//        name = name,
-//        tags = tags,
-//        createdAt = createdAt
-//    )
-//}
