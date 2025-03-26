@@ -20,6 +20,7 @@ open class PostViewModel(
     val currentUser = userManager.currentUser
     private val _state = MutableStateFlow(PostState())
     val state = _state
+
     fun fetchAllOutfitData() {
         viewModelScope.launch {
             _state.update{ it.copy( isLoading = true) }
@@ -28,7 +29,7 @@ open class PostViewModel(
                     val outfitsList = outfits.map { outfit ->
                         OutfitState(
                             outfitId = outfit.id,
-                            itemIds = outfit.itemIds?.mapNotNull { it?.id } ?: emptyList(),
+                            itemIds = outfit.itemIds?.filterNotNull() ?: emptyList(),
                             isLoading = true
                         )
                     }
@@ -49,13 +50,14 @@ open class PostViewModel(
                 }
         }
     }
+
     fun fetchItemsForOutfit(outfitId: String) {
         viewModelScope.launch {
             val outfit = _state.value.outfits.find { it.outfitId == outfitId } ?: return@launch
             // Mark as loading while fetching items from outfit
             loadOutfit(outfitId) { it.copy(isLoading = true) }
             val results = outfit.itemIds.mapNotNull { itemId ->
-                itemRepository.getItemById(itemId).getOrNull()
+                itemId.id?.let { itemRepository.getItemById(it).getOrNull() }
             }
             // Update OutfitState with items
             loadOutfit(outfitId) {
@@ -66,6 +68,7 @@ open class PostViewModel(
             }
         }
     }
+
     private fun loadOutfit(outfitId: String, transform: (OutfitState) -> OutfitState) {
         _state.update { currentState ->
             currentState.copy(

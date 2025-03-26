@@ -43,14 +43,14 @@ fun OutfitBox(
             state.isLoading -> CircularProgressIndicator()
             state.items.isEmpty() -> Text(stringResource(Res.string.no_items_found))
             else -> {
-                // TODO load items in a different composable so it can be displayed like one image
                 state.items.forEach { item ->
+                    val position = state.itemIds.find {it.id == item.id}
+
                     LoadImage(
                         imageUrl = item.mediaUrl,
                         contentDescription = "Clothing item",
-                        // TODO replace with coordinates from the backend when implemented
-                        x = 0f,
-                        y = 0f
+                        x = position?.x?.toFloat() ?: 0f,
+                        y = position?.y?.toFloat() ?: 0f
                     )
                 }
             }
