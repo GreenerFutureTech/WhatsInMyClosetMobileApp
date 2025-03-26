@@ -81,7 +81,6 @@ fun CategoryItemScreen(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
-            .verticalScroll(rememberScrollState())
     ) {
         Text(
             text = category?.name?:"All",
