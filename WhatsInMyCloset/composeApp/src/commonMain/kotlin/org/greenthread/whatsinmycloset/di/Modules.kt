@@ -26,6 +26,7 @@ import org.greenthread.whatsinmycloset.features.screens.addItem.presentation.Add
 import org.greenthread.whatsinmycloset.features.screens.notifications.data.NotificationRepository
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.HomeTabViewModel
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabViewModel
+import org.greenthread.whatsinmycloset.features.screens.settings.EditProfileViewModel
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.CategoryItemsViewModel
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.SelectedItemViewModel
 import org.greenthread.whatsinmycloset.features.tabs.social.presentation.PostViewModel
@@ -78,6 +79,8 @@ val sharedModule = module {
 
     viewModelOf(::NotificationsViewModel)
     viewModelOf(::PostViewModel)
+
+    viewModelOf(::EditProfileViewModel)
 
     single {
         User(99999123, "TestName",

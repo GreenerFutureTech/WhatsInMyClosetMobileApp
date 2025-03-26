@@ -1,7 +1,6 @@
 package org.greenthread.whatsinmycloset.core.domain.models
 
 import org.greenthread.whatsinmycloset.core.dto.UserDto
-import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
 
 class User(
@@ -40,6 +39,10 @@ class User(
     fun retrieveUserId() : Int?
     {
         return id
+    }
+
+    fun toDto(): UserDto {
+        return UserDto(id = id, username = username, email = email, name = name, firebaseUid = firebaseUuid, fcmToken = fcmToken, profilePicture = profilePicture, type = type, registeredAt = registeredAt, updatedAt = updatedAt, lastLogin = lastLogin)
     }
 
     fun addOutfit(outfit: Outfit, selectedTags: List<String>) {

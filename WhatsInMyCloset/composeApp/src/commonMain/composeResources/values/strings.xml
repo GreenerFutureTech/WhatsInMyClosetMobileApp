@@ -45,6 +45,12 @@
     <string name="no_item_category">No items in this category</string>
     <string name="item_name">NAME</string>
 
+    <!-- Settings string -->
+    <string name="email_text">Email</string>
+    <string name="name_text">Name</string>
+    <string name="username_text">Username</string>
+    <string name="profile_button">Edit picture</string>
+
     <!-- Notification strings -->
     <string name="notification_sent">Sent</string>
     <string name="notification_header">Notifications</string>

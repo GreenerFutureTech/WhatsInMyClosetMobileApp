@@ -61,7 +61,7 @@ import whatsinmycloset.composeapp.generated.resources.item_brand
 fun SwapDetailScreen(
     swap: OtherSwapDto?,
     onBackClick: () -> Unit,
-    onRequestClick: () -> Unit
+    onRequestClick: (OtherSwapDto) -> Unit
 ) = swap?.let {
     val viewModel: SwapViewModel = koinViewModel()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -332,7 +332,7 @@ fun SwapDetailScreen(
                         MessageManager.setCurrentOtherUser(swapUser)
 
                         OutlinedButton(
-                            onClick = {onRequestClick()},
+                            onClick = { onRequestClick(swap) },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 20.dp)

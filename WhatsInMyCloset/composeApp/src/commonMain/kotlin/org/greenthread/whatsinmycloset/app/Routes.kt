@@ -25,7 +25,16 @@ sealed interface Routes {
 
     // Routes for outfit creation screens
     @Serializable
-    data object CreateOutfitScreen: Routes
+    data class CreateOutfitScreen(val date: String? = null) : Routes {
+        companion object {
+            // Default route without date
+            val Default = CreateOutfitScreen()
+        }
+    }
+    @Serializable
+    data object OutfitOfTheDay: Routes
+    @Serializable
+    data class OutfitDetailScreen(val outfitId: String): Routes
     @Serializable
     data class CategoryItemScreen(
         val category: String) : Routes    // shows all items in that category, for example "Tops"
@@ -78,6 +87,9 @@ sealed interface Routes {
 
     @Serializable
     data object NotificationsScreen: Routes
+
+    @Serializable
+    data object EditProfileScreen: Routes
 
     @Serializable
     data class HomeCategoryItemScreen(val category: String) : Routes

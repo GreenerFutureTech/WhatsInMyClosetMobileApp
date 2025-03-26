@@ -2,6 +2,7 @@ package org.greenthread.whatsinmycloset.core.domain.models
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import org.greenthread.whatsinmycloset.core.dto.UserDto
 
 
 class UserManager() {
