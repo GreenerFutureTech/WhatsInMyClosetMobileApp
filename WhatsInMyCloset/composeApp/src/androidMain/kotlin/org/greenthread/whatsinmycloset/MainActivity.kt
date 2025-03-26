@@ -17,11 +17,29 @@ class MainActivity : ComponentActivity() {
         notificationManager.registerPermissionLauncher(this)
         notificationManager.requestPermissions()
         notificationManager.initialize()
+        val photoManager = PhotoManager(this)
+
+        NotificationService.isAppInForeground = true
 
         setContent {
             val cameraManager = CameraManager(this)
-            App(cameraManager, notificationManager)
+            App(cameraManager, photoManager)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        NotificationService.isAppInForeground = true
+    }
+
+    override fun onPause() {
+        super.onPause()
+        NotificationService.isAppInForeground = false
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        NotificationService.isAppInForeground = false
     }
 }
 

@@ -12,6 +12,9 @@ import org.greenthread.whatsinmycloset.core.dto.OutfitResponse
 import org.greenthread.whatsinmycloset.core.dto.SendMessageRequest
 import org.greenthread.whatsinmycloset.core.dto.SwapStatusDto
 import org.greenthread.whatsinmycloset.core.dto.UserDto
+import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.Notification
+import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.NotificationDto
+import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.NotificationType
 
 interface RemoteClosetDataSource {
     // Swap
@@ -27,6 +30,7 @@ interface RemoteClosetDataSource {
     suspend fun getChatHistory(userId: Int, otherUserId: Int): Result<List<MessageDto>, DataError.Remote>
     suspend fun sendMessage(senderId: Int, receiverId: Int, content: String): Result<MessageDto, DataError.Remote>
     suspend fun updateRead(messageId: Int): Result<String, DataError.Remote>
+    suspend fun getUnread(userId: Int): Result<String, DataError.Remote>
 
     // User
     suspend fun createUser(user: UserDto): Result<UserDto, DataError.Remote>
@@ -41,4 +45,12 @@ interface RemoteClosetDataSource {
     // Calendar
     suspend fun postOutfitToCalendar(calendarDto: CalendarDto): Result<List<CalendarDto>, DataError.Remote>
     suspend fun getAllOutfitsFromCalendar(userId: String): Result<List<CalendarDto>, DataError.Remote>
+    // Notifications
+    suspend fun sendNotification(userId: Int, title: String, body: String, type : NotificationType, extraData: Map<String, String>? = null): Result<NotificationDto, DataError.Remote>
+    suspend fun clearNotification(userId: Int): Result<String, DataError.Remote>
+    suspend fun updateNotificationRead(notificationId: Int): Result<String, DataError.Remote>
+    suspend fun dismissNotification(notificationId: Int): Result<String, DataError.Remote>
+    suspend fun getUserNotifications(userId: Int): Result<List<Notification>, DataError.Remote>
+
+
 }

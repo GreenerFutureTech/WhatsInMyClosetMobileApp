@@ -107,6 +107,5 @@ class AddItemScreenViewModel(
 
 @Serializable
 data class UploadResponse(
-    val message: String,
     val url: String  // Must match JSON key ("url")
 )

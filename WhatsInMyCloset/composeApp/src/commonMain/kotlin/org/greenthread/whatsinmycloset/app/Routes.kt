@@ -89,6 +89,9 @@ sealed interface Routes {
     data object NotificationsScreen: Routes
 
     @Serializable
+    data object EditProfileScreen: Routes
+
+    @Serializable
     data class HomeCategoryItemScreen(val category: String) : Routes
 
     @Serializable

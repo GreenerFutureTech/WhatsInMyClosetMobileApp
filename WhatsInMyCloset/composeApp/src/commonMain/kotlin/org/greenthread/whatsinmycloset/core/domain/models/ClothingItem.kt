@@ -7,7 +7,8 @@ enum class ClothingCategory(val categoryName: String) {
     TOPS("Tops"),
     BOTTOMS("Bottoms"),
     FOOTWEAR("Footwear"),
-    ACCESSORIES("Accessories");
+    ACCESSORIES("Accessories"),
+    OTHER("Other");
 
     companion object {
         fun fromString(value: String): ClothingCategory {
@@ -16,6 +17,7 @@ enum class ClothingCategory(val categoryName: String) {
                 "bottoms" -> BOTTOMS
                 "footwear" -> FOOTWEAR
                 "accessories" -> ACCESSORIES
+                "other" -> OTHER
                 else -> throw IllegalArgumentException("Unknown category: $value")
             }
         }
@@ -91,7 +93,7 @@ fun generateRandomClothingItems(category: String, numberOfItems: Int): List<Clot
         val clothingCategory = try {
             ClothingCategory.valueOf(category.uppercase())
         } catch (e: IllegalArgumentException) {
-            ClothingCategory.TOPS // Default fallback
+            ClothingCategory.OTHER // Default fallback
         }
 
         val itemName = when (clothingCategory) {
@@ -99,6 +101,7 @@ fun generateRandomClothingItems(category: String, numberOfItems: Int): List<Clot
             ClothingCategory.BOTTOMS -> "Jeans ${index + 1}"
             ClothingCategory.FOOTWEAR -> "Sneakers ${index + 1}"
             ClothingCategory.ACCESSORIES -> "Hat ${index + 1}"
+            ClothingCategory.OTHER -> "Other ${index + 1}"
         }
 
         val tags = when (clothingCategory) {
@@ -106,6 +109,7 @@ fun generateRandomClothingItems(category: String, numberOfItems: Int): List<Clot
             ClothingCategory.BOTTOMS -> setOf("casual", "denim")
             ClothingCategory.FOOTWEAR -> setOf("sporty", "comfortable")
             ClothingCategory.ACCESSORIES -> setOf("fashionable", "outdoor")
+            ClothingCategory.OTHER -> setOf("unknown")
         }
 
         ClothingItem(
