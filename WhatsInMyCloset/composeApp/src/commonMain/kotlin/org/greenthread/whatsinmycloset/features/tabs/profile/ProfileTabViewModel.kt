@@ -182,4 +182,41 @@ class ProfileTabViewModel(
             _state.update { it.copy(isLoading = false) }
         }
     }
+
+    // Remove a friend
+    fun removeFriend(friendId: Int) {
+        viewModelScope.launch {
+            val currentUserId = currentUser.value?.id ?: return@launch
+            _state.update { it.copy(isLoading = true) }
+
+            userRepository.removeFriend(currentUserId, friendId)
+                .onSuccess {
+                    // Convert to DTO and back to safely update friends list
+                    val updatedUser = state.value.user?.toDto()?.let { dto ->
+                        dto.copy(friends = dto.friends?.filter { it.id != friendId })
+                    }?.toModel()
+
+                    // Update state
+                    _state.update {
+                        it.copy(
+                            friendshipStatus = FriendshipStatus.NOT_FRIENDS,
+                            user = updatedUser
+                        )
+                    }
+
+                    // Update UserManager
+                    currentUser.value?.toDto()?.let { dto ->
+                        userManager.updateUser(
+                            dto.copy(friends = dto.friends?.filter { it.id != friendId })
+                                .toModel()
+                        )
+                    }
+                }
+                .onError { error ->
+                    _state.update { it.copy(error = error.toString()) }
+                }
+
+            _state.update { it.copy(isLoading = false) }
+        }
+    }
 }

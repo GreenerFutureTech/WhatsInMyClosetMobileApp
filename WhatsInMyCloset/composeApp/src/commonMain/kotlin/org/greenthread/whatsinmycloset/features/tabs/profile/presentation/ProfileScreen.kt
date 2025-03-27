@@ -326,42 +326,6 @@ private fun ProfileHeader(
 }
 
 @Composable
-private fun ProfileStats(
-    user: User,
-    isOwnProfile: Boolean,
-    viewModel: ProfileTabViewModel,
-    targetUserId: Int
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        SwapsCount(
-            onClick = {},
-            swapsCount = 10,
-            modifier = Modifier
-                .weight(1f)
-                .wrapContentWidth(Alignment.CenterHorizontally)
-        )
-
-        if (isOwnProfile) {
-            FriendsCount(
-                friendsCount = user.friends?.size ?: 0,
-                modifier = Modifier
-                    .weight(1f)
-                    .wrapContentWidth(Alignment.CenterHorizontally)
-            )
-        } else {
-//            ManageFriendButton(
-//                viewModel = viewModel,
-//                targetUserId = userId
-//            )
-        }
-    }
-}
-
-@Composable
 fun ProfileActions(
     viewModel: ProfileTabViewModel,
     targetUserId: Int?
@@ -408,16 +372,22 @@ fun ProfileActions(
             }
         }
 
-        // TODO remove friend
         FriendshipStatus.FRIENDS -> {
             OutlinedButton(
-                onClick = { /* Remove friend */ },
+                onClick = {
+                    targetUserId?.let { viewModel.removeFriend(it) }
+                },
                 colors = ButtonDefaults.outlinedButtonColors(
                     containerColor = MaterialTheme.colorScheme.errorContainer,
                     contentColor = MaterialTheme.colorScheme.onErrorContainer
-                )
+                ),
+                enabled = !state.isLoading && targetUserId != null
             ) {
-                Text("Remove Friend")
+                if (state.isLoading) {
+                    CircularProgressIndicator(Modifier.size(20.dp))
+                } else {
+                    Text("Remove Friend")
+                }
             }
         }
     }

@@ -410,5 +410,13 @@ class KtorRemoteDataSource(
             )
         }
     }
+
+    override suspend fun removeFriend(userId: Int, friendId: Int): Result<Unit, DataError.Remote> {
+        return safeCall {
+            httpClient.delete(
+                urlString = "$BASE_URL/users/$userId/friends/$friendId"
+            )
+        }
+    }
 }
 
