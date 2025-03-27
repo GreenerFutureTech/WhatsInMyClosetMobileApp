@@ -219,4 +219,23 @@ class ProfileTabViewModel(
             _state.update { it.copy(isLoading = false) }
         }
     }
+
+    fun cancelRequest(receiverId: Int) {
+        viewModelScope.launch {
+            val senderId = currentUser.value?.id ?: return@launch
+            _state.update { it.copy(isLoading = true) }
+
+            userRepository.cancelFriendRequest(senderId, receiverId)
+                .onSuccess {
+                    _state.update {
+                        it.copy(friendshipStatus = FriendshipStatus.NOT_FRIENDS)
+                    }
+                }
+                .onError { error ->
+                    _state.update { it.copy(error = error.toString()) }
+                }
+
+            _state.update { it.copy(isLoading = false) }
+        }
+    }
 }

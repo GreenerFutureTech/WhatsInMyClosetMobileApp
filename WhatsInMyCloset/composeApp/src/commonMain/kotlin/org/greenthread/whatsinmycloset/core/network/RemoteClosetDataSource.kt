@@ -60,4 +60,5 @@ interface RemoteClosetDataSource {
     suspend fun getReceivedFriendRequests(userId: Int): Result<List<FriendRequestDto>, DataError.Remote>
     suspend fun respondToFriendRequest(requestId: Int, status: RequestStatus): Result<Unit, DataError.Remote>
     suspend fun removeFriend(userId: Int, friendId: Int): Result<Unit, DataError.Remote>
+    suspend fun cancelFriendRequest(senderId: Int, receiverId: Int): Result<Unit, DataError.Remote>
 }
