@@ -97,6 +97,10 @@ class DefaultClosetRepository(
         return remoteClosetDataSource.sendFriendRequest(senderId, receiverId)
     }
 
+    override suspend fun getReceivedFriendRequests(userId: Int): Result<List<FriendRequestDto>, DataError.Remote> {
+        return remoteClosetDataSource.getReceivedFriendRequests(userId)
+    }
+
     override suspend fun getSentFriendRequests(userId: Int): Result<List<FriendRequestDto>, DataError.Remote> {
         return remoteClosetDataSource.getSentFriendRequests(userId)
     }

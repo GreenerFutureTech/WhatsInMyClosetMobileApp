@@ -393,7 +393,13 @@ class KtorRemoteDataSource(
             )
         }
     }
-}
 
-//Result<List<ItemDto>, DataError.Remote>
+    override suspend fun getReceivedFriendRequests(userId: Int): Result<List<FriendRequestDto>, DataError.Remote> {
+        return safeCall {
+            httpClient.get(
+                urlString = "$BASE_URL/users/$userId/friend-requests"
+            )
+        }
+    }
+}
 

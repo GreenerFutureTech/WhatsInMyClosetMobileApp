@@ -213,12 +213,14 @@ fun ManageFriendButton(
             }
         }
 
-        FriendshipStatus.REJECTED -> {
-            Button(
-                onClick = onSendRequest, // Allow re-sending if rejected
-                modifier = modifier
-            ) {
-                Text("Try Again")
+        FriendshipStatus.REQUEST_RECEIVED -> {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = { /* Accept */ }) {
+                    Text("Accept")
+                }
+                OutlinedButton(onClick = { /* Reject */ }) {
+                    Text("Reject")
+                }
             }
         }
     }

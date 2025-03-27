@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.greenthread.whatsinmycloset.core.domain.Result
 import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.domain.onError
@@ -74,18 +75,36 @@ class ProfileTabViewModel(
     }
 
     private suspend fun checkFriendRequestStatus(targetUserId: Int) {
-        userRepository.getSentFriendRequests(currentUser.value?.id ?: return)
-            .onSuccess { requests ->
-                _state.update {
-                    it.copy(
-                        friendshipStatus = if (requests.any { it.receiverId == targetUserId }) {
-                            FriendshipStatus.PENDING
-                        } else {
-                            FriendshipStatus.NOT_FRIENDS
-                        }
-                    )
-                }
+        val currentUserId = currentUser.value?.id ?: return
+
+        // Sent requests
+        val sentRequests = when (val result = userRepository.getSentFriendRequests(currentUserId)) {
+            is Result.Error ->
+            {
+                emptyList()
             }
+            is Result.Success -> result.data
+        }
+
+        // Received requests
+        val receivedRequests = when (val result = userRepository.getReceivedFriendRequests(currentUserId)) {
+            is Result.Success -> result.data
+            is Result.Error -> {
+                emptyList()
+            }
+        }
+
+        _state.update {
+            it.copy(
+                friendshipStatus = when {
+                    sentRequests.any { it.receiverId == targetUserId } ->
+                        FriendshipStatus.PENDING
+                    receivedRequests.any { it.senderId == targetUserId } ->
+                        FriendshipStatus.REQUEST_RECEIVED
+                    else -> FriendshipStatus.NOT_FRIENDS
+                }
+            )
+        }
     }
 
     // Search functions
