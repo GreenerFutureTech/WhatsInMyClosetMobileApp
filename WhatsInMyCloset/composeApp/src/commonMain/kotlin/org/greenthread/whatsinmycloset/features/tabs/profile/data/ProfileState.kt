@@ -14,7 +14,7 @@ data class ProfileState(
 
 enum class FriendshipStatus {
     NOT_FRIENDS,
-    REQUEST_SENT,
-    REQUEST_RECEIVED,
-    FRIENDS
+    PENDING,
+    FRIENDS,
+    REJECTED
 }

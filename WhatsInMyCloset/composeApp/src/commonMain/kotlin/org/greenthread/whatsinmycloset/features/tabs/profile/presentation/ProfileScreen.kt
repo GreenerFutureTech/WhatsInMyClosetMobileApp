@@ -49,7 +49,6 @@ import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.jetbrains.compose.resources.painterResource
 import whatsinmycloset.composeapp.generated.resources.Res
-import whatsinmycloset.composeapp.generated.resources.add_friend_button
 import whatsinmycloset.composeapp.generated.resources.available_swap_title
 import whatsinmycloset.composeapp.generated.resources.defaultUser
 import whatsinmycloset.composeapp.generated.resources.my_outfits_title
@@ -152,8 +151,8 @@ private fun ProfileContent(
             } else {
                 user.id?.let {
                     ManageFriendButton(
-                        viewModel = viewModel,
-                        targetUserId = it
+                        status = state.friendshipStatus,
+                        onSendRequest = { viewModel.sendFriendRequest(user.id) }
                     )
                 }
             }

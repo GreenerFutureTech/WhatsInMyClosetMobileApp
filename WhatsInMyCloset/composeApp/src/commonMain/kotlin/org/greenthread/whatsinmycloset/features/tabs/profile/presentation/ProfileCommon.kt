@@ -21,6 +21,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -37,6 +38,7 @@ import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.SwapImageCard
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.SeeAllButton
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabViewModel
+import org.greenthread.whatsinmycloset.features.tabs.profile.data.FriendshipStatus
 import org.greenthread.whatsinmycloset.features.tabs.swap.Action.SwapAction
 import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
 import org.jetbrains.compose.resources.StringResource
@@ -177,30 +179,47 @@ fun UserBadge() {
 
 @Composable
 fun ManageFriendButton(
-    viewModel: ProfileTabViewModel,
-    targetUserId: Int,
+    status: FriendshipStatus,
+    onSendRequest: () -> Unit,
+    onCancelRequest: () -> Unit = {},
+    modifier: Modifier = Modifier
 ) {
-    val isLoading by viewModel.isLoading.collectAsState()
-    val error by viewModel.error.collectAsState()
-
-    Column {
-        Button(
-            onClick = { viewModel.sendFriendRequest(targetUserId) },
-            enabled = !isLoading
-        ) {
-            if (isLoading) {
-                CircularProgressIndicator(modifier = Modifier.size(20.dp))
-            } else {
+    when (status) {
+        FriendshipStatus.NOT_FRIENDS -> {
+            Button(
+                onClick = onSendRequest,
+                modifier = modifier
+            ) {
                 Text("Add Friend")
             }
         }
 
-        error?.let {
-            Text(
-                text = it,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(top = 8.dp)
-            )
+        FriendshipStatus.PENDING -> {
+            OutlinedButton(
+                onClick = onCancelRequest,
+                enabled = false, // Disabled until we implement cancellation
+                modifier = modifier
+            ) {
+                Text("Request Sent")
+            }
+        }
+
+        FriendshipStatus.FRIENDS -> {
+            OutlinedButton(
+                onClick = { /* We'll implement later */ },
+                modifier = modifier
+            ) {
+                Text("Friends")
+            }
+        }
+
+        FriendshipStatus.REJECTED -> {
+            Button(
+                onClick = onSendRequest, // Allow re-sending if rejected
+                modifier = modifier
+            ) {
+                Text("Try Again")
+            }
         }
     }
 }
