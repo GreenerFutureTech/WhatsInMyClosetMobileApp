@@ -12,33 +12,18 @@ import org.greenthread.whatsinmycloset.features.tabs.social.data.OutfitState
 * */
 
 @Serializable
-data class ItemPosition(
-    val x: Int? = null,
-    val y: Int? = null,
-    val id: String? = null
-)
-
-@Serializable
 data class OutfitDto(
+    val id: String,
     val name: String = "",
     val itemIds: List<OutfitItems>,
-    val userId: String,
+    val userId: Int,
     val tags: List<String> = emptyList(),
-) {
-    fun toOutfitState(): OutfitState {
-        return OutfitState(
-            outfitId = this.id,
-            itemIds = this.itemIds?.filterNotNull() ?: emptyList(), // Keep the position data
-            items = emptyList(),
-            isLoading = true
-        )
-    }
-}
+)
 
 @Serializable
 data class OutfitResponse(
     val name: String,
-    val userId: String,
+    val userId: Int,
     val itemIds: List<OutfitItems>,
     val tags: List<String>,
     val id: String,

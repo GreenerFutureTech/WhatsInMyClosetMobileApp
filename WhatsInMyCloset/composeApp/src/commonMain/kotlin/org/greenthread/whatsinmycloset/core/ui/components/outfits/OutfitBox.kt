@@ -37,7 +37,6 @@ fun OutfitBox(
             color = MaterialTheme.colorScheme.surface,
             shape =  RoundedCornerShape(8.dp)
         ),
-        contentAlignment = Alignment.Center
     ){
         when {
             state.isLoading -> CircularProgressIndicator()

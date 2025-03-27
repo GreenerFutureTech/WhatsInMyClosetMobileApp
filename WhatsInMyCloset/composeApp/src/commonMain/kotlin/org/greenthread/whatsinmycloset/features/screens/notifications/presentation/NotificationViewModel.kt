@@ -99,12 +99,13 @@ class NotificationsViewModel(
 
         when(notification.type) {
             NotificationType.FRIEND_REQUEST -> {
-                /*
-                val userId = extraData?.get("userId")
+
+                val userId = notification.extraData?.get("userId")
+
                 userId?.let {
                     navController.navigate(Routes.ProfileTab)
                 }
-                */
+
                 navController.navigate(Routes.ProfileTab)
             }
             NotificationType.SWAP_REQUEST -> {
