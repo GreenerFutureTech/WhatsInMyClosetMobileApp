@@ -37,6 +37,7 @@ import coil3.compose.AsyncImage
 import io.ktor.client.network.sockets.ConnectTimeoutException
 import org.greenthread.whatsinmycloset.core.domain.models.MessageManager
 import org.greenthread.whatsinmycloset.core.domain.models.User
+import org.greenthread.whatsinmycloset.core.dto.MessageUserDto
 import org.greenthread.whatsinmycloset.core.dto.OtherSwapDto
 import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
@@ -70,15 +71,30 @@ fun SwapDetailScreen(
         lifecycle = lifecycle
     )
     val swapItem = swap.swap
-    val swapUser = swap.user
+    var swapUser = swap.user
     val currentUser = viewModel.currentUser
+
+    val isSearchUser = swapUser.id != currentUser.value?.id
+    if (isSearchUser) {
+        viewModel.getUser(swapUser.id)
+
+        val searchedUserInfo = state.searchedUserInfo
+        swapUser = if (searchedUserInfo != null) {
+            MessageUserDto(
+                id = swapUser.id,
+                username = searchedUserInfo.username,
+                profilePicture = searchedUserInfo.profilePicture
+            )
+        } else {
+            swapUser
+        }
+    }
+    println("UUU ${swapUser}")
     var menuExpanded by remember { mutableStateOf(false) }
     var showCompleteDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var profileLoadFailed by remember { mutableStateOf(false) }
-    LaunchedEffect(swapUser.profilePicture) {
-        profileLoadFailed = false
-    }
+
     WhatsInMyClosetTheme {
         Row(
             modifier = Modifier
@@ -218,7 +234,7 @@ fun SwapDetailScreen(
                     if (swapItem.userId != currentUser.value?.id) {
                         @OptIn(ExperimentalResourceApi::class)
                         AsyncImage(
-                            model = if (profileLoadFailed) Res.getUri("drawable/defaultUser.png") else swapUser.profilePicture,
+                            model = if (profileLoadFailed || swapUser.profilePicture == null) Res.getUri("drawable/defaultUser.png") else swapUser.profilePicture,
                             contentDescription = "Profile Image",
                             modifier = Modifier
                                 .size(40.dp)
@@ -230,7 +246,7 @@ fun SwapDetailScreen(
                         Spacer(modifier = Modifier.width(10.dp))
 
                         Text(
-                            text = swap.user.username?: "unknown user",
+                            text = swapUser.username?: "unknown user",
                             fontSize = 25.sp,
                             fontWeight = FontWeight.Bold
                         )

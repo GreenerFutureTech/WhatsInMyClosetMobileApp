@@ -192,5 +192,36 @@ class SwapViewModel(
         }
     }
 
+    fun getUser(userId: Int) {
+        viewModelScope.launch {
+            println("GET USER BY ID : get user $userId")
+            _state.update {
+                it.copy(
+                    isLoading = true
+                )
+            }
+            swapRepository
+                .getUserById(userId)
+                .onSuccess { getResults ->
+                    println("GET USER BY ID API success: $getResults")
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            searchedUserInfo = getResults
+                        )
+                    }
+                }
+                .onError { error ->
+                    println("GET USER BY ID API ERROR ${error}")
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            searchedUserInfo = null
+                        )
+                    }
+                }
+        }
+    }
+
 
 }
