@@ -16,6 +16,7 @@ import org.greenthread.whatsinmycloset.features.screens.notifications.domain.mod
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.NotificationType
 import org.greenthread.whatsinmycloset.features.tabs.profile.data.FriendshipStatus
 import org.greenthread.whatsinmycloset.features.tabs.profile.domain.FriendRequest
+import org.greenthread.whatsinmycloset.features.tabs.profile.domain.RequestStatus
 
 interface RemoteClosetDataSource {
     // Swap
@@ -52,7 +53,10 @@ interface RemoteClosetDataSource {
     // Outfit
     suspend fun getAllOutfits(): Result<List<OutfitDto>, DataError.Remote>
     suspend fun getUserByUserName(username: String): Result<UserDto, DataError.Remote>
+
+    // Friend request
     suspend fun sendFriendRequest(senderId: Int, receiverId: Int): Result<Unit, DataError.Remote>
     suspend fun getSentFriendRequests(userId: Int): Result<List<FriendRequestDto>, DataError.Remote>
     suspend fun getReceivedFriendRequests(userId: Int): Result<List<FriendRequestDto>, DataError.Remote>
+    suspend fun respondToFriendRequest(requestId: Int, status: RequestStatus): Result<Unit, DataError.Remote>
 }

@@ -30,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -39,6 +40,7 @@ import org.greenthread.whatsinmycloset.core.ui.components.listItems.SwapImageCar
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.SeeAllButton
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabViewModel
 import org.greenthread.whatsinmycloset.features.tabs.profile.data.FriendshipStatus
+import org.greenthread.whatsinmycloset.features.tabs.profile.domain.FriendRequest
 import org.greenthread.whatsinmycloset.features.tabs.swap.Action.SwapAction
 import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
 import org.jetbrains.compose.resources.StringResource
@@ -179,51 +181,72 @@ fun UserBadge() {
 
 @Composable
 fun ManageFriendButton(
-    status: FriendshipStatus,
-    onSendRequest: () -> Unit,
-    onCancelRequest: () -> Unit = {},
-    modifier: Modifier = Modifier
+    request: FriendRequest,
+    onRespond: (Boolean) -> Unit // true = accept, false = reject
+//    status: FriendshipStatus,
+//    onSendRequest: () -> Unit,
+//    onCancelRequest: () -> Unit = {},
+//    modifier: Modifier = Modifier
 ) {
-    when (status) {
-        FriendshipStatus.NOT_FRIENDS -> {
-            Button(
-                onClick = onSendRequest,
-                modifier = modifier
-            ) {
-                Text("Add Friend")
-            }
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Button(
+            onClick = { onRespond(true) },
+            colors = ButtonDefaults.buttonColors(
+               containerColor = MaterialTheme.colorScheme.tertiary
+            )
+        ) {
+            Text("Accept")
         }
 
-        FriendshipStatus.PENDING -> {
-            OutlinedButton(
-                onClick = onCancelRequest,
-                enabled = false, // Disabled until we implement cancellation
-                modifier = modifier
-            ) {
-                Text("Request Sent")
-            }
-        }
-
-        FriendshipStatus.FRIENDS -> {
-            OutlinedButton(
-                onClick = { /* We'll implement later */ },
-                modifier = modifier
-            ) {
-                Text("Friends")
-            }
-        }
-
-        FriendshipStatus.REQUEST_RECEIVED -> {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = { /* Accept */ }) {
-                    Text("Accept")
-                }
-                OutlinedButton(onClick = { /* Reject */ }) {
-                    Text("Reject")
-                }
-            }
+        OutlinedButton(
+            onClick = { onRespond(false) },
+            colors = ButtonDefaults.buttonColors(
+                contentColor = MaterialTheme.colorScheme.outline
+            )
+        ) {
+            Text("Reject")
         }
     }
+//    when (status) {
+//        FriendshipStatus.NOT_FRIENDS -> {
+//            Button(
+//                onClick = onSendRequest,
+//                modifier = modifier
+//            ) {
+//                Text("Add Friend")
+//            }
+//        }
+//
+//        FriendshipStatus.PENDING -> {
+//            OutlinedButton(
+//                onClick = onCancelRequest,
+//                enabled = false, // Disabled until we implement cancellation
+//                modifier = modifier
+//            ) {
+//                Text("Request Sent")
+//            }
+//        }
+//
+//        FriendshipStatus.FRIENDS -> {
+//            OutlinedButton(
+//                onClick = { /* We'll implement later */ },
+//                modifier = modifier
+//            ) {
+//                Text("Friends")
+//            }
+//        }
+//
+//        FriendshipStatus.REQUEST_RECEIVED -> {
+//            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+//                Button(onClick = { /* Accept */ }) {
+//                    Text("Accept")
+//                }
+//                OutlinedButton(onClick = { /* Reject */ }) {
+//                    Text("Reject")
+//                }
+//            }
+//        }
+//    }
 }
 
 @Composable

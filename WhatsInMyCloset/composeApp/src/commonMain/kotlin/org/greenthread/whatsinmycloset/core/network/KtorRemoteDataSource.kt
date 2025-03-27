@@ -35,6 +35,7 @@ import org.greenthread.whatsinmycloset.features.screens.notifications.domain.mod
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.NotificationType
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.SendNotificationRequest
 import org.greenthread.whatsinmycloset.features.tabs.profile.data.FriendshipStatus
+import org.greenthread.whatsinmycloset.features.tabs.profile.domain.RequestStatus
 import org.greenthread.whatsinmycloset.getPlatform
 
 private val platform = getPlatform()
@@ -398,6 +399,14 @@ class KtorRemoteDataSource(
         return safeCall {
             httpClient.get(
                 urlString = "$BASE_URL/users/$userId/friend-requests"
+            )
+        }
+    }
+
+    override suspend fun respondToFriendRequest(requestId: Int, status: RequestStatus): Result<Unit, DataError.Remote> {
+        return safeCall {
+            httpClient.post(
+                urlString = "$BASE_URL/users/$requestId/respond/${status.name}"
             )
         }
     }

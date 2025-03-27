@@ -19,9 +19,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,6 +46,7 @@ import org.greenthread.whatsinmycloset.core.dto.OtherSwapDto
 import org.greenthread.whatsinmycloset.core.dto.toOtherSwapDto
 import org.greenthread.whatsinmycloset.core.ui.components.controls.SearchBar
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabViewModel
+import org.greenthread.whatsinmycloset.features.tabs.profile.data.FriendshipStatus
 import org.greenthread.whatsinmycloset.features.tabs.swap.Action.SwapAction
 import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
@@ -90,7 +93,6 @@ fun ProfileScreen(
             state.user != null -> ProfileContent(
                 user = state.user!!,
                 isOwnProfile = state.isOwnProfile,
-                onFollowClick = {},
                 viewModel = profileViewModel,
                 navController = navController,
                 modifier = Modifier.padding(padding),
@@ -107,7 +109,6 @@ fun ProfileScreen(
 private fun ProfileContent(
     user: User,
     isOwnProfile: Boolean,
-    onFollowClick: () -> Unit,
     onAllSwapClick: () -> Unit,
     onSwapClick: (OtherSwapDto) -> Unit,
     viewModel: ProfileTabViewModel,
@@ -124,7 +125,7 @@ private fun ProfileContent(
         .fillMaxWidth()
         .padding(16.dp)
     ) {
-        ProfileHeader(user, isOwnProfile, onFollowClick)
+        ProfileHeader(user)
 
         Spacer(Modifier.height(8.dp))
 
@@ -148,13 +149,13 @@ private fun ProfileContent(
                         .weight(1f)
                         .wrapContentWidth(Alignment.CenterHorizontally)
                 )
-            } else {
-                user.id?.let {
-                    ManageFriendButton(
-                        status = state.friendshipStatus,
-                        onSendRequest = { viewModel.sendFriendRequest(user.id) }
-                    )
-                }
+            }
+
+            if (!state.isOwnProfile) {
+                ProfileActions(
+                    viewModel = viewModel,
+                    targetUserId = user.id
+                )
             }
         }
 
@@ -299,9 +300,7 @@ private fun UserSearchResult(
 
 @Composable
 private fun ProfileHeader(
-    user: User,
-    isOwnProfile: Boolean,
-    onFollowClick: () -> Unit
+    user: User
 ) {
     Column(
         modifier = Modifier
@@ -358,6 +357,68 @@ private fun ProfileStats(
 //                viewModel = viewModel,
 //                targetUserId = userId
 //            )
+        }
+    }
+}
+
+@Composable
+fun ProfileActions(
+    viewModel: ProfileTabViewModel,
+    targetUserId: Int?
+) {
+    val state by viewModel.state.collectAsState()
+
+    when (state.friendshipStatus) {
+        FriendshipStatus.NOT_FRIENDS -> {
+            Button(
+                onClick = {
+                    targetUserId?.let { viewModel.sendFriendRequest(it) }
+                },
+                enabled = !state.isLoading && targetUserId != null
+            ) {
+                Text("Add Friend")
+            }
+        }
+
+        // TODO cancel request pending
+        FriendshipStatus.PENDING -> {
+            OutlinedButton(
+                onClick = { /* Cancel request */ },
+                enabled = false
+            ) {
+                Text("Request Sent")
+            }
+        }
+
+        FriendshipStatus.REQUEST_RECEIVED -> {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(
+                    onClick = { viewModel.respondToRequest(true) },
+                    enabled = !state.isLoading
+                ) {
+                    Text("Accept")
+                }
+
+                OutlinedButton(
+                    onClick = { viewModel.respondToRequest(false) },
+                    enabled = !state.isLoading
+                ) {
+                    Text("Reject")
+                }
+            }
+        }
+
+        // TODO remove friend
+        FriendshipStatus.FRIENDS -> {
+            OutlinedButton(
+                onClick = { /* Remove friend */ },
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                    contentColor = MaterialTheme.colorScheme.onErrorContainer
+                )
+            ) {
+                Text("Remove Friend")
+            }
         }
     }
 }

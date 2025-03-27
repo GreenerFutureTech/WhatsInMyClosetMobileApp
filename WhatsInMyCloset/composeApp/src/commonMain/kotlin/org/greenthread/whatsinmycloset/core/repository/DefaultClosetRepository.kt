@@ -14,6 +14,7 @@ import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.dto.SwapStatusDto
 import org.greenthread.whatsinmycloset.core.dto.UserDto
 import org.greenthread.whatsinmycloset.features.tabs.profile.data.FriendshipStatus
+import org.greenthread.whatsinmycloset.features.tabs.profile.domain.RequestStatus
 
 class DefaultClosetRepository(
     private val remoteClosetDataSource: RemoteClosetDataSource
@@ -95,6 +96,10 @@ class DefaultClosetRepository(
 
     override suspend fun sendFriendRequest(senderId: Int, receiverId: Int): Result<Unit, DataError.Remote> {
         return remoteClosetDataSource.sendFriendRequest(senderId, receiverId)
+    }
+
+    override suspend fun respondToFriendRequest(requestId: Int, status: RequestStatus): Result<Unit, DataError.Remote> {
+        return remoteClosetDataSource.respondToFriendRequest(requestId, status)
     }
 
     override suspend fun getReceivedFriendRequests(userId: Int): Result<List<FriendRequestDto>, DataError.Remote> {
