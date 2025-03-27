@@ -376,18 +376,9 @@ class KtorRemoteDataSource(
     override suspend fun postOutfitForUser(outfit: OutfitDto): Result<OutfitResponse, DataError.Remote> {
         return safeCall {
             httpClient.post("$BASE_URL/outfits") {
-                url {
-                    parameters.append("name", outfit.name)
-                    parameters.append("userId", outfit.userId)
-                    // Send items as JSON string with id, x, y
-                    parameters.append("itemIds", Json.encodeToString(outfit.items))
-                    if (outfit.tags.isNotEmpty()) {
-                        parameters.append("tags", Json.encodeToString(outfit.tags))
-                    }
-
-                    println("Request URL: ${url.buildString()}")
+                    contentType(ContentType.Application.Json)
+                    setBody(outfit)
                 }
-            }.body()
         }
     }
 

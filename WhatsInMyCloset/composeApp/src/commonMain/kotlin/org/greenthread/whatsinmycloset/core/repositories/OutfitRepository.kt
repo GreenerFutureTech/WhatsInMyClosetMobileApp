@@ -11,9 +11,7 @@ import org.greenthread.whatsinmycloset.core.domain.getOrNull
 import org.greenthread.whatsinmycloset.core.domain.isSuccess
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.domain.models.toDomain
-import org.greenthread.whatsinmycloset.core.domain.models.toEntity
 import org.greenthread.whatsinmycloset.core.dto.OutfitDto
-import org.greenthread.whatsinmycloset.core.dto.OutfitResponse
 import org.greenthread.whatsinmycloset.core.network.KtorRemoteDataSource
 import org.greenthread.whatsinmycloset.core.persistence.OutfitEntity
 import org.greenthread.whatsinmycloset.core.persistence.OutfitItems
@@ -100,7 +98,7 @@ open class OutfitRepository(
     fun Outfit.toDto(): OutfitDto {
         return OutfitDto(
             name = name,
-            items = items.map { (id, offsetData) ->
+            itemIds = items.map { (id, offsetData) ->
                 OutfitItems(id = id, x = offsetData.x.toString(), y = offsetData.y.toString()) // Ensure correct field mapping
             },
             userId = creatorId.toString(),

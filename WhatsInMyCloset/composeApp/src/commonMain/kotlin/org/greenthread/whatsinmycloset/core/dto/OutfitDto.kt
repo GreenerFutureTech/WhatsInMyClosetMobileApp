@@ -13,7 +13,7 @@ import org.greenthread.whatsinmycloset.core.persistence.OutfitItems
 @Serializable
 data class OutfitDto(
     val name: String = "",
-    val items: List<OutfitItems>,
+    val itemIds: List<OutfitItems>,
     val userId: String,
     val tags: List<String> = emptyList(),
 )
