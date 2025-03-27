@@ -132,13 +132,12 @@ private fun ProfileContent(
         Row(
             modifier = Modifier
                 .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+            horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             SwapsCount(
-                onClick = {},
                 swapsCount = 10,
                 modifier = Modifier
-                    .weight(1f)
                     .wrapContentWidth(Alignment.CenterHorizontally)
             )
 
@@ -146,15 +145,13 @@ private fun ProfileContent(
                 FriendsCount(
                     friendsCount = user.friends?.size ?: 0,
                     modifier = Modifier
-                        .weight(1f)
                         .wrapContentWidth(Alignment.CenterHorizontally)
                 )
-            }
-
-            if (!state.isOwnProfile) {
+            } else {
                 ProfileActions(
                     viewModel = viewModel,
-                    targetUserId = user.id
+                    targetUserId = user.id,
+                    modifier = Modifier.wrapContentWidth(Alignment.CenterHorizontally)
                 )
             }
         }
@@ -300,93 +297,87 @@ private fun UserSearchResult(
 
 @Composable
 private fun ProfileHeader(
-    user: User
+    user: User,
 ) {
-    Column(
+    Row(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceAround
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                ProfilePicture(user)
-                Username(user.name ?: "No username found", user.username ?: "No username found")
-            }
-
-            if (user.type == "Super") {
-                UserBadge()
-            }
-        }
+        ProfilePicture(user)
+        Username(user.name ?: "No username found", user.username ?: "No username found")
     }
 }
 
 @Composable
 fun ProfileActions(
     viewModel: ProfileTabViewModel,
-    targetUserId: Int?
+    targetUserId: Int?,
+    modifier: Modifier = Modifier
 ) {
     val state by viewModel.state.collectAsState()
-
-    when (state.friendshipStatus) {
-        FriendshipStatus.NOT_FRIENDS -> {
-            Button(
-                onClick = {
-                    targetUserId?.let { viewModel.sendFriendRequest(it) }
-                },
-                enabled = !state.isLoading && targetUserId != null
-            ) {
-                Text("Add Friend")
-            }
-        }
-
-        // TODO cancel request pending
-        FriendshipStatus.PENDING -> {
-            OutlinedButton(
-                onClick = { /* Cancel request */ },
-                enabled = false
-            ) {
-                Text("Request Sent")
-            }
-        }
-
-        FriendshipStatus.REQUEST_RECEIVED -> {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    Row(modifier = modifier) {
+        when (state.friendshipStatus) {
+            FriendshipStatus.NOT_FRIENDS -> {
                 Button(
-                    onClick = { viewModel.respondToRequest(true) },
-                    enabled = !state.isLoading
+                    onClick = {
+                        targetUserId?.let { viewModel.sendFriendRequest(it) }
+                    },
+                    enabled = !state.isLoading && targetUserId != null
                 ) {
-                    Text("Accept")
-                }
-
-                OutlinedButton(
-                    onClick = { viewModel.respondToRequest(false) },
-                    enabled = !state.isLoading
-                ) {
-                    Text("Reject")
+                    Text("Add Friend")
                 }
             }
-        }
 
-        FriendshipStatus.FRIENDS -> {
-            OutlinedButton(
-                onClick = {
-                    targetUserId?.let { viewModel.removeFriend(it) }
-                },
-                colors = ButtonDefaults.outlinedButtonColors(
-                    containerColor = MaterialTheme.colorScheme.errorContainer,
-                    contentColor = MaterialTheme.colorScheme.onErrorContainer
-                ),
-                enabled = !state.isLoading && targetUserId != null
-            ) {
-                if (state.isLoading) {
-                    CircularProgressIndicator(Modifier.size(20.dp))
-                } else {
-                    Text("Remove Friend")
+            // TODO cancel request pending
+            FriendshipStatus.PENDING -> {
+                OutlinedButton(
+                    onClick = { /* Cancel request */ },
+                    enabled = false
+                ) {
+                    Text("Request Sent")
+                }
+            }
+
+            FriendshipStatus.REQUEST_RECEIVED -> {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(
+                        onClick = { viewModel.respondToRequest(true) },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                        ),
+                        enabled = !state.isLoading
+                    ) {
+                        Text("Accept")
+                    }
+
+                    OutlinedButton(
+                        onClick = { viewModel.respondToRequest(false) },
+                        enabled = !state.isLoading
+                    ) {
+                        Text("Reject")
+                    }
+                }
+            }
+
+            FriendshipStatus.FRIENDS -> {
+                OutlinedButton(
+                    onClick = {
+                        targetUserId?.let { viewModel.removeFriend(it) }
+                    },
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer,
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer
+                    ),
+                    enabled = !state.isLoading && targetUserId != null
+                ) {
+                    if (state.isLoading) {
+                        CircularProgressIndicator(Modifier.size(20.dp))
+                    } else {
+                        Text("Remove Friend")
+                    }
                 }
             }
         }

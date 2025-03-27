@@ -79,7 +79,7 @@ fun Username(name: String, username: String) {
             fontWeight = FontWeight.Bold
         )
         Text(
-            text = username,
+            text = "@$username",
             fontWeight = FontWeight.Bold
         )
     }
@@ -90,8 +90,8 @@ fun FriendsCount(
     friendsCount: Int?,
     modifier: Modifier = Modifier
 ) {
-    Column (
-        horizontalAlignment = Alignment.CenterHorizontally
+    Row (
+        modifier = modifier
     ){
         Text(
             text = "$friendsCount",
@@ -100,19 +100,18 @@ fun FriendsCount(
         )
         Text(
             text = stringResource(Res.string.friends_count_label),
-            style = MaterialTheme.typography.bodyMedium
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(8.dp)
         )
     }
 }
 
 @Composable
 fun SwapsCount(
-    onClick: () -> Unit,
     swapsCount: Int,
     modifier: Modifier = Modifier
 ) {
-    TextButton(
-        onClick = onClick,
+    Row(
         modifier = modifier
     ) {
         Text(
@@ -162,91 +161,6 @@ fun SwapTitle(title: StringResource) {
             onClick = {}
         )
     }
-}
-
-@Composable
-fun UserBadge() {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Icon(
-            imageVector = Icons.Rounded.Star,
-            contentDescription = "Super Swapper"
-        )
-        Text(
-            text = "Super"
-        )
-    }
-}
-
-@Composable
-fun ManageFriendButton(
-    request: FriendRequest,
-    onRespond: (Boolean) -> Unit // true = accept, false = reject
-//    status: FriendshipStatus,
-//    onSendRequest: () -> Unit,
-//    onCancelRequest: () -> Unit = {},
-//    modifier: Modifier = Modifier
-) {
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Button(
-            onClick = { onRespond(true) },
-            colors = ButtonDefaults.buttonColors(
-               containerColor = MaterialTheme.colorScheme.tertiary
-            )
-        ) {
-            Text("Accept")
-        }
-
-        OutlinedButton(
-            onClick = { onRespond(false) },
-            colors = ButtonDefaults.buttonColors(
-                contentColor = MaterialTheme.colorScheme.outline
-            )
-        ) {
-            Text("Reject")
-        }
-    }
-//    when (status) {
-//        FriendshipStatus.NOT_FRIENDS -> {
-//            Button(
-//                onClick = onSendRequest,
-//                modifier = modifier
-//            ) {
-//                Text("Add Friend")
-//            }
-//        }
-//
-//        FriendshipStatus.PENDING -> {
-//            OutlinedButton(
-//                onClick = onCancelRequest,
-//                enabled = false, // Disabled until we implement cancellation
-//                modifier = modifier
-//            ) {
-//                Text("Request Sent")
-//            }
-//        }
-//
-//        FriendshipStatus.FRIENDS -> {
-//            OutlinedButton(
-//                onClick = { /* We'll implement later */ },
-//                modifier = modifier
-//            ) {
-//                Text("Friends")
-//            }
-//        }
-//
-//        FriendshipStatus.REQUEST_RECEIVED -> {
-//            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-//                Button(onClick = { /* Accept */ }) {
-//                    Text("Accept")
-//                }
-//                OutlinedButton(onClick = { /* Reject */ }) {
-//                    Text("Reject")
-//                }
-//            }
-//        }
-//    }
 }
 
 @Composable
