@@ -60,103 +60,95 @@ fun OutfitScreen(
 
     WhatsInMyClosetTheme {
 
-        // Track selected wardrobe in the Composable
-        var selectedWardrobe by remember { mutableStateOf(clothingItemViewModel.defaultWardrobe) }
-
-        // Initialize clothing items for the selected wardrobe (default when screen first launches)
-        LaunchedEffect(selectedWardrobe) {
-            println("DEBUG: Initializing clothing items for wardrobe: ${selectedWardrobe?.wardrobeName}...")
-
-            // fetch items for selected wardrobe
-            /*if (selectedWardrobe != null) {
-                // For each category, fetch items for the selected wardrobe
-                clothingItemViewModel.getItemsByCategoryAndWardrobe("Tops", selectedWardrobe)
-            }*/
-
-
-            // get sample items from BLOB to show on screen
-            clothingItemViewModel.fetchSampleClothingItems()
+        // Collect state from ViewModels
+        val wardrobes by outfitViewModel.cachedWardrobes.collectAsState()
+        val selectedWardrobeId by remember(outfitViewModel) {
+            derivedStateOf { outfitViewModel.selectedWardrobe.value }
         }
-
-        // Collect state from the ViewModel
         val selectedItems by clothingItemViewModel.selectedItems.collectAsState()
         val isCreateNewOutfit by outfitViewModel.isCreateNewOutfit.collectAsState()
         val isOutfitSaved by outfitViewModel.isOutfitSaved.collectAsState()
-        var showExitDialog by remember { mutableStateOf(false) } // Exit screen
+
+        var showExitDialog by remember { mutableStateOf(false) }
+
+        // Initialize default wardrobe selection
+        LaunchedEffect(wardrobes) {
+            if (wardrobes.isNotEmpty() && selectedWardrobeId == null) {
+                clothingItemViewModel.setWardrobeFilter(wardrobes.first())
+            }
+        }
 
         // Handle position updates
         val onPositionUpdate = { itemId: String, newPosition: OffsetData ->
-            outfitViewModel.updateClothingItemPosition(itemId, newPosition)
+            outfitViewModel.updateItemPosition(itemId, newPosition)
         }
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(2.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        )
+        {
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(2.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+            // Header
+            OutfitScreenHeader(
+                onExit = { showExitDialog = true },  // Discard Outfit Creation
+                title = "Create Your Outfit"
             )
-            {
 
-                // Header
-                OutfitScreenHeader(
-                    onExit = { showExitDialog = true },  // Discard Outfit Creation
-                    title = "Create Your Outfit"
-                )
+            // Outfit collage area will show the selectedClothingItems
+            OutfitCollageArea(
+                selectedClothingItems = selectedItems,
+                onPositionUpdate = onPositionUpdate
+            )
 
-                // Outfit collage area will show the selectedClothingItems
-                OutfitCollageArea(
-                    selectedClothingItems = selectedItems,
-                    onPositionUpdate = onPositionUpdate
-                )
+            // Clothing category selection
+            ClothingCategorySelection { selectedCategory ->
+                // Convert the selected category string to ClothingCategory enum
+                val categoryEnum = ClothingCategory.fromString(selectedCategory.categoryName)
+                if (categoryEnum != null) {
+                    // Navigate to the category items screen showing all items in that category
+                    navController.navigate(Routes.CategoryItemScreen(categoryEnum.toString()))
+                } else {
+                    // Handle invalid category (e.g., show an error message)
+                    println("Invalid category selected: ${selectedCategory.categoryName}")
+                }
+            }
 
-                // Clothing category selection
-                ClothingCategorySelection { selectedCategory ->
-                    // Convert the selected category string to ClothingCategory enum
-                    val categoryEnum = ClothingCategory.fromString(selectedCategory.categoryName)
-                    if (categoryEnum != null) {
-                        // Navigate to the category items screen showing all items in that category
-                        navController.navigate(Routes.CategoryItemScreen(categoryEnum.toString()))
-                    } else {
-                        // Handle invalid category (e.g., show an error message)
-                        println("Invalid category selected: ${selectedCategory.categoryName}")
-                    }
+            // show additional options when there is at least one item in outfit area
+            if (selectedItems.isNotEmpty()) {
+                // Save Outfit button
+                Button(
+                    onClick = {
+                        outfitViewModel.createOutfit(
+                            name = "New Outfit",    // TODO take name from user else Default Name
+                            onSuccess = {
+                                navController.navigate(Routes.OutfitSaveScreen)
+                            }
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = selectedItems.isNotEmpty()
+                ) {
+                    Text("Save Outfit")
                 }
 
-                // show additional options when there is at least one item in outfit area
-                if (selectedItems.isNotEmpty()) {
-                        // Save Outfit button
-                        Button(
-                            onClick = {
-                                // Create the outfit, pass selected items
-                                outfitViewModel.createOutfit(name="New Outfit", // allow user to add a name
-                                    selectedItems = selectedItems)
-
-                                // Navigate to the OutfitSaveScreen
-                                navController.navigate(
-                                    Routes.OutfitSaveScreen
-                                )
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            enabled = selectedItems.isNotEmpty()
-                        ) {
-                            Text("Save Outfit")
-                        }
-
-                        // Create New Outfit button
-                        Button(
-                            onClick = {
-                                // Discard the current outfit and create a new one
-                                outfitViewModel.discardCurrentOutfit()
-                                outfitViewModel.clearOutfitState() // Clear the outfit state
-                                clothingItemViewModel.clearClothingItemState() // Clear the selected items state
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            enabled = selectedItems.isNotEmpty()
-                        ) {
-                            Text("Reset")
-                        }
+                // Create New Outfit button
+                Button(
+                    onClick = {
+                        // Discard the current outfit and create a new one
+                        outfitViewModel.discardCurrentOutfit()
+                        outfitViewModel.clearOutfitState() // Clear the outfit state
+                        clothingItemViewModel.clearClothingItemState() // Clear the selected items state
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = selectedItems.isNotEmpty()
+                ) {
+                    Text("Reset")
                 }
-            }   // end of Column
+            }
+        }   // end of Column
+
 
         // Show Exit Dialog
         if (showExitDialog) {
@@ -258,30 +250,31 @@ fun OutfitCollageArea(
         }
         else
         {
-            val itemPositions = remember { mutableStateListOf<OffsetData>() }
+            // Track positions by item ID instead of index
+            val itemPositions = remember { mutableStateMapOf<String, OffsetData>() }
 
-            // Ensure items retain their positions when added
-            LaunchedEffect(selectedClothingItems.size) {
-                selectedClothingItems.forEachIndexed { index, _ ->
-                    if (index >= itemPositions.size) {
-                        val x = (index * 120f).coerceIn(0f, canvasWidth - 100f)
-                        val y = (index * 80f).coerceIn(0f, canvasHeight - 100f) // Stagger Y positions
-
-                        itemPositions.add(OffsetData(x, y))
+            // Initialize positions for new items
+            LaunchedEffect(selectedClothingItems) {
+                selectedClothingItems.forEach { item ->
+                    if (!itemPositions.containsKey(item.id)) {
+                        // Calculate initial position (you can adjust this logic)
+                        val x = (itemPositions.size * 120f).coerceIn(0f, canvasWidth - 100f)
+                        val y = (itemPositions.size * 80f).coerceIn(0f, canvasHeight - 100f)
+                        itemPositions[item.id] = OffsetData(x, y)
+                        onPositionUpdate(item.id, OffsetData(x, y))
                     }
                 }
             }
 
             // Loop through selectedClothingItems and display them
-            selectedClothingItems.forEachIndexed { index, clothingItem ->
+            selectedClothingItems.forEach { clothingItem ->
                 DraggableClothingItem(
                     clothingItem = clothingItem,
-                    itemIndex = index,
-                    itemPositions = itemPositions,
+                    initialPosition = itemPositions[clothingItem.id] ?: OffsetData(0f, 0f),
                     canvasWidth = canvasWidth,
                     canvasHeight = canvasHeight,
                     onPositionUpdate = { newPosition ->
-                        // Notify parent of position change
+                        itemPositions[clothingItem.id] = newPosition
                         onPositionUpdate(clothingItem.id, newPosition)
                     }
                 )
@@ -296,49 +289,31 @@ fun OutfitCollageArea(
 @Composable
 fun DraggableClothingItem(
     clothingItem: ClothingItem,
-    itemIndex: Int,
-    itemPositions: MutableList<OffsetData>,
+    initialPosition: OffsetData,
     canvasWidth: Float,
     canvasHeight: Float,
     onPositionUpdate: (OffsetData) -> Unit
 ) {
-    val defaultPosition = OffsetData(100f, 100f)
-    val position = remember {
-        mutableStateOf(
-            if (itemIndex < itemPositions.size) itemPositions[itemIndex] else defaultPosition
-        )
-    }
-
-    // Only update if the position has changed
-    LaunchedEffect(itemPositions) {
-        if (itemIndex < itemPositions.size && position.value != itemPositions[itemIndex]) {
-            position.value = itemPositions[itemIndex]
-        }
-    }
+    var position by remember { mutableStateOf(initialPosition) }
 
     Box(
         modifier = Modifier
-            .offset { IntOffset(position.value.x.toInt(), position.value.y.toInt()) }
+            .offset { IntOffset(position.x.toInt(), position.y.toInt()) }
             .pointerInput(Unit) {
                 detectDragGestures { _, dragAmount ->
 
-                    val newX = (position.value.x + dragAmount.x)
+                    val newX = (position.x + dragAmount.x)
                         .coerceIn(0f, canvasWidth - 300f)
-                    val newY = (position.value.y + dragAmount.y)
+                    val newY = (position.y + dragAmount.y)
                         .coerceIn(0f, canvasHeight - 275f)
 
                     println("NEW X: $newX")
                     println("NEW Y: $newY")
 
-                    val newPosition = OffsetData(newX, newY)
-                    position.value = OffsetData(newX, newY)
-
-                    if (itemIndex < itemPositions.size) {
-                        itemPositions[itemIndex] = position.value
-                    }
+                    position = OffsetData(newX, newY)
 
                     // Notify parent of position change
-                    onPositionUpdate(newPosition)
+                    onPositionUpdate(position)
                 }
             }
             .size(100.dp) // Define the size of the clothing item
@@ -395,55 +370,39 @@ fun CategoryItemsScreen(
     category: String,
     onBack: () -> Unit,
     onDone: () -> Unit,
-    viewModel: ClothingItemViewModel // Inject the ClothingItemViewModel
+    viewModel: ClothingItemViewModel
 ) {
-    // items in the selected category
     val categoryEnum = ClothingCategory.fromString(category)
+    LaunchedEffect(categoryEnum) {
+        viewModel.setCategoryFilter(categoryEnum)
+    }
 
-    val categoryItems by viewModel.categoryItems.collectAsState()
+    val categoryItems by viewModel.filteredItems.collectAsState()
+    val selectedWardrobe by viewModel.selectedWardrobe.collectAsState()
+    val wardrobes by viewModel.cachedWardrobes.collectAsState()
 
-    // Track selected items uniquely by ID + Category
     var selectedItemKeys by remember { mutableStateOf(setOf<Pair<String, ClothingCategory>>()) }
-
-    // Track if selection mode is ON - meaning user wants to select 1 or more items
-    // otherwise, clicking on the item will open a new screen with details of that item
-    val isSelectionMode = remember { mutableStateOf(false) }
-
-    // Track selected wardrobe in the Composable
-    var selectedWardrobe by remember { mutableStateOf(viewModel.defaultWardrobe) }
-
-    // Dropdown menu state
+    var isSelectionMode by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(false) }
-
-    val wardrobes by viewModel.wardrobes.collectAsState()
-    var checked by remember { mutableStateOf(false) }   // set switch to false
-
-    // Fetch items for the selected category and wardrobe whenever they change
-    /*LaunchedEffect(category, selectedWardrobe) {
-        if (selectedWardrobe != null) {
-            viewModel.getItemsByCategoryAndWardrobe(category, selectedWardrobe)
-        }
-    }*/
+    var checked by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
-            .verticalScroll(rememberScrollState()), // Enable vertical scrolling
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
-        // Heading for the selected category
         OutfitScreenHeader(
-            onExit = {navController.navigate(Routes.HomeTab)},
+            onExit = { navController.navigate(Routes.HomeTab) },
             title = "Select $category"
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(Modifier.height(16.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
+            horizontalArrangement = Arrangement.Center
         ) {
             Text(
                 text = "Selected Items ${selectedItemKeys.size}",
@@ -460,81 +419,66 @@ fun CategoryItemsScreen(
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxWidth()
         ) {
-            // Wardrobe selection dropdown
             WardrobeDropdown(
                 wardrobes = wardrobes,
                 selectedWardrobe = selectedWardrobe,
                 onWardrobeSelected = { wardrobe ->
-                    selectedWardrobe = wardrobe // Update the selected wardrobe
+                    viewModel.setWardrobeFilter(wardrobe)
                 }
             )
 
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(Modifier.width(8.dp))
 
             Switch(
                 checked = checked,
                 onCheckedChange = {
                     checked = it
-                    // Toggle selection mode when switch state changes
-                    isSelectionMode.value = !isSelectionMode.value
-
-                    // Reset selection when leaving selection mode
-                    if (!isSelectionMode.value) {
+                    isSelectionMode = !isSelectionMode
+                    if (!isSelectionMode) {
                         selectedItemKeys = emptySet()
                     }
                 }
             )
         }
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)  // This makes the grid scrollable
-        ) {
+        Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(3),
                 contentPadding = PaddingValues(8.dp)
             ) {
-                items(categoryItems.size)
-                { thisItem ->
-                    val item = categoryItems[thisItem]
+                items(categoryItems.size) { index ->
+                    val item = categoryItems[index]
                     val itemKey = item.id to item.itemType
 
                     CategoryItem(
                         item = item,
                         isSelected = selectedItemKeys.contains(itemKey),
-                        isSelectionMode = isSelectionMode.value,
-
-                        onItemSelected = { selectedItem ->
-                            selectedItemKeys = selectedItemKeys.toMutableSet().apply {
-                                if (contains(itemKey)) remove(itemKey) else add(itemKey)
-                            }
-                        },
+                        isSelectionMode = isSelectionMode,
+                        onItemSelected = { selectedItemKeys = selectedItemKeys.toMutableSet().apply {
+                            if (contains(itemKey)) remove(itemKey) else add(itemKey)
+                        }},
                         onItemClicked = { clickedItem ->
                             navController.navigate(
-                                Routes.CategoryItemDetailScreen(clickedItem.wardrobeId.toString(),
-                                    clickedItem.id, clickedItem.itemType.toString())
+                                Routes.CategoryItemDetailScreen(
+                                    clickedItem.wardrobeId.toString(),
+                                    clickedItem.id,
+                                    clickedItem.itemType.toString()
                                 )
+                            )
                         }
                     )
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Done button shows up when user selects 1 or more items to add to canvas
-        if (isSelectionMode.value) {
+        if (isSelectionMode) {
             OutfitScreenFooter(
                 onDone = {
-                    // Update the ViewModel with the selected items
                     val selectedItems = categoryItems.filter {
                         selectedItemKeys.contains(it.id to it.itemType)
                     }
-
-                    viewModel.addSelectedItems(selectedItems) // Add selected items to the ViewModel
+                    viewModel.addSelectedItems(selectedItems)
                     navController.navigate(Routes.CreateOutfitScreen.Default)
-                         // Navigate to Outfit Screen with selected items
                 },
                 isDoneEnabled = selectedItemKeys.isNotEmpty()
             )
@@ -616,12 +560,11 @@ fun CategoryItemDetailScreen(
     // Fetch the item details when the screen is first launched
     LaunchedEffect(wardrobeId, itemId, category) {
         //val item = viewModel.getItemDetail(wardrobeId, itemId, category)
-        val item = viewModel.getItemDetailTest(itemId)
+        val item = viewModel.getItemDetail(itemId)
         selectedItem = item
 
         // Fetch the wardrobe name using the wardrobeId from the selected item
-        wardrobeName = viewModel.wardrobes.value.find { it.id == item?.wardrobeId }?.wardrobeName
-            ?: "Unknown Wardrobe"
+        wardrobeName = viewModel.selectedWardrobe.value?.wardrobeName ?: "Unknown Wardrobe"
     }
 
     /*println("DEBUG, CategoryItemDetailScreen -> " +

@@ -45,7 +45,7 @@ fun FriendProfileScreen(userState: StateFlow<User?>, onNavigate: () -> Unit) {
 
     // Generate outfits
     val numberOfOutfits = 10
-    val outfits = List(numberOfOutfits) { i ->
+    /*val outfits = List(numberOfOutfits) { i ->
         Outfit(
             id = "outfit1",
             userId = 1,
@@ -56,10 +56,10 @@ fun FriendProfileScreen(userState: StateFlow<User?>, onNavigate: () -> Unit) {
             itemIds = listOf("15", "7", "9"),
             createdAt = "08/03/2025"
         )
-    }
+    }*/
 
     // Add generated outfits to the user
-    outfits.forEach { currentUser?.addOutfit(it, listOf("Public Outfits", "Fancy")) }
+    //outfits.forEach { currentUser?.addOutfit(it, listOf("Public Outfits", "Fancy")) }
 
     val randomItems = generateRandomItems(currentUser?.getAllOutfits()?.size ?: 0) // Get number of outfits
     val swapItems = generateRandomItems(10)

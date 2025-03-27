@@ -1,12 +1,20 @@
 package org.greenthread.whatsinmycloset.core.persistence
 
+import androidx.room.Embedded
 import androidx.room.Entity
-import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import org.greenthread.whatsinmycloset.core.data.daos.ClothingItemDao
+import androidx.room.TypeConverter
+import androidx.room.TypeConverters
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
-import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.domain.models.OffsetData
 
 /* Represents the persistence model for outfits in the Room database.
@@ -17,35 +25,61 @@ import org.greenthread.whatsinmycloset.core.domain.models.OffsetData
     tableName = "outfits",
     indices = [Index("outfitId")]
 )
-// TODO match with ERD
-// TODO key value pair for itemID with x and y (nested JSON) coordinates
 data class OutfitEntity(
-    @PrimaryKey val outfitId: String, // Matches backend UUID
-    val userId: Int? = null,    // matches with User.kt
-    val public: Boolean,
-    val favorite: Boolean,
-    val mediaURL: String = "",
-    val name: String = "", // Name of the outfit (e.g., "Summer Look")
-    val tags: List<String>? = null,
-    val createdAt: String = ""
+    @PrimaryKey val outfitId: String,
+    val name: String = "",
+    val creatorId: Int,
+    val items: String, // JSON string of Map<String, OffsetData>
+    val tags: String = "[]", // Default empty list JSON
+    val calendarDates: String = "[]", // Default empty list JSON
+    val createdAt: String = Clock.System.now().toLocalDateTime(
+        TimeZone.currentSystemDefault()).toString()
+) {
+
+    companion object {
+        private val json = Json { ignoreUnknownKeys = true }
+
+        fun create(
+            outfitId: String,
+            name: String = "",
+            creatorId: Int,
+            items: Map<String, OffsetData>,
+            tags: List<String> = emptyList(),
+            calendarDates: List<String> = emptyList()
+        ): OutfitEntity {
+            return OutfitEntity(
+                outfitId = outfitId,
+                name = name,
+                creatorId = creatorId,
+                items = json.encodeToString(items),
+                tags = json.encodeToString(tags),
+                calendarDates = json.encodeToString(calendarDates)
+            )
+        }
+    }
+
+    // Helper functions to deserialize
+    // for example:
+    /*
+        val items = outfit.getItems() // Returns List<OutfitItem>
+        val tags = outfit.getTags()   // Returns List<String>
+     */
+    fun getItems(): Map<String, OffsetData> =
+        json.decodeFromString(items) ?: emptyMap()
+
+    fun getTags(): List<String> =
+        json.decodeFromString(tags) ?: emptyList()
+
+    fun getCalendarDates(): List<String> =
+        json.decodeFromString(calendarDates) ?: emptyList()
+}
+
+@Serializable
+@Embeddable
+data class OutfitItems(
+    val id: String,  // The item ID
+    val x: String,    // X position
+    val y: String     // Y position
 )
 
-suspend fun OutfitEntity.toOutfit(itemDao: ClothingItemDao): Outfit {
-    val itemEntities = itemDao.getItemsForOutfit(outfitId) // fetches the associated items using the join table
-
-    val itemPositionsList = itemDao.getItemPositionsForOutfit(outfitId) // Fetch positions as List<ItemPosition>
-
-    // Convert List<ItemPosition> to Map<String, OffsetData>
-    val itemPositions = itemPositionsList.associate { it.itemId to it.position }
-
-    return Outfit(
-        id = outfitId,
-        userId = userId,
-        name = name,
-        public = public,
-        itemIds = itemEntities.map { it.id },
-        itemPositions = itemPositions,
-        favorite = favorite,
-        tags = tags
-    )
-}
+annotation class Embeddable

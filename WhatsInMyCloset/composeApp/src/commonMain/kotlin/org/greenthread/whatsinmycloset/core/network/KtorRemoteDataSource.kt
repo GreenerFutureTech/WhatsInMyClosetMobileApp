@@ -1,6 +1,7 @@
 package org.greenthread.whatsinmycloset.core.network
 
 import io.ktor.client.HttpClient
+import io.ktor.client.call.body
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.delete
@@ -16,13 +17,18 @@ import io.ktor.http.contentType
 import io.ktor.client.statement.*
 import io.ktor.utils.io.core.buildPacket
 import io.ktor.utils.io.core.writeFully
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.greenthread.whatsinmycloset.core.data.safeCall
 import org.greenthread.whatsinmycloset.core.domain.DataError
 import org.greenthread.whatsinmycloset.core.domain.Result
+import org.greenthread.whatsinmycloset.core.dto.CalendarDto
 import org.greenthread.whatsinmycloset.core.dto.CreateSwapRequestDto
 import org.greenthread.whatsinmycloset.core.dto.ItemDto
 import org.greenthread.whatsinmycloset.core.dto.MessageDto
 import org.greenthread.whatsinmycloset.core.dto.OtherSwapDto
+import org.greenthread.whatsinmycloset.core.dto.OutfitDto
+import org.greenthread.whatsinmycloset.core.dto.OutfitResponse
 import org.greenthread.whatsinmycloset.core.dto.SendMessageRequest
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.dto.SwapStatusDto
@@ -358,5 +364,41 @@ class KtorRemoteDataSource(
             }
         }
     }
+
+    // outfits -- get outfits
+    override suspend fun getAllOutfitsForUser(userId: String): Result<List<OutfitDto>, DataError.Remote> {
+        return safeCall {
+            httpClient.get("$BASE_URL/outfits/user/$userId")
+        }
+    }
+
+    // outfits -- post outfits
+    override suspend fun postOutfitForUser(outfit: OutfitDto): Result<OutfitResponse, DataError.Remote> {
+        return safeCall {
+            httpClient.post("$BASE_URL/outfits") {
+                    contentType(ContentType.Application.Json)
+                    setBody(outfit)
+                }
+        }
+    }
+
+    // calendar -- post outfit to calendar
+    override suspend fun postOutfitToCalendar(calendarDto: CalendarDto): Result<List<CalendarDto>, DataError.Remote> {
+        return safeCall {
+            httpClient.post("$BASE_URL/calendar") {
+                contentType(ContentType.Application.Json)
+                setBody(calendarDto)
+            }
+        }
+    }
+
+
+    // calendar -- get outfit from calendar
+    override suspend fun getAllOutfitsFromCalendar(userId: String): Result<List<CalendarDto>, DataError.Remote> {
+        return safeCall {
+            httpClient.get("$BASE_URL/calendar/user/$userId")
+        }
+    }
+
 }
 

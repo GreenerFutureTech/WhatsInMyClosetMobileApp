@@ -5,16 +5,13 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import org.greenthread.whatsinmycloset.core.data.daos.ClothingItemDao
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.managers.WardrobeManager
-import org.greenthread.whatsinmycloset.core.persistence.WardrobeEntity
 import org.greenthread.whatsinmycloset.core.persistence.toClothingItem
-import org.greenthread.whatsinmycloset.core.repositories.WardrobeRepository
 import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
 
 /*
@@ -22,32 +19,96 @@ import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
 * including fetching items for a specific wardrobe and category.
 * */
 open class ClothingItemViewModel(
-    private val wardrobeRepository: WardrobeRepository,
-    wardrobeManager: WardrobeManager,
+    private val wardrobeManager: WardrobeManager,
     private val itemDao: ClothingItemDao // Inject ItemDao to fetch items
     ) :
 ViewModel() {
 
-    val cachedWardrobes = wardrobeManager.getWardrobes()
-    val cachedItems = wardrobeManager.getItems()
-    var defaultWardrobe: Wardrobe? = cachedWardrobes.firstOrNull()
+    val cachedWardrobes: StateFlow<List<Wardrobe>> = wardrobeManager.cachedWardrobes
+    private val cachedItems: StateFlow<List<ClothingItem>> = wardrobeManager.cachedItems
 
+    // Filter states
+    private val _selectedWardrobe = MutableStateFlow<Wardrobe?>(null)
+    val selectedWardrobe: StateFlow<Wardrobe?> = _selectedWardrobe.asStateFlow()
 
-    private val _wardrobes = MutableStateFlow<List<Wardrobe>>(emptyList())
-    val wardrobes: StateFlow<List<Wardrobe>> = _wardrobes.asStateFlow()
+    private val _selectedCategory = MutableStateFlow<ClothingCategory?>(null)
+    val selectedCategory: StateFlow<ClothingCategory?> = _selectedCategory.asStateFlow()
+
+    // Filtered results
+    private val _filteredItems = MutableStateFlow<List<ClothingItem>>(emptyList())
+    val filteredItems: StateFlow<List<ClothingItem>> = _filteredItems.asStateFlow()
 
     private val _selectedItems = MutableStateFlow<List<ClothingItem>>(emptyList())
 
     // all selected items that from the selected category
     val selectedItems: StateFlow<List<ClothingItem>> = _selectedItems.asStateFlow()
 
-    private val _categoryItems = MutableStateFlow<List<ClothingItem>>(emptyList())
-    val categoryItems: StateFlow<List<ClothingItem>> = _categoryItems.asStateFlow()
+    //private val _categoryItems = MutableStateFlow<List<ClothingItem>>(emptyList())
+    //val categoryItems: StateFlow<List<ClothingItem>> = _categoryItems.asStateFlow()
+
+    init {
+        // Initialize with first wardrobe
+        viewModelScope.launch {
+            cachedWardrobes.collect { wardrobes ->
+                if (wardrobes.isNotEmpty() && _selectedWardrobe.value == null) {
+                    _selectedWardrobe.value = wardrobes.first()
+                }
+                applyFilters()
+            }
+        }
+
+        // React to item changes
+        viewModelScope.launch {
+            cachedItems.collect {
+                applyFilters()
+            }
+        }
+    }
+
+    private fun applyFilters() {
+        _filteredItems.value = cachedItems.value
+            .filter { item ->
+                _selectedCategory.value?.let { category ->
+                    item.itemType == category
+                } ?: true
+            }
+            .filter { item ->
+                _selectedWardrobe.value?.let { wardrobe ->
+                    item.wardrobeId == wardrobe.id
+                } ?: true
+            }
+    }
+
+    // Public API
+    fun setCategoryFilter(category: ClothingCategory?) {
+        _selectedCategory.value = category
+        applyFilters()
+    }
+
+    fun setWardrobeFilter(wardrobe: Wardrobe?) {
+        _selectedWardrobe.value = wardrobe
+        applyFilters()
+    }
+
+    fun addSelectedItems(items: List<ClothingItem>) {
+        _selectedItems.value = (_selectedItems.value + items).distinctBy { it.id }
+    }
+
+    fun clearClothingItemState() {
+        _selectedItems.value = emptyList()
+    }
+
+    // For detailed item view
+    suspend fun getItemDetail(itemId: String): ClothingItem? {
+        return cachedItems.value.find { it.id == itemId }
+    }
+
+    /*
 
     // Fetch items for a specific wardrobe and category
     fun getItemsByCategoryAndWardrobe(category: String, wardrobe: Wardrobe?) {
         viewModelScope.launch {
-            val selectedWardrobe = wardrobe ?: defaultWardrobe ?: return@launch
+            val selectedWardrobe = wardrobe ?: cachedWardrobes.value.firstOrNull() ?: return@launch
             val itemEntities = itemDao.getItemsForWardrobeAndCategory(selectedWardrobe.id, category)
 
             // Convert ItemEntity to ClothingItem
@@ -131,6 +192,6 @@ ViewModel() {
             )
             _categoryItems.value = sampleItems
         }
-    }
+    }*/
 
 }
