@@ -20,6 +20,7 @@ import org.greenthread.whatsinmycloset.core.data.safeCall
 import org.greenthread.whatsinmycloset.core.domain.DataError
 import org.greenthread.whatsinmycloset.core.domain.Result
 import org.greenthread.whatsinmycloset.core.dto.CreateSwapRequestDto
+import org.greenthread.whatsinmycloset.core.dto.FriendRequestDto
 import org.greenthread.whatsinmycloset.core.dto.ItemDto
 import org.greenthread.whatsinmycloset.core.dto.MessageDto
 import org.greenthread.whatsinmycloset.core.dto.OtherSwapDto
@@ -33,6 +34,8 @@ import org.greenthread.whatsinmycloset.features.screens.notifications.domain.mod
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.NotificationDto
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.NotificationType
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.SendNotificationRequest
+import org.greenthread.whatsinmycloset.features.tabs.profile.data.FriendshipStatus
+import org.greenthread.whatsinmycloset.features.tabs.profile.domain.RequestStatus
 import org.greenthread.whatsinmycloset.getPlatform
 
 private val platform = getPlatform()
@@ -372,6 +375,38 @@ class KtorRemoteDataSource(
         return safeCall {
             httpClient.get(
                 urlString = "$BASE_URL/users/username/$username"
+            )
+        }
+    }
+
+    override suspend fun sendFriendRequest(senderId: Int, receiverId: Int): Result<Unit, DataError.Remote> {
+        return safeCall {
+            httpClient.post(
+                urlString = "$BASE_URL/users/$senderId/friend-request/$receiverId"
+            )
+        }
+    }
+
+    override suspend fun getSentFriendRequests(userId: Int): Result<List<FriendRequestDto>, DataError.Remote> {
+        return safeCall {
+            httpClient.get(
+                urlString = "$BASE_URL/users/$userId/friend-requests/sent"
+            )
+        }
+    }
+
+    override suspend fun getReceivedFriendRequests(userId: Int): Result<List<FriendRequestDto>, DataError.Remote> {
+        return safeCall {
+            httpClient.get(
+                urlString = "$BASE_URL/users/$userId/friend-requests"
+            )
+        }
+    }
+
+    override suspend fun respondToFriendRequest(requestId: Int, status: RequestStatus): Result<Unit, DataError.Remote> {
+        return safeCall {
+            httpClient.post(
+                urlString = "$BASE_URL/users/$requestId/respond/${status.name}"
             )
         }
     }
