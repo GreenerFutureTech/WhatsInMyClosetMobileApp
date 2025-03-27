@@ -196,6 +196,7 @@ private fun ProfileContent(
         }
 
         ProfileRowSection(
+            isOwnProfile = isOwnProfile,
             title = Res.string.available_swap_title,
             state = swapState,
             onAction = { action ->
@@ -210,9 +211,9 @@ private fun ProfileContent(
                                 onSwapClick(selectedItem.toOtherSwapDto(user = currentUserDto))
                             }
                         } else {
-                            val selectedItem = swapState.getOtherUserSwapResults.find { it.swap.itemId.id == action.itemId }
-                            if (selectedItem != null) {
-                                onSwapClick(selectedItem)
+                            val selectedItem = swapState.getSearchedUserSwapResults.find { it.itemId.id == action.itemId }
+                            if (selectedItem != null && user.id != null) {
+                                onSwapClick(selectedItem.toOtherSwapDto(user = MessageUserDto(id = user.id, name = user.name, profilePicture = user.profilePicture)))
                             }
                         }
                     }
@@ -320,14 +321,14 @@ private fun ProfileStats(
         lifecycle = lifecycle
     )
 
-    val searchedUserSwapItemCount = state.searchedUserSwapItems.size
     val userSwapItemCount = swapState.getUserSwapResults.size
+    val searchedUserSwapItemCount = swapState.getSearchedUserSwapResults.size
 
     LaunchedEffect(state) {
         if(!isOwnProfile)
         {
             try {
-                if (state.searchedUserSwapItems.isEmpty()) {
+                if (swapState.getSearchedUserSwapResults.isEmpty()) {
                     swapViewModel.fetchSwapData(user.id.toString())
                 }
             } catch (e: ConnectTimeoutException) {

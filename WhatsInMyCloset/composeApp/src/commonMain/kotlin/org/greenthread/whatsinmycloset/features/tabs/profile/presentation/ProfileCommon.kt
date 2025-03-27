@@ -41,6 +41,7 @@ import org.jetbrains.compose.resources.stringResource
 import whatsinmycloset.composeapp.generated.resources.Res
 import whatsinmycloset.composeapp.generated.resources.defaultUser
 import whatsinmycloset.composeapp.generated.resources.friends_count_label
+import whatsinmycloset.composeapp.generated.resources.no_items_found
 import whatsinmycloset.composeapp.generated.resources.swaps_count_label
 
 @Composable
@@ -194,6 +195,7 @@ fun ManageFriendButton(
 
 @Composable
 fun ProfileRowSection(
+    isOwnProfile: Boolean,
     title: StringResource? = null,
     showSeeAll: Boolean = true,
     state: SwapListState,
@@ -219,22 +221,28 @@ fun ProfileRowSection(
         }
     }
 
-    Spacer(modifier = Modifier.height(16.dp))
+    Spacer(modifier = Modifier.height(10.dp))
 
-    LazyRow(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-            .height(120.dp)
-    ) {
-        itemsIndexed(state.getUserSwapResults) { index, item ->
-            SwapImageCard(
-                onSwapClick = {
-                    onAction(SwapAction.OnSwapClick(item.itemId.id))
-                },
-                imageUrl = item.itemId.mediaUrl
-            )
-            Spacer(modifier = Modifier.width(10.dp))
+    val swapResults = if (isOwnProfile) state.getUserSwapResults else state.getSearchedUserSwapResults
+
+    if (swapResults.isEmpty()) {
+        Text(stringResource(Res.string.no_items_found))
+    } else {
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+                .height(90.dp)
+        ) {
+            itemsIndexed(swapResults) { index, item ->
+                SwapImageCard(
+                    onSwapClick = {
+                        onAction(SwapAction.OnSwapClick(item.itemId.id))
+                    },
+                    imageUrl = item.itemId.mediaUrl
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+            }
         }
     }
 }

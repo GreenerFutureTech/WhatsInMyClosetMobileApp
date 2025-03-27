@@ -58,7 +58,6 @@ class SwapViewModel(
                 }
         }
     }
-
     fun fetchSwapData(userId: String) {
         viewModelScope.launch {
             println("FETCHSWAP : Fetching data for user: $userId")
@@ -72,19 +71,33 @@ class SwapViewModel(
                 .onSuccess { getResults ->
                     println("FETCHSWAP API success: $getResults")
                     _state.update {
-                        it.copy(
-                            isLoading = false,
-                            getUserSwapResults = getResults
-                        )
+                        if (userId == currentUser.value?.id.toString()) {
+                            it.copy(
+                                isLoading = false,
+                                getUserSwapResults = getResults
+                            )
+                        } else {
+                            it.copy(
+                                isLoading = false,
+                                getSearchedUserSwapResults = getResults
+                            )
+                        }
                     }
                 }
                 .onError { error ->
                     println("FETCHSWAP API ERROR ${error}")
                     _state.update {
-                        it.copy(
-                            getUserSwapResults = emptyList(),
-                            isLoading = false
-                        )
+                        if (userId == currentUser.value?.id.toString()) {
+                            it.copy(
+                                getUserSwapResults = emptyList(),
+                                isLoading = false
+                            )
+                        } else {
+                            it.copy(
+                                getSearchedUserSwapResults = emptyList(),
+                                isLoading = false
+                            )
+                        }
                     }
                 }
         }
