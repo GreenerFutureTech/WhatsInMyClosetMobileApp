@@ -215,7 +215,7 @@ fun ProfileRowSection(
             )
         }
         if (showSeeAll) {
-            SeeAllButton { onSeeAll }
+            SeeAllButton { onSeeAll() }
         }
     }
 

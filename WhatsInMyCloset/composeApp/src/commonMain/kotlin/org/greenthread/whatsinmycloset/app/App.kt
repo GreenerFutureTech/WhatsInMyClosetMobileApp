@@ -379,28 +379,6 @@ fun App(
                             navController
                         )
                     }
-                    composable<Routes.ProfileDetailsScreen> {backStackEntry ->
-                        val viewModel: ProfileTabViewModel = koinViewModel()
-                        val args = backStackEntry.toRoute<Routes.ProfileDetailsScreen>()
-                        val swapViewModel: SwapViewModel = koinViewModel()
-                        val selectedSwapViewModel = backStackEntry.sharedKoinViewModel<SelectedSwapViewModel>(navController)
-
-                        LaunchedEffect(true) {
-                            selectedSwapViewModel.onSelectSwap(null)
-                        }
-
-                        ProfileScreen(
-                            userId = args.userId,
-                            profileViewModel = viewModel,
-                            navController = navController,
-                            swapViewModel = swapViewModel,
-                            onSwapClick = { swap ->
-                                selectedSwapViewModel.onSelectSwap(swap)
-                                navController.navigate(Routes.SwapDetailsScreen(swap.swap.itemId.id))
-                            },
-                            onAllSwapClick = { navController.navigate(Routes.AllSwapScreen) },
-                        )
-                    }
                 }
                 navigation<Routes.SwapGraph>(startDestination = Routes.SwapTab) {
                     composable<Routes.SwapTab> {
@@ -476,6 +454,29 @@ fun App(
 
                                 navController.navigate(Routes.ChatScreen)
                             }
+                        )
+                    }
+
+                    composable<Routes.ProfileDetailsScreen> {backStackEntry ->
+                        val viewModel: ProfileTabViewModel = koinViewModel()
+                        val args = backStackEntry.toRoute<Routes.ProfileDetailsScreen>()
+                        val swapViewModel: SwapViewModel = koinViewModel()
+                        val selectedSwapViewModel = backStackEntry.sharedKoinViewModel<SelectedSwapViewModel>(navController)
+
+                        LaunchedEffect(true) {
+                            selectedSwapViewModel.onSelectSwap(null)
+                        }
+
+                        ProfileScreen(
+                            userId = args.userId,
+                            profileViewModel = viewModel,
+                            navController = navController,
+                            swapViewModel = swapViewModel,
+                            onSwapClick = { swap ->
+                                selectedSwapViewModel.onSelectSwap(swap)
+                                navController.navigate(Routes.SwapDetailsScreen(swap.swap.itemId.id))
+                            },
+                            onAllSwapClick = { navController.navigate(Routes.AllSwapScreen) },
                         )
                     }
 
