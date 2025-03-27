@@ -1,5 +1,6 @@
 package org.greenthread.whatsinmycloset.features.tabs.profile.presentation
 
+import androidx.collection.emptyLongSet
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -37,6 +38,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
+import io.ktor.client.network.sockets.ConnectTimeoutException
 import org.greenthread.whatsinmycloset.app.Routes
 import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.dto.MessageUserDto
@@ -48,6 +50,7 @@ import org.greenthread.whatsinmycloset.features.tabs.swap.Action.SwapAction
 import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.jetbrains.compose.resources.painterResource
+import org.koin.compose.viewmodel.koinViewModel
 import whatsinmycloset.composeapp.generated.resources.Res
 import whatsinmycloset.composeapp.generated.resources.add_friend_button
 import whatsinmycloset.composeapp.generated.resources.available_swap_title
@@ -306,18 +309,60 @@ private fun ProfileStats(
     user: User,
     isOwnProfile: Boolean
 ) {
+    val swapViewModel: SwapViewModel = koinViewModel()
+    val profileViewModel: ProfileTabViewModel = koinViewModel()
+
+    val state by profileViewModel.state.collectAsStateWithLifecycle()
+
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    val swapState by swapViewModel.state.collectAsStateWithLifecycle(
+        initialValue = SwapListState(),
+        lifecycle = lifecycle
+    )
+
+    val searchedUserSwapItemCount = state.searchedUserSwapItems.size
+    val userSwapItemCount = swapState.getUserSwapResults.size
+
+    LaunchedEffect(state) {
+        if(!isOwnProfile)
+        {
+            try {
+                if (state.searchedUserSwapItems.isEmpty()) {
+                    swapViewModel.fetchSwapData(user.id.toString())
+                }
+            } catch (e: ConnectTimeoutException) {
+                println("Connection timeout occurred (could not hit backend?): ${e.message}")
+            } catch (e: Exception) {
+                println("An error occurred: ${e.message}")
+            }
+        }
+    }
+
+
     Row(
         modifier = Modifier
             .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        SwapsCount(
-            onClick = {},
-            swapsCount = 10,
-            modifier = Modifier
-                .weight(1f)
-                .wrapContentWidth(Alignment.CenterHorizontally)
-        )
+        if(!isOwnProfile)
+        {
+            SwapsCount(
+                onClick = {},
+                swapsCount = searchedUserSwapItemCount,
+                modifier = Modifier
+                    .weight(1f)
+                    .wrapContentWidth(Alignment.CenterHorizontally)
+            )
+        }else {
+            SwapsCount(
+                onClick = {},
+                swapsCount = userSwapItemCount,
+                modifier = Modifier
+                    .weight(1f)
+                    .wrapContentWidth(Alignment.CenterHorizontally)
+            )
+        }
+
 
         if (isOwnProfile) {
             FriendsCount(
