@@ -57,4 +57,9 @@
     <string name="notification_clear">Clear All</string>
     <string name="notification_none">No notifications</string>
 
+    <!-- Social tab strings -->
+    <string name="social_feed_title">Friend's Outfits</string>
+    <string name="friends_count_label">Friends</string>
+    <string name="swaps_count_label">Swaps</string>
+
 </resources>
