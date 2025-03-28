@@ -2,7 +2,6 @@ package org.greenthread.whatsinmycloset.core.dto
 
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 import org.greenthread.whatsinmycloset.core.domain.models.Friend
 import org.greenthread.whatsinmycloset.core.domain.models.User
 

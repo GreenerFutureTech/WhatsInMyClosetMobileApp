@@ -1,62 +1,68 @@
 package org.greenthread.whatsinmycloset.core.domain.models
 
 import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.Serializable
-import org.greenthread.whatsinmycloset.core.dto.OutfitDto
+import kotlinx.serialization.json.Json
 import org.greenthread.whatsinmycloset.core.persistence.OutfitEntity
-import org.greenthread.whatsinmycloset.core.persistence.toClothingItem
 
 /*
 * This class provide methods for conversion to/from OutfitDto and OutfitEntity
+* DOMAIN MODEL
 * */
-// TODO match with ERD
-class Outfit(
+@Serializable
+data class Outfit(
     val id: String,
-    val userId: Int? = null,    // matches with User class
-    val public: Boolean = false,
-    val favorite: Boolean = false,
-    val mediaURL: String = "",
-    val name: String = "",
-    val tags: List<String>? = null,
-    val itemIds: List<String>, // Store item IDs instead of full objects
-    // TODO - we may not need the position below
-    val itemPositions: Map<String, OffsetData> = emptyMap(), // Map of item IDs to their positions
+    val name: String,
+    val creatorId: Int,
+    val items: Map<String, OffsetData> = emptyMap(),
+    val tags: List<String> = emptyList(),
+    val calendarDates: List<LocalDate> = emptyList(),
     val createdAt: String = Clock.System.now().toLocalDateTime(
         TimeZone.currentSystemDefault()).toString()
 ) {
-    // Convert Domain Model to DTO
-    fun toDto(): OutfitDto {
-        return OutfitDto(
-            id = id,
-            userId = userId,
-            public = public,
-            favorite = favorite,
-            mediaURL = mediaURL,
-            name = name,
-            tags = tags,
-            itemIds = itemIds,
-            itemPositions = itemPositions,
-            createdAt = createdAt
-        )
-    }
-
-    // Convert Domain Model to Entity
-    fun toEntity(userId: Int?= null): OutfitEntity {
-        return OutfitEntity(
-            outfitId = id,
-            userId = userId,
-            public = public,
-            favorite = favorite,
-            mediaURL = mediaURL,
-            name = name,
-            tags = tags,
-            createdAt = createdAt
-        )
-    }
-
+    val itemIds: List<String> get() = items.keys.toList()
 }
+
+private val json = Json { ignoreUnknownKeys = true }
+
+// Extension function to convert Entity to Domain
+fun OutfitEntity.toDomain(): Outfit {
+    return Outfit(
+        id = outfitId,
+        name = name,
+        creatorId = creatorId,
+        items = json.decodeFromString(items),
+        tags = json.decodeFromString(tags),
+        calendarDates = getCalendarDates().map { LocalDate.parse(it) },
+        createdAt = createdAt
+    )
+}
+
+
+// Extension function to convert Domain to Entity
+fun Outfit.toEntity(): OutfitEntity {
+    return OutfitEntity.create(
+        outfitId = id,
+        name = name,
+        creatorId = creatorId,
+        items = items,
+        tags = tags,
+        calendarDates = calendarDates.map { it.toString() }
+    )
+}
+
+// function to covert Outfit to Calendar Entry
+fun Outfit.toCalendarEntry(userId: String): CalendarEntry {
+    return CalendarEntry(
+        outfitId = id,
+        userId = userId,
+        date = createdAt
+    )
+}
+
 
 @Serializable
 class OffsetData(

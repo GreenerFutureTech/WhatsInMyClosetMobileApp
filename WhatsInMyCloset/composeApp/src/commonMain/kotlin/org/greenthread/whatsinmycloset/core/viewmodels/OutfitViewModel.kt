@@ -1,249 +1,186 @@
 package org.greenthread.whatsinmycloset.core.viewmodels
 
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import org.greenthread.whatsinmycloset.core.data.daos.ClothingItemDao
 import kotlinx.datetime.LocalDate
-import org.greenthread.whatsinmycloset.core.data.daos.ItemDao
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.domain.models.OffsetData
 import org.greenthread.whatsinmycloset.core.managers.OutfitManager
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
+import org.greenthread.whatsinmycloset.core.domain.models.UserManager
+import org.greenthread.whatsinmycloset.core.domain.models.toEntity
+import org.greenthread.whatsinmycloset.core.managers.WardrobeManager
 import org.greenthread.whatsinmycloset.core.persistence.OutfitEntity
-import org.greenthread.whatsinmycloset.core.persistence.toClothingItem
 import org.greenthread.whatsinmycloset.core.repositories.OutfitTags
+import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
 
 /*
 *   Manages the UI state for outfits, including selected items, tags, and temporary positions.
 
     Acts as an intermediary between the UI and the OutfitManager
 * */
-open class OutfitViewModel
-    (
-    /* The OutfitManager and OutfitTags are injected into the ViewModel
-    instead of being instantiated directly */
+open class OutfitViewModel(
     private val outfitManager: OutfitManager,
     private val outfitTags: OutfitTags,
     private val clothingItemViewModel: ClothingItemViewModel,
-    private val itemDao: ClothingItemDao // Inject ItemDao to fetch items dynamically
-    )
-    : ViewModel()
-{
+    private val wardrobeManager: WardrobeManager,
+    private val userManager: UserManager
+) : ViewModel() {
 
-    // State for clothing items
-    private val _clothingItems = MutableStateFlow<List<ClothingItem>>(emptyList())
-    val clothingItems: StateFlow<List<ClothingItem>> = _clothingItems.asStateFlow()
+    // Source data flows
+    val cachedWardrobes: StateFlow<List<Wardrobe>> = wardrobeManager.cachedWardrobes
+    private val _cachedItems = wardrobeManager.cachedItems
+    val currentUser = userManager.currentUser
 
-    // State for selected category
-    private val _selectedCategory = MutableStateFlow<String>("")
-    val selectedCategory: StateFlow<String> = _selectedCategory.asStateFlow()
+    // Filtered items state
+    private val _filteredItems = MutableStateFlow<List<ClothingItem>>(emptyList())
+    val filteredItems: StateFlow<List<ClothingItem>> = _filteredItems.asStateFlow()
 
-    // State for category items
-    private val _categoryItems = MutableStateFlow<List<ClothingCategory>>(emptyList())
-    val categoryItems: StateFlow<List<ClothingCategory>> = _categoryItems.asStateFlow()
+    // Filter states
+    private val _selectedCategory = mutableStateOf<String?>(null)
 
+    val selectedWardrobe = mutableStateOf<String?>(null)
+
+    // UI states
     private val _calendarEvents = MutableStateFlow<List<String>>(emptyList())
     val calendarEvents: StateFlow<List<String>> = _calendarEvents.asStateFlow()
 
-    // State for tags
     private val _tags = MutableStateFlow<Set<String>>(emptySet())
     val tags: StateFlow<Set<String>> = _tags.asStateFlow()
 
-    // State for selected tags
     private val _selectedTags = MutableStateFlow<Set<String>>(emptySet())
     val selectedTags: StateFlow<Set<String>> = _selectedTags.asStateFlow()
 
-    // State for public visibility
     private val _isPublic = MutableStateFlow(false)
-    open val isPublic: StateFlow<Boolean> = _isPublic.asStateFlow()
+    val isPublic: StateFlow<Boolean> = _isPublic.asStateFlow()
 
-    // State for creating a new outfit
     private val _isCreateNewOutfit = MutableStateFlow(false)
-    open val isCreateNewOutfit: StateFlow<Boolean> = _isCreateNewOutfit.asStateFlow()
+    val isCreateNewOutfit: StateFlow<Boolean> = _isCreateNewOutfit.asStateFlow()
 
-    // Add isOutfitSaved state
     private val _isOutfitSaved = MutableStateFlow(false)
-    open val isOutfitSaved: StateFlow<Boolean> = _isOutfitSaved.asStateFlow()
+    val isOutfitSaved: StateFlow<Boolean> = _isOutfitSaved.asStateFlow()
 
-    // For tracking the current outfit being created
-    private val _currentOutfit = MutableStateFlow<OutfitEntity?>(null)  // using data class
+    private val _currentOutfit = MutableStateFlow<OutfitEntity?>(null)
     val currentOutfit: StateFlow<OutfitEntity?> = _currentOutfit.asStateFlow()
 
-    // State for temporary positions of clothing items
     private val _temporaryPositions = MutableStateFlow<Map<String, OffsetData>>(emptyMap())
     val temporaryPositions: StateFlow<Map<String, OffsetData>> = _temporaryPositions.asStateFlow()
-
-    init {
-        // Initialize tags from OutfitTags
-        viewModelScope.launch {
-            outfitTags.allTags.collect { tags ->
-                _tags.value = tags // Update the tags state when OutfitTags emits new data
-            }
-        }
-    }
-
-    // Update selected folders (multiple selection)
-    fun updateSelectedTags(tagName: String) {
-        val updatedTags = _selectedTags.value.toMutableSet()
-        if (updatedTags.contains(tagName)) {
-            updatedTags.remove(tagName) // Remove the tag if it exists
-        } else {
-            updatedTags.add(tagName) // Add the tag if it doesn't exist
-        }
-        _selectedTags.value = updatedTags
-    }
-
-    // Toggle public state
-    open fun toggleIsPublic(isPublic: Boolean) {
-        _isPublic.value = isPublic
-
-        if (isPublic)
-        {
-            updateSelectedTags("Public")
-        }
-    }
-
-    // Add a new folder using outfitTags class
-    open fun addNewTag(tagName: String) {
-        outfitTags.addTag(tagName)
-
-        // The tags state will automatically update because we're observing outfitTags.allTags
-
-    }
-
-    // Remove a tag and remove from selected in case it was selected
-    fun removeTag(tagName: String) {
-        val updatedTags = _selectedTags.value.toMutableSet()
-        if (updatedTags.contains(tagName)) {
-            updatedTags.remove(tagName) // Remove the tag if it exists
-        }
-        _selectedTags.value = updatedTags
-
-        outfitTags.removeTag(tagName)
-    }
-
-    // Save the outfit and finalize item positions
-    fun saveOutfit(selectedTags: List<String>) {
-        viewModelScope.launch {
-            // Get the current outfit being created
-            val currentOutfit = _currentOutfit.value
-            if (currentOutfit == null) {
-                // Handle the case where there is no current outfit
-                return@launch
-            }
-
-            // Extract item IDs from the selected clothing items
-            val itemIds = _clothingItems.value.map { it.id }
-
-            // Update the outfit with the temporary positions
-            val updatedOutfit = Outfit(
-                id = currentOutfit.outfitId,
-                userId = currentOutfit.userId,
-                name = currentOutfit.name,
-                public = currentOutfit.public,
-                itemIds = itemIds, // Pass item IDs
-                favorite = currentOutfit.favorite,
-                tags = currentOutfit.tags,
-                itemPositions = _temporaryPositions.value // Include item positions
-            )
-
-            // Update tags so next time user opens the save screen newly added tags are present
-            if (selectedTags != null) {
-                outfitTags.updateTags(selectedTags.toSet())
-            }
-
-            // Delegate saving operation to OutfitManager
-            outfitManager.saveOutfit(updatedOutfit)
-
-            // Clear temporary positions after saving
-            _temporaryPositions.value = emptyMap()
-
-            // Update state
-            _isOutfitSaved.value = true
-        }
-    }
-
-    // when user clicks on "Create New Outfit" button
-    // Discard the current outfit and clear selected clothing items
-    open fun discardCurrentOutfit() {
-        _currentOutfit.value = null
-        _clothingItems.value = emptyList() // Clear selected clothing items
-        _temporaryPositions.value = emptyMap() // Clear temporary positions
-    }
-
-    // Create an outfit using outfit manager
-    open fun createOutfit(
-        name: String = "",
-        selectedItems: List<ClothingItem>,
-        tags: List<String> = emptyList(),
-        isPublic: Boolean = false,
-        favourite: Boolean = false
-    ) {
-
-        /// Extract item IDs from the selected items
-        val selectedItemIds = selectedItems.map { it.id }
-
-        viewModelScope.launch {
-            val outfit = outfitManager.createOutfit(
-                name = name,
-                itemIds  = selectedItemIds,
-                tags = tags,
-                isPublic = isPublic,
-                favourite = favourite
-            )
-
-            // Convert the Outfit (domain model) to OutfitEntity
-            val outfitEntity = outfit.toEntity()
-
-            _currentOutfit.value = outfitEntity
-            _isCreateNewOutfit.value = true
-
-            // Clear any temporary positions when creating a new outfit
-            _temporaryPositions.value = emptyMap()
-        }
-    }
-
-    // Function to update the position of a clothing item
-    fun updateClothingItemPosition(itemId: String, newPosition: OffsetData) {
-        val updatedPositions = _temporaryPositions.value.toMutableMap()
-        updatedPositions[itemId] = newPosition
-        _temporaryPositions.value = updatedPositions
-    }
 
     private val _selectedDate = MutableStateFlow<String?>(null)
     val selectedDate: StateFlow<String?> = _selectedDate
 
+    init {
+        // Initialize tags
+        viewModelScope.launch {
+            outfitTags.allTags.collect { tags ->
+                _tags.value = tags
+            }
+        }
+    }
+
+    // Tag management
+    fun updateSelectedTags(tagName: String) {
+        _selectedTags.value = _selectedTags.value.toMutableSet().apply {
+            if (contains(tagName)) remove(tagName) else add(tagName)
+        }
+    }
+
+    fun addNewTag(tagName: String) {
+        outfitTags.addTag(tagName)
+    }
+
+    fun removeTag(tagName: String) {
+        _selectedTags.value = _selectedTags.value - tagName
+        outfitTags.removeTag(tagName)
+    }
+
+    // Outfit creation and management
+    fun saveOutfit(selectedTags: List<String>) {
+        viewModelScope.launch {
+            val currentOutfit = _currentOutfit.value ?: return@launch
+
+            val updatedOutfit = Outfit(
+                id = currentOutfit.outfitId,
+                name = currentOutfit.name,
+                creatorId = currentOutfit.creatorId,
+                items = _temporaryPositions.value,
+                tags = selectedTags,
+                calendarDates = _calendarEvents.value.mapNotNull {
+                    it.substringBefore(":").trim().let { dateStr ->
+                        runCatching { LocalDate.parse(dateStr) }.getOrNull()
+                    }
+                }
+            )
+
+            outfitManager.saveOutfit(updatedOutfit)
+            _isOutfitSaved.value = true
+            _temporaryPositions.value = emptyMap()
+        }
+    }
+
+    fun discardCurrentOutfit() {
+        _currentOutfit.value = null
+        _temporaryPositions.value = emptyMap()
+    }
+
+    fun createOutfit(name: String, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            val selectedItems = clothingItemViewModel.selectedItems.value
+            val itemsWithPositions = selectedItems.associate { item ->
+                item.id to (_temporaryPositions.value[item.id] ?: OffsetData(0f, 0f))
+            }
+
+            val outfit = outfitManager.createOutfit(
+                name = name,
+                items = itemsWithPositions,
+                tags = _selectedTags.value.toList()
+            )
+
+            _currentOutfit.value = outfit.toEntity()
+            onSuccess()
+        }
+    }
+
+    // Item position management
+    fun updateItemPosition(itemId: String, position: OffsetData) {
+        _temporaryPositions.value = _temporaryPositions.value.toMutableMap().apply {
+            put(itemId, position)
+        }
+    }
+
+    // Calendar functions
     fun setSelectedDate(date: String) {
         _selectedDate.value = date
     }
 
-    // Add outfit to calendar
-    // TODO Update date in Calendar Entity
-    open fun addOutfitToCalendar(dateString: String) {
-
-        val localDate = kotlinx.datetime.LocalDate.parse(dateString)
-
+    fun addOutfitToCalendar(dateString: String) {
+        val localDate = LocalDate.parse(dateString)
         _currentOutfit.value?.let { outfit ->
             _calendarEvents.value = _calendarEvents.value + "$localDate: ${outfit.name}"
         }
     }
 
-    // TODO get outfit for the dates for calendar
-
-    open fun clearOutfitState() {
-        _currentOutfit.value = null // Clear the current outfit
-        _clothingItems.value = emptyList() // Clear selected clothing items
-        _selectedTags.value = emptySet() // Clear selected folder
+    fun clearOutfitState() {
+        _currentOutfit.value = null
+        _selectedTags.value = emptySet()
         _calendarEvents.value = emptyList()
-        _isPublic.value = false // Reset public state
-        _isOutfitSaved.value = false // Reset outfit saved state
+        _isPublic.value = false
+        _isOutfitSaved.value = false
+    }
+
+    // Public visibility toggle
+    fun toggleIsPublic(isPublic: Boolean) {
+        _isPublic.value = isPublic
+        if (isPublic) {
+            updateSelectedTags("Public")
+        }
     }
 
     companion object {

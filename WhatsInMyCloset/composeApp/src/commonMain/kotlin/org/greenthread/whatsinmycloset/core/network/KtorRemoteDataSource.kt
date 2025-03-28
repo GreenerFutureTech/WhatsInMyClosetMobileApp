@@ -1,30 +1,32 @@
 package org.greenthread.whatsinmycloset.core.network
 
 import io.ktor.client.HttpClient
+import io.ktor.client.request.delete
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
-import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.*
 import io.ktor.http.ContentType
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
-import io.ktor.client.statement.*
 import io.ktor.utils.io.core.buildPacket
 import io.ktor.utils.io.core.writeFully
 import org.greenthread.whatsinmycloset.core.data.safeCall
 import org.greenthread.whatsinmycloset.core.domain.DataError
 import org.greenthread.whatsinmycloset.core.domain.Result
+import org.greenthread.whatsinmycloset.core.dto.CalendarDto
 import org.greenthread.whatsinmycloset.core.dto.CreateSwapRequestDto
 import org.greenthread.whatsinmycloset.core.dto.FriendRequestDto
 import org.greenthread.whatsinmycloset.core.dto.ItemDto
 import org.greenthread.whatsinmycloset.core.dto.MessageDto
 import org.greenthread.whatsinmycloset.core.dto.OtherSwapDto
 import org.greenthread.whatsinmycloset.core.dto.OutfitDto
+import org.greenthread.whatsinmycloset.core.dto.OutfitResponse
 import org.greenthread.whatsinmycloset.core.dto.SendMessageRequest
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.dto.SwapStatusDto
@@ -34,7 +36,6 @@ import org.greenthread.whatsinmycloset.features.screens.notifications.domain.mod
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.NotificationDto
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.NotificationType
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.SendNotificationRequest
-import org.greenthread.whatsinmycloset.features.tabs.profile.data.FriendshipStatus
 import org.greenthread.whatsinmycloset.features.tabs.profile.domain.RequestStatus
 import org.greenthread.whatsinmycloset.getPlatform
 
@@ -363,11 +364,47 @@ class KtorRemoteDataSource(
         }
     }
 
+    //============================= Outfit ==================================
     override suspend fun getAllOutfits(): Result<List<OutfitDto>, DataError.Remote> {
         return safeCall {
             httpClient.get(
                 urlString = "$BASE_URL/outfits"
             )
+        }
+    }
+
+    // outfits -- get outfits
+    override suspend fun getAllOutfitsForUser(userId: String): Result<List<OutfitDto>, DataError.Remote> {
+        return safeCall {
+            httpClient.get("$BASE_URL/outfits/user/$userId")
+        }
+    }
+
+    // outfits -- post outfits
+    override suspend fun postOutfitForUser(outfit: OutfitDto): Result<OutfitResponse, DataError.Remote> {
+        return safeCall {
+            httpClient.post("$BASE_URL/outfits") {
+                    contentType(ContentType.Application.Json)
+                    setBody(outfit)
+                }
+        }
+    }
+
+    // calendar -- post outfit to calendar
+    override suspend fun postOutfitToCalendar(calendarDto: CalendarDto): Result<List<CalendarDto>, DataError.Remote> {
+        return safeCall {
+            httpClient.post("$BASE_URL/calendar") {
+                contentType(ContentType.Application.Json)
+                setBody(calendarDto)
+            }
+        }
+    }
+
+
+    // calendar -- get outfit from calendar
+    override suspend fun getAllOutfitsFromCalendar(userId: String): Result<List<CalendarDto>, DataError.Remote> {
+        return safeCall {
+            httpClient.get("$BASE_URL/calendar/user/$userId")
         }
     }
 
@@ -427,4 +464,5 @@ class KtorRemoteDataSource(
         }
     }
 }
+
 

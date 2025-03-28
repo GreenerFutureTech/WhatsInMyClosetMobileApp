@@ -1,73 +1,45 @@
 package org.greenthread.whatsinmycloset.core.persistence
 
 import androidx.room.TypeConverter
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.greenthread.whatsinmycloset.core.domain.models.OffsetData
 import kotlinx.serialization.serializer
-import kotlinx.serialization.encodeToString
 import org.greenthread.whatsinmycloset.core.dto.UserDto
 
 class Converters {
-    @TypeConverter
-    fun fromString(value: String?): List<String> {
-        return value?.split(",") ?: emptyList()
-    }
-
-    @TypeConverter
-    fun listToString(list: List<String>?): String {
-        return list?.joinToString(",") ?: ""
-    }
-
     private val json = Json { ignoreUnknownKeys = true }
 
     @TypeConverter
-    fun fromOffsetData(offsetData: OffsetData?): String? {
-        return offsetData?.let { json.encodeToString(OffsetData.serializer(), it) }
-    }
+    fun outfitItemsToString(items: List<OutfitItems>): String =
+        json.encodeToString(items)
 
     @TypeConverter
-    fun toOffsetData(jsonString: String?): OffsetData? {
-        return jsonString?.let { json.decodeFromString(OffsetData.serializer(), it) }
-    }
-
-    // Convert Map<String, OffsetData> to JSON String
-    @TypeConverter
-    fun fromItemPositionsMap(itemPositions: Map<String, OffsetData>?): String? {
-        return itemPositions?.let {
-            json.encodeToString(
-                serializer<Map<String, OffsetData>>(),
-                it
-            )
-        }
-    }
+    fun stringToOutfitItems(jsonString: String): List<OutfitItems> =
+        json.decodeFromString(jsonString)
 
     @TypeConverter
-    fun toItemPositionsMap(jsonString: String?): Map<String, OffsetData>? {
-        return jsonString?.let {
-            json.decodeFromString(
-                serializer<Map<String, OffsetData>>(),
-                it
-            )
-        }
-    }
+    fun offsetMapToString(map: Map<String, OffsetData>): String =
+        json.encodeToString(map)
 
     @TypeConverter
-    fun fromStringList(value: List<String>): String {
-        return Json.encodeToString(value)
-    }
+    fun stringToOffsetMap(jsonString: String): Map<String, OffsetData> =
+        json.decodeFromString(jsonString)
 
     @TypeConverter
-    fun toStringList(value: String): List<String> {
-        return Json.decodeFromString(value)
-    }
+    fun fromUserDto(userDto: UserDto): String =
+        json.encodeToString(userDto)
 
     @TypeConverter
-    fun fromUserDto(userDto: UserDto): String {
-        return Json.encodeToString(userDto)
-    }
+    fun toUserDto(jsonString: String): UserDto =
+        json.decodeFromString(jsonString)
+
+    // Only keep one pair of converters for List<String>
+    @TypeConverter
+    fun stringListToString(list: List<String>): String =
+        json.encodeToString(list)
 
     @TypeConverter
-    fun toUserDto(json: String): UserDto {
-        return Json.decodeFromString(json)
-    }
+    fun stringToStringList(jsonString: String): List<String> =
+        json.decodeFromString(jsonString)
 }

@@ -1,17 +1,13 @@
 package org.greenthread.whatsinmycloset.core.data.daos
 
 import androidx.room.Dao
-import androidx.room.Embedded
 import androidx.room.Insert
-import androidx.room.Junction
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Relation
-import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 import org.greenthread.whatsinmycloset.core.persistence.ClothingItemEntity
 import org.greenthread.whatsinmycloset.core.persistence.ItemEntity
 import org.greenthread.whatsinmycloset.core.persistence.OutfitEntity
-import org.greenthread.whatsinmycloset.core.persistence.OutfitItemJoin
 
 /* For Room database operations
 *   Handles database operations for OutfitEntity
@@ -24,38 +20,18 @@ import org.greenthread.whatsinmycloset.core.persistence.OutfitItemJoin
 @Dao
 interface OutfitDao {
     // Insert an outfit
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)    // to avoid outfit id conflict
     suspend fun insertOutfit(outfit: OutfitEntity)
-
-    // Insert a relationship between an outfit and a clothing item
-    @Insert
-    suspend fun insertOutfitItemJoin(join: OutfitItemJoin)
-
-    // Fetch all outfits with their associated clothing items
-    @Transaction
-    @Query("SELECT * FROM outfits WHERE outfitId = :outfitId")
-    suspend fun getOutfitWithItems(outfitId: String): OutfitWithItems?
 
     // Delete an outfit
     @Query("DELETE FROM outfits WHERE outfitId = :outfitId")
     suspend fun deleteOutfit(outfitId: String)
 
     // Fetch all outfits for a specific user
-    @Query("SELECT * FROM outfits WHERE userId = :userId")
-    fun getOutfits(userId: Int): Flow<List<OutfitEntity>>
-}
+    @Query("SELECT * FROM outfits WHERE creatorId = :creatorId")
+    fun getOutfitsByUserId(creatorId: Int): Flow<List<OutfitEntity>>
 
-// Data class to represent an outfit with its associated clothing items
-data class OutfitWithItems(
-    @Embedded val outfit: OutfitEntity,
-    @Relation(
-        parentColumn = "outfitId", // Refers to the outfitId column in OutfitEntity
-        entityColumn = "id",       // Refers to the id column in ItemEntity
-        associateBy = Junction(
-            value = OutfitItemJoin::class,
-            parentColumn = "outfitId", // Refers to the outfitId column in OutfitItemJoin
-            entityColumn = "itemId"    // Refers to the itemId column in OutfitItemJoin
-        )
-    )
-    val items: List<ClothingItemEntity>
-)
+    // Fetch all outfits for a specific user by name
+    @Query("SELECT * FROM outfits WHERE creatorId = :creatorId AND name = :name")
+    fun getOutfitsByOutfitName(creatorId: Int, name: String): Flow<List<OutfitEntity>>
+}

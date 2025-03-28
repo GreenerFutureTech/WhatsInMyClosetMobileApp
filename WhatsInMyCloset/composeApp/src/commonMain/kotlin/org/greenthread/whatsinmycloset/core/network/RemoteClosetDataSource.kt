@@ -1,21 +1,21 @@
 package org.greenthread.whatsinmycloset.core.network
 
 import org.greenthread.whatsinmycloset.core.domain.DataError
-import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.domain.Result
+import org.greenthread.whatsinmycloset.core.dto.CalendarDto
 import org.greenthread.whatsinmycloset.core.dto.CreateSwapRequestDto
 import org.greenthread.whatsinmycloset.core.dto.FriendRequestDto
 import org.greenthread.whatsinmycloset.core.dto.ItemDto
 import org.greenthread.whatsinmycloset.core.dto.MessageDto
 import org.greenthread.whatsinmycloset.core.dto.OtherSwapDto
 import org.greenthread.whatsinmycloset.core.dto.OutfitDto
+import org.greenthread.whatsinmycloset.core.dto.OutfitResponse
+import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.dto.SwapStatusDto
 import org.greenthread.whatsinmycloset.core.dto.UserDto
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.Notification
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.NotificationDto
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.NotificationType
-import org.greenthread.whatsinmycloset.features.tabs.profile.data.FriendshipStatus
-import org.greenthread.whatsinmycloset.features.tabs.profile.domain.FriendRequest
 import org.greenthread.whatsinmycloset.features.tabs.profile.domain.RequestStatus
 
 interface RemoteClosetDataSource {
@@ -39,6 +39,14 @@ interface RemoteClosetDataSource {
     suspend fun getUser(userEmail: String): Result<UserDto, DataError.Remote>
     suspend fun getUserById(userId: Int): Result<UserDto, DataError.Remote>
     suspend fun updateUser(user: UserDto): Result<UserDto, DataError.Remote>
+
+    // Outfits
+    suspend fun getAllOutfitsForUser(userId: String): Result<List<OutfitDto>, DataError.Remote>
+    suspend fun postOutfitForUser(outfit: OutfitDto): Result<OutfitResponse, DataError.Remote>
+
+    // Calendar
+    suspend fun postOutfitToCalendar(calendarDto: CalendarDto): Result<List<CalendarDto>, DataError.Remote>
+    suspend fun getAllOutfitsFromCalendar(userId: String): Result<List<CalendarDto>, DataError.Remote>
 
     // Notifications
     suspend fun sendNotification(userId: Int, title: String, body: String, type : NotificationType, extraData: Map<String, String>? = null): Result<NotificationDto, DataError.Remote>
