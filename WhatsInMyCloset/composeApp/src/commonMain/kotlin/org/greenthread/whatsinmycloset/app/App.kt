@@ -82,10 +82,12 @@ import org.greenthread.whatsinmycloset.features.tabs.home.presentation.ItemDetai
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.SelectedItemViewModel
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabScreen
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabViewModel
-import org.greenthread.whatsinmycloset.features.tabs.social.SocialTabScreen
 import org.greenthread.whatsinmycloset.features.tabs.swap.domain.SwapEventBus
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.AddSwap.AddSwapRoot
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.AddSwap.AddSwapViewModel
+import org.greenthread.whatsinmycloset.features.tabs.social.presentation.PostDetailScreen
+import org.greenthread.whatsinmycloset.features.tabs.social.presentation.PostViewModel
+import org.greenthread.whatsinmycloset.features.tabs.social.presentation.SocialTabScreen
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.ChatScreen
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.MessageListScreen
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.MessageViewModel
@@ -475,10 +477,16 @@ fun App(
                 navigation<Routes.SocialGraph>(startDestination = Routes.SocialTab) {
                     composable<Routes.SocialTab> {
                         val userAccount by userManager.currentUser.collectAsState()
-                        SocialTabScreen(user = userAccount, onNavigate = {})
+                        val viewModel: PostViewModel = koinViewModel()
+                        SocialTabScreen(
+                            user = userAccount,
+                            onNavigate = {},
+                            navController = navController,
+                            viewModel = viewModel,
+                        )
                     }
                     composable<Routes.SocialDetailsScreen> {
-                        //SocialDetailsScreen()
+                        PostDetailScreen()
                     }
                 }
 

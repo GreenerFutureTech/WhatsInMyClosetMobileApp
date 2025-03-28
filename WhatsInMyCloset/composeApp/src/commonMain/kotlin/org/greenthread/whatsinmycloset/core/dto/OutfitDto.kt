@@ -2,6 +2,7 @@ package org.greenthread.whatsinmycloset.core.dto
 
 import kotlinx.serialization.Serializable
 import org.greenthread.whatsinmycloset.core.persistence.OutfitItems
+import org.greenthread.whatsinmycloset.features.tabs.social.data.OutfitState
 
 /*
 *   Represents the data transfer object (DTO) for Outfit
@@ -12,16 +13,17 @@ import org.greenthread.whatsinmycloset.core.persistence.OutfitItems
 
 @Serializable
 data class OutfitDto(
+    val id: String,
     val name: String = "",
     val itemIds: List<OutfitItems>,
-    val userId: String,
+    val userId: Int,
     val tags: List<String> = emptyList(),
 )
 
 @Serializable
 data class OutfitResponse(
     val name: String,
-    val userId: String,
+    val userId: Int,
     val itemIds: List<OutfitItems>,
     val tags: List<String>,
     val id: String,
