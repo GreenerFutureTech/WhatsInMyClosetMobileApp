@@ -1,10 +1,5 @@
 package org.greenthread.whatsinmycloset.features.tabs.profile.presentation
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -44,6 +39,7 @@ import org.greenthread.whatsinmycloset.app.Routes
 import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.dto.MessageUserDto
 import org.greenthread.whatsinmycloset.core.dto.OtherSwapDto
+import org.greenthread.whatsinmycloset.core.dto.UserDto
 import org.greenthread.whatsinmycloset.core.dto.toOtherSwapDto
 import org.greenthread.whatsinmycloset.core.ui.components.controls.SearchBar
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabViewModel
@@ -58,14 +54,12 @@ import whatsinmycloset.composeapp.generated.resources.accept_button
 import whatsinmycloset.composeapp.generated.resources.add_friend_button
 import whatsinmycloset.composeapp.generated.resources.available_swap_title
 import whatsinmycloset.composeapp.generated.resources.cancel_request_button
-import whatsinmycloset.composeapp.generated.resources.clear_button
 import whatsinmycloset.composeapp.generated.resources.content_description_user_avatar
 import whatsinmycloset.composeapp.generated.resources.decline_button
 import whatsinmycloset.composeapp.generated.resources.defaultUser
 import whatsinmycloset.composeapp.generated.resources.error_no_user_data
 import whatsinmycloset.composeapp.generated.resources.my_outfits_title
 import whatsinmycloset.composeapp.generated.resources.remove_friend_button
-import whatsinmycloset.composeapp.generated.resources.search_button
 
 @Composable
 fun ProfileScreen(
@@ -158,6 +152,11 @@ private fun ProfileContent(
                     modifier = Modifier
                         .wrapContentWidth(Alignment.CenterHorizontally)
                 )
+                Button(onClick = {
+                    navController.navigate(Routes.UserSearchScreen)
+                }) {
+                    Text("Find Users")
+                }
             } else {
                 ProfileActions(
                     viewModel = viewModel,
@@ -168,72 +167,6 @@ private fun ProfileContent(
         }
 
         Spacer(Modifier.height(16.dp))
-
-        if (isOwnProfile) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                SearchBar(
-                    searchString = searchQuery,
-                    onSearchStringChange = { viewModel.updateSearchQuery(it) },
-                    onSearch = { viewModel.searchUser() },
-                    modifier = Modifier.weight(1f)
-                )
-
-                Spacer(Modifier.width(8.dp))
-
-                Button(onClick = {
-                    if (searchResults != null) {
-                        viewModel.clearSearchResults()
-                    } else {
-                        viewModel.searchUser()
-                    }
-                }) {
-                    Text(
-                        if (searchResults != null) stringResource(Res.string.clear_button)
-                        else stringResource(Res.string.search_button)
-                    )
-                }
-            }
-
-            if (state.isSearching) {
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .align(Alignment.CenterHorizontally)
-                )
-            }
-
-            state.error?.takeIf { state.isSearching }?.let { error ->
-                Text(
-                    text = "Search failed: ${error.take(50)}", // Limiting error length
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .align(Alignment.CenterHorizontally),
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-
-            AnimatedVisibility(
-                visible = searchResults != null,
-                enter = fadeIn() + expandVertically(),
-                exit = fadeOut() + shrinkVertically()
-            ) {
-                searchResults?.let { foundUser ->
-                    UserSearchResult(
-                        user = foundUser,
-                        onClick = {
-                            // Navigate to other user's profile
-                            navController.navigate(Routes.ProfileDetailsScreen(foundUser?.id!!))
-                        },
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            }
-        }
 
         ProfileRowSection(
             title = Res.string.available_swap_title,
@@ -268,8 +201,8 @@ private fun ProfileContent(
 }
 
 @Composable
-private fun UserSearchResult(
-    user: User,
+fun UserSearchResult(
+    user: UserDto?,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -283,27 +216,33 @@ private fun UserSearchResult(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(16.dp)
         ) {
-            AsyncImage(
-                model = user.profilePicture ?: "",
-                contentDescription = stringResource(Res.string.content_description_user_avatar),
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape),
-                error = painterResource(Res.drawable.defaultUser)
-            )
+            if (user != null) {
+                AsyncImage(
+                    model = user.profilePicture ?: "",
+                    contentDescription = stringResource(Res.string.content_description_user_avatar),
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape),
+                    error = painterResource(Res.drawable.defaultUser)
+                )
+            }
 
             Spacer(Modifier.width(16.dp))
 
             Column {
-                Text(
-                    text = user.name,
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Text(
-                    text = "@${user.username}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                )
+                if (user != null) {
+                    Text(
+                        text = user.name,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
+                if (user != null) {
+                    Text(
+                        text = "@${user.username}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
+                }
             }
         }
     }

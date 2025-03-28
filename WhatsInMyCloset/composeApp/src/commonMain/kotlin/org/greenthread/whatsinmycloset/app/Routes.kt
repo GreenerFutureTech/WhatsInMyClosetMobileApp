@@ -59,6 +59,9 @@ sealed interface Routes {
     data class SwapDetailsScreen(val swap: String) : Routes
 
     @Serializable
+    data object UserSearchScreen: Routes
+
+    @Serializable
     data object AddSwapScreen : Routes
 
     @Serializable
@@ -96,4 +99,6 @@ sealed interface Routes {
 
     @Serializable
     data class ItemDetailScreen(val itemId: String) : Routes
+
+
 }

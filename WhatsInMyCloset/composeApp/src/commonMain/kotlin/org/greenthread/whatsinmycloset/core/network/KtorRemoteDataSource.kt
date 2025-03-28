@@ -248,7 +248,7 @@ class KtorRemoteDataSource(
     override suspend fun searchUserByUsername(username: String): Result<List<UserDto>, DataError.Remote> {
         return safeCall {
             httpClient.get(
-                urlString = "$BASE_URL/users/search/$username"
+                urlString = "$BASE_URL/users/search/username?query=$username"
             )
         }
     }

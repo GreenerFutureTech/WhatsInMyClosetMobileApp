@@ -11,7 +11,7 @@ data class UserDto(
     val username: String = "",
     val email: String = "",
     val name: String = "",
-    val firebaseUid: String = "",
+    val firebaseUid: String? = "",
     val fcmToken: String? = null,
     val profilePicture: String? = null,
     val type: String? = null,
