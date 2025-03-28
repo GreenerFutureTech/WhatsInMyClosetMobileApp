@@ -73,7 +73,7 @@ fun SwapDetailScreen(
         lifecycle = lifecycle
     )
     val swapItem = swap.swap
-    val swapUser = swap.user
+    var swapUser = swap.user
     val currentUser = viewModel.currentUser
 
     val isSearchUser = swapUser.id != currentUser.value?.id
