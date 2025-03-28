@@ -29,6 +29,7 @@ open class PostViewModel(
                     val outfitsList = outfits.map { outfit ->
                         OutfitState(
                             outfitId = outfit.id,
+                            name = outfit.name,
                             itemIds = outfit.itemIds,
                             isLoading = true
                         )

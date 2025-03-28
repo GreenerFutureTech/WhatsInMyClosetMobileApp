@@ -70,12 +70,10 @@ fun PostCard(
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
-                currentUser?.let {
-                    Text(
-                        text = it.registeredAt,
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
+                Text(
+                    text = outfit.name,
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
         }
     }
