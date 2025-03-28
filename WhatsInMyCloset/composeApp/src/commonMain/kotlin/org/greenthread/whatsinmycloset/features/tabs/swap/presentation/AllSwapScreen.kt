@@ -1,3 +1,5 @@
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -5,10 +7,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -48,22 +52,25 @@ fun AllSwapsScreen(
         LaunchedEffect(Unit) {
             if (!isSearchUser && swapResults.isEmpty()) {
                 viewModel.fetchSwapData(currentUser.id.toString())
-            }
-            else
-            {
+            } else {
                 viewModel.fetchSwapData(userId.toString())
             }
         }
 
         Column(
-            modifier = Modifier.fillMaxSize().padding(10.dp)
+            modifier = Modifier.fillMaxSize().padding(10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            if (swapResults.isEmpty()) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
-                    verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
-                ) {
+            when {
+                state.isLoading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+                swapResults.isEmpty() -> {
                     Text(
                         text = stringResource(Res.string.no_items_found),
                         fontSize = 18.sp,
@@ -71,18 +78,17 @@ fun AllSwapsScreen(
                         color = outlineVariantLight
                     )
                 }
-            } else {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(3),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    itemsIndexed(swapResults) { _, item ->
-                        SwapImageCard(
-                            onSwapClick = {
-                                onSwapClick(item)
-                            },
-                            imageUrl = item.itemId.mediaUrl
-                        )
+                else -> {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(3),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        itemsIndexed(swapResults) { _, item ->
+                            SwapImageCard(
+                                onSwapClick = { onSwapClick(item) },
+                                imageUrl = item.itemId.mediaUrl
+                            )
+                        }
                     }
                 }
             }
