@@ -1,8 +1,12 @@
 package org.greenthread.whatsinmycloset.features.tabs.social.presentation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -28,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.ui.components.outfits.OutfitBox
+import org.greenthread.whatsinmycloset.core.utilities.DateUtils.formatDateString
 import org.greenthread.whatsinmycloset.features.tabs.profile.presentation.ProfilePicture
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -66,10 +72,32 @@ fun PostDetailScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Outfit box
-            OutfitBox(
-                state = outfit,
-                modifier = Modifier.fillMaxWidth()
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant,
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    .padding(4.dp) // Optional inner padding
+            ) {
+                OutfitBox(
+                    state = outfit,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Tags list (if available)
+            if (outfit.tags.isNotEmpty()) {
+                TagsSection(tags = outfit.tags)
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            // Creation date
+            CreationDateSection(date = outfit.createdAt)
         }
     }
 }
@@ -101,4 +129,39 @@ private fun UserInfoSection(user: User?) {
             fontWeight = FontWeight.Bold
         )
     }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun TagsSection(tags: List<String>) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Start,
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            tags.forEach { tag ->
+                Text(
+                    text = "#$tag",
+                    modifier = Modifier
+                        .padding(end = 8.dp, bottom = 4.dp)
+                        .background(
+                            color = MaterialTheme.colorScheme.secondaryContainer,
+                            shape = RoundedCornerShape(16.dp)
+                        )
+                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun CreationDateSection(date: String?) {
+    Text(
+        text = "Posted on: ${formatDateString(date)}",
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+    )
 }
