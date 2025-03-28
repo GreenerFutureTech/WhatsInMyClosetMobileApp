@@ -601,9 +601,11 @@ fun BottomNavigationBar(navController: NavController) {
             NavigationBarItem(
                 selected = isSelected,
                 onClick = {
-                    navController.navigate(route) {
-                        launchSingleTop = true
-                        restoreState = true
+                    if (!isSelected) {
+                        navController.navigate(route) {
+                            launchSingleTop = true
+                            restoreState = true
+                        }
                     }
                 },
                 icon = { Icon(imageVector = icon, contentDescription = null) },
@@ -620,9 +622,11 @@ fun BottomNavigationBar(navController: NavController) {
             NavigationBarItem(
                 selected = isSelected,
                 onClick = {
-                    navController.navigate(route) {
-                        launchSingleTop = true
-                        restoreState = true
+                    if (!isSelected) {
+                        navController.navigate(route) {
+                            launchSingleTop = true
+                            restoreState = true
+                        }
                     }
                 },
                 icon = { Icon(imageVector = icon, contentDescription = null) },
