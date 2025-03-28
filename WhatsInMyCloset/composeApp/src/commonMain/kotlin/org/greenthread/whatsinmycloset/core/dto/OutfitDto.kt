@@ -18,6 +18,12 @@ data class OutfitDto(
     val itemIds: List<OutfitItems>,
     val userId: Int,
     val tags: List<String> = emptyList(),
+    val creator: CreatorDto? = null
+)
+
+@Serializable
+data class CreatorDto(
+    val username: String
 )
 
 @Serializable
@@ -27,6 +33,7 @@ data class OutfitResponse(
     val itemIds: List<OutfitItems>,
     val tags: List<String>,
     val id: String,
-    val createdAt: String
+    val createdAt: String,
+    val creator: CreatorDto? = null
 )
 

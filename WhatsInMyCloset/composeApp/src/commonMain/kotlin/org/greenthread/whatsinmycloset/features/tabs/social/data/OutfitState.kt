@@ -5,6 +5,7 @@ import org.greenthread.whatsinmycloset.core.persistence.OutfitItems
 
 data class OutfitState(
     val outfitId: String,
+    val username: String?,
     val name: String,
     val itemIds: List<OutfitItems> = emptyList(),
     val items: List<ItemDto> = emptyList(),

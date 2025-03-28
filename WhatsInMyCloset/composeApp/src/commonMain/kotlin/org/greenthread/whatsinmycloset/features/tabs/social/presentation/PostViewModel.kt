@@ -24,31 +24,34 @@ open class PostViewModel(
     fun fetchAllOutfitData() {
         viewModelScope.launch {
             _state.update{ it.copy( isLoading = true) }
-            itemRepository.getAllOutfits()
-                .onSuccess { outfits ->
-                    val outfitsList = outfits.map { outfit ->
-                        OutfitState(
-                            outfitId = outfit.id,
-                            name = outfit.name,
-                            itemIds = outfit.itemIds,
-                            isLoading = true
-                        )
+            currentUser.value?.id?.let {
+                itemRepository.getFriendsOutfits(it)
+                    .onSuccess { outfits ->
+                        val outfitsList = outfits.map { outfit ->
+                            OutfitState(
+                                outfitId = outfit.id,
+                                name = outfit.name,
+                                itemIds = outfit.itemIds,
+                                isLoading = true,
+                                username = outfit.creator?.username
+                            )
+                        }
+                        _state.update {
+                            it.copy(
+                                outfits = outfitsList,
+                                isLoading = false
+                            )
+                        }
+                        // Load items for each outfit
+                        outfitsList.forEach { outfit ->
+                            fetchItemsForOutfit(outfit.outfitId)
+                        }
                     }
-                    _state.update {
-                        it.copy(
-                            outfits = outfitsList,
-                            isLoading = false
-                        )
+                    .onError { error ->
+                        println("==============================ERROR FETCH API $error==============================")
+                        _state.update { it.copy(isLoading = false) }
                     }
-                    // Load items for each outfit
-                    outfitsList.forEach { outfit ->
-                        fetchItemsForOutfit(outfit.outfitId)
-                    }
-                }
-                .onError { error ->
-                    println("==============================ERROR FETCH API $error==============================")
-                    _state.update { it.copy(isLoading = false) }
-                }
+            }
         }
     }
 
