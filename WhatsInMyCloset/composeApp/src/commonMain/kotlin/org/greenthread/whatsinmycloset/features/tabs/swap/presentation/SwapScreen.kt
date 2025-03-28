@@ -94,7 +94,7 @@ fun SwapScreenRoot(
                         if (isCurrentUserItem) {
                             val selectedItem = state.getUserSwapResults.find { it.itemId.id == action.itemId }
                             if (selectedItem != null) {
-                                val currentUserDto = MessageUserDto()
+                                val currentUserDto = MessageUserDto(id = currentUser.value?.id?:0)
                                 onSwapClick(selectedItem.toOtherSwapDto(user = currentUserDto))
                             }
                         } else {

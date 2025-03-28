@@ -54,7 +54,7 @@ sealed interface Routes {
     data object SocialTab : Routes
 
     @Serializable
-    data object ProfileDetailsScreen : Routes
+    data class ProfileDetailsScreen(val userId: Int = -1) : Routes
     @Serializable
     data class SwapDetailsScreen(val swap: String) : Routes
 
@@ -68,7 +68,7 @@ sealed interface Routes {
     data object SocialDetailsScreen : Routes
 
     @Serializable
-    data object AllSwapScreen : Routes
+    data class AllSwapScreen(val userId: Int) : Routes
 
     @Serializable
     data object MessageListScreen : Routes

@@ -6,6 +6,7 @@ import org.greenthread.whatsinmycloset.core.domain.Result
 import org.greenthread.whatsinmycloset.core.dto.CalendarDto
 import org.greenthread.whatsinmycloset.core.dto.ItemDto
 import org.greenthread.whatsinmycloset.core.dto.CreateSwapRequestDto
+import org.greenthread.whatsinmycloset.core.dto.FriendRequestDto
 import org.greenthread.whatsinmycloset.core.dto.MessageDto
 import org.greenthread.whatsinmycloset.core.dto.OtherSwapDto
 import org.greenthread.whatsinmycloset.core.dto.OutfitDto
@@ -16,6 +17,9 @@ import org.greenthread.whatsinmycloset.core.dto.UserDto
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.Notification
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.NotificationDto
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.NotificationType
+import org.greenthread.whatsinmycloset.features.tabs.profile.data.FriendshipStatus
+import org.greenthread.whatsinmycloset.features.tabs.profile.domain.FriendRequest
+import org.greenthread.whatsinmycloset.features.tabs.profile.domain.RequestStatus
 
 interface RemoteClosetDataSource {
     // Swap
@@ -53,10 +57,17 @@ interface RemoteClosetDataSource {
     suspend fun dismissNotification(notificationId: Int): Result<String, DataError.Remote>
     suspend fun getUserNotifications(userId: Int): Result<List<Notification>, DataError.Remote>
 
-
     // Item
     suspend fun getItemById(itemId: String): Result<ItemDto, DataError.Remote>
+
     // Outfit
     suspend fun getAllOutfits(): Result<List<OutfitDto>, DataError.Remote>
 
+    suspend fun getUserByUserName(username: String): Result<UserDto, DataError.Remote>
+
+    // Friend request
+    suspend fun sendFriendRequest(senderId: Int, receiverId: Int): Result<Unit, DataError.Remote>
+    suspend fun getSentFriendRequests(userId: Int): Result<List<FriendRequestDto>, DataError.Remote>
+    suspend fun getReceivedFriendRequests(userId: Int): Result<List<FriendRequestDto>, DataError.Remote>
+    suspend fun respondToFriendRequest(requestId: Int, status: RequestStatus): Result<Unit, DataError.Remote>
 }

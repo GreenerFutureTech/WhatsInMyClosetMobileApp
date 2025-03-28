@@ -3,15 +3,16 @@ package org.greenthread.whatsinmycloset.core.repository
 import org.greenthread.whatsinmycloset.core.domain.DataError
 import org.greenthread.whatsinmycloset.core.domain.Result
 import org.greenthread.whatsinmycloset.core.dto.CreateSwapRequestDto
+import org.greenthread.whatsinmycloset.core.dto.FriendRequestDto
 import org.greenthread.whatsinmycloset.core.dto.ItemDto
 import org.greenthread.whatsinmycloset.core.dto.MessageDto
 import org.greenthread.whatsinmycloset.core.dto.OtherSwapDto
 import org.greenthread.whatsinmycloset.core.dto.OutfitDto
-import org.greenthread.whatsinmycloset.core.dto.OutfitResponse
 import org.greenthread.whatsinmycloset.core.dto.SendMessageRequest
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.dto.SwapStatusDto
 import org.greenthread.whatsinmycloset.core.dto.UserDto
+import org.greenthread.whatsinmycloset.features.tabs.profile.domain.RequestStatus
 
 interface ClosetRepository {
     // Swap
@@ -39,4 +40,12 @@ interface ClosetRepository {
     suspend fun getItemById(itemId: String): Result<ItemDto, DataError.Remote>
     // Outfit
     suspend fun getAllOutfits(): Result<List<OutfitDto>, DataError.Remote>
+
+    suspend fun getUserByUserName(username: String): Result<UserDto, DataError.Remote>
+
+    // Friend request
+    suspend fun sendFriendRequest(senderId: Int, receiverId: Int): Result<Unit, DataError.Remote>
+    suspend fun respondToFriendRequest(requestId: Int, status: RequestStatus): Result<Unit, DataError.Remote>
+    suspend fun getReceivedFriendRequests(userId: Int): Result<List<FriendRequestDto>, DataError.Remote>
+    suspend fun getSentFriendRequests(userId: Int): Result<List<FriendRequestDto>, DataError.Remote>
 }
