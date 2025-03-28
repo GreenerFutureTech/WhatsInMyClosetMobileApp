@@ -28,14 +28,6 @@ class SwapViewModel(
             fetchFriendsSwapData(currentUser.value?.id.toString())
         }
 
-    fun onAction(action: SwapAction) {
-        when (action) {
-            is SwapAction.OnSwapClick -> {
-
-            }
-        }
-    }
-
     fun fetchAllSwapData() {
         viewModelScope.launch {
             println("FETCHALLSWAP : Fetching All Swap data")

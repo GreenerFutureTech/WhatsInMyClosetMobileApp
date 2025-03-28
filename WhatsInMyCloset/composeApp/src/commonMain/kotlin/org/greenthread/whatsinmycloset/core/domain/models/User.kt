@@ -33,7 +33,8 @@ class User(
         type = type,
         registeredAt = registeredAt,
         updatedAt = updatedAt,
-        lastLogin = lastLogin
+        lastLogin = lastLogin,
+        friends = friends
     )
 
     fun retrieveUserId() : Int?
@@ -42,7 +43,20 @@ class User(
     }
 
     fun toDto(): UserDto {
-        return UserDto(id = id, username = username, email = email, name = name, firebaseUid = firebaseUuid, fcmToken = fcmToken, profilePicture = profilePicture, type = type, registeredAt = registeredAt, updatedAt = updatedAt, lastLogin = lastLogin)
+        return UserDto(
+            id = id,
+            username = username,
+            email = email,
+            name = name,
+            firebaseUid = firebaseUuid,
+            fcmToken = fcmToken,
+            profilePicture = profilePicture,
+            type = type,
+            registeredAt = registeredAt,
+            updatedAt = updatedAt,
+            lastLogin = lastLogin,
+            friends = friends
+        )
     }
 
     fun addOutfit(outfit: Outfit, selectedTags: List<String>) {
