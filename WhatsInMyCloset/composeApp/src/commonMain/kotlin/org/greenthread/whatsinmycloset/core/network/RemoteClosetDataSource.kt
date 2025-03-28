@@ -3,6 +3,7 @@ package org.greenthread.whatsinmycloset.core.network
 import org.greenthread.whatsinmycloset.core.domain.DataError
 import org.greenthread.whatsinmycloset.core.domain.Result
 import org.greenthread.whatsinmycloset.core.dto.CalendarDto
+import org.greenthread.whatsinmycloset.core.dto.CalendarResponse
 import org.greenthread.whatsinmycloset.core.dto.CreateSwapRequestDto
 import org.greenthread.whatsinmycloset.core.dto.FriendRequestDto
 import org.greenthread.whatsinmycloset.core.dto.ItemDto
@@ -45,7 +46,7 @@ interface RemoteClosetDataSource {
     suspend fun postOutfitForUser(outfit: OutfitDto): Result<OutfitResponse, DataError.Remote>
 
     // Calendar
-    suspend fun postOutfitToCalendar(calendarDto: CalendarDto): Result<List<CalendarDto>, DataError.Remote>
+    suspend fun postOutfitToCalendar(calendarDto: CalendarDto): Result<List<CalendarResponse>, DataError.Remote>
     suspend fun getAllOutfitsFromCalendar(userId: String): Result<List<CalendarDto>, DataError.Remote>
 
     // Notifications

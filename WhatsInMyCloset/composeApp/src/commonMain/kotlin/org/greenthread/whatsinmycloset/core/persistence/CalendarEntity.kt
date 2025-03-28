@@ -20,8 +20,8 @@ import kotlinx.datetime.toLocalDateTime
     indices = [Index("outfitId")]
 )
 data class CalendarEntity(
-    @PrimaryKey val outfitId: String, // This is both PK and FK
-    val userId: String = "",
-    val date: String = Clock.System.now().toLocalDateTime(
-        TimeZone.currentSystemDefault()).toString()
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val outfitId: String,
+    val userId: Int,
+    val date: String
 )

@@ -12,11 +12,11 @@ import org.greenthread.whatsinmycloset.core.persistence.OutfitEntity
 
 @Dao
 interface CalendarDao {
-    // Insert a calendar entry (links an outfit to a specific date)
+    // Insert an outfit to a date in calendar
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCalendarEntry(entry: CalendarEntity)
 
-    // from backend to room
+    // this will get all outfits for current user from backend and insert into room
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(entries: List<CalendarEntity>)
 
@@ -28,24 +28,8 @@ interface CalendarDao {
     @Transaction
     @Query("""
         SELECT outfits.* FROM outfits
-        INNER JOIN calendar ON outfits.id = calendar.outfitId
+        INNER JOIN calendar ON outfits.outfitId = calendar.outfitId
         WHERE calendar.date = :date AND calendar.userId = :userId
     """)
     fun getOutfitsForDate(userId: String, date: String): Flow<List<OutfitEntity>>
-
-    // Get all scheduled outfits with their dates for a user
-    @Transaction
-    @Query("""
-        SELECT outfits.*, calendar.date FROM outfits
-        INNER JOIN calendar ON outfits.id = calendar.outfitId
-        WHERE calendar.userId = :userId
-        ORDER BY calendar.date
-    """)
-    fun getScheduledOutfits(userId: String): Flow<List<OutfitWithDate>>
 }
-
-// Helper class for joined results
-data class OutfitWithDate(
-    @Embedded val outfit: OutfitEntity,
-    val date: String
-)

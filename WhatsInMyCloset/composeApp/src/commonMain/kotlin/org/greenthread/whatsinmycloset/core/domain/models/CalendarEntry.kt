@@ -10,19 +10,15 @@ import org.greenthread.whatsinmycloset.core.persistence.CalendarEntity
 // Domain Model (for app logic)
 data class CalendarEntry(
     val outfitId: String,
-    val userId: String,
-    val date: String = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).toString()
-) {
-    fun toDto(): CalendarDto = CalendarDto(
-        outfitId = outfitId,
-        userId = userId,
-        date = date
-    )
+    val userId: Int,
+    val date: String
+)
 
-    fun toEntity(): CalendarEntity = CalendarEntity(
-        outfitId = outfitId,
-        userId = userId,
-        date = date
+fun CalendarEntry.toEntity(): CalendarEntity {
+    return CalendarEntity(
+        outfitId = this.outfitId,
+        userId = this.userId,
+        date = this.date
     )
 }
 

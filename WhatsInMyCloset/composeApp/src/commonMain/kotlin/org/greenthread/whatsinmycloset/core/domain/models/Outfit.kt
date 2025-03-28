@@ -14,14 +14,12 @@ import org.greenthread.whatsinmycloset.core.persistence.OutfitEntity
 * */
 @Serializable
 data class Outfit(
-    val id: String,
+    val id: String = "",
     val name: String,
     val creatorId: Int,
     val items: Map<String, OffsetData> = emptyMap(),
     val tags: List<String> = emptyList(),
-    val calendarDates: List<LocalDate> = emptyList(),
-    val createdAt: String = Clock.System.now().toLocalDateTime(
-        TimeZone.currentSystemDefault()).toString()
+    val createdAt: String = ""
 ) {
     val itemIds: List<String> get() = items.keys.toList()
 }
@@ -36,7 +34,6 @@ fun OutfitEntity.toDomain(): Outfit {
         creatorId = creatorId,
         items = json.decodeFromString(items),
         tags = json.decodeFromString(tags),
-        calendarDates = getCalendarDates().map { LocalDate.parse(it) },
         createdAt = createdAt
     )
 }
@@ -49,17 +46,17 @@ fun Outfit.toEntity(): OutfitEntity {
         name = name,
         creatorId = creatorId,
         items = items,
-        tags = tags,
-        calendarDates = calendarDates.map { it.toString() }
+        tags = tags
     )
 }
 
 // function to covert Outfit to Calendar Entry
-fun Outfit.toCalendarEntry(userId: String): CalendarEntry {
+fun Outfit.toCalendarEntry(outfitId: String, userId: Int, date: String):
+        CalendarEntry {
     return CalendarEntry(
-        outfitId = id,
+        outfitId = outfitId,
         userId = userId,
-        date = createdAt
+        date = date
     )
 }
 

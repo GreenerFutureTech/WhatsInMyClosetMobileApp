@@ -4,6 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import org.greenthread.whatsinmycloset.core.domain.models.CalendarEntry
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.domain.models.toCalendarEntry
@@ -29,11 +30,9 @@ open class CalendarManager(
         }
     }
 
+    suspend fun saveOutfitToCalendar(calendarEntry: CalendarEntry): Boolean {
 
-
-    suspend fun saveOutfitToCalendar(outfit: Outfit): Boolean {
-        val entry = outfit.toCalendarEntry(currentUser.value?.id.toString())
-        return calendarRepository.saveOutfitToCalendar(entry)
+        return calendarRepository.saveOutfitToCalendar(calendarEntry)
     }
 
 }

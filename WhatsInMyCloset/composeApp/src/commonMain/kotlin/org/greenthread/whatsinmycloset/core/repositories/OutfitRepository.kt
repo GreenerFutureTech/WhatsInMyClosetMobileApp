@@ -33,41 +33,32 @@ open class OutfitRepository(
     }
 
     // first insert outfit in backend and then add it to room
-    suspend fun saveOutfit(outfit: Outfit): Boolean {
+    suspend fun saveOutfit(outfit: Outfit): String? {
         return try {
-            // 1. First save to backend
             val remoteResult = remoteSource.postOutfitForUser(outfit.toDto())
-
             println("Server response: $remoteResult")
 
-            // 2. If successful, save to local database
             if (remoteResult.isSuccess()) {
-                // Use the server-generated ID for local storage
                 val serverOutfit = remoteResult.getOrNull()
-
-                if(serverOutfit != null)
-                {
+                if (serverOutfit != null) {
                     val entity = OutfitEntity(
-                        outfitId = serverOutfit.id, // Use server-generated ID
+                        outfitId = serverOutfit.id,
                         name = serverOutfit.name,
                         creatorId = serverOutfit.userId.toInt(),
                         items = json.encodeToString(outfit.items),
                         tags = json.encodeToString(outfit.tags)
                     )
                     outfitDao.insertOutfit(entity)
+                    serverOutfit.id // Return the server-generated ID
+                } else {
+                    null
                 }
-
-                true
             } else {
-                false
+                null
             }
-        } catch (e: JsonConvertException) {
-            // Handle specific JSON parsing error
-            false
         } catch (e: Exception) {
-            // Log the actual error for debugging
             e.printStackTrace()
-            false
+            null
         }
     }
 

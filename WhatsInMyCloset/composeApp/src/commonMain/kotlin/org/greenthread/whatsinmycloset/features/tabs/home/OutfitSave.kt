@@ -31,7 +31,9 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -65,7 +67,7 @@ fun OutfitSaveScreen(
         var showCreateTagDialog by remember { mutableStateOf(false) }
         var showCalendarDialog by remember { mutableStateOf(false) }
         var showDiscardDialog by remember { mutableStateOf(false) }
-        var showOutfitNameDialog by remember { mutableStateOf(false) } // New state for outfit name dialog
+        var showOutfitNameDialog by remember { mutableStateOf(false) }
 
 
         if (isOutfitSaved) {
@@ -134,7 +136,6 @@ fun OutfitSaveScreen(
                                 if(selectedTags.isNotEmpty())
                                 {
                                     // pop up to get outfit name from user
-                                    // Show dialog to get outfit name from user
                                     showOutfitNameDialog = true
                                 }
                             }
@@ -167,41 +168,20 @@ fun OutfitSaveScreen(
 
             // Get outfit name from user before saving
             if (showOutfitNameDialog) {
-                AlertDialog(
-                    onDismissRequest = { showOutfitNameDialog = false },
-                    title = { Text("Name Your Outfit") },
-                    text = {
-                        TextField(
-                            value = outfitName,
-                            onValueChange = { outfitName = it },
-                            label = { Text("Outfit Name") },
-                            singleLine = true
-                        )
+                OutfitNameDialog(
+                    showDialog = showOutfitNameDialog,
+                    onDismiss = {
+                        showOutfitNameDialog = false
                     },
-                    confirmButton = {
-                        Button(
-                            onClick = {
-                                if (outfitName.isNotBlank()) {
-                                    // Save the outfit with name and tags
-                                    outfitViewModel.saveOutfit(
-                                        selectedTags = selectedTags.toList(),
-                                        outfitName = outfitName
-                                    )
-                                    showOutfitNameDialog = false
-                                    onDone() // Trigger the onDone callback
-                                }
-                            },
-                            enabled = outfitName.isNotBlank()
-                        ) {
-                            Text("Save")
+                    onSave = { name ->
+                        outfitViewModel.viewModelScope.launch {
+                            val success = outfitViewModel.saveOutfit(
+                                selectedTags = selectedTags.toList(),
+                                outfitName = name
+                            )
                         }
-                    },
-                    dismissButton = {
-                        Button(
-                            onClick = { showOutfitNameDialog = false }
-                        ) {
-                            Text("Cancel")
-                        }
+                        showOutfitNameDialog = false
+                        onDone()
                     }
                 )
             }
@@ -221,11 +201,8 @@ fun OutfitSaveScreen(
             if (showCalendarDialog) {
                 OutfitDatePicker(
                     onDismiss = { showCalendarDialog = false },
-                    onDateSelected = { selectedDate ->
-                        val dateToUse = selectedDate.ifEmpty { DateUtils.getCurrentDate() }
-                        outfitViewModel.addOutfitToCalendar(dateToUse)
-                        //showCalendarDialog = false
-                    }
+                    outfitViewModel = outfitViewModel,
+                    selectedTags = selectedTags
                 )
             }
 
@@ -268,6 +245,50 @@ fun DiscardSavingDialog(
             }
         }
     )
+}
+
+@Composable
+fun OutfitNameDialog(
+    showDialog: Boolean,
+    onDismiss: () -> Unit,
+    onSave: (String) -> Unit,
+    initialName: String = ""
+) {
+    var outfitName by remember { mutableStateOf(initialName) }
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text("Name Your Outfit") },
+            text = {
+                TextField(
+                    value = outfitName,
+                    onValueChange = { outfitName = it },
+                    label = { Text("Outfit Name") },
+                    singleLine = true
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        if (outfitName.isNotBlank()) {
+                            onSave(outfitName)
+                        }
+                    },
+                    enabled = outfitName.isNotBlank()
+                ) {
+                    Text("Save")
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = onDismiss
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 }
 
 

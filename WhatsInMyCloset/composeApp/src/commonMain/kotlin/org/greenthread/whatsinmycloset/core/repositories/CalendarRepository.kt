@@ -3,13 +3,18 @@ package org.greenthread.whatsinmycloset.core.repositories
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
+import kotlinx.serialization.encodeToString
 import org.greenthread.whatsinmycloset.core.data.daos.CalendarDao
 import org.greenthread.whatsinmycloset.core.domain.getOrNull
 import org.greenthread.whatsinmycloset.core.domain.isSuccess
 import org.greenthread.whatsinmycloset.core.domain.models.CalendarEntry
 import org.greenthread.whatsinmycloset.core.domain.models.toCalendarEntry
+import org.greenthread.whatsinmycloset.core.domain.models.toEntity
+import org.greenthread.whatsinmycloset.core.dto.CalendarDto
 import org.greenthread.whatsinmycloset.core.dto.toCalendarEntry
 import org.greenthread.whatsinmycloset.core.network.KtorRemoteDataSource
+import org.greenthread.whatsinmycloset.core.persistence.CalendarEntity
+import org.greenthread.whatsinmycloset.core.persistence.OutfitEntity
 
 
 open class CalendarRepository(
@@ -18,11 +23,22 @@ open class CalendarRepository(
 ) {
     suspend fun saveOutfitToCalendar(calendarEntry: CalendarEntry): Boolean {
         return try {
-            // 1. First save to backend
-            val remoteResult = remoteSource.postOutfitToCalendar(calendarEntry.toDto())
+            // Convert to DTO matching server requirements
+            val dto = CalendarDto(
+                outfitId = calendarEntry.outfitId,  // same as in backend
+                userId = calendarEntry.userId,
+                date = calendarEntry.date
+            )
 
-            // 2. If successful, save to local database
-            if (remoteResult.isSuccess()) {
+            println("Calendar DTO: $dto")
+
+            val remoteResult = remoteSource.postOutfitToCalendar(dto)
+
+            println("Server response: $remoteResult")
+
+            if (remoteResult.isSuccess())
+            {
+                // insert outfit in calendar table in room
                 calendarDao.insertCalendarEntry(calendarEntry.toEntity())
                 true
             } else {
