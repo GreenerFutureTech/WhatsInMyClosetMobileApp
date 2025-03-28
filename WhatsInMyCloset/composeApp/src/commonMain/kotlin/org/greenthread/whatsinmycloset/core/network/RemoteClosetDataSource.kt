@@ -39,6 +39,7 @@ interface RemoteClosetDataSource {
     suspend fun getUser(userEmail: String): Result<UserDto, DataError.Remote>
     suspend fun getUserById(userId: Int): Result<UserDto, DataError.Remote>
     suspend fun updateUser(user: UserDto): Result<UserDto, DataError.Remote>
+    suspend fun getUserByUserName(username: String): Result<UserDto, DataError.Remote>
 
     // Outfits
     suspend fun getAllOutfitsForUser(userId: String): Result<List<OutfitDto>, DataError.Remote>
@@ -61,7 +62,6 @@ interface RemoteClosetDataSource {
     // Outfit
     suspend fun getAllOutfits(): Result<List<OutfitDto>, DataError.Remote>
     suspend fun getOutfitById(outfitId: String): Result<OutfitDto, DataError.Remote>
-    suspend fun getUserByUserName(username: String): Result<UserDto, DataError.Remote>
 
     // Friend request
     suspend fun sendFriendRequest(senderId: Int, receiverId: Int): Result<Unit, DataError.Remote>

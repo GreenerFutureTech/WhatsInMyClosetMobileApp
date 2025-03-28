@@ -1,26 +1,25 @@
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
-import org.greenthread.whatsinmycloset.core.domain.models.UserManager
+import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.SwapImageCard
 import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
@@ -34,11 +33,12 @@ import whatsinmycloset.composeapp.generated.resources.no_items_found
 
 @Composable
 fun AllSwapsScreen(
-    navController: NavController,
+    userId: Int,
     viewModel: SwapViewModel = koinViewModel(),
     onSwapClick: (SwapDto) -> Unit,
-    ) {
-    val currentUser = viewModel.currentUser ?: return
+) {
+    val currentUser = viewModel.currentUser.value ?: return
+    val isSearchUser = userId != currentUser.id
 
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val state by viewModel.state.collectAsStateWithLifecycle(
@@ -46,41 +46,49 @@ fun AllSwapsScreen(
         lifecycle = lifecycle
     )
 
+    val swapResults = if (isSearchUser) state.getSearchedUserSwapResults else state.getUserSwapResults
+
     WhatsInMyClosetTheme {
         LaunchedEffect(Unit) {
-            if (state.getUserSwapResults.isEmpty()) {
-                viewModel.fetchSwapData(currentUser.value?.id.toString())
+            if (!isSearchUser && swapResults.isEmpty()) {
+                viewModel.fetchSwapData(currentUser.id.toString())
+            } else {
+                viewModel.fetchSwapData(userId.toString())
             }
         }
 
         Column(
-            modifier = Modifier.fillMaxSize().padding(10.dp)
+            modifier = Modifier.fillMaxSize().padding(10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            if (state.getUserSwapResults.isEmpty()) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
-                    verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
-                ) {
+            when {
+                state.isLoading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+                swapResults.isEmpty() -> {
                     Text(
-                        text =  stringResource(Res.string.no_items_found),
+                        text = stringResource(Res.string.no_items_found),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Medium,
                         color = outlineVariantLight
                     )
                 }
-            } else {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(3),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    itemsIndexed(state.getUserSwapResults) { _, item ->
-                        SwapImageCard(
-                            onSwapClick = {
-                                onSwapClick(item)
-                            },
-                            imageUrl = item.itemId.mediaUrl
-                        )
+                else -> {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(3),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        itemsIndexed(swapResults) { _, item ->
+                            SwapImageCard(
+                                onSwapClick = { onSwapClick(item) },
+                                imageUrl = item.itemId.mediaUrl
+                            )
+                        }
                     }
                 }
             }

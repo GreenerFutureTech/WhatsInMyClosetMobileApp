@@ -2,6 +2,7 @@ package org.greenthread.whatsinmycloset.features.tabs.profile.presentation
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,23 +15,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Star
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -38,11 +28,9 @@ import coil3.compose.AsyncImage
 import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.SwapImageCard
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.SeeAllButton
-import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabViewModel
-import org.greenthread.whatsinmycloset.features.tabs.profile.data.FriendshipStatus
-import org.greenthread.whatsinmycloset.features.tabs.profile.domain.FriendRequest
 import org.greenthread.whatsinmycloset.features.tabs.swap.Action.SwapAction
 import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
+import org.greenthread.whatsinmycloset.theme.outlineVariantLight
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -50,6 +38,7 @@ import whatsinmycloset.composeapp.generated.resources.Res
 import whatsinmycloset.composeapp.generated.resources.content_description_user_avatar
 import whatsinmycloset.composeapp.generated.resources.defaultUser
 import whatsinmycloset.composeapp.generated.resources.friends_count_label
+import whatsinmycloset.composeapp.generated.resources.no_items_found
 import whatsinmycloset.composeapp.generated.resources.swaps_count_label
 
 @Composable
@@ -146,26 +135,8 @@ fun OutfitSectionTitle(title: StringResource) {
 }
 
 @Composable
-fun SwapTitle(title: StringResource) {
-    Row(
-        Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = stringResource(title),
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Bold
-        )
-
-        SeeAllButton(
-            onClick = {}
-        )
-    }
-}
-
-@Composable
 fun ProfileRowSection(
+    isOwnProfile: Boolean,
     title: StringResource? = null,
     showSeeAll: Boolean = true,
     state: SwapListState,
@@ -191,22 +162,38 @@ fun ProfileRowSection(
         }
     }
 
-    Spacer(modifier = Modifier.height(16.dp))
+    val swapResults = if (isOwnProfile) state.getUserSwapResults else state.getSearchedUserSwapResults
 
-    LazyRow(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-            .height(120.dp)
-    ) {
-        itemsIndexed(state.getUserSwapResults) { index, item ->
-            SwapImageCard(
-                onSwapClick = {
-                    onAction(SwapAction.OnSwapClick(item.itemId.id))
-                },
-                imageUrl = item.itemId.mediaUrl
+    if (swapResults.isEmpty()) {
+        Box(
+            modifier = Modifier
+                .padding(16.dp)
+        ) {
+            Text(
+                text = stringResource(Res.string.no_items_found),
+                fontWeight = FontWeight.Medium,
+                color = outlineVariantLight
             )
-            Spacer(modifier = Modifier.width(10.dp))
+
+        }
+
+
+    } else {
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+                .height(100.dp)
+        ) {
+            itemsIndexed(swapResults) { index, item ->
+                SwapImageCard(
+                    onSwapClick = {
+                        onAction(SwapAction.OnSwapClick(item.itemId.id))
+                    },
+                    imageUrl = item.itemId.mediaUrl
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+            }
         }
     }
 }

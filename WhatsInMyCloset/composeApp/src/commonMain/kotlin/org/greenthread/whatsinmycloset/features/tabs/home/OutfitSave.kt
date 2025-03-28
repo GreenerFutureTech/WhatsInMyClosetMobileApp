@@ -60,10 +60,13 @@ fun OutfitSaveScreen(
 
         // retrieve the current outfit user wants to save
         val currentOutfit by outfitViewModel.currentOutfit.collectAsState()
+        var outfitName by remember { mutableStateOf("") }
 
         var showCreateTagDialog by remember { mutableStateOf(false) }
         var showCalendarDialog by remember { mutableStateOf(false) }
         var showDiscardDialog by remember { mutableStateOf(false) }
+        var showOutfitNameDialog by remember { mutableStateOf(false) } // New state for outfit name dialog
+
 
         if (isOutfitSaved) {
 
@@ -77,6 +80,7 @@ fun OutfitSaveScreen(
                     }
                 },
                 viewModel = outfitViewModel,
+                outfitName = outfitName,
                 clothingItemViewModel = clothingItemViewModel
             )
         }
@@ -129,8 +133,9 @@ fun OutfitSaveScreen(
                                 println("Saving outfit: $outfit with tags ${selectedTags}") // Debugging statement
                                 if(selectedTags.isNotEmpty())
                                 {
-                                    // save the current outfit with positions
-                                    outfitViewModel.saveOutfit(selectedTags.toList())
+                                    // pop up to get outfit name from user
+                                    // Show dialog to get outfit name from user
+                                    showOutfitNameDialog = true
                                 }
                             }
                             onDone() // Trigger the onDone callback
@@ -159,6 +164,47 @@ fun OutfitSaveScreen(
                     }
                 }
             }   // end of Lazy Column
+
+            // Get outfit name from user before saving
+            if (showOutfitNameDialog) {
+                AlertDialog(
+                    onDismissRequest = { showOutfitNameDialog = false },
+                    title = { Text("Name Your Outfit") },
+                    text = {
+                        TextField(
+                            value = outfitName,
+                            onValueChange = { outfitName = it },
+                            label = { Text("Outfit Name") },
+                            singleLine = true
+                        )
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                if (outfitName.isNotBlank()) {
+                                    // Save the outfit with name and tags
+                                    outfitViewModel.saveOutfit(
+                                        selectedTags = selectedTags.toList(),
+                                        outfitName = outfitName
+                                    )
+                                    showOutfitNameDialog = false
+                                    onDone() // Trigger the onDone callback
+                                }
+                            },
+                            enabled = outfitName.isNotBlank()
+                        ) {
+                            Text("Save")
+                        }
+                    },
+                    dismissButton = {
+                        Button(
+                            onClick = { showOutfitNameDialog = false }
+                        ) {
+                            Text("Cancel")
+                        }
+                    }
+                )
+            }
 
             // Show CreateNewOutfitTag when the button is clicked
             if (showCreateTagDialog) {
@@ -309,6 +355,7 @@ fun CreateNewOutfitTag(
 fun OutfitSaved(
     navController: NavController,
     onDismiss: () -> Unit, // Callback to close the dialog and go back to the Home Tab
+    outfitName: String,
     viewModel: OutfitViewModel,
     clothingItemViewModel: ClothingItemViewModel
 ) {
@@ -334,7 +381,7 @@ fun OutfitSaved(
     // Check if the dialog should be shown
     if (showDialog) {
         val msgStr = if (tagNamesText.isNotEmpty()) {
-            "Your outfit has been saved with the following tag(s): $tagNamesText."
+            "$outfitName has been saved with the following tag(s): $tagNamesText."
         } else {
             "Your outfit has been saved."
         }
