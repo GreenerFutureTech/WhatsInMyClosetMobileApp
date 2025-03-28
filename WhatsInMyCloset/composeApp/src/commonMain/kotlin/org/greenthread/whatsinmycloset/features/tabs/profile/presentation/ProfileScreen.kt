@@ -35,6 +35,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
+import io.ktor.client.network.sockets.ConnectTimeoutException
 import org.greenthread.whatsinmycloset.app.Routes
 import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.dto.MessageUserDto
@@ -49,6 +50,7 @@ import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
 import whatsinmycloset.composeapp.generated.resources.Res
 import whatsinmycloset.composeapp.generated.resources.accept_button
 import whatsinmycloset.composeapp.generated.resources.add_friend_button
@@ -134,10 +136,10 @@ private fun ProfileContent(
             horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            SwapsCount(
-                swapsCount = 10,
-                modifier = Modifier
-                    .wrapContentWidth(Alignment.CenterHorizontally)
+            SwapStats(
+                user = user,
+                isOwnProfile = isOwnProfile,
+                modifier = Modifier.weight(1f)
             )
 
             if (isOwnProfile) {
@@ -166,6 +168,7 @@ private fun ProfileContent(
         Spacer(Modifier.height(16.dp))
 
         ProfileRowSection(
+            isOwnProfile = isOwnProfile,
             title = Res.string.available_swap_title,
             state = swapState,
             onAction = { action ->
@@ -180,9 +183,9 @@ private fun ProfileContent(
                                 onSwapClick(selectedItem.toOtherSwapDto(user = currentUserDto))
                             }
                         } else {
-                            val selectedItem = swapState.getOtherUserSwapResults.find { it.swap.itemId.id == action.itemId }
-                            if (selectedItem != null) {
-                                onSwapClick(selectedItem)
+                            val selectedItem = swapState.getSearchedUserSwapResults.find { it.itemId.id == action.itemId }
+                            if (selectedItem != null && user.id != null) {
+                                onSwapClick(selectedItem.toOtherSwapDto(user = MessageUserDto(id = user.id, name = user.name, profilePicture = user.profilePicture)))
                             }
                         }
                     }
@@ -258,6 +261,58 @@ private fun ProfileHeader(
         ProfilePicture(user)
         Username(user.name ?: "No username found", user.username ?: "No username found")
     }
+}
+
+@Composable
+private fun SwapStats(
+    user: User,
+    isOwnProfile: Boolean,
+    modifier: Modifier
+) {
+    val swapViewModel: SwapViewModel = koinViewModel()
+    val profileViewModel: ProfileTabViewModel = koinViewModel()
+
+    val state by profileViewModel.state.collectAsStateWithLifecycle()
+
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    val swapState by swapViewModel.state.collectAsStateWithLifecycle(
+        initialValue = SwapListState(),
+        lifecycle = lifecycle
+    )
+
+    val userSwapItemCount = swapState.getUserSwapResults.size
+    val searchedUserSwapItemCount = swapState.getSearchedUserSwapResults.size
+
+    LaunchedEffect(state) {
+        if(!isOwnProfile)
+        {
+            try {
+                if (swapState.getSearchedUserSwapResults.isEmpty()) {
+                    swapViewModel.fetchSwapData(user.id.toString())
+                }
+            } catch (e: ConnectTimeoutException) {
+                println("Connection timeout occurred (could not hit backend?): ${e.message}")
+            } catch (e: Exception) {
+                println("An error occurred: ${e.message}")
+            }
+        }
+    }
+
+    if(!isOwnProfile)
+    {
+        SwapsCount(
+            swapsCount = searchedUserSwapItemCount,
+            modifier = Modifier
+                .wrapContentWidth(Alignment.CenterHorizontally)
+        )
+    }else {
+        SwapsCount(
+            swapsCount = userSwapItemCount,
+            modifier = Modifier
+                .wrapContentWidth(Alignment.CenterHorizontally)
+        )
+    }
+
 }
 
 @Composable

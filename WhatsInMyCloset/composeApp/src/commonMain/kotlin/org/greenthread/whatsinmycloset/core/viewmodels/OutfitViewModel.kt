@@ -102,13 +102,13 @@ open class OutfitViewModel(
     }
 
     // Outfit creation and management
-    fun saveOutfit(selectedTags: List<String>) {
+    fun saveOutfit(selectedTags: List<String>, outfitName: String) {
         viewModelScope.launch {
             val currentOutfit = _currentOutfit.value ?: return@launch
 
             val updatedOutfit = Outfit(
                 id = currentOutfit.outfitId,
-                name = currentOutfit.name,
+                name = outfitName,
                 creatorId = currentOutfit.creatorId,
                 items = _temporaryPositions.value,
                 tags = selectedTags,

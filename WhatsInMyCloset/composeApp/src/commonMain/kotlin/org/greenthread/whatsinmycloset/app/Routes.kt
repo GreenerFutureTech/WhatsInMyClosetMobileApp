@@ -75,7 +75,7 @@ sealed interface Routes {
     data object SocialDetailsScreen : Routes
 
     @Serializable
-    data object AllSwapScreen : Routes
+    data class AllSwapScreen(val userId: Int) : Routes
 
     @Serializable
     data object MessageListScreen : Routes
