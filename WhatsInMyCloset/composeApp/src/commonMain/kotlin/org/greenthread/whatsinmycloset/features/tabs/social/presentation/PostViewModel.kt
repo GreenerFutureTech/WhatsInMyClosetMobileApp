@@ -3,6 +3,8 @@ package org.greenthread.whatsinmycloset.features.tabs.social.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.greenthread.whatsinmycloset.core.domain.getOrNull
@@ -21,9 +23,18 @@ open class PostViewModel(
     private val _state = MutableStateFlow(PostState())
     val state = _state
 
+    // holds the refreshing state for UI updates when refreshing
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
+
+    fun refresh() {
+        fetchAllOutfitData()
+    }
+
     fun fetchAllOutfitData() {
         viewModelScope.launch {
             _state.update{ it.copy( isLoading = true) }
+
             currentUser.value?.id?.let {
                 itemRepository.getFriendsOutfits(it)
                     .onSuccess { outfits ->
