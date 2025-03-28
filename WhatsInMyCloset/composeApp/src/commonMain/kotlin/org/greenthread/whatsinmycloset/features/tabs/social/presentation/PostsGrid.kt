@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import org.greenthread.whatsinmycloset.app.Routes
 import org.greenthread.whatsinmycloset.core.ui.components.posts.PostCard
 import org.greenthread.whatsinmycloset.features.tabs.social.data.PostState
 import org.greenthread.whatsinmycloset.theme.outlineVariantLight
@@ -85,7 +86,7 @@ fun PostsGrid(
                             outfit = outfit,
                             currentUser = currentUser,
                             modifier = Modifier.padding(4.dp),
-                            onPostClick = onPostClick
+                            onPostClick = { navController.navigate(Routes.SocialDetailsScreen(outfit.outfitId))}
                         )
                     }
                 }

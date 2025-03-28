@@ -514,7 +514,8 @@ fun App(
                         )
                     }
                     composable<Routes.SocialDetailsScreen> {
-                        PostDetailScreen()
+                        val args = it.toRoute<Routes.SocialDetailsScreen>()
+                        PostDetailScreen(outfitId = args.outfitId)
                     }
                 }
 
