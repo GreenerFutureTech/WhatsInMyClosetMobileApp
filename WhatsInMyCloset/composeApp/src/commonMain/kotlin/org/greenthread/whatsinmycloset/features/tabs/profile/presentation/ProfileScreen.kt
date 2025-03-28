@@ -52,10 +52,19 @@ import org.greenthread.whatsinmycloset.features.tabs.swap.Action.SwapAction
 import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import whatsinmycloset.composeapp.generated.resources.Res
+import whatsinmycloset.composeapp.generated.resources.accept_button
+import whatsinmycloset.composeapp.generated.resources.add_friend_button
 import whatsinmycloset.composeapp.generated.resources.available_swap_title
+import whatsinmycloset.composeapp.generated.resources.cancel_request_button
+import whatsinmycloset.composeapp.generated.resources.clear_button
+import whatsinmycloset.composeapp.generated.resources.content_description_user_avatar
+import whatsinmycloset.composeapp.generated.resources.decline_button
 import whatsinmycloset.composeapp.generated.resources.defaultUser
+import whatsinmycloset.composeapp.generated.resources.error_no_user_data
 import whatsinmycloset.composeapp.generated.resources.my_outfits_title
+import whatsinmycloset.composeapp.generated.resources.remove_friend_button
 
 @Composable
 fun ProfileScreen(
@@ -101,7 +110,7 @@ fun ProfileScreen(
                 onSwapClick = onSwapClick,
                 swapState = swapState
             )
-            else -> Text("No user data available") // Fallback UI
+            else -> Text(stringResource(Res.string.error_no_user_data)) // Fallback UI
         }
     }
 }
@@ -181,7 +190,10 @@ private fun ProfileContent(
                         viewModel.searchUser()
                     }
                 }) {
-                    Text(if (searchResults != null) "Clear" else "Search")
+                    Text(
+                        if (searchResults != null) stringResource(Res.string.clear_button)
+                        else stringResource(Res.string.clear_button)
+                    )
                 }
             }
 
@@ -272,7 +284,7 @@ private fun UserSearchResult(
         ) {
             AsyncImage(
                 model = user.profilePicture ?: "",
-                contentDescription = "Profile picture",
+                contentDescription = stringResource(Res.string.content_description_user_avatar),
                 modifier = Modifier
                     .size(48.dp)
                     .clip(CircleShape),
@@ -327,7 +339,7 @@ fun ProfileActions(
                     },
                     enabled = !state.isLoading && targetUserId != null
                 ) {
-                    Text("Add Friend")
+                    Text(stringResource(Res.string.add_friend_button))
                 }
             }
 
@@ -342,7 +354,7 @@ fun ProfileActions(
                     if (state.isLoading) {
                         CircularProgressIndicator(Modifier.size(20.dp))
                     } else {
-                        Text("Cancel Request")
+                        Text(stringResource(Res.string.cancel_request_button))
                     }
                 }
             }
@@ -357,14 +369,14 @@ fun ProfileActions(
                         ),
                         enabled = !state.isLoading
                     ) {
-                        Text("Accept")
+                        Text(stringResource(Res.string.accept_button))
                     }
 
                     OutlinedButton(
                         onClick = { viewModel.respondToRequest(false) },
                         enabled = !state.isLoading
                     ) {
-                        Text("Reject")
+                        Text(stringResource(Res.string.decline_button))
                     }
                 }
             }
@@ -383,7 +395,7 @@ fun ProfileActions(
                     if (state.isLoading) {
                         CircularProgressIndicator(Modifier.size(20.dp))
                     } else {
-                        Text("Remove Friend")
+                        Text(stringResource(Res.string.remove_friend_button))
                     }
                 }
             }

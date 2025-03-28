@@ -47,6 +47,7 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import whatsinmycloset.composeapp.generated.resources.Res
+import whatsinmycloset.composeapp.generated.resources.content_description_user_avatar
 import whatsinmycloset.composeapp.generated.resources.defaultUser
 import whatsinmycloset.composeapp.generated.resources.friends_count_label
 import whatsinmycloset.composeapp.generated.resources.swaps_count_label
@@ -55,7 +56,7 @@ import whatsinmycloset.composeapp.generated.resources.swaps_count_label
 fun ProfilePicture(user: User) {
     AsyncImage(
         model = user.profilePicture ?: "",
-        contentDescription = "Profile picture",
+        contentDescription = stringResource(Res.string.content_description_user_avatar),
         modifier = Modifier
             .size(60.dp)
             .aspectRatio(1f)

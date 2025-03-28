@@ -28,13 +28,8 @@ fun FullScreenLoading() {
     ) {
         CircularProgressIndicator()
     }
-
 }
 
-// TODO implement all swaps buttons
-// TODO add/remove friend
-// TODO reorganize UI/sections with data from viewModel
-// TODO fetch profile's picture
 // TODO add try-catch for search
 // TODO change design for search result
 

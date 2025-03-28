@@ -62,4 +62,14 @@
     <string name="friends_count_label">Friends</string>
     <string name="swaps_count_label">Swaps</string>
 
+    <!-- Profile tab strings -->
+    <string name="content_description_user_avatar">Profile picture</string>
+    <string name="error_no_user_data">No user data available</string>
+    <string name="search_button">Search</string>
+    <string name="clear_button">Clear</string>
+    <string name="cancel_request_button">Cancel Request</string>
+    <string name="accept_button">Accept</string>
+    <string name="decline_button">Decline</string>
+
+
 </resources>
