@@ -9,7 +9,7 @@ data class ProfileState(
     val error: String? = null,
     val isOwnProfile: Boolean = false,
     val searchResults: User? = null,
-    val friendshipStatus: FriendshipStatus = FriendshipStatus.NOT_FRIENDS
+    val friendshipStatus: FriendshipStatus = FriendshipStatus.NOT_FRIENDS,
 )
 
 enum class FriendshipStatus {

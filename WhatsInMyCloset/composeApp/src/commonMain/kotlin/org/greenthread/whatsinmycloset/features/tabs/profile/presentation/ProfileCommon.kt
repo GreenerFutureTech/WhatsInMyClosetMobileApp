@@ -88,22 +88,24 @@ fun Username(name: String, username: String) {
 
 @Composable
 fun FriendsCount(
-    friendsCount: Int?,
+    friendsCount: Int,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row (
+    TextButton(
+        onClick = onClick,
         modifier = modifier
-    ){
-        Text(
-            text = "$friendsCount",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-        )
-        Text(
-            text = stringResource(Res.string.friends_count_label),
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(8.dp)
-        )
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = friendsCount.toString(),
+                style = MaterialTheme.typography.titleLarge
+            )
+            Text(
+                text = "Friends",
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
     }
 }
 

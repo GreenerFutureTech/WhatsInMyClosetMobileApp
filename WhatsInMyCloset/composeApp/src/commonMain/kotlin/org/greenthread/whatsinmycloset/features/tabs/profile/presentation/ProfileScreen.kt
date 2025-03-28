@@ -79,9 +79,7 @@ fun ProfileScreen(
     )
 
      LaunchedEffect(userId) {
-        if (state.user?.id != userId) { // Only load if different user
-            profileViewModel.loadProfile(userId)
-        }
+        profileViewModel.loadProfile(userId)
     }
 
     // Clear search results when leaving the screen
@@ -121,10 +119,6 @@ private fun ProfileContent(
     navController: NavController,
     modifier: Modifier = Modifier
 ) {
-    val state by viewModel.state.collectAsState()
-    val searchQuery by viewModel.searchQuery.collectAsState()
-    val searchResults by viewModel.searchResult.collectAsState()
-
     Column(modifier
         .verticalScroll(rememberScrollState())
         .fillMaxWidth()
@@ -149,9 +143,12 @@ private fun ProfileContent(
             if (isOwnProfile) {
                 FriendsCount(
                     friendsCount = user.friends?.size ?: 0,
-                    modifier = Modifier
-                        .wrapContentWidth(Alignment.CenterHorizontally)
+                    onClick = {
+                        navController.navigate(Routes.UserFriendsScreen)
+                    },
+                    modifier = Modifier.wrapContentWidth(Alignment.CenterHorizontally)
                 )
+
                 Button(onClick = {
                     navController.navigate(Routes.UserSearchScreen)
                 }) {

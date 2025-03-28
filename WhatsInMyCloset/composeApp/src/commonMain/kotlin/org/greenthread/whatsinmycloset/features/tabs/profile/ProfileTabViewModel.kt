@@ -80,6 +80,7 @@ class ProfileTabViewModel(
         }
     }
 
+
     // Check friendship status
     private suspend fun checkFriendRequestStatus(targetUserId: Int) {
         val currentUserId = currentUser.value?.id ?: return
@@ -100,6 +101,32 @@ class ProfileTabViewModel(
                     _state.update { it.copy(friendshipStatus = FriendshipStatus.NOT_FRIENDS) }
                 }
             }
+        }
+    }
+
+    fun loadUserFriends() {
+        val userId = currentUser.value?.id ?: return
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true, error = null) }
+
+            userRepository.getUserById(userId)
+                .onSuccess { user ->
+                    _state.update {
+                        it.copy(
+                            user = user.toModel(),
+                            isLoading = false,
+                            isOwnProfile = true
+                        )
+                    }
+                }
+                .onError { error ->
+                    _state.update {
+                        it.copy(
+                            error = error.toString(),
+                            isLoading = false
+                        )
+                    }
+                }
         }
     }
 

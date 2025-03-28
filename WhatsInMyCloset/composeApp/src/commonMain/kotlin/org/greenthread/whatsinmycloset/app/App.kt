@@ -84,6 +84,7 @@ import org.greenthread.whatsinmycloset.features.tabs.home.presentation.SelectedI
 import org.greenthread.whatsinmycloset.features.tabs.profile.presentation.ProfileScreen
 import org.greenthread.whatsinmycloset.features.tabs.profile.presentation.ProfileScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabViewModel
+import org.greenthread.whatsinmycloset.features.tabs.profile.presentation.UserFriendsScreen
 import org.greenthread.whatsinmycloset.features.tabs.profile.presentation.UserSearchScreen
 import org.greenthread.whatsinmycloset.features.tabs.swap.domain.SwapEventBus
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.AddSwap.AddSwapRoot
@@ -151,6 +152,7 @@ fun NavController.getBarVisibility(): BarVisibility {
 
         // Profile
         Routes.UserSearchScreen.toString() -> BarVisibility.Custom(onlyBack = true, title = "Search Users")
+        Routes.UserFriendsScreen.toString() -> BarVisibility.Custom(onlyBack = true, title = "Friends")
 
         // Add more specific route configurations as needed
         else -> BarVisibility.Visible
@@ -391,6 +393,15 @@ fun App(
                         val viewModel: ProfileTabViewModel = koinViewModel()
 
                         UserSearchScreen(
+                            profileViewModel = viewModel,
+                            navController = navController
+                        )
+                    }
+
+                    composable<Routes.UserFriendsScreen> {
+                        val viewModel: ProfileTabViewModel = koinViewModel()
+
+                        UserFriendsScreen(
                             profileViewModel = viewModel,
                             navController = navController
                         )
