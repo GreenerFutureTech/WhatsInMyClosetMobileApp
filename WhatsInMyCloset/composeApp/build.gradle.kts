@@ -128,6 +128,7 @@ dependencies {
     implementation(libs.androidx.core.i18n)
     //implementation(libs.androidx.compose.material.core)
     implementation(libs.firebase.messaging.ktx)
+    implementation(libs.androidx.foundation.layout.android)
     debugImplementation(compose.uiTooling)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
     implementation(platform("com.google.firebase:firebase-bom:33.10.0"))

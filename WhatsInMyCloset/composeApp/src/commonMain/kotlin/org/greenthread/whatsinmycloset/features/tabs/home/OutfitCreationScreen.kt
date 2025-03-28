@@ -42,6 +42,7 @@ import coil3.compose.AsyncImage
 import org.greenthread.whatsinmycloset.app.Routes
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
+import org.greenthread.whatsinmycloset.core.utilities.CoordinateNormalizer
 import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.OutfitViewModel
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
@@ -236,6 +237,11 @@ fun OutfitCollageArea(
     val canvasHeight = with(LocalDensity.current) { 300.dp.toPx() }
     val canvasWidth = with(LocalDensity.current) { 450.dp.toPx() }
 
+    val (dynamicItemWidth, dynamicItemHeight) = CoordinateNormalizer.calculateDynamicItemSize(
+        canvasWidth,
+        canvasHeight
+    )
+
     Box(
         modifier = Modifier
             .width(450.dp)
@@ -258,10 +264,15 @@ fun OutfitCollageArea(
                 selectedClothingItems.forEach { item ->
                     if (!itemPositions.containsKey(item.id)) {
                         // Calculate initial position (you can adjust this logic)
-                        val x = (itemPositions.size * 120f).coerceIn(0f, canvasWidth - 100f)
-                        val y = (itemPositions.size * 80f).coerceIn(0f, canvasHeight - 100f)
-                        itemPositions[item.id] = OffsetData(x, y)
-                        onPositionUpdate(item.id, OffsetData(x, y))
+                        val x = (itemPositions.size * (dynamicItemWidth * 1.5f)).coerceIn(0f, canvasWidth - dynamicItemWidth)
+                        val y = (itemPositions.size * (dynamicItemHeight * 1.5f)).coerceIn(0f, canvasHeight - dynamicItemHeight)
+
+                        val (normalizedX, normalizedY) = CoordinateNormalizer.normalizeCoordinates(
+                            x, y, canvasWidth, canvasHeight
+                        )
+
+                        itemPositions[item.id] = OffsetData(normalizedX, normalizedY)
+                        onPositionUpdate(item.id, OffsetData(normalizedX, normalizedY))
                     }
                 }
             }
@@ -273,9 +284,15 @@ fun OutfitCollageArea(
                     initialPosition = itemPositions[clothingItem.id] ?: OffsetData(0f, 0f),
                     canvasWidth = canvasWidth,
                     canvasHeight = canvasHeight,
+                    dynamicItemWidth = dynamicItemWidth,
+                    dynamicItemHeight = dynamicItemHeight,
                     onPositionUpdate = { newPosition ->
-                        itemPositions[clothingItem.id] = newPosition
-                        onPositionUpdate(clothingItem.id, newPosition)
+                        val (normalizedX, normalizedY) = CoordinateNormalizer.normalizeCoordinates(
+                            newPosition.x, newPosition.y, canvasWidth, canvasHeight
+                        )
+
+                        itemPositions[clothingItem.id] = OffsetData(normalizedX, normalizedY)
+                        onPositionUpdate(clothingItem.id, OffsetData(normalizedX, normalizedY))
                     }
                 )
             }
@@ -292,9 +309,19 @@ fun DraggableClothingItem(
     initialPosition: OffsetData,
     canvasWidth: Float,
     canvasHeight: Float,
+    dynamicItemWidth: Float,
+    dynamicItemHeight: Float,
     onPositionUpdate: (OffsetData) -> Unit
 ) {
-    var position by remember { mutableStateOf(initialPosition) }
+
+    val denormalizedInitialPosition = remember(initialPosition) {
+        val (x, y) = CoordinateNormalizer.denormalizeCoordinates(
+            initialPosition.x, initialPosition.y, canvasWidth, canvasHeight, dynamicItemWidth, dynamicItemHeight
+        )
+        OffsetData(x, y)
+    }
+
+    var position by remember { mutableStateOf(denormalizedInitialPosition) }
 
     Box(
         modifier = Modifier
@@ -303,17 +330,23 @@ fun DraggableClothingItem(
                 detectDragGestures { _, dragAmount ->
 
                     val newX = (position.x + dragAmount.x)
-                        .coerceIn(0f, canvasWidth - 300f)
+                        .coerceIn(0f, canvasWidth - 375f)
                     val newY = (position.y + dragAmount.y)
                         .coerceIn(0f, canvasHeight - 275f)
 
-                    println("NEW X: $newX")
-                    println("NEW Y: $newY")
 
                     position = OffsetData(newX, newY)
 
+                    val (normalizedX, normalizedY) = CoordinateNormalizer.normalizeCoordinates(
+                        newX, newY, canvasWidth, canvasHeight
+                    )
+
+                    println("Canvas Width: $canvasWidth, Canvas Height: $canvasHeight")
+                    println("New Position X: $newX, Y: $newY")
+                    println("Normalized X: $normalizedX, Y: $normalizedY")
+
                     // Notify parent of position change
-                    onPositionUpdate(position)
+                    onPositionUpdate(OffsetData(normalizedX, normalizedY))
                 }
             }
             .size(100.dp) // Define the size of the clothing item

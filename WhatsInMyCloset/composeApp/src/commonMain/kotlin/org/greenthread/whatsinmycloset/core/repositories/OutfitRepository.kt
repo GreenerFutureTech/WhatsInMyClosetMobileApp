@@ -99,10 +99,11 @@ open class OutfitRepository(
         return OutfitDto(
             name = name,
             itemIds = items.map { (id, offsetData) ->
-                OutfitItems(id = id, x = offsetData.x.toString(), y = offsetData.y.toString()) // Ensure correct field mapping
+                OutfitItems(id = id, x = offsetData.x, y = offsetData.y) // Ensure correct field mapping
             },
-            userId = creatorId.toString(),
-            tags = tags
+            userId = creatorId,
+            tags = tags,
+            id = id
         )
     }
 

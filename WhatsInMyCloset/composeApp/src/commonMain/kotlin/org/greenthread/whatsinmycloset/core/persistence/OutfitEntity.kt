@@ -58,12 +58,6 @@ data class OutfitEntity(
         }
     }
 
-    // Helper functions to deserialize
-    // for example:
-    /*
-        val items = outfit.getItems() // Returns List<OutfitItem>
-        val tags = outfit.getTags()   // Returns List<String>
-     */
     fun getItems(): Map<String, OffsetData> =
         json.decodeFromString(items) ?: emptyMap()
 
@@ -77,9 +71,9 @@ data class OutfitEntity(
 @Serializable
 @Embeddable
 data class OutfitItems(
-    val id: String,  // The item ID
-    val x: String,    // X position
-    val y: String     // Y position
+    val id: String? = "",  // The item ID
+    val x: Float? = 0f,    // X position
+    val y: Float? = 0f     // Y position
 )
 
 annotation class Embeddable

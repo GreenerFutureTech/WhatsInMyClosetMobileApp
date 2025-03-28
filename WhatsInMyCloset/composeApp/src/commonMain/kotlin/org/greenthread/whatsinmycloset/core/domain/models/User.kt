@@ -14,7 +14,8 @@ class User(
     val type: String? = null,
     val registeredAt: String,
     val updatedAt: String,
-    val lastLogin: String
+    val lastLogin: String,
+    val friends: List<Friend>? = null
 ) {
     private val wardrobes = mutableMapOf<String, Wardrobe>() // Maps wardrobe ID to Wardrobe
     private val outfits = mutableMapOf<String, Outfit>() // Maps outfit ID to Outfit
