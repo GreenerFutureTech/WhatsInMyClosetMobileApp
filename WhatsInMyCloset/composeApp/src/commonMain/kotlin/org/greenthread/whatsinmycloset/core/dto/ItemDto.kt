@@ -21,7 +21,7 @@ data class ItemDto(
 fun ItemDto.toClothingItem(): ClothingItem {
     return ClothingItem(
         id = this.id,
-        name = this.brand + " " + this.itemType, // Use brand + itemType as name (modify as needed)
+        name = this.name,
         wardrobeId = this.wardrobeId,
         itemType = ClothingCategory.valueOf(this.itemType.uppercase()), // Ensure case match for enum
         mediaUrl = this.mediaUrl.ifEmpty { null }, // Convert empty string to null
