@@ -65,6 +65,7 @@ import whatsinmycloset.composeapp.generated.resources.defaultUser
 import whatsinmycloset.composeapp.generated.resources.error_no_user_data
 import whatsinmycloset.composeapp.generated.resources.my_outfits_title
 import whatsinmycloset.composeapp.generated.resources.remove_friend_button
+import whatsinmycloset.composeapp.generated.resources.search_button
 
 @Composable
 fun ProfileScreen(
@@ -192,7 +193,7 @@ private fun ProfileContent(
                 }) {
                     Text(
                         if (searchResults != null) stringResource(Res.string.clear_button)
-                        else stringResource(Res.string.clear_button)
+                        else stringResource(Res.string.search_button)
                     )
                 }
             }
