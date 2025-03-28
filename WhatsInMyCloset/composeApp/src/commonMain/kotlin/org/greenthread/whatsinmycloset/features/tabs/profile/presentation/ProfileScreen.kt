@@ -1,6 +1,5 @@
 package org.greenthread.whatsinmycloset.features.tabs.profile.presentation
 
-import androidx.collection.emptyLongSet
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -27,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -53,11 +53,21 @@ import org.greenthread.whatsinmycloset.features.tabs.swap.Action.SwapAction
 import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import whatsinmycloset.composeapp.generated.resources.Res
+import whatsinmycloset.composeapp.generated.resources.accept_button
+import whatsinmycloset.composeapp.generated.resources.add_friend_button
 import whatsinmycloset.composeapp.generated.resources.available_swap_title
+import whatsinmycloset.composeapp.generated.resources.cancel_request_button
+import whatsinmycloset.composeapp.generated.resources.clear_button
+import whatsinmycloset.composeapp.generated.resources.content_description_user_avatar
+import whatsinmycloset.composeapp.generated.resources.decline_button
 import whatsinmycloset.composeapp.generated.resources.defaultUser
+import whatsinmycloset.composeapp.generated.resources.error_no_user_data
 import whatsinmycloset.composeapp.generated.resources.my_outfits_title
+import whatsinmycloset.composeapp.generated.resources.remove_friend_button
+import whatsinmycloset.composeapp.generated.resources.search_button
 
 @Composable
 fun ProfileScreen(
@@ -103,7 +113,7 @@ fun ProfileScreen(
                 onSwapClick = onSwapClick,
                 swapState = swapState
             )
-            else -> Text("No user data available") // Fallback UI
+            else -> Text(stringResource(Res.string.error_no_user_data)) // Fallback UI
         }
     }
 }
@@ -135,8 +145,8 @@ private fun ProfileContent(
         Row(
             modifier = Modifier
                 .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             SwapStats(
                 user = user,
@@ -148,15 +158,13 @@ private fun ProfileContent(
                 FriendsCount(
                     friendsCount = user.friends?.size ?: 0,
                     modifier = Modifier
-                        .weight(1f)
                         .wrapContentWidth(Alignment.CenterHorizontally)
                 )
-            }
-
-            if (!state.isOwnProfile) {
+            } else {
                 ProfileActions(
                     viewModel = viewModel,
-                    targetUserId = user.id
+                    targetUserId = user.id,
+                    modifier = Modifier.wrapContentWidth(Alignment.CenterHorizontally)
                 )
             }
         }
@@ -185,7 +193,10 @@ private fun ProfileContent(
                         viewModel.searchUser()
                     }
                 }) {
-                    Text(if (searchResults != null) "Clear" else "Search")
+                    Text(
+                        if (searchResults != null) stringResource(Res.string.clear_button)
+                        else stringResource(Res.string.search_button)
+                    )
                 }
             }
 
@@ -277,7 +288,7 @@ private fun UserSearchResult(
         ) {
             AsyncImage(
                 model = user.profilePicture ?: "",
-                contentDescription = "Profile picture",
+                contentDescription = stringResource(Res.string.content_description_user_avatar),
                 modifier = Modifier
                     .size(48.dp)
                     .clip(CircleShape),
@@ -303,28 +314,16 @@ private fun UserSearchResult(
 
 @Composable
 private fun ProfileHeader(
-    user: User
+    user: User,
 ) {
-    Column(
+    Row(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceAround
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                ProfilePicture(user)
-                Username(user.name ?: "No username found", user.username ?: "No username found")
-            }
-
-            if (user.type == "Super") {
-                UserBadge()
-            }
-        }
+        ProfilePicture(user)
+        Username(user.name ?: "No username found", user.username ?: "No username found")
     }
 }
 
@@ -366,14 +365,12 @@ private fun SwapStats(
     if(!isOwnProfile)
     {
         SwapsCount(
-            onClick = {},
             swapsCount = searchedUserSwapItemCount,
             modifier = Modifier
                 .wrapContentWidth(Alignment.CenterHorizontally)
         )
     }else {
         SwapsCount(
-            onClick = {},
             swapsCount = userSwapItemCount,
             modifier = Modifier
                 .wrapContentWidth(Alignment.CenterHorizontally)
@@ -385,60 +382,78 @@ private fun SwapStats(
 @Composable
 fun ProfileActions(
     viewModel: ProfileTabViewModel,
-    targetUserId: Int?
+    targetUserId: Int?,
+    modifier: Modifier = Modifier
 ) {
     val state by viewModel.state.collectAsState()
-
-    when (state.friendshipStatus) {
-        FriendshipStatus.NOT_FRIENDS -> {
-            Button(
-                onClick = {
-                    targetUserId?.let { viewModel.sendFriendRequest(it) }
-                },
-                enabled = !state.isLoading && targetUserId != null
-            ) {
-                Text("Add Friend")
-            }
-        }
-
-        // TODO cancel request pending
-        FriendshipStatus.PENDING -> {
-            OutlinedButton(
-                onClick = { /* Cancel request */ },
-                enabled = false
-            ) {
-                Text("Request Sent")
-            }
-        }
-
-        FriendshipStatus.REQUEST_RECEIVED -> {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    Row(modifier = modifier) {
+        when (state.friendshipStatus) {
+            FriendshipStatus.NOT_FRIENDS -> {
                 Button(
-                    onClick = { viewModel.respondToRequest(true) },
-                    enabled = !state.isLoading
+                    onClick = {
+                        targetUserId?.let { viewModel.sendFriendRequest(it) }
+                    },
+                    enabled = !state.isLoading && targetUserId != null
                 ) {
-                    Text("Accept")
-                }
-
-                OutlinedButton(
-                    onClick = { viewModel.respondToRequest(false) },
-                    enabled = !state.isLoading
-                ) {
-                    Text("Reject")
+                    Text(stringResource(Res.string.add_friend_button))
                 }
             }
-        }
 
-        // TODO remove friend
-        FriendshipStatus.FRIENDS -> {
-            OutlinedButton(
-                onClick = { /* Remove friend */ },
-                colors = ButtonDefaults.outlinedButtonColors(
-                    containerColor = MaterialTheme.colorScheme.errorContainer,
-                    contentColor = MaterialTheme.colorScheme.onErrorContainer
-                )
-            ) {
-                Text("Remove Friend")
+            FriendshipStatus.PENDING -> {
+                TextButton(
+                    onClick = { targetUserId?.let { viewModel.cancelRequest(it) } },
+                    enabled = !state.isLoading && targetUserId != null,
+                    colors = ButtonDefaults.textButtonColors(
+                        disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                    )
+                ) {
+                    if (state.isLoading) {
+                        CircularProgressIndicator(Modifier.size(20.dp))
+                    } else {
+                        Text(stringResource(Res.string.cancel_request_button))
+                    }
+                }
+            }
+
+            FriendshipStatus.REQUEST_RECEIVED -> {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(
+                        onClick = { viewModel.respondToRequest(true) },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                        ),
+                        enabled = !state.isLoading
+                    ) {
+                        Text(stringResource(Res.string.accept_button))
+                    }
+
+                    OutlinedButton(
+                        onClick = { viewModel.respondToRequest(false) },
+                        enabled = !state.isLoading
+                    ) {
+                        Text(stringResource(Res.string.decline_button))
+                    }
+                }
+            }
+
+            FriendshipStatus.FRIENDS -> {
+                OutlinedButton(
+                    onClick = {
+                        targetUserId?.let { viewModel.removeFriend(it) }
+                    },
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer,
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer
+                    ),
+                    enabled = !state.isLoading && targetUserId != null
+                ) {
+                    if (state.isLoading) {
+                        CircularProgressIndicator(Modifier.size(20.dp))
+                    } else {
+                        Text(stringResource(Res.string.remove_friend_button))
+                    }
+                }
             }
         }
     }

@@ -1,24 +1,21 @@
 package org.greenthread.whatsinmycloset.core.network
 
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
+import io.ktor.client.request.delete
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
-import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.*
 import io.ktor.http.ContentType
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
-import io.ktor.client.statement.*
 import io.ktor.utils.io.core.buildPacket
 import io.ktor.utils.io.core.writeFully
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import org.greenthread.whatsinmycloset.core.data.safeCall
 import org.greenthread.whatsinmycloset.core.domain.DataError
 import org.greenthread.whatsinmycloset.core.domain.Result
@@ -39,8 +36,8 @@ import org.greenthread.whatsinmycloset.features.screens.notifications.domain.mod
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.NotificationDto
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.NotificationType
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.SendNotificationRequest
-import org.greenthread.whatsinmycloset.features.tabs.profile.data.FriendshipStatus
 import org.greenthread.whatsinmycloset.features.tabs.profile.domain.RequestStatus
+import org.greenthread.whatsinmycloset.features.tabs.profile.data.FriendshipStatus
 import org.greenthread.whatsinmycloset.getPlatform
 
 private val platform = getPlatform()
@@ -404,6 +401,7 @@ class KtorRemoteDataSource(
         }
     }
 
+
     // calendar -- get outfit from calendar
     override suspend fun getAllOutfitsFromCalendar(userId: String): Result<List<CalendarDto>, DataError.Remote> {
         return safeCall {
@@ -450,5 +448,22 @@ class KtorRemoteDataSource(
             )
         }
     }
+
+    override suspend fun removeFriend(userId: Int, friendId: Int): Result<Unit, DataError.Remote> {
+        return safeCall {
+            httpClient.delete(
+                urlString = "$BASE_URL/users/$userId/friends/$friendId"
+            )
+        }
+    }
+
+    override suspend fun cancelFriendRequest(senderId: Int, receiverId: Int): Result<Unit, DataError.Remote> {
+        return safeCall {
+            httpClient.delete(
+                urlString = "$BASE_URL/users/friend-request/$senderId/$receiverId"
+            )
+        }
+    }
 }
+
 

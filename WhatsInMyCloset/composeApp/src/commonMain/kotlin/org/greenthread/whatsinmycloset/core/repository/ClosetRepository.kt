@@ -8,7 +8,6 @@ import org.greenthread.whatsinmycloset.core.dto.ItemDto
 import org.greenthread.whatsinmycloset.core.dto.MessageDto
 import org.greenthread.whatsinmycloset.core.dto.OtherSwapDto
 import org.greenthread.whatsinmycloset.core.dto.OutfitDto
-import org.greenthread.whatsinmycloset.core.dto.SendMessageRequest
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.dto.SwapStatusDto
 import org.greenthread.whatsinmycloset.core.dto.UserDto
@@ -38,9 +37,9 @@ interface ClosetRepository {
 
     // Item
     suspend fun getItemById(itemId: String): Result<ItemDto, DataError.Remote>
+
     // Outfit
     suspend fun getAllOutfits(): Result<List<OutfitDto>, DataError.Remote>
-
     suspend fun getUserByUserName(username: String): Result<UserDto, DataError.Remote>
 
     // Friend request
@@ -48,4 +47,6 @@ interface ClosetRepository {
     suspend fun respondToFriendRequest(requestId: Int, status: RequestStatus): Result<Unit, DataError.Remote>
     suspend fun getReceivedFriendRequests(userId: Int): Result<List<FriendRequestDto>, DataError.Remote>
     suspend fun getSentFriendRequests(userId: Int): Result<List<FriendRequestDto>, DataError.Remote>
+    suspend fun removeFriend(userId: Int, friendId: Int): Result<Unit, DataError.Remote>
+    suspend fun cancelFriendRequest(senderId: Int, receiverId: Int): Result<Unit, DataError.Remote>
 }

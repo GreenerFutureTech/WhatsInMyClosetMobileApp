@@ -8,13 +8,10 @@ import org.greenthread.whatsinmycloset.core.dto.FriendRequestDto
 import org.greenthread.whatsinmycloset.core.dto.MessageDto
 import org.greenthread.whatsinmycloset.core.dto.OtherSwapDto
 import org.greenthread.whatsinmycloset.core.dto.OutfitDto
-import org.greenthread.whatsinmycloset.core.dto.OutfitResponse
-import org.greenthread.whatsinmycloset.core.dto.SendMessageRequest
 import org.greenthread.whatsinmycloset.core.network.RemoteClosetDataSource
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.dto.SwapStatusDto
 import org.greenthread.whatsinmycloset.core.dto.UserDto
-import org.greenthread.whatsinmycloset.features.tabs.profile.data.FriendshipStatus
 import org.greenthread.whatsinmycloset.features.tabs.profile.domain.RequestStatus
 
 class DefaultClosetRepository(
@@ -110,6 +107,14 @@ class DefaultClosetRepository(
 
     override suspend fun getSentFriendRequests(userId: Int): Result<List<FriendRequestDto>, DataError.Remote> {
         return remoteClosetDataSource.getSentFriendRequests(userId)
+    }
+
+    override suspend fun removeFriend(userId: Int, friendId: Int): Result<Unit, DataError.Remote> {
+        return remoteClosetDataSource.removeFriend(userId, friendId)
+    }
+
+    override suspend fun cancelFriendRequest(senderId: Int, receiverId: Int): Result<Unit, DataError.Remote> {
+        return remoteClosetDataSource.cancelFriendRequest(senderId, receiverId)
     }
 }
 
