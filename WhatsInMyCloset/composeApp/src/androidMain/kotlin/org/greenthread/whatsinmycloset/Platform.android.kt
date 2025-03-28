@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.graphics.Matrix
 import android.os.Build
 import android.provider.MediaStore
 import android.widget.Toast
@@ -27,8 +28,11 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
+import androidx.core.content.FileProvider
+import androidx.exifinterface.media.ExifInterface
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.google.mlkit.vision.common.InputImage
@@ -41,6 +45,7 @@ import org.greenthread.whatsinmycloset.core.data.MyClosetDatabase
 import org.jetbrains.compose.resources.stringResource
 import whatsinmycloset.composeapp.generated.resources.Res
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.nio.ByteBuffer
 import kotlin.coroutines.resume
 import whatsinmycloset.composeapp.generated.resources.profile_button
@@ -56,42 +61,66 @@ actual fun getPlatform(): Platform = AndroidPlatform()
 actual class CameraManager(private val context: Context) {
     private var onPhotoTakenCallback: ((ByteArray) -> Unit)? = null
 
+    fun getRotatedBitmap(imagePath: String): Bitmap {
+        val bitmap = BitmapFactory.decodeFile(imagePath)
+        val exif = ExifInterface(imagePath)
+
+        val rotation = when (exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)) {
+            ExifInterface.ORIENTATION_ROTATE_90 -> 90
+            ExifInterface.ORIENTATION_ROTATE_180 -> 180
+            ExifInterface.ORIENTATION_ROTATE_270 -> 270
+            else -> 0
+        }
+
+        return if (rotation != 0) {
+            val matrix = Matrix().apply { postRotate(rotation.toFloat()) }
+            Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+        } else {
+            bitmap
+        }
+    }
+
     @Composable
     actual fun TakePhotoButton(onPhotoTaken: (ByteArray) -> Unit) {
+        val context = LocalContext.current
+        val cacheDir = context.cacheDir
+        var photoFile: File? = null
+
         val launcher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.StartActivityForResult()
         ) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val bitmap = result.data?.extras?.get("data") as? android.graphics.Bitmap
-                bitmap?.let {
-                    val stream = ByteArrayOutputStream()
-                    it.compress(android.graphics.Bitmap.CompressFormat.JPEG, 100, stream)
-                    onPhotoTaken(stream.toByteArray())
-                }
+            if (result.resultCode == Activity.RESULT_OK && photoFile != null) {
+                val bitmap = getRotatedBitmap(photoFile!!.absolutePath) // Fix rotation
+                val stream = ByteArrayOutputStream()
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+                onPhotoTaken(stream.toByteArray())
             }
+        }
+
+        fun takePicture() {
+            photoFile = File.createTempFile("photo_", ".jpg", cacheDir)
+            val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", photoFile!!)
+
+            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
+                putExtra(MediaStore.EXTRA_OUTPUT, uri) // Store full-resolution image
+            }
+            launcher.launch(intent)
         }
 
         val permissionLauncher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.RequestPermission()
         ) { isGranted ->
             if (isGranted) {
-                // Permission granted, launch the camera
-                val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-                launcher.launch(intent)
+                takePicture()
             } else {
-                // Permission denied, show a message or handle accordingly
                 Toast.makeText(context, "Camera permission denied", Toast.LENGTH_SHORT).show()
             }
         }
 
         Button(onClick = {
-            // Check if the camera permission is granted
             if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                // Permission already granted, launch the camera
-                val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-                launcher.launch(intent)
+                takePicture()
             } else {
-                // Request the camera permission
                 permissionLauncher.launch(Manifest.permission.CAMERA)
             }
         }) {

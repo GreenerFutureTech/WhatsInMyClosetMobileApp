@@ -397,20 +397,21 @@ fun App(
                                 selectedSwapViewModel.onSelectSwap(swap)
                                 navController.navigate(Routes.SwapDetailsScreen(swap.swap.itemId.id))
                             },
-                            onAllSwapClick = { navController.navigate(Routes.AllSwapScreen) },
+                            onAllSwapClick = { navController.navigate(Routes.AllSwapScreen(userManager.currentUser.value?.id?:0)) },
                             onAddSwapClick = { navController.navigate(Routes.AddSwapScreen)}
                         )
                     }
 
-                    composable<Routes.AllSwapScreen> {
-                        val viewModel: SwapViewModel = koinViewModel()
-                        val selectedSwapViewModel = it.sharedKoinViewModel<SelectedSwapViewModel>(navController)
+                    composable<Routes.AllSwapScreen> { backStackEntry ->
+                        val args = backStackEntry.toRoute<Routes.AllSwapScreen>()
+                        val selectedSwapViewModel = backStackEntry.sharedKoinViewModel<SelectedSwapViewModel>(navController)
 
                         AllSwapsScreen(
-                            viewModel = viewModel,
-                            navController = navController,
+                            userId = args.userId,
                             onSwapClick = { swap ->
-                                selectedSwapViewModel.onSelectSwap(swap.toOtherSwapDto(user = MessageUserDto()))
+                                selectedSwapViewModel.onSelectSwap(
+                                    swap.toOtherSwapDto(user = MessageUserDto(id = args.userId))
+                                )
                                 navController.navigate(Routes.SwapDetailsScreen(swap.itemId.id))
                             }
                         )
@@ -478,7 +479,7 @@ fun App(
                                 selectedSwapViewModel.onSelectSwap(swap)
                                 navController.navigate(Routes.SwapDetailsScreen(swap.swap.itemId.id))
                             },
-                            onAllSwapClick = { navController.navigate(Routes.AllSwapScreen) },
+                            onAllSwapClick = { navController.navigate(Routes.AllSwapScreen(args.userId)) },
                         )
                     }
 

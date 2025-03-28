@@ -39,6 +39,7 @@ import org.greenthread.whatsinmycloset.features.screens.notifications.domain.mod
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.NotificationType
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.SendNotificationRequest
 import org.greenthread.whatsinmycloset.features.tabs.profile.domain.RequestStatus
+import org.greenthread.whatsinmycloset.features.tabs.profile.data.FriendshipStatus
 import org.greenthread.whatsinmycloset.getPlatform
 
 private val platform = getPlatform()
