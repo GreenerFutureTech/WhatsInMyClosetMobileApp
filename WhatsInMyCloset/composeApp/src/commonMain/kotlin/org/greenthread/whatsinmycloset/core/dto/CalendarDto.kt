@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 import org.greenthread.whatsinmycloset.core.domain.models.CalendarEntry
 
 // Data Transfer Object (for API communication)
+@Serializable
 data class CalendarDto(
     val outfitId: String,
     val userId: Int,
@@ -16,10 +17,10 @@ fun CalendarDto.toCalendarEntry(): CalendarEntry = CalendarEntry(
     date = date
 )
 
+@Serializable
 data class CalendarResponse(
-    val id: String,
     val outfitId: String,
     val userId: Int,
     val date: String,
-    val outfit: OutfitResponse
+    val id: String
 )

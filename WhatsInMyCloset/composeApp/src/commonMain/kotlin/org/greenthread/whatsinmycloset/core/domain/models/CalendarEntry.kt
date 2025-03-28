@@ -8,6 +8,7 @@ import org.greenthread.whatsinmycloset.core.dto.CalendarDto
 import org.greenthread.whatsinmycloset.core.persistence.CalendarEntity
 
 // Domain Model (for app logic)
+@Serializable
 data class CalendarEntry(
     val outfitId: String,
     val userId: Int,

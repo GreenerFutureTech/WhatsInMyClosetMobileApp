@@ -394,7 +394,7 @@ class KtorRemoteDataSource(
 
     // calendar -- post outfit to calendar
     override suspend fun postOutfitToCalendar(calendarDto: CalendarDto):
-            Result<List<CalendarResponse>, DataError.Remote> {
+            Result<CalendarResponse, DataError.Remote> {
         return safeCall {
             httpClient.post("$BASE_URL/calendar") {
                 contentType(ContentType.Application.Json)
