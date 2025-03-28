@@ -24,6 +24,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key.Companion.Calendar
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -31,24 +32,23 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.greenthread.whatsinmycloset.app.Routes
+import org.greenthread.whatsinmycloset.core.utilities.DateUtils
 import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.OutfitViewModel
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 
-// Save outfit to selected folder(s)
+// Save outfit with selects tags and add to calendar
 @Composable
 fun OutfitSaveScreen(
     navController: NavController,
     onExit: () -> Unit,
     onDone: () -> Unit,
-    /* this viewmodel handles the following:
-    currentOutfit
-    creating new folders (updating the outfit repository)
-    selectedFolder state
-    selectedFolders state (when user wants to save outfit in more than 1 folder)
-    isPublic state (when user wants the outfit to be public)
-    */
     outfitViewModel: OutfitViewModel,
     clothingItemViewModel: ClothingItemViewModel
 ) {
@@ -60,12 +60,15 @@ fun OutfitSaveScreen(
 
         // retrieve the current outfit user wants to save
         val currentOutfit by outfitViewModel.currentOutfit.collectAsState()
+        var outfitName by remember { mutableStateOf("") }
 
         var showCreateTagDialog by remember { mutableStateOf(false) }
+        var showCalendarDialog by remember { mutableStateOf(false) }
         var showDiscardDialog by remember { mutableStateOf(false) }
+        var showOutfitNameDialog by remember { mutableStateOf(false) } // New state for outfit name dialog
+
 
         if (isOutfitSaved) {
-
 
             OutfitSaved(
                 navController = navController,
@@ -77,110 +80,172 @@ fun OutfitSaveScreen(
                     }
                 },
                 viewModel = outfitViewModel,
+                outfitName = outfitName,
                 clothingItemViewModel = clothingItemViewModel
             )
         }
         else {
 
-            Column(
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             )
             {
-                // Heading for the selected category
-                OutfitScreenHeader(
-                    onGoBack = { navController.popBackStack() },
-                    onExit = { showDiscardDialog = true },
-                    title = "Select Tags"
-                )
+                item {
+                    // Heading for the screen
+                    OutfitScreenHeader(
+                        onExit = { showDiscardDialog = true },
+                        title = "Select Tags"
+                    )
+                }
+                items(tags.toList())
+                { tag ->
+                    // Determine if the tag is selected based on local UI state
+                    val isSelected = selectedTags.contains(tag)
 
-                LazyColumn(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    items(tags.toList()) { tag ->
-                        // Determine if the tag is selected based on local UI state
-                        val isSelected = selectedTags.contains(tag)
+                    // Use SwipeToDeleteTag with both swipe-to-delete and click-to-select functionality
+                    SelectOrDeleteTag(
+                        tag = tag,
+                        isSelected = isSelected,
+                        onDelete = {
+                            outfitViewModel.removeTag(tag) // Remove the tag
+                        },
+                        onClick = {
+                            outfitViewModel.updateSelectedTags(tag) // Toggle tag selection
+                        }
+                    )
+                }
 
-                        // Use SwipeToDeleteTag with both swipe-to-delete and click-to-select functionality
-                        SelectOrDeleteTag(
-                            tag = tag,
-                            isSelected = isSelected,
-                            onDelete = {
-                                outfitViewModel.removeTag(tag) // Remove the tag
-                            },
-                            onClick = {
-                                outfitViewModel.updateSelectedTags(tag) // Toggle tag selection
+                item {
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    // Calculate if the Done button should be enabled
+                    val isDoneEnabled = selectedTags.isNotEmpty() || isPublic
+
+                    // Footer with Done button
+                    OutfitScreenFooter(
+                        onDone = {
+                            println("Done button clicked") // Debugging statement
+                            // Get current outfit from the viewmodel
+                            currentOutfit?.let { outfit ->
+                                println("Saving outfit: $outfit with tags ${selectedTags}") // Debugging statement
+                                if(selectedTags.isNotEmpty())
+                                {
+                                    // pop up to get outfit name from user
+                                    // Show dialog to get outfit name from user
+                                    showOutfitNameDialog = true
+                                }
                             }
-                        )
+                            onDone() // Trigger the onDone callback
+                        },
+                        isDoneEnabled = isDoneEnabled
+                    )
 
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    // Button to open the "Create New Tag" dialog
+                    Button(
+                        onClick = { showCreateTagDialog = true},
+                        modifier = Modifier.width(210.dp)
+                    ) {
+                        Text("+ Create New Outfit Tag")
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    // Add to Calendar button
+                    Button(
+                        onClick = { showCalendarDialog = true },
+                        modifier = Modifier.width(210.dp)
+                    ) {
+                        Text("Add to Calendar")
                     }
                 }
+            }   // end of Lazy Column
 
-                Spacer(modifier = Modifier.height(10.dp))
-
-                // Calculate if the Done button should be enabled
-                val isDoneEnabled = selectedTags.isNotEmpty() || isPublic
-
-                // Footer with Done button
-                OutfitScreenFooter(
-                    onDone = {
-                        println("Done button clicked") // Debugging statement
-                        // Get current outfit from the viewmodel
-                        currentOutfit?.let { outfit ->
-                            println("Saving outfit: $outfit with tags ${selectedTags}") // Debugging statement
-                            if(selectedTags.isNotEmpty())
-                            {
-                                // save the current outfit with positions
-                                outfitViewModel.saveOutfit(selectedTags.toList())
-                            }
-                        }
-                        onDone() // Trigger the onDone callback
+            // Get outfit name from user before saving
+            if (showOutfitNameDialog) {
+                AlertDialog(
+                    onDismissRequest = { showOutfitNameDialog = false },
+                    title = { Text("Name Your Outfit") },
+                    text = {
+                        TextField(
+                            value = outfitName,
+                            onValueChange = { outfitName = it },
+                            label = { Text("Outfit Name") },
+                            singleLine = true
+                        )
                     },
-                    isDoneEnabled = isDoneEnabled
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                if (outfitName.isNotBlank()) {
+                                    // Save the outfit with name and tags
+                                    outfitViewModel.saveOutfit(
+                                        selectedTags = selectedTags.toList(),
+                                        outfitName = outfitName
+                                    )
+                                    showOutfitNameDialog = false
+                                    onDone() // Trigger the onDone callback
+                                }
+                            },
+                            enabled = outfitName.isNotBlank()
+                        ) {
+                            Text("Save")
+                        }
+                    },
+                    dismissButton = {
+                        Button(
+                            onClick = { showOutfitNameDialog = false }
+                        ) {
+                            Text("Cancel")
+                        }
+                    }
                 )
+            }
 
-                Spacer(modifier = Modifier.height(10.dp))
+            // Show CreateNewOutfitTag when the button is clicked
+            if (showCreateTagDialog) {
+                CreateNewOutfitTag(
+                    onConfirm = {
+                        showCreateTagDialog = false // Close the dialog
+                    },
+                    onDismiss = { showCreateTagDialog = false },
+                    viewModel = outfitViewModel
+                )
+            }
 
-                // Button to open the "Create New Tag" dialog
-                Button(
-                    onClick = { showCreateTagDialog = true},
-                    modifier = Modifier.padding(8.dp)
-                ) {
-                    Text("+ Create New Outfit Tag")
-                }
+            // Show Calendar Dialog
+            if (showCalendarDialog) {
+                OutfitDatePicker(
+                    onDismiss = { showCalendarDialog = false },
+                    onDateSelected = { selectedDate ->
+                        val dateToUse = selectedDate.ifEmpty { DateUtils.getCurrentDate() }
+                        outfitViewModel.addOutfitToCalendar(dateToUse)
+                        //showCalendarDialog = false
+                    }
+                )
+            }
 
-                // Show CreateNewOutfitTag when the button is clicked
-                if (showCreateTagDialog) {
-                    CreateNewOutfitTag(
-                        onConfirm = {
-                            showCreateTagDialog = false // Close the dialog
-                        },
-                        onDismiss = { showCreateTagDialog = false },
-                        viewModel = outfitViewModel
-                    )
-                }
+            // Show discard confirmation dialog when "x" is clicked
+            if (showDiscardDialog) {
 
-                // Show discard confirmation dialog when "x" is clicked
-                if (showDiscardDialog) {
-
-                    DiscardSavingDialog(
-                        onConfirm = {
-                            showDiscardDialog = false
-                            // Discard the current outfit and create a new one
-                            outfitViewModel.discardCurrentOutfit()
-                            outfitViewModel.clearOutfitState() // Clear the outfit state
-                            clothingItemViewModel.clearClothingItemState() // Clear the selected items state
-                            navController.navigate(Routes.HomeTab) // Navigate to Home Tab
-                        },
-                        onDismiss = { showDiscardDialog = false }
-                    )
-                }
+                DiscardSavingDialog(
+                    onConfirm = {
+                        showDiscardDialog = false
+                        // Discard the current outfit and create a new one
+                        outfitViewModel.discardCurrentOutfit()
+                        outfitViewModel.clearOutfitState() // Clear the outfit state
+                        clothingItemViewModel.clearClothingItemState() // Clear the selected items state
+                        navController.navigate(Routes.HomeTab) // Navigate to Home Tab
+                    },
+                    onDismiss = { showDiscardDialog = false }
+                )
             }
         } // end of else block
-    }
+    } // end of WhatsInMyClosetTheme
 }
 
 @Composable
@@ -290,6 +355,7 @@ fun CreateNewOutfitTag(
 fun OutfitSaved(
     navController: NavController,
     onDismiss: () -> Unit, // Callback to close the dialog and go back to the Home Tab
+    outfitName: String,
     viewModel: OutfitViewModel,
     clothingItemViewModel: ClothingItemViewModel
 ) {
@@ -315,7 +381,7 @@ fun OutfitSaved(
     // Check if the dialog should be shown
     if (showDialog) {
         val msgStr = if (tagNamesText.isNotEmpty()) {
-            "Your outfit has been saved with the following tag(s): $tagNamesText."
+            "$outfitName has been saved with the following tag(s): $tagNamesText."
         } else {
             "Your outfit has been saved."
         }

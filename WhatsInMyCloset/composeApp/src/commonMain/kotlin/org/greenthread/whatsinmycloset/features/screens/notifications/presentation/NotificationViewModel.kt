@@ -23,8 +23,6 @@ class NotificationsViewModel(
     private val _notifications = MutableStateFlow<List<Notification>>(emptyList())
     val notifications: StateFlow<List<Notification>> = _notifications.asStateFlow()
 
-    val hasNewNotifications = NotificationEventBus.hasNewNotifications
-
     // holds the refreshing state for UI updates when refreshing
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
@@ -101,16 +99,20 @@ class NotificationsViewModel(
 
         when(notification.type) {
             NotificationType.FRIEND_REQUEST -> {
-                /*
-                val userId = extraData?.get("userId")
+
+                val userId = notification.extraData?.get("userId")
+
                 userId?.let {
                     navController.navigate(Routes.ProfileTab)
                 }
-                */
+
                 navController.navigate(Routes.ProfileTab)
             }
             NotificationType.SWAP_REQUEST -> {
                 navController.navigate(Routes.SwapTab)
+            }
+            NotificationType.NEW_MESSAGE -> {
+                navController.navigate(Routes.MessageListScreen)
             }
             // Default Case
             else -> {

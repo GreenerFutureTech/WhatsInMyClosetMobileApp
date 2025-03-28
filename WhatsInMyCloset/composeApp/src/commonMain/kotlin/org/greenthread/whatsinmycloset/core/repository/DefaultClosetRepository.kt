@@ -2,14 +2,17 @@ package org.greenthread.whatsinmycloset.core.repository
 
 import org.greenthread.whatsinmycloset.core.domain.DataError
 import org.greenthread.whatsinmycloset.core.domain.Result
+import org.greenthread.whatsinmycloset.core.dto.ItemDto
 import org.greenthread.whatsinmycloset.core.dto.CreateSwapRequestDto
+import org.greenthread.whatsinmycloset.core.dto.FriendRequestDto
 import org.greenthread.whatsinmycloset.core.dto.MessageDto
 import org.greenthread.whatsinmycloset.core.dto.OtherSwapDto
-import org.greenthread.whatsinmycloset.core.dto.SendMessageRequest
+import org.greenthread.whatsinmycloset.core.dto.OutfitDto
 import org.greenthread.whatsinmycloset.core.network.RemoteClosetDataSource
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.dto.SwapStatusDto
 import org.greenthread.whatsinmycloset.core.dto.UserDto
+import org.greenthread.whatsinmycloset.features.tabs.profile.domain.RequestStatus
 
 class DefaultClosetRepository(
     private val remoteClosetDataSource: RemoteClosetDataSource
@@ -56,6 +59,10 @@ class DefaultClosetRepository(
         return remoteClosetDataSource.updateRead(messageId)
     }
 
+    override suspend fun getUnread(userId: Int): Result<String, DataError.Remote> {
+        return remoteClosetDataSource.getUnread(userId)
+    }
+
         //============================= User ==================================
     override suspend fun createUser(user: UserDto): Result<UserDto, DataError.Remote> {
         return remoteClosetDataSource.createUser(user)
@@ -71,6 +78,43 @@ class DefaultClosetRepository(
 
     override suspend fun updateUser(user: UserDto): Result<UserDto, DataError.Remote> {
         return remoteClosetDataSource.updateUser(user)
+    }
+
+    //============================= Item ==================================
+    override suspend fun getItemById(itemId: String): Result<ItemDto, DataError.Remote> {
+        return remoteClosetDataSource.getItemById(itemId)
+    }
+    //============================= Outfit ==================================
+    override suspend fun getAllOutfits(): Result<List<OutfitDto>, DataError.Remote> {
+        return remoteClosetDataSource.getAllOutfits()
+    }
+
+    override suspend fun getUserByUserName(username: String): Result<UserDto, DataError.Remote> {
+        return remoteClosetDataSource.getUserByUserName(username)
+    }
+
+    override suspend fun sendFriendRequest(senderId: Int, receiverId: Int): Result<Unit, DataError.Remote> {
+        return remoteClosetDataSource.sendFriendRequest(senderId, receiverId)
+    }
+
+    override suspend fun respondToFriendRequest(requestId: Int, status: RequestStatus): Result<Unit, DataError.Remote> {
+        return remoteClosetDataSource.respondToFriendRequest(requestId, status)
+    }
+
+    override suspend fun getReceivedFriendRequests(userId: Int): Result<List<FriendRequestDto>, DataError.Remote> {
+        return remoteClosetDataSource.getReceivedFriendRequests(userId)
+    }
+
+    override suspend fun getSentFriendRequests(userId: Int): Result<List<FriendRequestDto>, DataError.Remote> {
+        return remoteClosetDataSource.getSentFriendRequests(userId)
+    }
+
+    override suspend fun removeFriend(userId: Int, friendId: Int): Result<Unit, DataError.Remote> {
+        return remoteClosetDataSource.removeFriend(userId, friendId)
+    }
+
+    override suspend fun cancelFriendRequest(senderId: Int, receiverId: Int): Result<Unit, DataError.Remote> {
+        return remoteClosetDataSource.cancelFriendRequest(senderId, receiverId)
     }
 }
 

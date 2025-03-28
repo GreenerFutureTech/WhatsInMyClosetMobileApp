@@ -17,6 +17,11 @@ expect class CameraManager {
     fun TakePhotoButton(onPhotoTaken: (ByteArray) -> Unit)
 }
 
+expect class PhotoManager {
+    @Composable
+    fun SelectPhotoButton(onPhotoSelected: (ByteArray) -> Unit)
+}
+
 expect class NotificationManager {
     fun requestPermissions()
     fun initialize()
@@ -40,3 +45,5 @@ expect object AppDatabaseConstructor : RoomDatabaseConstructor<MyClosetDatabase>
 expect class DatabaseFactory {
     fun create(): RoomDatabase.Builder<MyClosetDatabase>
 }
+
+

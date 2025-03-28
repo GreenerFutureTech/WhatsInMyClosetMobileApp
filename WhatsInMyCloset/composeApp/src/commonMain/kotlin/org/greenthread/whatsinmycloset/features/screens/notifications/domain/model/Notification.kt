@@ -30,3 +30,21 @@ data class Notification(
     val isRead: Boolean,
     val createdAt: String
 )
+
+@Serializable
+data class NotificationDto (
+    val userId: Int,
+    val title: String,
+    val body: String,
+    val type: NotificationType,
+    val extraData: Map<String, String>? = null,
+)
+
+@Serializable
+data class SendNotificationRequest (
+    val userId: Int,
+    val title: String,
+    val body: String,
+    val type: NotificationType,
+    val extraData: Map<String, String>? = null
+)

@@ -4,8 +4,8 @@ import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import org.greenthread.whatsinmycloset.DatabaseFactory
 import org.greenthread.whatsinmycloset.core.data.HttpClientFactory
 import org.greenthread.whatsinmycloset.core.data.MyClosetDatabase
-import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.domain.models.User
+import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.managers.OutfitManager
 import org.greenthread.whatsinmycloset.core.managers.WardrobeManager
 import org.greenthread.whatsinmycloset.core.network.KtorRemoteDataSource
@@ -21,14 +21,16 @@ import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.SelectedS
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.AddSwap.AddSwapViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
-import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.MessageViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.OutfitViewModel
-import org.greenthread.whatsinmycloset.features.tabs.home.presentation.HomeTabViewModel
 import org.greenthread.whatsinmycloset.features.screens.addItem.presentation.AddItemScreenViewModel
 import org.greenthread.whatsinmycloset.features.screens.notifications.data.NotificationRepository
+import org.greenthread.whatsinmycloset.features.tabs.home.presentation.HomeTabViewModel
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabViewModel
+import org.greenthread.whatsinmycloset.features.screens.settings.EditProfileViewModel
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.CategoryItemsViewModel
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.SelectedItemViewModel
+import org.greenthread.whatsinmycloset.features.tabs.social.presentation.PostViewModel
+import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.MessageViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
@@ -76,6 +78,9 @@ val sharedModule = module {
     viewModelOf(::OutfitViewModel)
 
     viewModelOf(::NotificationsViewModel)
+    viewModelOf(::PostViewModel)
+
+    viewModelOf(::EditProfileViewModel)
 
     single {
         User(99999123, "TestName",

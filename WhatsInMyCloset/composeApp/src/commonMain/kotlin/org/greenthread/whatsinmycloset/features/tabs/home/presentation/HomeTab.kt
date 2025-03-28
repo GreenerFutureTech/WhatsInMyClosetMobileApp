@@ -252,7 +252,7 @@ fun BottomButtonsRow(
             text = Res.string.create_outfit_button,
             onClick = {
                 if (navController.currentBackStackEntry != null) {
-                    navController.navigate(Routes.CreateOutfitScreen)
+                    navController.navigate(Routes.CreateOutfitScreen.Default)
                 }
             }
         )
@@ -261,7 +261,9 @@ fun BottomButtonsRow(
         ActionButtonItem(
             icon = Icons.Rounded.DateRange,
             text = Res.string.outfit_day_button,
-            onClick = {  }
+            onClick = { if (navController.currentBackStackEntry != null) {
+                navController.navigate(Routes.OutfitOfTheDay)
+            } }
         )
     }
 }

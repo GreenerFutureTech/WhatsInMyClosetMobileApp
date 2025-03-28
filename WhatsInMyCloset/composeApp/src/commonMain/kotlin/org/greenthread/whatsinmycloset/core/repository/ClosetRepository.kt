@@ -3,12 +3,15 @@ package org.greenthread.whatsinmycloset.core.repository
 import org.greenthread.whatsinmycloset.core.domain.DataError
 import org.greenthread.whatsinmycloset.core.domain.Result
 import org.greenthread.whatsinmycloset.core.dto.CreateSwapRequestDto
+import org.greenthread.whatsinmycloset.core.dto.FriendRequestDto
+import org.greenthread.whatsinmycloset.core.dto.ItemDto
 import org.greenthread.whatsinmycloset.core.dto.MessageDto
 import org.greenthread.whatsinmycloset.core.dto.OtherSwapDto
-import org.greenthread.whatsinmycloset.core.dto.SendMessageRequest
+import org.greenthread.whatsinmycloset.core.dto.OutfitDto
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.dto.SwapStatusDto
 import org.greenthread.whatsinmycloset.core.dto.UserDto
+import org.greenthread.whatsinmycloset.features.tabs.profile.domain.RequestStatus
 
 interface ClosetRepository {
     // Swap
@@ -24,10 +27,26 @@ interface ClosetRepository {
     suspend fun getChatHistory(userId: Int, otherUserId: Int): Result<List<MessageDto>, DataError.Remote>
     suspend fun sendMessage(senderId: Int, receiverId: Int, content: String): Result<MessageDto, DataError.Remote>
     suspend fun updateRead(messageId: Int): Result<String, DataError.Remote>
+    suspend fun getUnread(userId: Int): Result<String, DataError.Remote>
 
     // User
     suspend fun createUser(user: UserDto): Result<UserDto, DataError.Remote>
     suspend fun getUser(userEmail: String) : Result<UserDto,DataError.Remote>
     suspend fun getUserById(userId: Int): Result<UserDto, DataError.Remote>
     suspend fun updateUser(user: UserDto): Result<UserDto, DataError.Remote>
+
+    // Item
+    suspend fun getItemById(itemId: String): Result<ItemDto, DataError.Remote>
+
+    // Outfit
+    suspend fun getAllOutfits(): Result<List<OutfitDto>, DataError.Remote>
+    suspend fun getUserByUserName(username: String): Result<UserDto, DataError.Remote>
+
+    // Friend request
+    suspend fun sendFriendRequest(senderId: Int, receiverId: Int): Result<Unit, DataError.Remote>
+    suspend fun respondToFriendRequest(requestId: Int, status: RequestStatus): Result<Unit, DataError.Remote>
+    suspend fun getReceivedFriendRequests(userId: Int): Result<List<FriendRequestDto>, DataError.Remote>
+    suspend fun getSentFriendRequests(userId: Int): Result<List<FriendRequestDto>, DataError.Remote>
+    suspend fun removeFriend(userId: Int, friendId: Int): Result<Unit, DataError.Remote>
+    suspend fun cancelFriendRequest(senderId: Int, receiverId: Int): Result<Unit, DataError.Remote>
 }

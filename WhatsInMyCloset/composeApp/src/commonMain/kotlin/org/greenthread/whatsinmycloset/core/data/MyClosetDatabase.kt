@@ -11,7 +11,6 @@ import org.greenthread.whatsinmycloset.core.data.daos.WardrobeDao
 import org.greenthread.whatsinmycloset.core.persistence.ClothingItemEntity
 import org.greenthread.whatsinmycloset.core.persistence.Converters
 import org.greenthread.whatsinmycloset.core.persistence.OutfitEntity
-import org.greenthread.whatsinmycloset.core.persistence.OutfitItemJoin
 import org.greenthread.whatsinmycloset.core.persistence.WardrobeEntity
 
 @Database(
@@ -20,7 +19,6 @@ import org.greenthread.whatsinmycloset.core.persistence.WardrobeEntity
         WardrobeEntity::class,
         ClothingItemEntity::class,
         OutfitEntity::class,
-        OutfitItemJoin::class
     ]
 )
 @TypeConverters(

@@ -35,6 +35,13 @@ actual class CameraManager {
     }
 }
 
+actual class PhotoManager {
+    @Composable
+    actual fun SelectPhotoButton(onPhotoSelected: (ByteArray) -> Unit) {
+
+    }
+}
+
 actual class NotificationManager {
     actual fun requestPermissions() {
         // iOS implementation for requesting notification permissions

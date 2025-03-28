@@ -8,4 +8,6 @@ data class SwapListState(
     val getAllSwapResults: List<SwapDto> = emptyList(),
     val getUserSwapResults: List<SwapDto> = emptyList(),
     val getOtherUserSwapResults: List<OtherSwapDto> = emptyList(),
+    val getSearchedUserSwapResults: List<SwapDto> = emptyList(),
+    val searchedUserInfo: UserDto? = null
 )

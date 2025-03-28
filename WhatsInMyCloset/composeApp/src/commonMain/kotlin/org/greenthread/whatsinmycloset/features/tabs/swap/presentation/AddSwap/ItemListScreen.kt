@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
+import org.greenthread.whatsinmycloset.core.ui.components.controls.SearchBar
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.CategoriesSection
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.AddSwap.AddSwapViewModel
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
@@ -47,11 +48,15 @@ fun AddSwapItemRoot(
     var selectedItems by remember { mutableStateOf<Set<String>>(emptySet()) }
     var selectedCategory by remember { mutableStateOf<ClothingCategory?>(null) }
 
-    val filteredItems = remember(selectedCategory) {
-        if (selectedCategory == null) {
-            cachedItems
-        } else {
-            cachedItems.filter { it.itemType == selectedCategory }
+    var searchString by remember { mutableStateOf("") }
+
+    val filteredItems = remember(searchString, selectedCategory) {
+        cachedItems.filter { item ->
+            val matchesCategory = selectedCategory == null || item.itemType == selectedCategory
+            val matchesSearch = item.name.contains(searchString, ignoreCase = true) ||
+                    item.brand?.contains(searchString, ignoreCase = true) == true ||
+                    item.tags.any { it.contains(searchString, ignoreCase = true) }
+            matchesCategory && matchesSearch
         }
     }
 
@@ -88,6 +93,13 @@ fun AddSwapItemRoot(
             CategoriesSection { category ->
                 selectedCategory = category
             }
+
+            SearchBar(
+                searchString = searchString,
+                onSearchStringChange = { searchString = it },
+                onSearch = {},
+                modifier = Modifier.fillMaxWidth()
+            )
 
             LazyVerticalGrid(
                 columns = GridCells.Fixed(3),

@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.rounded.Home
@@ -30,12 +31,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -47,9 +46,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
+import kotlinx.datetime.LocalDate
 import org.greenthread.whatsinmycloset.CameraManager
-import org.greenthread.whatsinmycloset.NotificationManager
+import org.greenthread.whatsinmycloset.PhotoManager
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
+import org.greenthread.whatsinmycloset.core.domain.models.MessageManager
 import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.dto.MessageUserDto
@@ -61,12 +63,17 @@ import org.greenthread.whatsinmycloset.features.screens.addItem.presentation.Add
 import org.greenthread.whatsinmycloset.features.screens.addItem.presentation.AddItemScreenViewModel
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginScreenRoot
 import org.greenthread.whatsinmycloset.features.screens.login.presentation.LoginViewModel
+import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.NotificationEventBus
 import org.greenthread.whatsinmycloset.features.screens.notifications.presentation.NotificationsScreen
 import org.greenthread.whatsinmycloset.features.screens.notifications.presentation.NotificationsViewModel
+import org.greenthread.whatsinmycloset.features.screens.settings.EditProfileScreen
+import org.greenthread.whatsinmycloset.features.screens.settings.EditProfileViewModel
 import org.greenthread.whatsinmycloset.features.screens.settings.SettingsScreen
 import org.greenthread.whatsinmycloset.features.screens.signup.SignupScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItemDetailScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.CategoryItemsScreen
+import org.greenthread.whatsinmycloset.features.tabs.home.OutfitDetailScreen
+import org.greenthread.whatsinmycloset.features.tabs.home.OutfitOfTheDayCalendar
 import org.greenthread.whatsinmycloset.features.tabs.home.OutfitSaveScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.OutfitScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.CategoryItemsViewModel
@@ -74,11 +81,15 @@ import org.greenthread.whatsinmycloset.features.tabs.home.presentation.HomeTabSc
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.HomeTabViewModel
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.ItemDetailScreen
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.SelectedItemViewModel
-import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabScreen
+import org.greenthread.whatsinmycloset.features.tabs.profile.presentation.ProfileScreen
+import org.greenthread.whatsinmycloset.features.tabs.profile.presentation.ProfileScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabViewModel
-import org.greenthread.whatsinmycloset.features.tabs.social.SocialTabScreen
+import org.greenthread.whatsinmycloset.features.tabs.swap.domain.SwapEventBus
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.AddSwap.AddSwapRoot
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.AddSwap.AddSwapViewModel
+import org.greenthread.whatsinmycloset.features.tabs.social.presentation.PostDetailScreen
+import org.greenthread.whatsinmycloset.features.tabs.social.presentation.PostViewModel
+import org.greenthread.whatsinmycloset.features.tabs.social.presentation.SocialTabScreen
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.ChatScreen
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.MessageListScreen
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.Message.MessageViewModel
@@ -94,11 +105,59 @@ import org.koin.compose.viewmodel.koinViewModel
 import whatsinmycloset.composeapp.generated.resources.Res
 import whatsinmycloset.composeapp.generated.resources.add_new_item_button
 
+sealed class BarVisibility {
+    data object Visible : BarVisibility()
+    data object Hidden : BarVisibility()
+    data class Custom(
+        val topBar: Boolean = true,
+        val bottomBar: Boolean = true,
+        val onlyBack: Boolean = false,
+        val disableBack: Boolean = false,
+        val title: String = ""
+    ) : BarVisibility()
+}
+
+@Composable
+fun NavController.getBarVisibility(): BarVisibility {
+    val navBackStackEntry by currentBackStackEntryAsState()
+
+    return when (navBackStackEntry?.destination?.route?.substringAfterLast(".")) {
+
+        // Login
+        Routes.LoginTab.toString() -> BarVisibility.Hidden
+        Routes.SignUpTab.toString() -> BarVisibility.Hidden
+
+        // Notification Screen
+        Routes.NotificationsScreen.toString() -> BarVisibility.Custom(bottomBar = false, onlyBack = true, title = "Notifications")
+
+        // Swaps
+        Routes.AddSwapScreen.toString() -> BarVisibility.Custom(onlyBack = true, title = "Wardrobes")
+        Routes.AddSwapItemScreen.toString() -> BarVisibility.Custom(onlyBack = true,  title = "Add To Swap")
+        Routes.ChatScreen.toString() -> BarVisibility.Custom(bottomBar = false, onlyBack = true, title = "Chat")
+        Routes.MessageListScreen.toString() -> BarVisibility.Custom(title = "Messages", onlyBack = true)
+        Routes.AllSwapScreen.toString() -> BarVisibility.Custom(title = "All Swaps", onlyBack = true)
+
+        // Main Tabs
+        Routes.HomeTab.toString() -> BarVisibility.Custom(disableBack = true, title = "Home")
+        Routes.SwapTab.toString() -> BarVisibility.Custom(disableBack = true, title = "Swaps")
+        Routes.SocialTab.toString() -> BarVisibility.Custom(disableBack = true, title = "Social")
+        Routes.ProfileTab.toString() -> BarVisibility.Custom(disableBack = true, title = "Profile")
+        Routes.AddItemScreen.toString() -> BarVisibility.Custom(onlyBack = true, bottomBar = false)
+
+        // Misc
+        Routes.SettingsScreen.toString() -> BarVisibility.Custom(onlyBack = true, title = "Settings")
+        Routes.EditProfileScreen.toString() -> BarVisibility.Custom(onlyBack = true, title = "Edit Profile")
+
+        // Add more specific route configurations as needed
+        else -> BarVisibility.Visible
+    }
+}
+
 @Composable
 @Preview
 fun App(
     cameraManager: CameraManager?,
-    notificationManager: NotificationManager?
+    photoManager: PhotoManager?
 ) {
     val wardrobeManager = koinInject<WardrobeManager>()
     val userManager = koinInject<UserManager>()
@@ -106,32 +165,33 @@ fun App(
     val loginViewModel: LoginViewModel = koinViewModel()
 
     // Create shared ViewModels for the outfit screens
-    val user: User = koinInject() // Retrieve the logged-in user's account
+    val user: User = koinInject()
     val sharedClothingItemViewModel: ClothingItemViewModel = koinViewModel()
     val sharedOutfitViewModel: OutfitViewModel = koinViewModel()
 
-    // Track when to display top and bottom bars
-    var showBar by rememberSaveable { mutableStateOf(true) }
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-
-    showBar = when (navBackStackEntry?.destination?.route?.substringAfterLast(".")) {
-        Routes.LoginTab.toString(), Routes.SignUpTab.toString() -> false // hide bar on login screen
-        else -> true // in all other cases show top and bottom bars
-    }
+    val barVisibility = navController.getBarVisibility()
 
     WhatsInMyClosetTheme {
         Scaffold(
             topBar = {
-                if(showBar) {
+                if (barVisibility is BarVisibility.Visible ||
+                    (barVisibility is BarVisibility.Custom && barVisibility.topBar)) {
                     AppTopBar(
-                        title = "WIMC",
+                        title =  if (barVisibility is BarVisibility.Custom) {
+                            barVisibility.title
+                        }
+                        else "",
                         navController = navController,
-                        showBackButton = true
+                        onlyBackButton = barVisibility is BarVisibility.Custom &&
+                                barVisibility.onlyBack,
+                        disableBack = barVisibility is BarVisibility.Custom &&
+                                barVisibility.disableBack
                     )
                 }
             },
             bottomBar = {
-                if(showBar) {
+                if (barVisibility is BarVisibility.Visible ||
+                    (barVisibility is BarVisibility.Custom && barVisibility.bottomBar)) {
                     BottomNavigationBar(navController)
                 }
             }
@@ -164,7 +224,7 @@ fun App(
                             onCreateOutfitClick =
                             {
                                 if (navController.currentBackStackEntry != null) {
-                                    navController.navigate(Routes.CreateOutfitScreen)
+                                    navController.navigate(Routes.CreateOutfitScreen.Default)
                                 }
                             }
                         )
@@ -207,13 +267,36 @@ fun App(
 
                     // -- Create Outfit Screens Routes below -- //
 
+                    composable<Routes.OutfitOfTheDay> {
+
+                        OutfitOfTheDayCalendar(
+                            navController = navController,
+                            outfitViewModel = sharedOutfitViewModel
+                        )
+                    }
+
+                    composable<Routes.OutfitDetailScreen> { backStackEntry ->
+                        val outfitId = backStackEntry.arguments?.getString("outfitId")
+                        if (outfitId != null) {
+                            OutfitDetailScreen(outfitId, navController)
+                        }
+                    }
+
                     // add CreateOutfitScreen Route to separate composable in nav graph
-                    composable<Routes.CreateOutfitScreen> {
+                    composable<Routes.CreateOutfitScreen> { backStackEntry ->
+                        // when user navigates to create outfit screen from outfit calendar
+                        val dateString = backStackEntry.arguments?.getString("date")
+                        val selectedDate = dateString?.let { LocalDate.parse(it) }
 
                         OutfitScreen(
                             navController = navController,
                             clothingItemViewModel = sharedClothingItemViewModel,
-                            outfitViewModel = sharedOutfitViewModel
+                            outfitViewModel = sharedOutfitViewModel.apply {
+                                if (selectedDate != null) {
+                                    // Set the selected date in ViewModel if provided
+                                    setSelectedDate(selectedDate.toString())
+                                }
+                            }
                         )
                     }
 
@@ -233,7 +316,7 @@ fun App(
                                 navController = navController,
                                 category = categoryEnum.categoryName,
                                 onBack = { navController.popBackStack() },
-                                onDone = {Routes.CreateOutfitScreen },
+                                onDone = {Routes.CreateOutfitScreen.Default},
                                 viewModel = sharedClothingItemViewModel
                             )
                         } else {
@@ -290,10 +373,13 @@ fun App(
                 navigation<Routes.ProfileGraph>(startDestination = Routes.ProfileTab) {
                     composable<Routes.ProfileTab> {
                         val viewModel: ProfileTabViewModel = koinViewModel()
-                        ProfileTabScreen(userState = viewModel.userState, onNavigate = {})
-                    }
-                    composable<Routes.ProfileDetailsScreen> {
-                        //ProfileDetailsScreen()
+                        val swapViewModel: SwapViewModel = koinViewModel()
+
+                        ProfileScreenRoot(
+                            viewModel,
+                            swapViewModel,
+                            navController
+                        )
                     }
                 }
                 navigation<Routes.SwapGraph>(startDestination = Routes.SwapTab) {
@@ -311,21 +397,21 @@ fun App(
                                 selectedSwapViewModel.onSelectSwap(swap)
                                 navController.navigate(Routes.SwapDetailsScreen(swap.swap.itemId.id))
                             },
-                            onAllSwapClick = { navController.navigate(Routes.AllSwapScreen) },
-                            onMessageClick = { navController.navigate(Routes.MessageListScreen)},
+                            onAllSwapClick = { navController.navigate(Routes.AllSwapScreen(userManager.currentUser.value?.id?:0)) },
                             onAddSwapClick = { navController.navigate(Routes.AddSwapScreen)}
                         )
                     }
 
-                    composable<Routes.AllSwapScreen> {
-                        val viewModel: SwapViewModel = koinViewModel()
-                        val selectedSwapViewModel = it.sharedKoinViewModel<SelectedSwapViewModel>(navController)
+                    composable<Routes.AllSwapScreen> { backStackEntry ->
+                        val args = backStackEntry.toRoute<Routes.AllSwapScreen>()
+                        val selectedSwapViewModel = backStackEntry.sharedKoinViewModel<SelectedSwapViewModel>(navController)
 
                         AllSwapsScreen(
-                            viewModel = viewModel,
-                            navController = navController,
+                            userId = args.userId,
                             onSwapClick = { swap ->
-                                selectedSwapViewModel.onSelectSwap(swap.toOtherSwapDto(user = MessageUserDto()))
+                                selectedSwapViewModel.onSelectSwap(
+                                    swap.toOtherSwapDto(user = MessageUserDto(id = args.userId))
+                                )
                                 navController.navigate(Routes.SwapDetailsScreen(swap.itemId.id))
                             }
                         )
@@ -350,10 +436,50 @@ fun App(
                     composable<Routes.SwapDetailsScreen> {
                         val selectedSwapViewModel = it.sharedKoinViewModel<SelectedSwapViewModel>(navController)
                         val selectedSwap by selectedSwapViewModel.selectedSwap.collectAsStateWithLifecycle()
+                        val messageViewModel: MessageViewModel = koinViewModel()
+                        val currentUser by messageViewModel.currentUser.collectAsStateWithLifecycle()
+
                         SwapDetailScreen(
                             swap = selectedSwap,
                             onBackClick = { navController.navigate(Routes.SwapTab)},
-                            onRequestClick = {navController.navigate(Routes.ChatScreen)}
+                            onRequestClick = { swapItem ->
+                                // Navigate to chat
+                                val otherUser = MessageManager.currentOtherUser
+                                val currentUserId = currentUser?.id
+                                if (currentUser != null && otherUser != null && currentUserId != null) {
+                                    val initialMessage = "I'm interested in this item: ${selectedSwap?.swap?.itemId?.name} ${selectedSwap?.swap?.itemId?.size}"
+                                    messageViewModel.sendMessage(
+                                        senderId = currentUserId,
+                                        receiverId = otherUser.id,
+                                        content = initialMessage
+                                    )
+                                }
+
+                                navController.navigate(Routes.ChatScreen)
+                            }
+                        )
+                    }
+
+                    composable<Routes.ProfileDetailsScreen> {backStackEntry ->
+                        val viewModel: ProfileTabViewModel = koinViewModel()
+                        val args = backStackEntry.toRoute<Routes.ProfileDetailsScreen>()
+                        val swapViewModel: SwapViewModel = koinViewModel()
+                        val selectedSwapViewModel = backStackEntry.sharedKoinViewModel<SelectedSwapViewModel>(navController)
+
+                        LaunchedEffect(true) {
+                            selectedSwapViewModel.onSelectSwap(null)
+                        }
+
+                        ProfileScreen(
+                            userId = args.userId,
+                            profileViewModel = viewModel,
+                            navController = navController,
+                            swapViewModel = swapViewModel,
+                            onSwapClick = { swap ->
+                                selectedSwapViewModel.onSelectSwap(swap)
+                                navController.navigate(Routes.SwapDetailsScreen(swap.swap.itemId.id))
+                            },
+                            onAllSwapClick = { navController.navigate(Routes.AllSwapScreen(args.userId)) },
                         )
                     }
 
@@ -375,16 +501,21 @@ fun App(
                             viewModel = viewModel
                         )
 
-
                     }
                 }
                 navigation<Routes.SocialGraph>(startDestination = Routes.SocialTab) {
                     composable<Routes.SocialTab> {
                         val userAccount by userManager.currentUser.collectAsState()
-                        SocialTabScreen(user = userAccount, onNavigate = {})
+                        val viewModel: PostViewModel = koinViewModel()
+                        SocialTabScreen(
+                            user = userAccount,
+                            onNavigate = {},
+                            navController = navController,
+                            viewModel = viewModel,
+                        )
                     }
                     composable<Routes.SocialDetailsScreen> {
-                        //SocialDetailsScreen()
+                        PostDetailScreen()
                     }
                 }
 
@@ -403,6 +534,16 @@ fun App(
                         navController = navController,
                         viewModel = viewModel
                     )
+                }
+
+                composable<Routes.EditProfileScreen> {
+                    val viewModel = koinViewModel<EditProfileViewModel>()
+                    if (photoManager != null) {
+                        EditProfileScreen(
+                            viewModel = viewModel,
+                            photoManager = photoManager
+                        )
+                    }
                 }
             }
         }
@@ -484,20 +625,22 @@ private inline fun <reified T: ViewModel> NavBackStackEntry.sharedKoinViewModel(
 fun AppTopBar(
     title: String,
     navController: NavController,
-    showBackButton: Boolean = false
+    onlyBackButton: Boolean = false,
+    disableBack: Boolean = false
 ) {
-    val notificationsViewModel: NotificationsViewModel = koinViewModel()
-    val hasNewNotifications by notificationsViewModel.hasNewNotifications.collectAsState()
+    val hasNewNotifications by NotificationEventBus.hasNewNotifications.collectAsState()
+    val newMessages by SwapEventBus.hasNewNotifications.collectAsState()
 
     TopAppBar(
         title = {
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
             )
         },
         navigationIcon = {
-            if (showBackButton) {
+            if (!disableBack)
+            {
                 IconButton(onClick = { navController.popBackStack() }) {
                     Icon(
                         Icons.AutoMirrored.Filled.ArrowBack,
@@ -507,29 +650,53 @@ fun AppTopBar(
             }
         },
         actions = {
-            // Notification Icon with Indicator
-            Box {
-                IconButton(onClick = { navController.navigate(Routes.NotificationsScreen) }) {
-                    Icon(
-                        Icons.Default.Notifications,
-                        contentDescription = "Notifications"
-                    )
+            if (!onlyBackButton)
+            {
+                Box {
+                    IconButton(onClick = { navController.navigate(Routes.MessageListScreen) })
+                    {
+                        Icon(
+                            imageVector = Icons.Default.MailOutline,
+                            contentDescription = "Messages",
+                            modifier = Modifier.size(30.dp)
+                        )
+                    }
+                    if (newMessages) {
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .size(12.dp)
+                                .background(MaterialTheme.colorScheme.error, CircleShape)
+                        )
+                    }
                 }
-                if (hasNewNotifications) {
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .size(12.dp)
-                            .background(MaterialTheme.colorScheme.error, CircleShape)
-                    )
-                }
-            }
 
-            IconButton(onClick = { navController.navigate(Routes.SettingsScreen) }) {
-                Icon(
-                    Icons.Default.Settings,
-                    contentDescription = "Settings"
-                )
+                // Notification Icon with Indicator
+                Box {
+                    IconButton(onClick = { navController.navigate(Routes.NotificationsScreen) }) {
+                        Icon(
+                            Icons.Default.Notifications,
+                            contentDescription = "Notifications",
+                            modifier = Modifier.size(30.dp)
+                        )
+                    }
+                    if (hasNewNotifications) {
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .size(12.dp)
+                                .background(MaterialTheme.colorScheme.error, CircleShape)
+                        )
+                    }
+                }
+
+                IconButton(onClick = { navController.navigate(Routes.SettingsScreen) }) {
+                    Icon(
+                        Icons.Default.Settings,
+                        contentDescription = "Settings",
+                        modifier = Modifier.size(30.dp)
+                    )
+                }
             }
         }
     )

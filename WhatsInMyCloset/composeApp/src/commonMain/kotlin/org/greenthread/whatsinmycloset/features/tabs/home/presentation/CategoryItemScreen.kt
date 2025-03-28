@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,6 +31,7 @@ import whatsinmycloset.composeapp.generated.resources.no_item_category
 import coil3.compose.AsyncImage
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
+import org.greenthread.whatsinmycloset.core.ui.components.controls.SearchBar
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.CategoryItemsViewModel
 import whatsinmycloset.composeapp.generated.resources.Res
 import org.greenthread.whatsinmycloset.theme.onSurfaceLight
@@ -42,6 +45,9 @@ fun CategoryItemScreen(
     viewModel: CategoryItemsViewModel = koinViewModel(),
     onItemClick: (ClothingItem) -> Unit
 ) {
+
+    var searchString by remember { mutableStateOf("") }
+
     val category = remember(categoryName) {
         if (categoryName != "All") {
             ClothingCategory.valueOf(categoryName)
@@ -59,6 +65,14 @@ fun CategoryItemScreen(
         viewModel.cachedItems.collectAsState()
     } else {
         viewModel.categoryItems.collectAsState()
+    }
+
+    val filteredItems = items.filter { item ->
+        val query = searchString.lowercase()
+        item.brand?.contains(searchString, ignoreCase = true) == true ||
+                item.name.contains(query, ignoreCase = true) ||
+                item.tags.any { tag -> tag.contains(searchString, ignoreCase = true) }
+
     }
 
     val isLoading by viewModel.isLoading.collectAsState()
@@ -91,11 +105,18 @@ fun CategoryItemScreen(
                 )
             }
             else -> {
+                SearchBar(
+                    searchString = searchString,
+                    onSearchStringChange = { searchString = it },
+                    onSearch = {},
+                    modifier = Modifier.fillMaxWidth()
+                )
+
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(3),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    items(items) { item ->
+                    items(filteredItems) { item ->
                         CategoryItemCard(
                             imageUrl = item.mediaUrl ?: "",
                             onItemClick = {onItemClick(item)}

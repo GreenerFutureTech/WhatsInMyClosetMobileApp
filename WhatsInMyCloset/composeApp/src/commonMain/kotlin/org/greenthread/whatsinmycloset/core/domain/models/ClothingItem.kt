@@ -91,7 +91,7 @@ fun generateRandomClothingItems(category: String, numberOfItems: Int): List<Clot
         val clothingCategory = try {
             ClothingCategory.valueOf(category.uppercase())
         } catch (e: IllegalArgumentException) {
-            ClothingCategory.TOPS // Default fallback
+            ClothingCategory.ACCESSORIES // Default fallback
         }
 
         val itemName = when (clothingCategory) {

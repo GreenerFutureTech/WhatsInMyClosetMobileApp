@@ -47,19 +47,11 @@ fun SettingsScreen(navController: NavController, loginViewModel: LoginViewModel)
     var showDialogDeleteAccount by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        // Title Section
-        Text(
-            text = "Settings",
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp)
-        )
 
         // Navigation Buttons
         SettingsItem(
             title = "Edit Profile",
-            onClick = { },
+            onClick = { navController.navigate(Routes.EditProfileScreen) },
             leftIcon = Icons.Default.AccountCircle,
             rightIcon = Icons.Default.PlayArrow
         )

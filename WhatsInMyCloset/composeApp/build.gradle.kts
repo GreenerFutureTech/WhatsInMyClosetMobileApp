@@ -105,6 +105,7 @@ android {
         }
     }
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
@@ -127,9 +128,13 @@ dependencies {
     implementation(libs.androidx.core.i18n)
     //implementation(libs.androidx.compose.material.core)
     implementation(libs.firebase.messaging.ktx)
+    implementation(libs.androidx.foundation.layout.android)
     debugImplementation(compose.uiTooling)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
     implementation(platform("com.google.firebase:firebase-bom:33.10.0"))
+
+    implementation("io.github.vanpra.compose-material-dialogs:datetime:0.8.1-rc")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 }
 
 
