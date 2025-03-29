@@ -61,7 +61,7 @@ interface RemoteClosetDataSource {
 
     // Outfit
     suspend fun getAllOutfits(): Result<List<OutfitDto>, DataError.Remote>
-
+    suspend fun getOutfitById(outfitId: String): Result<OutfitDto, DataError.Remote>
 
     // Friend request
     suspend fun sendFriendRequest(senderId: Int, receiverId: Int): Result<Unit, DataError.Remote>

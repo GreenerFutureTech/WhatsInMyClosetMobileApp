@@ -89,6 +89,10 @@ class DefaultClosetRepository(
         return remoteClosetDataSource.getAllOutfits()
     }
 
+    override suspend fun getOutfitById(outfitId: String): Result<OutfitDto, DataError.Remote> {
+        return remoteClosetDataSource.getOutfitById(outfitId)
+    }
+
     override suspend fun getUserByUserName(username: String): Result<UserDto, DataError.Remote> {
         return remoteClosetDataSource.getUserByUserName(username)
     }
