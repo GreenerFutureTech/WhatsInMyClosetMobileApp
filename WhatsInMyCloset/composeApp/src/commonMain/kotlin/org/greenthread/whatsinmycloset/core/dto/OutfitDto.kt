@@ -18,6 +18,7 @@ data class OutfitDto(
     val itemIds: List<OutfitItems>,
     val userId: Int,
     val tags: List<String> = emptyList(),
+    val createdAt: String? = null
     val creator: CreatorDto? = null
 )
 

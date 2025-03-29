@@ -9,5 +9,7 @@ data class OutfitState(
     val name: String,
     val itemIds: List<OutfitItems> = emptyList(),
     val items: List<ItemDto> = emptyList(),
+    val tags: List<String> = emptyList(),
+    val createdAt: String? = null,
     val isLoading: Boolean = true
 )

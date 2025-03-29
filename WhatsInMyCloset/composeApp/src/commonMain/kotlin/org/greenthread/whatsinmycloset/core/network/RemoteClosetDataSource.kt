@@ -47,6 +47,7 @@ interface RemoteClosetDataSource {
     suspend fun getAllOutfitsForUser(userId: String): Result<List<OutfitDto>, DataError.Remote>
     suspend fun postOutfitForUser(outfit: OutfitDto): Result<OutfitResponse, DataError.Remote>
     suspend fun getFriendsOutfits(userId: Int): Result<List<OutfitDto>, DataError.Remote>
+    suspend fun getOutfitById(outfitId: String): Result<OutfitDto, DataError.Remote>
 
     // Calendar
     suspend fun postOutfitToCalendar(calendarDto: CalendarDto): Result<List<CalendarDto>, DataError.Remote>

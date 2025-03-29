@@ -33,4 +33,16 @@ object DateUtils {
     fun getCurrentDate(): String {
         return getCurrentLocalDate().toString()
     }
+
+    fun formatDateString(dateString: String?): String {
+        if (dateString.isNullOrEmpty()) return "Unknown date"
+
+        return try {
+            val instant = Instant.parse(dateString)
+            val localDateTime = instant.toLocalDateTime(TimeZone.UTC)
+            "${localDateTime.month.name.lowercase().replaceFirstChar { it.uppercase() }} ${localDateTime.dayOfMonth}, ${localDateTime.year}"
+        } catch (e: Exception) {
+            "Invalid date"
+        }
+    }
 }
