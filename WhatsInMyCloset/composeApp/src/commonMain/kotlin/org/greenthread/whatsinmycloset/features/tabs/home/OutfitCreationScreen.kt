@@ -44,6 +44,7 @@ import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.OutfitViewModel
 import org.greenthread.whatsinmycloset.features.tabs.social.presentation.TagsSection
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
+import org.greenthread.whatsinmycloset.theme.backgroundLight
 import org.greenthread.whatsinmycloset.theme.outlineVariantLight
 import org.greenthread.whatsinmycloset.theme.secondaryLight
 import org.jetbrains.compose.resources.painterResource
@@ -404,7 +405,7 @@ fun ClothingCategorySelection(onSelectCategory: (ClothingCategory) -> Unit) {
                     .fillMaxWidth()
                     .height(48.dp),
                 border = BorderStroke(
-                    width = 1.dp,
+                    width = 2.dp,
                     color = MaterialTheme.colorScheme.outlineVariant
                 ),
                 shape = RoundedCornerShape(12.dp)
@@ -441,7 +442,6 @@ fun CategoryItemsScreen(
 
     var selectedItemKeys by remember { mutableStateOf(setOf<Pair<String, ClothingCategory>>()) }
     var isSelectionMode by remember { mutableStateOf(false) }
-    var expanded by remember { mutableStateOf(false) }
     var checked by remember { mutableStateOf(false) }
 
     Column(
@@ -451,80 +451,89 @@ fun CategoryItemsScreen(
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        OutfitScreenHeader(
-            title = category
-        )
+        OutfitScreenHeader(title = category)
 
-        Spacer(Modifier.height(16.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "Selected Items ${selectedItemKeys.size}",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
-                textAlign = TextAlign.End,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-        }
+        Spacer(modifier = Modifier.height(10.dp))
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
+            horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth()
         ) {
-            WardrobeDropdown(
-                wardrobes = wardrobes,
-                selectedWardrobe = selectedWardrobe,
-                onWardrobeSelected = { wardrobe ->
-                    viewModel.setWardrobeFilter(wardrobe)
-                }
-            )
-
-            Spacer(Modifier.width(8.dp))
-
-            Switch(
-                checked = checked,
-                onCheckedChange = {
-                    checked = it
-                    isSelectionMode = !isSelectionMode
-                    if (!isSelectionMode) {
-                        selectedItemKeys = emptySet()
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "Wardrobe",
+                    fontSize = 16.sp,
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+                WardrobeDropdown(
+                    wardrobes = wardrobes,
+                    selectedWardrobe = selectedWardrobe,
+                    onWardrobeSelected = { wardrobe ->
+                        viewModel.setWardrobeFilter(wardrobe)
                     }
-                }
+                )
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "Item Selection",
+                    fontSize = 16.sp,
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+                Switch(
+                    checked = checked,
+                    onCheckedChange = {
+                        checked = it
+                        isSelectionMode = !isSelectionMode
+                        if (!isSelectionMode) {
+                            selectedItemKeys = emptySet()
+                        }
+                    }
+                )
+            }
+        }
+
+        if (isSelectionMode) {
+            Text(
+                text = "Selected Items ${selectedItemKeys.size}",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(vertical = 8.dp)
             )
         }
 
-        Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(3),
-                contentPadding = PaddingValues(8.dp)
-            ) {
-                items(categoryItems.size) { index ->
-                    val item = categoryItems[index]
-                    val itemKey = item.id to item.itemType
+        HorizontalDivider(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp))
 
-                    CategoryItem(
-                        item = item,
-                        isSelected = selectedItemKeys.contains(itemKey),
-                        isSelectionMode = isSelectionMode,
-                        onItemSelected = { selectedItemKeys = selectedItemKeys.toMutableSet().apply {
-                            if (contains(itemKey)) remove(itemKey) else add(itemKey)
-                        }},
-                        onItemClicked = { clickedItem ->
-                            navController.navigate(
-                                Routes.CategoryItemDetailScreen(
-                                    clickedItem.wardrobeId.toString(),
-                                    clickedItem.id,
-                                    clickedItem.itemType.toString()
-                                )
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(3),
+            contentPadding = PaddingValues(8.dp),
+            modifier = Modifier.weight(1f)
+        ) {
+            items(categoryItems.size) { index ->
+                val item = categoryItems[index]
+                val itemKey = item.id to item.itemType
+
+                CategoryItem(
+                    item = item,
+                    isSelected = selectedItemKeys.contains(itemKey),
+                    isSelectionMode = isSelectionMode,
+                    onItemSelected = { selectedItemKeys = selectedItemKeys.toMutableSet().apply {
+                        if (contains(itemKey)) remove(itemKey) else add(itemKey)
+                    }},
+                    onItemClicked = { clickedItem ->
+                        navController.navigate(
+                            Routes.CategoryItemDetailScreen(
+                                clickedItem.wardrobeId.toString(),
+                                clickedItem.id,
+                                clickedItem.itemType.toString()
                             )
-                        }
-                    )
-                }
+                        )
+                    }
+                )
             }
         }
 
@@ -541,7 +550,7 @@ fun CategoryItemsScreen(
             )
         }
     }
-} /* end of CategoryItemsScreen */
+}/* end of CategoryItemsScreen */
 
 // this function displays all items in the selected category on screen
 @Composable

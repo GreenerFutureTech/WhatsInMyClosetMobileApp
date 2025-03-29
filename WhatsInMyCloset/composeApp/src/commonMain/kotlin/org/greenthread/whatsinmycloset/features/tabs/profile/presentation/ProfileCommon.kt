@@ -51,7 +51,7 @@ fun ProfilePicture(profilePicture: String?) {
             .size(60.dp)
             .aspectRatio(1f)
             .clip(CircleShape)
-            .border(2.dp, MaterialTheme.colorScheme.secondary, CircleShape),
+            .border(1.dp, MaterialTheme.colorScheme.secondary, CircleShape),
         contentScale = ContentScale.Crop,
         error = painterResource(Res.drawable.defaultUser)
     )
