@@ -64,7 +64,7 @@ class User(
         username: String = this.username,
         email: String = this.email,
         name: String = this.name,
-        firebaseUuid: String = this.firebaseUuid,
+        firebaseUuid: String? = this.firebaseUuid,
         fcmToken: String? = this.fcmToken,
         profilePicture: String? = this.profilePicture,
         type: String? = this.type,

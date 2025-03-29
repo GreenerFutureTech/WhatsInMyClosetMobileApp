@@ -6,8 +6,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.greenthread.whatsinmycloset.core.domain.models.Friend
-import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.domain.onError
 import org.greenthread.whatsinmycloset.core.domain.onSuccess
@@ -83,27 +81,31 @@ class ProfileTabViewModel(
     private suspend fun checkFriendRequestStatus(targetUserId: Int) {
         val currentUserId = currentUser.value?.id ?: return
 
-        // Check if already friends
-        userRepository.getFriendsByUserId(currentUserId).onSuccess { friends ->
+        // First force refresh friends list
+        userRepository.getFriendsByUserId(currentUserId, forceRefresh = true).onSuccess { friends ->
             if (friends.any { it.id == targetUserId }) {
                 _state.update { it.copy(friendshipStatus = FriendshipStatus.FRIENDS) }
+                println("================================== CHECKING IF ALREADY FRIENDS Friendship STATUS = ${_state.value.friendshipStatus}")
                 return@onSuccess
             }
 
-            // Check sent requests
-            userRepository.getSentFriendRequests(currentUserId).onSuccess { sentRequests ->
-                if (sentRequests.any { it.receiverId == targetUserId }) {
-                    _state.update { it.copy(friendshipStatus = FriendshipStatus.PENDING) }
-                    return@onSuccess
-                }
-
-                // Check received requests
-                userRepository.getReceivedFriendRequests(currentUserId).onSuccess { receivedRequests ->
-                    receivedRequests.firstOrNull { it.senderId == targetUserId }?.let { request ->
-                        _currentProfileRequest.value = request.toDomain()
-                        _state.update { it.copy(friendshipStatus = FriendshipStatus.REQUEST_RECEIVED) }
-                    } ?: run {
-                        _state.update { it.copy(friendshipStatus = FriendshipStatus.NOT_FRIENDS) }
+            // Check requests with force refresh
+            userRepository.getSentFriendRequests(currentUserId, forceRefresh = true).onSuccess { sentRequests ->
+                userRepository.getReceivedFriendRequests(currentUserId, forceRefresh = true).onSuccess { receivedRequests ->
+                    when {
+                        sentRequests.any { it.receiverId == targetUserId } -> {
+                            _state.update { it.copy(friendshipStatus = FriendshipStatus.PENDING) }
+                            println("================================== CHECKING SENT REQUEST Friendship STATUS = ${_state.value.friendshipStatus}")
+                        }
+                        receivedRequests.any { it.senderId == targetUserId } -> {
+                            _currentProfileRequest.value = receivedRequests.first { it.senderId == targetUserId }.toDomain()
+                            _state.update { it.copy(friendshipStatus = FriendshipStatus.REQUEST_RECEIVED) }
+                            println("================================== CHECKING RECEIVED REQUEST Friendship STATUS = ${_state.value.friendshipStatus}")
+                        }
+                        else -> {
+                            _state.update { it.copy(friendshipStatus = FriendshipStatus.NOT_FRIENDS) }
+                            println("================================== CHECKING NOT FRIENDS Friendship STATUS = ${_state.value.friendshipStatus}")
+                        }
                     }
                 }
             }
@@ -209,44 +211,8 @@ class ProfileTabViewModel(
             userRepository.respondToFriendRequest(request.id, status)
                 .onSuccess {
                     if (accept) {
-                        // Fetch sender's details to create a proper Friend object
-                        userRepository.getUserById(request.senderId).onSuccess { senderUser ->
-                            val newFriend = Friend(
-                                id = senderUser.id,
-                                username = senderUser.username,
-                                name = senderUser.name,
-                                profilePicture = senderUser.profilePicture
-                            )
-
-                            // Update friends list
-                            val updatedUser = currentState.user?.copy(
-                                friends = currentState.user.friends.orEmpty() + newFriend
-                            )
-
-                            _state.update {
-                                it.copy(
-                                    user = updatedUser,
-                                    friendshipStatus = FriendshipStatus.FRIENDS,
-                                    isLoading = false
-                                )
-                            }
-
-                            // Also update current user in UserManager
-                            currentUser.value?.let { user ->
-                                userManager.updateUser(
-                                    user.copy(
-                                        friends = user.friends.orEmpty() + newFriend
-                                    )
-                                )
-                            }
-                        }.onError { error ->
-                            _state.update {
-                                it.copy(
-                                    error = "Failed to fetch user details: $error",
-                                    isLoading = false
-                                )
-                            }
-                        }
+                        // Refresh both users' data
+                        refreshBothUsers(request.senderId, request.receiverId)
                     } else {
                         // Just update status if declined
                         _state.update {
@@ -326,6 +292,40 @@ class ProfileTabViewModel(
                 }
 
             _state.update { it.copy(isLoading = false) }
+        }
+    }
+
+    private suspend fun refreshBothUsers(senderId: Int, receiverId: Int) {
+        // Refresh both users' data from backend
+        val currentUserId = currentUser.value?.id ?: return
+
+        // Refresh current user's data
+        userRepository.getUserById(currentUserId).onSuccess { currentUserDto ->
+            val updatedUser = currentUserDto.toModel()
+
+            // Update local state
+            _state.update {
+                it.copy(
+                    user = updatedUser,
+                    friendshipStatus = FriendshipStatus.FRIENDS,
+                    isLoading = false
+                )
+            }
+
+            // Update UserManager
+            userManager.updateUser(updatedUser)
+
+            // Force refresh the friend's profile if we're viewing it
+            if (state.value.user?.id == receiverId || state.value.user?.id == senderId) {
+                loadProfile(state.value.user?.id ?: return@onSuccess)
+            }
+        }.onError { error ->
+            _state.update {
+                it.copy(
+                    error = "Failed to refresh user data: $error",
+                    isLoading = false
+                )
+            }
         }
     }
 }

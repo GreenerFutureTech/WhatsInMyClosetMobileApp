@@ -48,9 +48,9 @@ interface ClosetRepository {
     // Friend request
     suspend fun sendFriendRequest(senderId: Int, receiverId: Int): Result<Unit, DataError.Remote>
     suspend fun respondToFriendRequest(requestId: Int, status: RequestStatus): Result<Unit, DataError.Remote>
-    suspend fun getReceivedFriendRequests(userId: Int): Result<List<FriendRequestDto>, DataError.Remote>
-    suspend fun getSentFriendRequests(userId: Int): Result<List<FriendRequestDto>, DataError.Remote>
+    suspend fun getReceivedFriendRequests(userId: Int, forceRefresh: Boolean = false): Result<List<FriendRequestDto>, DataError.Remote>
+    suspend fun getSentFriendRequests(userId: Int, forceRefresh: Boolean = false): Result<List<FriendRequestDto>, DataError.Remote>
     suspend fun removeFriend(userId: Int, friendId: Int): Result<Unit, DataError.Remote>
     suspend fun cancelFriendRequest(senderId: Int, receiverId: Int): Result<Unit, DataError.Remote>
-    suspend fun getFriendsByUserId(userId: Int): Result<List<UserDto>, DataError.Remote>
+    suspend fun getFriendsByUserId(userId: Int, forceRefresh: Boolean = false): Result<List<UserDto>, DataError.Remote>
 }
