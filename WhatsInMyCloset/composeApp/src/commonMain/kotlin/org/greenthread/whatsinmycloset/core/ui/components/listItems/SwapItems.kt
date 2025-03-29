@@ -57,7 +57,7 @@ fun SwapImageCard(
                 .fillMaxWidth()
                 .height(100.dp)
                 .clickable { onSwapClick() }
-                .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
+                .border(1.dp, secondaryLight, RoundedCornerShape(8.dp))
                 .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp)),
         ) {
             @OptIn(ExperimentalResourceApi::class)
@@ -115,7 +115,7 @@ fun SwapOtherImageCard(onSwapClick: () -> Unit, imageUrl: String, user: MessageU
                 Text(
                     text = it,
                     fontSize = 14.sp,
-                    color = Color.Black,
+                    color = secondaryLight,
                     modifier = Modifier.weight(1f) // Helps ensure text does not get cut off
                 )
             }

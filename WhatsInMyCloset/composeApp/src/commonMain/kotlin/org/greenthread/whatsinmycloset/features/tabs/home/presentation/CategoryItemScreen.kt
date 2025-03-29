@@ -35,6 +35,7 @@ import org.greenthread.whatsinmycloset.core.ui.components.controls.SearchBar
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.CategoryItemsViewModel
 import whatsinmycloset.composeapp.generated.resources.Res
 import org.greenthread.whatsinmycloset.theme.onSurfaceLight
+import org.greenthread.whatsinmycloset.theme.secondaryLight
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -80,7 +81,6 @@ fun CategoryItemScreen(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
     ) {
         Text(
             text = category?.name?:"All",
@@ -149,7 +149,7 @@ fun CategoryItemCard(
                 .clickable { onItemClick() }
                 .border(
                     width = 1.dp,
-                    color = onSurfaceLight,
+                    color = secondaryLight,
                     shape = RoundedCornerShape(8.dp)
                 )
         ) {
