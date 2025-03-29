@@ -37,6 +37,10 @@ open class WardrobeManager(
         CoroutineScope(Dispatchers.IO).launch {
             userManager.currentUser.collectLatest { user ->
                 if (user != null) {
+
+                    updateWardrobes(emptyList())
+                    updateItems(emptyList())
+
                     getWardrobesFromRepository()
                     getItemsFromRepository()
                 }

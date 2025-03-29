@@ -80,6 +80,10 @@ class DefaultClosetRepository(
         return remoteClosetDataSource.updateUser(user)
     }
 
+    override suspend fun searchUserByUsername(username: String): Result<List<UserDto>, DataError.Remote> {
+        return remoteClosetDataSource.searchUserByUsername(username)
+    }
+
     //============================= Item ==================================
     override suspend fun getItemById(itemId: String): Result<ItemDto, DataError.Remote> {
         return remoteClosetDataSource.getItemById(itemId)
@@ -91,6 +95,10 @@ class DefaultClosetRepository(
 
     override suspend fun getOutfitById(outfitId: String): Result<OutfitDto, DataError.Remote> {
         return remoteClosetDataSource.getOutfitById(outfitId)
+    }
+
+    override suspend fun getFriendsOutfits(userId: Int): Result<List<OutfitDto>, DataError.Remote> {
+        return remoteClosetDataSource.getFriendsOutfits(userId)
     }
 
     override suspend fun getUserByUserName(username: String): Result<UserDto, DataError.Remote> {

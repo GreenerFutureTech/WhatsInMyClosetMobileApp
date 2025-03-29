@@ -85,6 +85,8 @@ import org.greenthread.whatsinmycloset.features.tabs.home.presentation.SelectedI
 import org.greenthread.whatsinmycloset.features.tabs.profile.presentation.ProfileScreen
 import org.greenthread.whatsinmycloset.features.tabs.profile.presentation.ProfileScreenRoot
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabViewModel
+import org.greenthread.whatsinmycloset.features.tabs.profile.presentation.UserFriendsScreen
+import org.greenthread.whatsinmycloset.features.tabs.profile.presentation.UserSearchScreen
 import org.greenthread.whatsinmycloset.features.tabs.swap.domain.SwapEventBus
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.AddSwap.AddSwapRoot
 import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.AddSwap.AddSwapViewModel
@@ -148,6 +150,10 @@ fun NavController.getBarVisibility(): BarVisibility {
         // Misc
         Routes.SettingsScreen.toString() -> BarVisibility.Custom(onlyBack = true, title = "Settings")
         Routes.EditProfileScreen.toString() -> BarVisibility.Custom(onlyBack = true, title = "Edit Profile")
+
+        // Profile
+        Routes.UserSearchScreen.toString() -> BarVisibility.Custom(onlyBack = true, title = "Search Users")
+        Routes.UserFriendsScreen.toString() -> BarVisibility.Custom(onlyBack = true, title = "Friends")
 
         // Add more specific route configurations as needed
         else -> BarVisibility.Visible
@@ -376,6 +382,7 @@ fun App(
                 }   // end of Home Graph
 
                 navigation<Routes.ProfileGraph>(startDestination = Routes.ProfileTab) {
+
                     composable<Routes.ProfileTab> {
                         val viewModel: ProfileTabViewModel = koinViewModel()
                         val swapViewModel: SwapViewModel = koinViewModel()
@@ -386,6 +393,25 @@ fun App(
                             navController
                         )
                     }
+
+                    composable<Routes.UserSearchScreen> {
+                        val viewModel: ProfileTabViewModel = koinViewModel()
+
+                        UserSearchScreen(
+                            profileViewModel = viewModel,
+                            navController = navController
+                        )
+                    }
+
+                    composable<Routes.UserFriendsScreen> {
+                        val viewModel: ProfileTabViewModel = koinViewModel()
+
+                        UserFriendsScreen(
+                            profileViewModel = viewModel,
+                            navController = navController
+                        )
+                    }
+
                 }
                 navigation<Routes.SwapGraph>(startDestination = Routes.SwapTab) {
                     composable<Routes.SwapTab> {
@@ -521,7 +547,9 @@ fun App(
                     }
                     composable<Routes.SocialDetailsScreen> {
                         val args = it.toRoute<Routes.SocialDetailsScreen>()
-                        PostDetailScreen(outfitId = args.outfitId)
+                        val viewModel: PostViewModel = koinViewModel()
+
+                        PostDetailScreen(viewModel = viewModel, navController = navController, outfitId = args.outfitId)
                     }
                 }
 
@@ -582,9 +610,11 @@ fun BottomNavigationBar(navController: NavController) {
             NavigationBarItem(
                 selected = isSelected,
                 onClick = {
-                    navController.navigate(route) {
-                        launchSingleTop = true
-                        restoreState = true
+                    if (!isSelected) {
+                        navController.navigate(route) {
+                            launchSingleTop = true
+                            restoreState = true
+                        }
                     }
                 },
                 icon = { Icon(imageVector = icon, contentDescription = null) },
@@ -601,9 +631,11 @@ fun BottomNavigationBar(navController: NavController) {
             NavigationBarItem(
                 selected = isSelected,
                 onClick = {
-                    navController.navigate(route) {
-                        launchSingleTop = true
-                        restoreState = true
+                    if (!isSelected) {
+                        navController.navigate(route) {
+                            launchSingleTop = true
+                            restoreState = true
+                        }
                     }
                 },
                 icon = { Icon(imageVector = icon, contentDescription = null) },

@@ -64,9 +64,9 @@ fun PostCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                currentUser?.let {
+                outfit.username?.let {
                     Text(
-                        text = it.username,
+                        text = outfit.username,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
