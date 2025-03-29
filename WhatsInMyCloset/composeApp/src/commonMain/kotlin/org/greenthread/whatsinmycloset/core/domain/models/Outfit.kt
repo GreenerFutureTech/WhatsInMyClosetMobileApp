@@ -6,6 +6,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import org.greenthread.whatsinmycloset.core.dto.CalendarDto
 import org.greenthread.whatsinmycloset.core.persistence.OutfitEntity
 
 /*
@@ -49,17 +50,6 @@ fun Outfit.toEntity(): OutfitEntity {
         tags = tags
     )
 }
-
-// function to covert Outfit to Calendar Entry
-fun Outfit.toCalendarEntry(outfitId: String, userId: Int, date: String):
-        CalendarEntry {
-    return CalendarEntry(
-        outfitId = outfitId,
-        userId = userId,
-        date = date
-    )
-}
-
 
 @Serializable
 class OffsetData(

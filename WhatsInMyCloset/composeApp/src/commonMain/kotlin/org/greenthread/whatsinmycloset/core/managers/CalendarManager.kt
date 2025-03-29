@@ -21,40 +21,19 @@ open class CalendarManager(
 
     private val currentUser = userManager.currentUser // Get the current user
 
-    // Get outfits for the current user
-    // For initial load/all outfits
-    open suspend fun getOutfitsFromCalendar(): List<Outfit> {
-        return withContext(Dispatchers.IO) {
-            currentUser.value?.id?.let { userId ->
-                calendarRepository.getOutfitsFromCalendar(userId)
-                    .first()
-                    .map { it.toOutfit() }
-            } ?: emptyList()
-        }
-    }
-
-    // For date-specific lookups
     suspend fun getOutfitForDate(date: LocalDate): Outfit? {
         return withContext(Dispatchers.IO) {
             try {
-                userManager.currentUser.value?.id?.let { userId ->
+                currentUser.value?.id?.let { userId ->
                     calendarRepository.getOutfitForDate(userId, date)
                         .first()
-                        ?.let { outfitEntity ->
-                            val converters = Converters()
-                            Outfit(
-                                id = outfitEntity.outfitId,
-                                name = outfitEntity.name,
-                                creatorId = outfitEntity.creatorId,
-                                items = converters.stringToOffsetMap(outfitEntity.items),
-                                tags = converters.stringToStringList(outfitEntity.tags),
-                                createdAt = outfitEntity.createdAt
-                            )
+                        ?.let { outfit ->
+                            // Apply any additional transformations if needed
+                            outfit
                         }
                 }
             } catch (e: Exception) {
-                // Log error if needed
-                println("Error converting outfit: ${e.message}")
+                println("Error getting outfit: ${e.message}")
                 null
             }
         }

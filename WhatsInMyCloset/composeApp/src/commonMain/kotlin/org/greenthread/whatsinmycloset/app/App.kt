@@ -279,10 +279,11 @@ fun App(
 
                     composable<Routes.OutfitDetailScreen> { backStackEntry ->
                         val outfitId = backStackEntry.arguments?.getString("outfitId")
+                        val postViewModel: PostViewModel = koinViewModel()
 
                         if (outfitId != null) {
                             OutfitDetailScreen(outfitId, userManager, calendarManager,
-                                navController)
+                                navController, postViewModel)
                         }
                     }
 
