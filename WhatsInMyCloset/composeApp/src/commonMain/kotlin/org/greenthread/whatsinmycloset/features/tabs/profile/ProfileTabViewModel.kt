@@ -16,6 +16,13 @@ import org.greenthread.whatsinmycloset.features.tabs.profile.data.ProfileState
 import org.greenthread.whatsinmycloset.features.tabs.profile.domain.FriendRequest
 import org.greenthread.whatsinmycloset.features.tabs.profile.domain.RequestStatus
 
+// Confirmation types for destructive actions: Remove friend, Cancel request, and Decline request
+sealed class ConfirmationType {
+    object RemoveFriend : ConfirmationType()
+    object CancelRequest : ConfirmationType()
+    object DeclineRequest : ConfirmationType()
+}
+
 class ProfileTabViewModel(
     private val userRepository: DefaultClosetRepository,
     private val userManager: UserManager
@@ -40,6 +47,10 @@ class ProfileTabViewModel(
     val searchQuery = _searchQuery.asStateFlow()
     private val _searchResult = MutableStateFlow<List<UserDto?>>(emptyList())
     val searchResult = _searchResult.asStateFlow()
+
+    // Confirmation dialog state
+    private val _showConfirmationDialog = MutableStateFlow<Pair<ConfirmationType, Int>?>(null)
+    val showConfirmationDialog = _showConfirmationDialog.asStateFlow()
 
     // Load profile
     fun loadProfile(userId: Int) {
@@ -327,6 +338,16 @@ class ProfileTabViewModel(
                 )
             }
         }
+    }
+
+    // Show confirmation dialog
+    fun showConfirmation(type: ConfirmationType, targetUserId: Int) {
+        _showConfirmationDialog.value = type to targetUserId
+    }
+
+    // Dismiss confirmation dialog
+    fun dismissConfirmation() {
+        _showConfirmationDialog.value = null
     }
 }
 
