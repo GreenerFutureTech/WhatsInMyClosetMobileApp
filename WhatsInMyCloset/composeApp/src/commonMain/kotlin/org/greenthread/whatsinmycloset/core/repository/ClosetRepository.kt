@@ -34,6 +34,7 @@ interface ClosetRepository {
     suspend fun getUser(userEmail: String) : Result<UserDto,DataError.Remote>
     suspend fun getUserById(userId: Int): Result<UserDto, DataError.Remote>
     suspend fun updateUser(user: UserDto): Result<UserDto, DataError.Remote>
+    suspend fun searchUserByUsername(username: String): Result<List<UserDto>, DataError.Remote>
 
     // Item
     suspend fun getItemById(itemId: String): Result<ItemDto, DataError.Remote>
@@ -42,6 +43,7 @@ interface ClosetRepository {
     suspend fun getAllOutfits(): Result<List<OutfitDto>, DataError.Remote>
     suspend fun getOutfitById(outfitId: String): Result<OutfitDto, DataError.Remote>
     suspend fun getUserByUserName(username: String): Result<UserDto, DataError.Remote>
+    suspend fun getFriendsOutfits(userId: Int): Result<List<OutfitDto>, DataError.Remote>
 
     // Friend request
     suspend fun sendFriendRequest(senderId: Int, receiverId: Int): Result<Unit, DataError.Remote>

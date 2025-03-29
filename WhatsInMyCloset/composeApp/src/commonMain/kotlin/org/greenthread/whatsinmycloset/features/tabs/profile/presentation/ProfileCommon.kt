@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,9 +43,9 @@ import whatsinmycloset.composeapp.generated.resources.no_items_found
 import whatsinmycloset.composeapp.generated.resources.swaps_count_label
 
 @Composable
-fun ProfilePicture(user: User) {
+fun ProfilePicture(profilePicture: String?) {
     AsyncImage(
-        model = user.profilePicture ?: "",
+        model = profilePicture?: "",
         contentDescription = stringResource(Res.string.content_description_user_avatar),
         modifier = Modifier
             .size(60.dp)
@@ -77,22 +78,24 @@ fun Username(name: String, username: String) {
 
 @Composable
 fun FriendsCount(
-    friendsCount: Int?,
+    friendsCount: Int,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row (
+    TextButton(
+        onClick = onClick,
         modifier = modifier
-    ){
-        Text(
-            text = "$friendsCount",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-        )
-        Text(
-            text = stringResource(Res.string.friends_count_label),
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(8.dp)
-        )
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = friendsCount.toString(),
+                style = MaterialTheme.typography.titleLarge
+            )
+            Text(
+                text = "Friends",
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
     }
 }
 

@@ -11,6 +11,7 @@ import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.domain.onError
 import org.greenthread.whatsinmycloset.core.domain.onSuccess
+import org.greenthread.whatsinmycloset.core.dto.UserDto
 import org.greenthread.whatsinmycloset.core.repository.DefaultClosetRepository
 import org.greenthread.whatsinmycloset.features.tabs.profile.data.FriendshipStatus
 import org.greenthread.whatsinmycloset.features.tabs.profile.data.ProfileState
@@ -39,7 +40,7 @@ class ProfileTabViewModel(
     // Search related state
     private val _searchQuery = MutableStateFlow("")
     val searchQuery = _searchQuery.asStateFlow()
-    private val _searchResult = MutableStateFlow<User?>(null)
+    private val _searchResult = MutableStateFlow<List<UserDto?>>(emptyList())
     val searchResult = _searchResult.asStateFlow()
 
     // Load profile
@@ -77,6 +78,7 @@ class ProfileTabViewModel(
         }
     }
 
+
     // Check friendship status
     private suspend fun checkFriendRequestStatus(targetUserId: Int) {
         val currentUserId = currentUser.value?.id ?: return
@@ -108,9 +110,37 @@ class ProfileTabViewModel(
         }
     }
 
+    fun loadUserFriends() {
+        val userId = currentUser.value?.id ?: return
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true, error = null) }
+
+            userRepository.getUserById(userId)
+                .onSuccess { user ->
+                    _state.update {
+                        it.copy(
+                            user = user.toModel(),
+                            isLoading = false,
+                            isOwnProfile = true
+                        )
+                    }
+                }
+                .onError { error ->
+                    _state.update {
+                        it.copy(
+                            error = error.toString(),
+                            isLoading = false
+                        )
+                    }
+                }
+        }
+    }
+
     // Search functions
     fun updateSearchQuery(query: String) {
         _searchQuery.value = query
+        println("query : $query")
+        println("search value: ${_searchQuery.value}")
     }
 
     fun searchUser() {
@@ -118,13 +148,13 @@ class ProfileTabViewModel(
             if (_searchQuery.value.isNotBlank()) {
                 _state.update { it.copy(isLoading = true, error = null) }
 
-                userRepository.getUserByUserName(_searchQuery.value)
-                    .onSuccess { user ->
-                        _searchResult.value = user.toModel()
+                userRepository.searchUserByUsername(_searchQuery.value)
+                    .onSuccess { users ->
+                        _searchResult.value = users
                         _state.update { it.copy(isLoading = false) }
                     }
                     .onError { error ->
-                        _searchResult.value = null
+                        _searchResult.value = emptyList()
                         _state.update {
                             it.copy(
                                 isLoading = false,
@@ -137,7 +167,8 @@ class ProfileTabViewModel(
     }
 
     fun clearSearchResults() {
-        _searchResult.value = null
+        _searchResult.value = emptyList()
+        _searchQuery.value = ""
     }
 
     // Send friendship request

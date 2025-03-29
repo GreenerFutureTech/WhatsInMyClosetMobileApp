@@ -31,23 +31,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import org.greenthread.whatsinmycloset.core.domain.models.User
+import androidx.navigation.NavController
 import org.greenthread.whatsinmycloset.core.ui.components.outfits.OutfitBox
 import org.greenthread.whatsinmycloset.core.utilities.DateUtils.formatDateString
 import org.greenthread.whatsinmycloset.features.tabs.profile.presentation.ProfilePicture
+import org.greenthread.whatsinmycloset.features.tabs.social.data.OutfitState
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun PostDetailScreen(
     outfitId: String,
-    viewModel: PostViewModel = koinViewModel()
+    viewModel: PostViewModel,
+    navController: NavController
 ) {
     val state by viewModel.state.collectAsState()
     val outfit = state.outfits.find { it.outfitId == outfitId }
 
     LaunchedEffect(outfitId) {
         if (outfit == null) {
-            viewModel.fetchOutfitById(outfitId) // Fetch if not loaded
+            viewModel.fetchOutfitById(outfitId)
         } else if (outfit.items.isEmpty()) {
             viewModel.fetchItemsForOutfit(outfitId)
         }
@@ -67,7 +69,7 @@ fun PostDetailScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
-            UserInfoSection(user = viewModel.currentUser.value)
+            UserInfoSection(outfit.username, outfit.profilePicture)
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -103,7 +105,7 @@ fun PostDetailScreen(
 }
 
 @Composable
-private fun UserInfoSection(user: User?) {
+private fun UserInfoSection(username: String?, profilePicture: String?) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
@@ -116,15 +118,13 @@ private fun UserInfoSection(user: User?) {
                 .clip(CircleShape)
                 .background(MaterialTheme.colorScheme.primaryContainer)
         ) {
-            if (user != null) {
-                ProfilePicture(user)
-            }
+            ProfilePicture(profilePicture)
         }
 
         Spacer(modifier = Modifier.width(12.dp))
 
         Text(
-            text = "@${user?.username}",
+            text = "@${username ?: "unknown"}",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold
         )

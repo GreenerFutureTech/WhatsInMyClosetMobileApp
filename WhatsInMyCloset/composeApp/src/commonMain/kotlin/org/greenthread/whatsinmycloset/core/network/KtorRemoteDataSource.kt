@@ -37,7 +37,6 @@ import org.greenthread.whatsinmycloset.features.screens.notifications.domain.mod
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.NotificationType
 import org.greenthread.whatsinmycloset.features.screens.notifications.domain.model.SendNotificationRequest
 import org.greenthread.whatsinmycloset.features.tabs.profile.domain.RequestStatus
-import org.greenthread.whatsinmycloset.features.tabs.profile.data.FriendshipStatus
 import org.greenthread.whatsinmycloset.getPlatform
 
 private val platform = getPlatform()
@@ -246,6 +245,14 @@ class KtorRemoteDataSource(
         }
     }
 
+    override suspend fun searchUserByUsername(username: String): Result<List<UserDto>, DataError.Remote> {
+        return safeCall {
+            httpClient.get(
+                urlString = "$BASE_URL/users/search/username?query=$username"
+            )
+        }
+    }
+
     //Wardrobes
     suspend fun getAllWardrobesForUser(userId: String): Result<List<WardrobeEntity>, DataError.Remote> {
         return safeCall {
@@ -370,6 +377,14 @@ class KtorRemoteDataSource(
         return safeCall {
             httpClient.get(
                 urlString = "$BASE_URL/outfits"
+            )
+        }
+    }
+
+    override suspend fun getFriendsOutfits(userId: Int): Result<List<OutfitDto>, DataError.Remote> {
+        return safeCall {
+            httpClient.get(
+                urlString = "$BASE_URL/outfits/friends/$userId"
             )
         }
     }
