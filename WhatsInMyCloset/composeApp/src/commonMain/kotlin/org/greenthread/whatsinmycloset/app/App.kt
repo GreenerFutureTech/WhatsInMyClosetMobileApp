@@ -145,7 +145,7 @@ fun NavController.getBarVisibility(): BarVisibility {
         Routes.SwapTab.toString() -> BarVisibility.Custom(disableBack = true, title = "Swaps")
         Routes.SocialTab.toString() -> BarVisibility.Custom(disableBack = true, title = "Social")
         Routes.ProfileTab.toString() -> BarVisibility.Custom(disableBack = true, title = "Profile")
-        Routes.AddItemScreen.toString() -> BarVisibility.Custom(onlyBack = true, bottomBar = false)
+        Routes.AddItemScreen.toString() -> BarVisibility.Custom(onlyBack = true, bottomBar = false, title = "Add Item")
 
         // Misc
         Routes.SettingsScreen.toString() -> BarVisibility.Custom(onlyBack = true, title = "Settings")
