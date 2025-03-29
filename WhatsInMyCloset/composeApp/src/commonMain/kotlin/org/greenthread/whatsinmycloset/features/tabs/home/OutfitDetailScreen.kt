@@ -72,7 +72,6 @@ fun OutfitDetailScreen(
             // Only show header if we have an outfit name
             outfitName?.let { name ->
                 OutfitScreenHeader(
-                    onExit = { navController.navigate(Routes.HomeTab) },
                     title = name
                 )
                 Spacer(modifier = Modifier.height(8.dp))

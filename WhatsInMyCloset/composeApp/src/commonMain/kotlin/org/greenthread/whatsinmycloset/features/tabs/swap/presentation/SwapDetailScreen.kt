@@ -16,6 +16,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -111,8 +112,7 @@ fun SwapDetailScreen(
         ) {
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
+                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -231,7 +231,6 @@ fun SwapDetailScreen(
 
             Box(
                 modifier = Modifier
-                    .padding(20.dp)
                     .fillMaxSize()
 
             ) {
@@ -275,7 +274,7 @@ fun SwapDetailScreen(
                         modifier = Modifier
                             .size(300.dp)
                             .clip(RoundedCornerShape(12.dp))
-                            .border(2.dp, Color.Black, RoundedCornerShape(12.dp))
+                            .border(2.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
                             .padding(2.dp)
                             .align(Alignment.CenterHorizontally),
                     ) {

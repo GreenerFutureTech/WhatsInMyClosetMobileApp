@@ -81,7 +81,7 @@ fun SwapOtherImageCard(onSwapClick: () -> Unit, imageUrl: String, user: MessageU
                 .height(110.dp)
                 .padding(8.dp)
                 .clickable { onSwapClick() }
-                .border(1.dp, onSurfaceLight, RoundedCornerShape(8.dp))
+                .border(1.dp, secondaryLight, RoundedCornerShape(8.dp))
         ) {
             @OptIn(ExperimentalResourceApi::class)
             AsyncImage(
@@ -116,7 +116,7 @@ fun SwapOtherImageCard(onSwapClick: () -> Unit, imageUrl: String, user: MessageU
                 Text(
                     text = it,
                     fontSize = 12.sp,
-                    color = Color.Black,
+                    color = secondaryLight,
                     modifier = Modifier.align(Alignment.CenterVertically)
                 )
             }

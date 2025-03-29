@@ -4,6 +4,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -58,7 +59,7 @@ fun ItemDetailScreen(
                         modifier = Modifier
                             .size(300.dp)
                             .clip(RoundedCornerShape(12.dp))
-                            .border(2.dp, Color.Black, RoundedCornerShape(12.dp))
+                            .border(2.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
                             .padding(2.dp)
                             .align(Alignment.CenterHorizontally),
                     ) {

@@ -1,6 +1,7 @@
 package org.greenthread.whatsinmycloset.features.tabs.home
 
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -11,9 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
-import org.greenthread.whatsinmycloset.core.domain.models.OffsetData
-import org.greenthread.whatsinmycloset.core.domain.models.generateRandomClothingItems
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.greenthread.whatsinmycloset.core.domain.models.OffsetData import org.jetbrains.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.layout.Box
@@ -24,15 +23,12 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.material3.Text
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -49,11 +45,10 @@ import org.greenthread.whatsinmycloset.core.viewmodels.OutfitViewModel
 import org.greenthread.whatsinmycloset.features.tabs.social.presentation.TagsSection
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 import org.greenthread.whatsinmycloset.theme.outlineVariantLight
+import org.greenthread.whatsinmycloset.theme.secondaryLight
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import whatsinmycloset.composeapp.generated.resources.Res
-import whatsinmycloset.composeapp.generated.resources.item_brand
-import whatsinmycloset.composeapp.generated.resources.top1
 import whatsinmycloset.composeapp.generated.resources.wardrobe
 
 
@@ -91,22 +86,25 @@ fun OutfitScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(2.dp),
+                .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         )
         {
-
+            Spacer(Modifier.height(10.dp))
             // Header
             OutfitScreenHeader(
-                onExit = { showExitDialog = true },  // Discard Outfit Creation
                 title = "Create Your Outfit"
             )
+
+            Spacer(Modifier.height(16.dp))
 
             // Outfit collage area will show the selectedClothingItems
             OutfitCollageArea(
                 selectedClothingItems = selectedItems,
                 onPositionUpdate = onPositionUpdate
             )
+
+            Spacer(modifier = Modifier.height(20.dp))
 
             // Clothing category selection
             ClothingCategorySelection { selectedCategory ->
@@ -124,6 +122,7 @@ fun OutfitScreen(
             // show additional options when there is at least one item in outfit area
             if (selectedItems.isNotEmpty()) {
                 // Save Outfit button
+                Spacer(modifier = Modifier.padding(10.dp))
                 Button(
                     onClick = {
                         outfitViewModel.createOutfit(
@@ -134,6 +133,7 @@ fun OutfitScreen(
                         )
                     },
                     modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
                     enabled = selectedItems.isNotEmpty()
                 ) {
                     Text("Save Outfit")
@@ -148,6 +148,7 @@ fun OutfitScreen(
                         clothingItemViewModel.clearClothingItemState() // Clear the selected items state
                     },
                     modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
                     enabled = selectedItems.isNotEmpty()
                 ) {
                     Text("Reset")
@@ -250,14 +251,26 @@ fun OutfitCollageArea(
     Box(
         modifier = Modifier
             .width(450.dp)
-            .height(300.dp) // Start with 300.dp
-            .background(Color.LightGray)
-    )
-    {
+            .height(300.dp)
+            .background(
+                color = MaterialTheme.colorScheme.background,
+                shape = RoundedCornerShape(12.dp)
+            )
+            .border(
+                width = 1.dp,
+                color = secondaryLight,
+                shape = RoundedCornerShape(12.dp)
+            )
+            .clip(RoundedCornerShape(12.dp))
+    ) {
         if (selectedClothingItems.isEmpty()) {
-            Text("No items selected",
+            Text(
+                "No items selected",
                 color = Color.Gray,
-                textAlign = TextAlign.Center)
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(16.dp)
+            )
         }
         else
         {
@@ -355,7 +368,7 @@ fun DraggableClothingItem(
                 }
             }
             .size(100.dp) // Define the size of the clothing item
-            .border(2.dp, Color.Black, RoundedCornerShape(12.dp))
+            .border(1.dp, secondaryLight, RoundedCornerShape(12.dp))
     ) {
 
         // Display the item image
@@ -379,21 +392,28 @@ fun ClothingCategorySelection(onSelectCategory: (ClothingCategory) -> Unit) {
         columns = GridCells.Fixed(2), // Two columns
         modifier = Modifier
             .fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(2.dp),
-        horizontalArrangement = Arrangement.spacedBy(2.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         items(categories.size) { index ->
             val thisItem = categories[index]
 
-            Button(
+            OutlinedButton(
                 onClick = { onSelectCategory(thisItem) },
                 modifier = Modifier
                     .fillMaxWidth()
+                    .height(48.dp),
+                border = BorderStroke(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant
+                ),
+                shape = RoundedCornerShape(12.dp)
             ) {
                 Text(
                     text = thisItem.categoryName,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    fontSize = 14.sp
                 )
             }
         }
@@ -432,8 +452,7 @@ fun CategoryItemsScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         OutfitScreenHeader(
-            onExit = { navController.navigate(Routes.HomeTab) },
-            title = "Select $category"
+            title = category
         )
 
         Spacer(Modifier.height(16.dp))
@@ -542,7 +561,7 @@ fun CategoryItem(
         modifier = Modifier
             .padding(4.dp)
             .clip(RoundedCornerShape(8.dp))
-            .border(2.dp, if (isSelected) Color.Green else Color.Transparent, RoundedCornerShape(8.dp))
+            .border(2.dp, if (isSelected) secondaryLight else Color.Transparent, RoundedCornerShape(8.dp))
             .clickable {
                 if (isSelectionMode) {
                     onItemSelected(item) // Handle selection
@@ -616,10 +635,10 @@ fun CategoryItemDetailScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .padding(horizontal = 24.dp)
     ) {
         // Header
         OutfitScreenHeader(
-            onExit = { navController.navigate(Routes.HomeTab) },
             title = selectedItem!!.name
         )
 
@@ -628,7 +647,6 @@ fun CategoryItemDetailScreen(
         // Image Section
         Box(
             modifier = Modifier
-                .padding(horizontal = 16.dp)
                 .fillMaxWidth()
         ) {
             Box(
@@ -658,8 +676,6 @@ fun CategoryItemDetailScreen(
         }
 
         Column(
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
         ){
             Column() {
                 Text(
@@ -706,7 +722,6 @@ fun CategoryItemDetailScreen(
 }
 @Composable
 fun OutfitScreenHeader(
-    onExit: () -> Unit,
     title: String
 
 ) {
@@ -718,7 +733,7 @@ fun OutfitScreenHeader(
         Text(
             text = title,
             fontWeight = FontWeight.SemiBold,
-            fontSize = 18.sp,
+            fontSize = 20.sp,
             modifier = Modifier.align(Alignment.Center),
             textAlign = TextAlign.Center
         )
