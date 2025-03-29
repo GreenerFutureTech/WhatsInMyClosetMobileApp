@@ -15,13 +15,17 @@ import kotlinx.datetime.toLocalDateTime
             entity = OutfitEntity::class,
             parentColumns = ["outfitId"], // Primary key in OutfitEntity
             childColumns = ["outfitId"], // Foreign key in CalendarEntity
+            onUpdate = ForeignKey.CASCADE
         )
     ],
-    indices = [Index("outfitId")]
+    indices = [
+        Index("outfitId"),
+        Index(value = ["userId", "date"], unique = true)
+    ]
 )
 data class CalendarEntity(
-    @PrimaryKey val outfitId: String, // This is both PK and FK
-    val userId: String = "",
-    val date: String = Clock.System.now().toLocalDateTime(
-        TimeZone.currentSystemDefault()).toString()
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val outfitId: String,
+    val userId: Int,
+    val date: String
 )

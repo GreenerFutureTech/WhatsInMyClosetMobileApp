@@ -39,7 +39,7 @@
     <string name="actions_section_title">Actions</string>
     <string name="see_all_button">See All</string>
     <string name="create_outfit_button">Create Outfit</string>
-    <string name="outfit_day_button">Outfit of the Day</string>
+    <string name="outfit_calendar">Outfit Calendar</string>
     <string name="no_wardrobe_found">No wardrobe found!</string>
     <string name="add_new_item_button">Add New Item</string>
     <string name="no_item_category">No items in this category</string>

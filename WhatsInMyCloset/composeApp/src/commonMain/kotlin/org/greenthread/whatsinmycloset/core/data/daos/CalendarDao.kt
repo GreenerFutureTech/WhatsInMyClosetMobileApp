@@ -7,45 +7,48 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
+import org.greenthread.whatsinmycloset.core.dto.CalendarWithOutfit
 import org.greenthread.whatsinmycloset.core.persistence.CalendarEntity
 import org.greenthread.whatsinmycloset.core.persistence.OutfitEntity
 
 @Dao
 interface CalendarDao {
-    // Insert a calendar entry (links an outfit to a specific date)
+    // Insert an outfit to a date in calendar
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCalendarEntry(entry: CalendarEntity)
 
-    // from backend to room
+    // this will get all outfits for current user from backend and insert into room
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(entries: List<CalendarEntity>)
-
-    // Get all calendar entries for a user
-    @Query("SELECT * FROM calendar WHERE userId = :userId")
-    fun getCalendarEntries(userId: String): Flow<List<CalendarEntity>>
 
     // Get outfits scheduled for a specific date
     @Transaction
     @Query("""
         SELECT outfits.* FROM outfits
-        INNER JOIN calendar ON outfits.id = calendar.outfitId
+        INNER JOIN calendar ON outfits.outfitId = calendar.outfitId
         WHERE calendar.date = :date AND calendar.userId = :userId
     """)
-    fun getOutfitsForDate(userId: String, date: String): Flow<List<OutfitEntity>>
+    fun getOutfitForDate(userId: String, date: String): Flow<OutfitEntity?>
 
-    // Get all scheduled outfits with their dates for a user
-    @Transaction
     @Query("""
-        SELECT outfits.*, calendar.date FROM outfits
-        INNER JOIN calendar ON outfits.id = calendar.outfitId
+        SELECT 
+            calendar.id AS calendarId,
+            calendar.outfitId AS calendarOutfitId,
+            calendar.userId,
+            calendar.date,
+            outfits.outfitId,
+            outfits.name,
+            outfits.creatorId,
+            outfits.items,
+            outfits.tags,
+            outfits.calendarDates,
+            outfits.createdAt
+        FROM calendar
+        INNER JOIN outfits ON calendar.outfitId = outfits.outfitId
         WHERE calendar.userId = :userId
-        ORDER BY calendar.date
     """)
-    fun getScheduledOutfits(userId: String): Flow<List<OutfitWithDate>>
-}
+    fun getCalendarEntriesWithOutfits(userId: String): Flow<List<CalendarWithOutfit>>
 
-// Helper class for joined results
-data class OutfitWithDate(
-    @Embedded val outfit: OutfitEntity,
-    val date: String
-)
+    @Query("SELECT EXISTS(SELECT 1 FROM calendar WHERE userId = :userId AND date = :date)")
+    suspend fun hasEntryForDate(userId: String, date: String): Boolean
+}

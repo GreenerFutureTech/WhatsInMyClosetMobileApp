@@ -55,32 +55,27 @@ open class OutfitManager(
         //throw IllegalStateException("User ID is required") (commented for testing)
 
         return Outfit(
-            id = generateOutfitId(),
+            id = "",
             name = name,
             creatorId = userId,
             items = items,
             tags = tags,
-            calendarDates = emptyList(),
-            createdAt = Clock.System.now().toLocalDateTime
-                (TimeZone.currentSystemDefault()).toString()
+            createdAt = ""
         )
     }
 
 
-    suspend fun saveOutfit(outfit: Outfit): Boolean {
-        val userId = userManager.currentUser.value?.id ?: return false
-
+    suspend fun saveOutfit(outfit: Outfit): String? {
         return try {
-            if (outfitRepository.saveOutfit(outfit)) {
-                _savedOutfits.update { it + outfit }
-                println("Outfit saved successfully: ${outfit.id}")
-                true
-            } else {
-                println("Outfit save failure: ${outfit.id}")
-                false
+            val serverOutfitId = outfitRepository.saveOutfit(outfit)    // use this for saving outfit in calendar
+            if (serverOutfitId != null) {
+                _savedOutfits.update { it + outfit.copy(id = serverOutfitId) }
+                println("Outfit saved successfully: $serverOutfitId")
             }
+            serverOutfitId
         } catch (e: Exception) {
-            false
+            println("Outfit save failure: ${e.message}")
+            null
         }
     }
 
@@ -101,13 +96,6 @@ open class OutfitManager(
                 false
             }
         }
-    }
-
-    // Helper function to generate a unique outfit ID
-    private fun generateOutfitId(): String {
-        return "outfit_${
-            Clock.System.now().toLocalDateTime(
-            TimeZone.currentSystemDefault()).toString()}"
     }
 
 }

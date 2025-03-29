@@ -72,7 +72,7 @@ import whatsinmycloset.composeapp.generated.resources.create_outfit_button
 import whatsinmycloset.composeapp.generated.resources.favourite_section_title
 import whatsinmycloset.composeapp.generated.resources.glasses
 import whatsinmycloset.composeapp.generated.resources.no_wardrobe_found
-import whatsinmycloset.composeapp.generated.resources.outfit_day_button
+import whatsinmycloset.composeapp.generated.resources.outfit_calendar
 import whatsinmycloset.composeapp.generated.resources.see_all_button
 import whatsinmycloset.composeapp.generated.resources.top
 import whatsinmycloset.composeapp.generated.resources.shoe
@@ -260,7 +260,7 @@ fun BottomButtonsRow(
         //TODO Add action to show calendar
         ActionButtonItem(
             icon = Icons.Rounded.DateRange,
-            text = Res.string.outfit_day_button,
+            text = Res.string.outfit_calendar,
             onClick = { if (navController.currentBackStackEntry != null) {
                 navController.navigate(Routes.OutfitOfTheDay)
             } }
