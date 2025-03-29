@@ -13,7 +13,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.domain.models.OffsetData import org.jetbrains.compose.ui.tooling.preview.Preview
-import org.greenthread.whatsinmycloset.core.domain.models.OffsetData
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.layout.Box
@@ -61,7 +60,9 @@ fun OutfitScreen(
     clothingItemViewModel: ClothingItemViewModel,
     outfitViewModel: OutfitViewModel
 ) {
+
     WhatsInMyClosetTheme {
+
         // Collect state from ViewModels
         val wardrobes by outfitViewModel.cachedWardrobes.collectAsState()
         val selectedWardrobeId by remember(outfitViewModel) {
@@ -84,13 +85,13 @@ fun OutfitScreen(
         val onPositionUpdate = { itemId: String, newPosition: OffsetData ->
             outfitViewModel.updateItemPosition(itemId, newPosition)
         }
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(2.dp),
             horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        )
+        {
             Spacer(Modifier.height(10.dp))
             // Header
             OutfitScreenHeader(
@@ -99,96 +100,58 @@ fun OutfitScreen(
 
             Spacer(Modifier.height(16.dp))
 
-            // Outfit collage area - Give it weight to expand and fill available space
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-            ) {
-                OutfitCollageArea(
-                    selectedClothingItems = selectedItems,
-                    onPositionUpdate = onPositionUpdate
-                )
-            }
+            // Outfit collage area will show the selectedClothingItems
+            OutfitCollageArea(
+                selectedClothingItems = selectedItems,
+                onPositionUpdate = onPositionUpdate
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Bottom controls section
-            Column(
+            // Clothing category selection
+            ClothingCategorySelection { selectedCategory ->
+                val categoryEnum = ClothingCategory.fromString(selectedCategory.categoryName)
+                navController.navigate(Routes.CategoryItemScreen(categoryEnum.toString()))
+            }
+
+           // Reset button
+            Button(
+                onClick = {
+                    // Discard the current outfit and create a new one
+                    outfitViewModel.discardCurrentOutfit()
+                    outfitViewModel.clearOutfitState() // Clear the outfit state
+                    clothingItemViewModel.clearClothingItemState() // Clear the selected items state
+                },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 16.dp),
+                    .padding(horizontal = 16.dp),
+                shape = RoundedCornerShape(12.dp),
+                enabled = selectedItems.isNotEmpty()
             ) {
-                // Clothing category selection
-                ClothingCategorySelection { selectedCategory ->
-                    // Convert the selected category string to ClothingCategory enum
-                    val categoryEnum = ClothingCategory.fromString(selectedCategory.categoryName)
-                    navController.navigate(Routes.CategoryItemScreen(categoryEnum.toString()))
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Button Row for Save and Reset
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    // Reset button
-                    Button(
-                        onClick = {
-                            // Discard the current outfit and create a new one
-                            outfitViewModel.discardCurrentOutfit()
-                            outfitViewModel.clearOutfitState() // Clear the outfit state
-                            clothingItemViewModel.clearClothingItemState() // Clear the selected items state
-                        },
-                        modifier = Modifier.weight(0.5f),
-                        enabled = selectedItems.isNotEmpty()
-                    ) {
-                        Text("Reset")
-                    }
-
-            // show additional options when there is at least one item in outfit area
-            if (selectedItems.isNotEmpty()) {
-                // Save Outfit button
-                Spacer(modifier = Modifier.padding(10.dp))
-                Button(
-                    onClick = {
-                        outfitViewModel.createOutfit(
-                            name = "New Outfit",    // TODO take name from user else Default Name
-                            onSuccess = {
-                                navController.navigate(Routes.OutfitSaveScreen)
-                            }
-                        )
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    enabled = selectedItems.isNotEmpty()
-                ) {
-                    Text("Save Outfit")
-                }
-
-                // Create New Outfit button
-                Button(
-                    onClick = {
-                        // Discard the current outfit and create a new one
-                        outfitViewModel.discardCurrentOutfit()
-                        outfitViewModel.clearOutfitState() // Clear the outfit state
-                        clothingItemViewModel.clearClothingItemState() // Clear the selected items state
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    enabled = selectedItems.isNotEmpty()
-                ) {
-                    Text("Reset")
-                }
+                Text("Reset")
             }
-        }   // end of Column
+
+            Spacer(modifier = Modifier.padding(10.dp))
+
+            // Create New Outfit button
+            Button(
+                onClick = {
+                    outfitViewModel.createOutfit(
+                        name = "New Outfit",
+                        onSuccess = {
+                            navController.navigate(Routes.OutfitSaveScreen)
+                        }
+                    )
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                shape = RoundedCornerShape(12.dp),
+                enabled = selectedItems.isNotEmpty()
+            ) {
+                Text("Save Outfit")
+            }
+        }
 
         // Show Exit Dialog
         if (showExitDialog) {
@@ -262,7 +225,7 @@ fun DiscardOutfitDialog(
             }
         }
     )
-}
+}   /* end of DiscardOutfitDialog */
 
 // show the items user selected to create an outfit
 @Composable
@@ -293,58 +256,46 @@ fun OutfitCollageArea(
             )
             .clip(RoundedCornerShape(12.dp))
     ) {
-        if (selectedClothingItems.isEmpty()) {
-            Text(
-                "No items selected",
-                color = Color.Gray,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .padding(16.dp)
-            )
-        }
-        else
-        {
-            // Track positions by item ID instead of index
-            val itemPositions = remember { mutableStateMapOf<String, OffsetData>() }
 
-            // Initialize positions for new items
-            LaunchedEffect(selectedClothingItems) {
-                selectedClothingItems.forEach { item ->
-                    if (!itemPositions.containsKey(item.id)) {
-                        // Calculate initial position (you can adjust this logic)
-                        val x = (itemPositions.size * (dynamicItemWidth * 1.5f)).coerceIn(0f, canvasWidth - dynamicItemWidth)
-                        val y = (itemPositions.size * (dynamicItemHeight * 1.5f)).coerceIn(0f, canvasHeight - dynamicItemHeight)
+        // Track positions by item ID instead of index
+        val itemPositions = remember { mutableStateMapOf<String, OffsetData>() }
 
-                        val (normalizedX, normalizedY) = CoordinateNormalizer.normalizeCoordinates(
-                            x, y, canvasWidth, canvasHeight
-                        )
+        // Initialize positions for new items
+        LaunchedEffect(selectedClothingItems) {
+            selectedClothingItems.forEach { item ->
+                if (!itemPositions.containsKey(item.id)) {
+                    // Calculate initial position (you can adjust this logic)
+                    val x = (itemPositions.size * (dynamicItemWidth * 1.5f)).coerceIn(0f, canvasWidth - dynamicItemWidth)
+                    val y = (itemPositions.size * (dynamicItemHeight * 1.5f)).coerceIn(0f, canvasHeight - dynamicItemHeight)
 
-                        itemPositions[item.id] = OffsetData(normalizedX, normalizedY)
-                        onPositionUpdate(item.id, OffsetData(normalizedX, normalizedY))
-                    }
+                    val (normalizedX, normalizedY) = CoordinateNormalizer.normalizeCoordinates(
+                        x, y, canvasWidth, canvasHeight
+                    )
+
+                    itemPositions[item.id] = OffsetData(normalizedX, normalizedY)
+                    onPositionUpdate(item.id, OffsetData(normalizedX, normalizedY))
                 }
             }
+        }
 
-            // Loop through selectedClothingItems and display them
-            selectedClothingItems.forEach { clothingItem ->
-                DraggableClothingItem(
-                    clothingItem = clothingItem,
-                    initialPosition = itemPositions[clothingItem.id] ?: OffsetData(0f, 0f),
-                    canvasWidth = canvasWidth,
-                    canvasHeight = canvasHeight,
-                    dynamicItemWidth = dynamicItemWidth,
-                    dynamicItemHeight = dynamicItemHeight,
-                    onPositionUpdate = { newPosition ->
-                        val (normalizedX, normalizedY) = CoordinateNormalizer.normalizeCoordinates(
-                            newPosition.x, newPosition.y, canvasWidth, canvasHeight
-                        )
+        // Loop through selectedClothingItems and display them
+        selectedClothingItems.forEach { clothingItem ->
+            DraggableClothingItem(
+                clothingItem = clothingItem,
+                initialPosition = itemPositions[clothingItem.id] ?: OffsetData(0f, 0f),
+                canvasWidth = canvasWidth,
+                canvasHeight = canvasHeight,
+                dynamicItemWidth = dynamicItemWidth,
+                dynamicItemHeight = dynamicItemHeight,
+                onPositionUpdate = { newPosition ->
+                    val (normalizedX, normalizedY) = CoordinateNormalizer.normalizeCoordinates(
+                        newPosition.x, newPosition.y, canvasWidth, canvasHeight
+                    )
 
-                        itemPositions[clothingItem.id] = OffsetData(normalizedX, normalizedY)
-                        onPositionUpdate(clothingItem.id, OffsetData(normalizedX, normalizedY))
-                    }
-                )
-            }
-
+                    itemPositions[clothingItem.id] = OffsetData(normalizedX, normalizedY)
+                    onPositionUpdate(clothingItem.id, OffsetData(normalizedX, normalizedY))
+                }
+            )
         }
     }
 
@@ -422,7 +373,6 @@ fun ClothingCategorySelection(onSelectCategory: (ClothingCategory) -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         items(categories.size) { index ->
@@ -596,6 +546,11 @@ fun CategoryItem(
     onItemSelected: (ClothingItem) -> Unit, // For selection mode
     onItemClicked: (ClothingItem) -> Unit // For detail mode
 ) {
+
+    // Log the isSelected state for debugging
+    println("CategoryItem: ${item.name}, isSelected: $isSelected")
+
+
     Box(
         modifier = Modifier
             .padding(4.dp)

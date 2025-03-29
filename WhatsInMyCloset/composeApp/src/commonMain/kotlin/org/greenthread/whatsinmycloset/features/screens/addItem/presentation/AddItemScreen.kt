@@ -68,8 +68,10 @@ fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManage
         selectedWardrobe = cachedWardrobes[0]
     }
 
-    val categories = ClothingCategory.entries.map { it.categoryName }
-    val contentWidth = 280.dp // 모든 요소의 공통 너비
+    val categories = ClothingCategory.entries
+        .filterNot { it == ClothingCategory.ALL }
+        .map { it.categoryName }
+    val contentWidth = 280.dp
 
     Column(
         modifier = Modifier

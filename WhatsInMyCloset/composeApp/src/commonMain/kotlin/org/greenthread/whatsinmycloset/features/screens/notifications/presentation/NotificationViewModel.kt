@@ -100,12 +100,15 @@ class NotificationsViewModel(
         when(notification.type) {
             NotificationType.FRIEND_REQUEST -> {
 
-                val userId = notification.extraData?.get("userId")
+                val userId = notification.extraData?.get("senderId")
 
                 userId?.let {
-                    navController.navigate(Routes.ProfileTab)
+                    val id = userId.toInt()
+                    println("Going to $id")
+                    navController.navigate(Routes.ProfileDetailsScreen(id))
                 }
 
+                // Default fall back
                 navController.navigate(Routes.ProfileTab)
             }
             NotificationType.SWAP_REQUEST -> {
