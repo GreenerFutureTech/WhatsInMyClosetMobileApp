@@ -32,6 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.material3.Text
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -45,9 +46,13 @@ import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
 import org.greenthread.whatsinmycloset.core.utilities.CoordinateNormalizer
 import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.OutfitViewModel
+import org.greenthread.whatsinmycloset.features.tabs.social.presentation.TagsSection
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
+import org.greenthread.whatsinmycloset.theme.outlineVariantLight
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import whatsinmycloset.composeapp.generated.resources.Res
+import whatsinmycloset.composeapp.generated.resources.item_brand
 import whatsinmycloset.composeapp.generated.resources.top1
 import whatsinmycloset.composeapp.generated.resources.wardrobe
 
@@ -580,30 +585,17 @@ fun CategoryItemDetailScreen(
     itemId: String,
     category: ClothingCategory,
     onBack: () -> Unit,
-    viewModel: ClothingItemViewModel // Inject the ClothingItemViewModel
-
+    viewModel: ClothingItemViewModel
 ) {
-
-    // State to hold the selected item
     var selectedItem by remember { mutableStateOf<ClothingItem?>(null) }
-
-    // State to hold the wardrobe name
     var wardrobeName by remember { mutableStateOf("Unknown Wardrobe") }
 
-    // Fetch the item details when the screen is first launched
     LaunchedEffect(wardrobeId, itemId, category) {
-        //val item = viewModel.getItemDetail(wardrobeId, itemId, category)
         val item = viewModel.getItemDetail(itemId)
         selectedItem = item
-
-        // Fetch the wardrobe name using the wardrobeId from the selected item
         wardrobeName = viewModel.selectedWardrobe.value?.wardrobeName ?: "Unknown Wardrobe"
     }
 
-    /*println("DEBUG, CategoryItemDetailScreen -> " +
-            "selectedItem: $selectedItem selected wardrobe: $wardrobeName")*/
-
-    // If the item is not found, show an error message
     if (selectedItem == null) {
         Column(
             modifier = Modifier
@@ -621,72 +613,97 @@ fun CategoryItemDetailScreen(
         return
     }
 
-    // Display the item details
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
-        // Heading for the selected category
+        // Header
         OutfitScreenHeader(
-            onExit = {navController.navigate(Routes.HomeTab)},
+            onExit = { navController.navigate(Routes.HomeTab) },
             title = selectedItem!!.name
         )
 
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
+        // Image Section
         Box(
             modifier = Modifier
-                .size(300.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .border(2.dp, Color.Black, RoundedCornerShape(12.dp))
-                .padding(2.dp)
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth()
         ) {
-            // Display the item image
-            AsyncImage(
-                model = selectedItem!!.mediaUrl, // Use the image URL from the sample data
-                contentDescription = selectedItem!!.name,
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxSize()
-                    .fillMaxHeight()
-                    .align(Alignment.Center) // Use Alignment.Center to center the image
-            )
+                    .height(300.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
+                    .padding(2.dp)
+            ) {
+                AsyncImage(
+                    model = selectedItem!!.mediaUrl,
+                    contentDescription = selectedItem!!.name,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
         }
 
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-        // Display wardrobe name
-        Text(
-            text = "Wardrobe: ${wardrobeName}",
-            modifier = Modifier.padding(top = 8.dp),
-            fontSize = 20.sp,
-            color = Color.Gray
-        )
+        // Tags Section
+        if (selectedItem!!.tags.isNotEmpty()) {
+            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                TagsSection(tags = selectedItem!!.tags)
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+        }
 
-        // Display the clothing item category
-        Text(
-            text = "Category: ${selectedItem!!.itemType}",
-            modifier = Modifier.padding(top = 8.dp),
-            fontSize = 20.sp,
-            color = Color.Gray
-        )
+        Column(
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+        ){
+            Column() {
+                Text(
+                    text = "WARDROBE",
+                    fontSize = 12.sp,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                Text(
+                    text = wardrobeName,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
 
-        // Display the clothing item tags (if any)
-        if (!selectedItem!!.tags.isNullOrEmpty()) {
-            Text(
-                text = "Tags: ${selectedItem!!.tags?.joinToString(", ")}",
-                modifier = Modifier.padding(top = 8.dp),
-                fontSize = 20.sp,
-                color = Color.Gray
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 8.dp),
+                thickness = 1.dp,
+                color = outlineVariantLight
+            )
+
+            // Category Info
+            Column(modifier = Modifier.padding(bottom = 8.dp)) {
+                Text(
+                    text = "CATEGORY",
+                    fontSize = 12.sp,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                Text(
+                    text = "${selectedItem!!.itemType}",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 8.dp),
+                thickness = 1.dp,
+                color = outlineVariantLight
             )
         }
     }
 }
-
-
 @Composable
 fun OutfitScreenHeader(
     onExit: () -> Unit,
@@ -697,32 +714,14 @@ fun OutfitScreenHeader(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-    )
-    {
+    ) {
         Text(
-            text = "$title",
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.align(Alignment.Center), // Allow centering
-            textAlign = TextAlign.Center)
-
-        // Exit Button - Right Aligned
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
-        ){
-        ElevatedButton(
-            onClick = onExit,
-            modifier = Modifier
-                .width(60.dp)  // Set width to ensure a rectangular shape
-                .height(30.dp), // Define height for a proper rectangle
-            shape = RoundedCornerShape(10.dp) // Rounded corners
+            text = title,
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 18.sp,
+            modifier = Modifier.align(Alignment.Center),
+            textAlign = TextAlign.Center
         )
-        {
-            Icon(Icons.Default.Close,
-                contentDescription = "Exit",
-                modifier = Modifier.size(24.dp))
-        }}
     }
 }
 
