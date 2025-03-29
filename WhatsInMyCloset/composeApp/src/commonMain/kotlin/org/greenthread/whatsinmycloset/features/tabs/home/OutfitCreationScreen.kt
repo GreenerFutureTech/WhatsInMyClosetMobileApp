@@ -87,7 +87,7 @@ fun OutfitScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(2.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         )
         {
@@ -105,7 +105,7 @@ fun OutfitScreen(
                 onPositionUpdate = onPositionUpdate
             )
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Clothing category selection
             ClothingCategorySelection { selectedCategory ->
@@ -133,7 +133,9 @@ fun OutfitScreen(
                             }
                         )
                     },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
                     shape = RoundedCornerShape(12.dp),
                     enabled = selectedItems.isNotEmpty()
                 ) {
@@ -148,7 +150,9 @@ fun OutfitScreen(
                         outfitViewModel.clearOutfitState() // Clear the outfit state
                         clothingItemViewModel.clearClothingItemState() // Clear the selected items state
                     },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
                     shape = RoundedCornerShape(12.dp),
                     enabled = selectedItems.isNotEmpty()
                 ) {
@@ -392,7 +396,8 @@ fun ClothingCategorySelection(onSelectCategory: (ClothingCategory) -> Unit) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2), // Two columns
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
@@ -766,57 +771,4 @@ fun OutfitScreenFooter(
             enabled = isDoneEnabled
         ) { Text("Done") }
     }
-}
-
-
-@Composable
-fun CreateNewOutfit() {
-
-    // message pop - if the user would like to save or discard the outfit
-
-    // if save - show the save screen
-
-    // if discard - discard the outfit and show the create outfit screen again
-}
-
-@Preview
-@Composable
-fun OutfitItemsOptions()
-{
-
-}
-
-@Preview
-@Composable
-fun OutfitCollageArea()
-{
-
-}
-
-@Preview
-@Composable
-fun DoneButton()
-{
-
-}
-
-@Preview
-@Composable
-fun GoBackButton()
-{
-
-}
-
-@Preview
-@Composable
-fun SaveButton()
-{
-    // save created outfit in a repo - "Friday Looks", "Business Casuals" etc.
-}
-
-@Preview
-@Composable
-fun AddToCalendarButton()
-{
-
 }
