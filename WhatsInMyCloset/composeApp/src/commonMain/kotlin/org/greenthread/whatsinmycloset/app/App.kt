@@ -56,6 +56,7 @@ import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.dto.MessageUserDto
 import org.greenthread.whatsinmycloset.core.dto.toOtherSwapDto
+import org.greenthread.whatsinmycloset.core.managers.CalendarManager
 import org.greenthread.whatsinmycloset.core.managers.WardrobeManager
 import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.OutfitViewModel
@@ -167,6 +168,7 @@ fun App(
 ) {
     val wardrobeManager = koinInject<WardrobeManager>()
     val userManager = koinInject<UserManager>()
+    val calendarManager = koinInject<CalendarManager>()
     val navController = rememberNavController()
     val loginViewModel: LoginViewModel = koinViewModel()
 
@@ -283,8 +285,11 @@ fun App(
 
                     composable<Routes.OutfitDetailScreen> { backStackEntry ->
                         val outfitId = backStackEntry.arguments?.getString("outfitId")
+                        val postViewModel: PostViewModel = koinViewModel()
+
                         if (outfitId != null) {
-                            OutfitDetailScreen(outfitId, navController)
+                            OutfitDetailScreen(outfitId, calendarManager,
+                                navController, postViewModel)
                         }
                     }
 

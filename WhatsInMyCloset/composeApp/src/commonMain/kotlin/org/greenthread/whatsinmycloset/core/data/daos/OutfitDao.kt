@@ -23,6 +23,9 @@ interface OutfitDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)    // to avoid outfit id conflict
     suspend fun insertOutfit(outfit: OutfitEntity)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertOrUpdateAll(outfits: List<OutfitEntity>)
+
     // Delete an outfit
     @Query("DELETE FROM outfits WHERE outfitId = :outfitId")
     suspend fun deleteOutfit(outfitId: String)

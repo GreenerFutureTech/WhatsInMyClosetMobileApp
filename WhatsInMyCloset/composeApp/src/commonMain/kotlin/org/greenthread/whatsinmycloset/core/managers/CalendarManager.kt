@@ -4,11 +4,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.LocalDate
+import org.greenthread.whatsinmycloset.core.domain.models.CalendarEntry
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.domain.models.toCalendarEntry
 import org.greenthread.whatsinmycloset.core.repositories.CalendarRepository
 import org.greenthread.whatsinmycloset.core.domain.models.toOutfit
+import org.greenthread.whatsinmycloset.core.persistence.Converters
 
 open class CalendarManager(
     private val calendarRepository: CalendarRepository,
@@ -18,22 +21,27 @@ open class CalendarManager(
 
     private val currentUser = userManager.currentUser // Get the current user
 
-    // Get outfits for the current user
-    open suspend fun getOutfitsFromCalendar(): List<Outfit> {
+    suspend fun getOutfitForDate(date: LocalDate): Outfit? {
         return withContext(Dispatchers.IO) {
-            currentUser.value?.id?.let {
-                calendarRepository.getOutfitsFromCalendar(it)
-                    .first()  // Collects the first emitted value from Flow
-                    .map { calendarEntry -> calendarEntry.toOutfit() }
-            }!! // Convert CalendarEntry to Outfit
+            try {
+                currentUser.value?.id?.let { userId ->
+                    calendarRepository.getOutfitForDate(userId, date)
+                        .first()
+                        ?.let { outfit ->
+                            // Apply any additional transformations if needed
+                            outfit
+                        }
+                }
+            } catch (e: Exception) {
+                println("Error getting outfit: ${e.message}")
+                null
+            }
         }
     }
 
+    suspend fun saveOutfitToCalendar(calendarEntry: CalendarEntry): Boolean {
 
-
-    suspend fun saveOutfitToCalendar(outfit: Outfit): Boolean {
-        val entry = outfit.toCalendarEntry(currentUser.value?.id.toString())
-        return calendarRepository.saveOutfitToCalendar(entry)
+        return calendarRepository.saveOutfitToCalendar(calendarEntry)
     }
 
 }

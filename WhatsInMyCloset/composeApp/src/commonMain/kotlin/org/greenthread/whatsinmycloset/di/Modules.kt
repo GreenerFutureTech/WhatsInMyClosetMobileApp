@@ -6,10 +6,12 @@ import org.greenthread.whatsinmycloset.core.data.HttpClientFactory
 import org.greenthread.whatsinmycloset.core.data.MyClosetDatabase
 import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
+import org.greenthread.whatsinmycloset.core.managers.CalendarManager
 import org.greenthread.whatsinmycloset.core.managers.OutfitManager
 import org.greenthread.whatsinmycloset.core.managers.WardrobeManager
 import org.greenthread.whatsinmycloset.core.network.KtorRemoteDataSource
 import org.greenthread.whatsinmycloset.core.network.RemoteClosetDataSource
+import org.greenthread.whatsinmycloset.core.repositories.CalendarRepository
 import org.greenthread.whatsinmycloset.core.repositories.OutfitRepository
 import org.greenthread.whatsinmycloset.core.repositories.OutfitTags
 import org.greenthread.whatsinmycloset.core.repositories.WardrobeRepository
@@ -52,6 +54,8 @@ val sharedModule = module {
     singleOf(::OutfitRepository).bind<OutfitRepository>()
     singleOf(::OutfitManager).bind<OutfitManager>()
     singleOf(::OutfitTags).bind<OutfitTags>()
+    singleOf(::CalendarRepository).bind<CalendarRepository>()
+    singleOf(::CalendarManager).bind<CalendarManager>()
 
     single {
         get<DatabaseFactory>().create()
@@ -61,6 +65,7 @@ val sharedModule = module {
     single{ get<MyClosetDatabase>().wardrobeDao()}
     single{ get<MyClosetDatabase>().itemDao()}
     single{ get<MyClosetDatabase>().outfitDao()}
+    single{ get<MyClosetDatabase>().calendarDao()}
 
     viewModelOf(::HomeTabViewModel)
     viewModelOf(::AddItemScreenViewModel)
