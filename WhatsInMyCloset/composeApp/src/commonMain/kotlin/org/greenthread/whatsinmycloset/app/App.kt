@@ -282,7 +282,7 @@ fun App(
                         val postViewModel: PostViewModel = koinViewModel()
 
                         if (outfitId != null) {
-                            OutfitDetailScreen(outfitId, userManager, calendarManager,
+                            OutfitDetailScreen(outfitId, calendarManager,
                                 navController, postViewModel)
                         }
                     }

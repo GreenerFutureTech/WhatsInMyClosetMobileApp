@@ -76,7 +76,7 @@ import whatsinmycloset.composeapp.generated.resources.category_label_footwear
 import whatsinmycloset.composeapp.generated.resources.category_label_tops
 import whatsinmycloset.composeapp.generated.resources.create_outfit_button
 import whatsinmycloset.composeapp.generated.resources.favourite_section_title
-import whatsinmycloset.composeapp.generated.resources.outfit_day_button
+import whatsinmycloset.composeapp.generated.resources.outfit_calendar
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -244,7 +244,7 @@ fun BottomButtonsRow(
         )
         ActionButtonItem(
             onClick = {},
-            text =  Res.string.outfit_day_button,
+            text =  Res.string.outfit_calendar,
             icon = Icons.Rounded.DateRange,
         )
     }

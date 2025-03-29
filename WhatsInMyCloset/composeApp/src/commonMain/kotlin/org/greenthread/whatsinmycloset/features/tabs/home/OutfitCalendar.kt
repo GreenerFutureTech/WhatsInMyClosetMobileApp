@@ -33,6 +33,7 @@ fun OutfitDatePicker(
     onDismiss: () -> Unit,
     outfitViewModel: OutfitViewModel,
     selectedTags: Set<String>,
+    navController: NavController,
     onSuccess: () -> Unit = {}
 ) {
     val dateToday = Clock.System.now().toEpochMilliseconds()
@@ -42,6 +43,7 @@ fun OutfitDatePicker(
     var showConfirmation by remember { mutableStateOf(false) } // Track confirmation dialog
     var showDiscardDialog by remember { mutableStateOf(false) } // Track discard dialog
     var showOutfitNameDialog by remember { mutableStateOf(false) }
+    var outfitName by remember { mutableStateOf("") }
 
     var selectedDate by remember { mutableStateOf("") }
 
@@ -78,6 +80,7 @@ fun OutfitDatePicker(
                 onDismiss()
             },
             onSave = { name ->
+                outfitName = name
                 outfitViewModel.viewModelScope.launch {
                     val success = outfitViewModel.saveOutfit(
                         selectedTags = selectedTags.toList(),
@@ -100,10 +103,12 @@ fun OutfitDatePicker(
     if (showConfirmation) {
         ConfirmationDialog(
 
-            message = "Outfit added to date $selectedDate",
+            message = "$outfitName added to date $selectedDate",
             onDismiss = {
                 showConfirmation = false
-                onDismiss() // Only dismiss after confirmation is closed
+                navController.navigate(Routes.HomeTab){
+                    popUpTo(Routes.HomeTab) { inclusive = true }
+                }
             }
         )
     }
@@ -143,7 +148,7 @@ fun DiscardConfirmationDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Cancel adding outfit to calendar") },
-        text = { Text("Are you sure you don't want to add outfit to calendar?") },
+        text = { Text("Are you sure you want to cancel?") },
         confirmButton = {
             TextButton(onClick = onConfirm) {
                 Text("Yes")
@@ -166,10 +171,6 @@ fun OutfitOfTheDayCalendar(
     val calendarEvents by outfitViewModel.calendarEvents.collectAsState()
     var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
 
-    // TODO get outfit dates from backend Calendar Entity
-    val outfitDates = remember(calendarEvents) {
-    }
-
     val dateToday = Clock.System.now().toEpochMilliseconds()
 
     // State for the DatePicker
@@ -187,20 +188,10 @@ fun OutfitOfTheDayCalendar(
                 onClick = {
                     datePickerState.selectedDateMillis?.let { millis ->
                         selectedDate = DateUtils.millisToLocalDate(millis)
-                        // TODO check if the selected date has an outfit saved
-                        // val hasOutfit = outfitDates.containsKey(selectedDate)
-                        val hasOutfit = true
-
-                        if (hasOutfit) {
-                            navController.navigate(
-                                Routes.OutfitDetailScreen(
-                                    selectedDate.toString())
-                            )
-                        } else {
-                            navController.navigate(
-                                Routes.CreateOutfitScreen(selectedDate.toString())
-                            )
-                        }
+                        navController.navigate(
+                            Routes.OutfitDetailScreen(
+                                selectedDate.toString())
+                        )
                     }
                 }
             ) {

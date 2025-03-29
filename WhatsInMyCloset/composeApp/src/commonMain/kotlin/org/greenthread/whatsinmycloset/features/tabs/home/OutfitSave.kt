@@ -66,6 +66,7 @@ fun OutfitSaveScreen(
 
         var showCreateTagDialog by remember { mutableStateOf(false) }
         var showCalendarDialog by remember { mutableStateOf(false) }
+        var showCalendarConfirmationDialog by remember { mutableStateOf(false) }
         var showDiscardDialog by remember { mutableStateOf(false) }
         var showOutfitNameDialog by remember { mutableStateOf(false) }
 
@@ -135,8 +136,8 @@ fun OutfitSaveScreen(
                                 println("Saving outfit: $outfit with tags ${selectedTags}") // Debugging statement
                                 if(selectedTags.isNotEmpty())
                                 {
-                                    // pop up to get outfit name from user
-                                    showOutfitNameDialog = true
+                                    // pop up to ask user if they would like to add outfit to calendar
+                                    showCalendarConfirmationDialog = true
                                 }
                             }
                             onDone() // Trigger the onDone callback
@@ -151,17 +152,7 @@ fun OutfitSaveScreen(
                         onClick = { showCreateTagDialog = true},
                         modifier = Modifier.width(210.dp)
                     ) {
-                        Text("+ Create New Outfit Tag")
-                    }
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    // Add to Calendar button
-                    Button(
-                        onClick = { showCalendarDialog = true },
-                        modifier = Modifier.width(210.dp)
-                    ) {
-                        Text("Add to Calendar")
+                        Text("Create New Outfit Tag")
                     }
                 }
             }   // end of Lazy Column
@@ -197,13 +188,46 @@ fun OutfitSaveScreen(
                 )
             }
 
+            // Calendar Confirmation Dialog
+            if (showCalendarConfirmationDialog) {
+                AlertDialog(
+                    onDismissRequest = { showCalendarConfirmationDialog = false },
+                    title = { Text("Add to Calendar?") },
+                    text = { Text("Would you like to add this outfit to calendar?") },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                showCalendarConfirmationDialog = false
+                                showCalendarDialog = true
+                            }
+                        ) {
+                            Text("Yes")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = {
+                                showCalendarConfirmationDialog = false
+                                // If not adding to calendar, just get outfit name
+                                showOutfitNameDialog = true
+                            }
+                        ) {
+                            Text("No")
+                        }
+                    }
+                )
+            }
+
             // Show Calendar Dialog
             if (showCalendarDialog) {
                 OutfitDatePicker(
                     onDismiss = { showCalendarDialog = false },
                     outfitViewModel = outfitViewModel,
-                    selectedTags = selectedTags
+                    selectedTags = selectedTags,
+                    navController = navController
                 )
+
+                // if no, get name for the outfit and save it
             }
 
             // Show discard confirmation dialog when "x" is clicked
