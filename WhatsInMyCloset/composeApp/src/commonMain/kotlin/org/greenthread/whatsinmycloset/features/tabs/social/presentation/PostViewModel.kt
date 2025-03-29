@@ -79,4 +79,60 @@ open class PostViewModel(
             )
         }
     }
+
+    fun fetchOutfitById(outfitId: String) {
+        viewModelScope.launch {
+            val currentOutfit = _state.value.outfits.find { it.outfitId == outfitId }
+
+            if (currentOutfit == null) {
+                _state.update { state ->
+                    state.copy(
+                        outfits = state.outfits + OutfitState(
+                            outfitId = outfitId,
+                            name = "",
+                            itemIds = emptyList(),
+                            isLoading = true
+                        )
+                    )
+                }
+            }
+
+            itemRepository.getOutfitById(outfitId)
+                .onSuccess { outfitDto ->
+                    _state.update {state ->
+                        val updatedOutfits = state.outfits.map { outfit ->
+                            if (outfit.outfitId == outfitId) {
+                                outfit.copy(
+                                    name = outfitDto.name,
+                                    itemIds = outfitDto.itemIds,
+                                    tags = outfitDto.tags,
+                                    createdAt = outfitDto.createdAt,
+                                    isLoading = false
+                                )
+                            } else {
+                                outfit
+                            }
+                        }
+                        state.copy(outfits = updatedOutfits)
+                    }
+
+                    // Fetch items separately
+                    fetchItemsForOutfit(outfitId)
+                }
+                .onError { error ->
+                    _state.update { state ->
+                        val updatedOutfits = state.outfits.map { outfit ->
+                            if (outfit.outfitId == outfitId) {
+                                outfit.copy(isLoading = false)
+                            } else {
+                                outfit
+                            }
+                        }
+                        state.copy(outfits = updatedOutfits)
+                    }
+                    println("Error fetching outfit: $error")
+                }
+
+        }
+    }
 }
