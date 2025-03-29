@@ -8,7 +8,7 @@ class User(
     val username: String,
     val email: String,
     val name: String,
-    val firebaseUuid: String,
+    val firebaseUuid: String?,
     val fcmToken: String? = null,
     val profilePicture: String? = null,
     val type: String? = null,

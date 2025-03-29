@@ -3,6 +3,8 @@ package org.greenthread.whatsinmycloset.features.tabs.social.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.greenthread.whatsinmycloset.core.domain.getOrNull
@@ -21,34 +23,49 @@ open class PostViewModel(
     private val _state = MutableStateFlow(PostState())
     val state = _state
 
+    // holds the refreshing state for UI updates when refreshing
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
+
+    fun refresh() {
+        fetchAllOutfitData()
+    }
+
     fun fetchAllOutfitData() {
         viewModelScope.launch {
             _state.update{ it.copy( isLoading = true) }
-            itemRepository.getAllOutfits()
-                .onSuccess { outfits ->
-                    val outfitsList = outfits.map { outfit ->
-                        OutfitState(
-                            outfitId = outfit.id,
-                            name = outfit.name,
-                            itemIds = outfit.itemIds,
-                            isLoading = true
-                        )
+
+            currentUser.value?.id?.let {
+                itemRepository.getFriendsOutfits(it)
+                    .onSuccess { outfits ->
+                        val outfitsList = outfits.map { outfit ->
+                            OutfitState(
+                                outfitId = outfit.id,
+                                name = outfit.name,
+                                itemIds = outfit.itemIds,
+                                isLoading = true,
+                                username = outfit.creator?.username,
+                                profilePicture = outfit.creator?.profilePicture,
+                            )
+                        }
+                        println("OUTFIT LIST: $outfitsList")
+
+                        _state.update {
+                            it.copy(
+                                outfits = outfitsList,
+                                isLoading = false
+                            )
+                        }
+                        // Load items for each outfit
+                        outfitsList.forEach { outfit ->
+                            fetchItemsForOutfit(outfit.outfitId)
+                        }
                     }
-                    _state.update {
-                        it.copy(
-                            outfits = outfitsList,
-                            isLoading = false
-                        )
+                    .onError { error ->
+                        println("==============================ERROR FETCH API $error==============================")
+                        _state.update { it.copy(isLoading = false) }
                     }
-                    // Load items for each outfit
-                    outfitsList.forEach { outfit ->
-                        fetchItemsForOutfit(outfit.outfitId)
-                    }
-                }
-                .onError { error ->
-                    println("==============================ERROR FETCH API $error==============================")
-                    _state.update { it.copy(isLoading = false) }
-                }
+            }
         }
     }
 
@@ -91,7 +108,9 @@ open class PostViewModel(
                             outfitId = outfitId,
                             name = "",
                             itemIds = emptyList(),
-                            isLoading = true
+                            isLoading = true,
+                            username = "",
+                            profilePicture = ""
                         )
                     )
                 }
@@ -99,16 +118,25 @@ open class PostViewModel(
 
             itemRepository.getOutfitById(outfitId)
                 .onSuccess { outfitDto ->
+
                     _state.update {state ->
                         val updatedOutfits = state.outfits.map { outfit ->
                             if (outfit.outfitId == outfitId) {
-                                outfit.copy(
+                                val updatedOutfit = outfit.copy(
                                     name = outfitDto.name,
                                     itemIds = outfitDto.itemIds,
                                     tags = outfitDto.tags,
                                     createdAt = outfitDto.createdAt,
                                     isLoading = false
                                 )
+
+                                // Explicitly set the username and profilePicture
+                                val finalOutfit = updatedOutfit.copy(
+                                    username = outfitDto.creator?.username,
+                                    profilePicture = outfitDto.creator?.profilePicture
+                                )
+
+                                finalOutfit
                             } else {
                                 outfit
                             }
