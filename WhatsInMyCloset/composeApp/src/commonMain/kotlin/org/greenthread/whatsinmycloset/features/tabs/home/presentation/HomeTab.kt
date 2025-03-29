@@ -252,7 +252,7 @@ fun BottomButtonsRow(
             text = Res.string.create_outfit_button,
             onClick = {
                 if (navController.currentBackStackEntry != null) {
-                    navController.navigate(Routes.CreateOutfitScreen.Default)
+                    navController.navigate(Routes.CreateOutfitScreen)
                 }
             }
         )

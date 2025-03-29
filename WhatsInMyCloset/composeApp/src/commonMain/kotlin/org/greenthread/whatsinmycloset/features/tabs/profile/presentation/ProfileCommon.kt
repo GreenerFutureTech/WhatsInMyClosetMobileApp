@@ -51,7 +51,7 @@ fun ProfilePicture(profilePicture: String?) {
             .size(60.dp)
             .aspectRatio(1f)
             .clip(CircleShape)
-            .border(2.dp, MaterialTheme.colorScheme.secondary, CircleShape),
+            .border(1.dp, MaterialTheme.colorScheme.secondary, CircleShape),
         contentScale = ContentScale.Crop,
         error = painterResource(Res.drawable.defaultUser)
     )
@@ -86,14 +86,19 @@ fun FriendsCount(
         onClick = onClick,
         modifier = modifier
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Row(
+            modifier = modifier
+        )
+        {
             Text(
                 text = friendsCount.toString(),
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
             )
             Text(
                 text = "Friends",
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(8.dp)
             )
         }
     }
@@ -179,8 +184,6 @@ fun ProfileRowSection(
             )
 
         }
-
-
     } else {
         LazyRow(
             modifier = Modifier

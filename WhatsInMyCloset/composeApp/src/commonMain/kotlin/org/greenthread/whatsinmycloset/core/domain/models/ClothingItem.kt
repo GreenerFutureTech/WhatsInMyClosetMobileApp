@@ -7,7 +7,8 @@ enum class ClothingCategory(val categoryName: String) {
     TOPS("Tops"),
     BOTTOMS("Bottoms"),
     FOOTWEAR("Footwear"),
-    ACCESSORIES("Accessories");
+    ACCESSORIES("Accessories"),
+    ALL("All");
 
     companion object {
         fun fromString(value: String): ClothingCategory {
@@ -16,6 +17,7 @@ enum class ClothingCategory(val categoryName: String) {
                 "bottoms" -> BOTTOMS
                 "footwear" -> FOOTWEAR
                 "accessories" -> ACCESSORIES
+                "all" -> ALL
                 else -> throw IllegalArgumentException("Unknown category: $value")
             }
         }
@@ -25,13 +27,11 @@ enum class ClothingCategory(val categoryName: String) {
 @Serializable
 data class ClothingItem(
     val id: String = "",
-    val name: String = "", // Name of the item (e.g., "Red Dress")
+    val name: String = "",
     val wardrobeId: String = "",
     val itemType: ClothingCategory,
     val mediaUrl: String? = "",
     val tags: List<String> = listOf(""),
-    //val position: OffsetData? = null, // Add position data
-    //val temporaryPosition: OffsetData? = null,
     val condition: String? = "",
     val brand: String? = "",
     val size: String? = "",
@@ -51,71 +51,3 @@ fun ClothingItem.toEntity(): ClothingItemEntity {
         createdAt = this.createdAt
     )
 }
-
-// Function to give dummy set of clothing to create a test outfit
-fun generateSampleClothingItems(): List<ClothingItem> {
-    return listOf(
-        ClothingItem(
-            id = "1",
-            name = "TOPS",
-            itemType = ClothingCategory.TOPS,
-            mediaUrl = null
-        ),
-        ClothingItem(
-            id = "2",
-            name = "BOTTOMS",
-            itemType = ClothingCategory.BOTTOMS,
-            mediaUrl = null
-        ),
-        ClothingItem(
-            id = "3",
-            name = "FOOTWEAR",
-            itemType = ClothingCategory.FOOTWEAR,
-            mediaUrl = null
-        ),
-        ClothingItem(
-            id = "4",
-            name = "ACCESSORIES",
-            itemType = ClothingCategory.ACCESSORIES,
-            mediaUrl = null,
-            tags = listOf("fashionable", "accessory")
-        )
-    )
-}
-
-
-fun generateRandomClothingItems(category: String, numberOfItems: Int): List<ClothingItem> {
-    val items = List(numberOfItems) { index ->
-        val itemId = (index + 1).toString()
-
-        val clothingCategory = try {
-            ClothingCategory.valueOf(category.uppercase())
-        } catch (e: IllegalArgumentException) {
-            ClothingCategory.ACCESSORIES // Default fallback
-        }
-
-        val itemName = when (clothingCategory) {
-            ClothingCategory.TOPS -> "T-shirt ${index + 1}"
-            ClothingCategory.BOTTOMS -> "Jeans ${index + 1}"
-            ClothingCategory.FOOTWEAR -> "Sneakers ${index + 1}"
-            ClothingCategory.ACCESSORIES -> "Hat ${index + 1}"
-        }
-
-        val tags = when (clothingCategory) {
-            ClothingCategory.TOPS -> setOf("casual", "comfortable")
-            ClothingCategory.BOTTOMS -> setOf("casual", "denim")
-            ClothingCategory.FOOTWEAR -> setOf("sporty", "comfortable")
-            ClothingCategory.ACCESSORIES -> setOf("fashionable", "outdoor")
-        }
-
-        ClothingItem(
-            id = itemId,
-            name = itemName,
-            itemType = clothingCategory,
-            mediaUrl = null
-        )
-    }
-
-    return items
-}
-

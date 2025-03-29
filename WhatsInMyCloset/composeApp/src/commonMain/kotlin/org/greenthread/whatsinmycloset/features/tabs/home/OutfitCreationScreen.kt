@@ -12,13 +12,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.domain.models.OffsetData
-import org.greenthread.whatsinmycloset.core.domain.models.generateRandomClothingItems
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.rememberScrollState
@@ -48,7 +47,6 @@ import org.greenthread.whatsinmycloset.core.viewmodels.OutfitViewModel
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 import org.jetbrains.compose.resources.painterResource
 import whatsinmycloset.composeapp.generated.resources.Res
-import whatsinmycloset.composeapp.generated.resources.top1
 import whatsinmycloset.composeapp.generated.resources.wardrobe
 
 
@@ -58,9 +56,7 @@ fun OutfitScreen(
     clothingItemViewModel: ClothingItemViewModel,
     outfitViewModel: OutfitViewModel
 ) {
-
     WhatsInMyClosetTheme {
-
         // Collect state from ViewModels
         val wardrobes by outfitViewModel.cachedWardrobes.collectAsState()
         val selectedWardrobeId by remember(outfitViewModel) {
@@ -83,73 +79,86 @@ fun OutfitScreen(
         val onPositionUpdate = { itemId: String, newPosition: OffsetData ->
             outfitViewModel.updateItemPosition(itemId, newPosition)
         }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(2.dp),
             horizontalAlignment = Alignment.CenterHorizontally
-        )
-        {
-
+        ) {
             // Header
             OutfitScreenHeader(
                 onExit = { showExitDialog = true },  // Discard Outfit Creation
                 title = "Create Your Outfit"
             )
 
-            // Outfit collage area will show the selectedClothingItems
-            OutfitCollageArea(
-                selectedClothingItems = selectedItems,
-                onPositionUpdate = onPositionUpdate
-            )
-
-            // Clothing category selection
-            ClothingCategorySelection { selectedCategory ->
-                // Convert the selected category string to ClothingCategory enum
-                val categoryEnum = ClothingCategory.fromString(selectedCategory.categoryName)
-                if (categoryEnum != null) {
-                    // Navigate to the category items screen showing all items in that category
-                    navController.navigate(Routes.CategoryItemScreen(categoryEnum.toString()))
-                } else {
-                    // Handle invalid category (e.g., show an error message)
-                    println("Invalid category selected: ${selectedCategory.categoryName}")
-                }
+            // Outfit collage area - Give it weight to expand and fill available space
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+            ) {
+                OutfitCollageArea(
+                    selectedClothingItems = selectedItems,
+                    onPositionUpdate = onPositionUpdate
+                )
             }
 
-            // show additional options when there is at least one item in outfit area
-            if (selectedItems.isNotEmpty()) {
-                // Save Outfit button
-                Button(
-                    onClick = {
-                        outfitViewModel.createOutfit(
-                            name = "New Outfit",    // TODO take name from user else Default Name
-                            onSuccess = {
-                                navController.navigate(Routes.OutfitSaveScreen)
-                            }
-                        )
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = selectedItems.isNotEmpty()
-                ) {
-                    Text("Save Outfit")
+            // Bottom controls section
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+            ) {
+                // Clothing category selection
+                ClothingCategorySelection { selectedCategory ->
+                    // Convert the selected category string to ClothingCategory enum
+                    val categoryEnum = ClothingCategory.fromString(selectedCategory.categoryName)
+                    navController.navigate(Routes.CategoryItemScreen(categoryEnum.toString()))
                 }
 
-                // Create New Outfit button
-                Button(
-                    onClick = {
-                        // Discard the current outfit and create a new one
-                        outfitViewModel.discardCurrentOutfit()
-                        outfitViewModel.clearOutfitState() // Clear the outfit state
-                        clothingItemViewModel.clearClothingItemState() // Clear the selected items state
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = selectedItems.isNotEmpty()
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Button Row for Save and Reset
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text("Reset")
+                    // Reset button
+                    Button(
+                        onClick = {
+                            // Discard the current outfit and create a new one
+                            outfitViewModel.discardCurrentOutfit()
+                            outfitViewModel.clearOutfitState() // Clear the outfit state
+                            clothingItemViewModel.clearClothingItemState() // Clear the selected items state
+                        },
+                        modifier = Modifier.weight(0.5f),
+                        enabled = selectedItems.isNotEmpty()
+                    ) {
+                        Text("Reset")
+                    }
+
+                    // Save Outfit button
+                    Button(
+                        onClick = {
+                            outfitViewModel.createOutfit(
+                                name = "New Outfit",
+                                onSuccess = {
+                                    navController.navigate(Routes.OutfitSaveScreen)
+                                }
+                            )
+                        },
+                        modifier = Modifier.weight(1f),
+                        enabled = selectedItems.isNotEmpty()
+                    ) {
+                        Text("Save Outfit")
+                    }
+
                 }
             }
         }   // end of Column
-
 
         // Show Exit Dialog
         if (showExitDialog) {
@@ -201,9 +210,6 @@ fun WardrobeDropdown(
             )
         }
     }
-    /*Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-
-    }*/
 }
 
 @Composable
@@ -226,7 +232,7 @@ fun DiscardOutfitDialog(
             }
         }
     )
-}   /* end of DiscardOutfitDialog */
+}
 
 // show the items user selected to create an outfit
 @Composable
@@ -249,12 +255,7 @@ fun OutfitCollageArea(
             .background(Color.LightGray)
     )
     {
-        if (selectedClothingItems.isEmpty()) {
-            Text("No items selected",
-                color = Color.Gray,
-                textAlign = TextAlign.Center)
-        }
-        else
+        if (selectedClothingItems.isNotEmpty())
         {
             // Track positions by item ID instead of index
             val itemPositions = remember { mutableStateMapOf<String, OffsetData>() }
@@ -368,14 +369,14 @@ fun DraggableClothingItem(
 // shows all category options
 @Composable
 fun ClothingCategorySelection(onSelectCategory: (ClothingCategory) -> Unit) {
-    val categories = ClothingCategory.values()
+    val categories = ClothingCategory.entries.toTypedArray()
 
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2), // Two columns
+    LazyRow(
         modifier = Modifier
-            .fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(2.dp),
-        horizontalArrangement = Arrangement.spacedBy(2.dp)
+            .fillMaxWidth()
+            .padding(vertical = 8.dp), // Add some vertical padding
+        horizontalArrangement = Arrangement.spacedBy(8.dp), // Space between buttons
+        contentPadding = PaddingValues(horizontal = 16.dp) // Padding at start and end
     ) {
         items(categories.size) { index ->
             val thisItem = categories[index]
@@ -383,7 +384,7 @@ fun ClothingCategorySelection(onSelectCategory: (ClothingCategory) -> Unit) {
             Button(
                 onClick = { onSelectCategory(thisItem) },
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .height(48.dp) // Fixed height for consistent buttons
             ) {
                 Text(
                     text = thisItem.categoryName,
@@ -407,7 +408,14 @@ fun CategoryItemsScreen(
 ) {
     val categoryEnum = ClothingCategory.fromString(category)
     LaunchedEffect(categoryEnum) {
-        viewModel.setCategoryFilter(categoryEnum)
+        if (categoryEnum == ClothingCategory.ALL)
+        {
+            viewModel.setCategoryFilter(null)
+        }
+        else
+        {
+            viewModel.setCategoryFilter(categoryEnum)
+        }
     }
 
     val categoryItems by viewModel.filteredItems.collectAsState()
@@ -504,18 +512,17 @@ fun CategoryItemsScreen(
             }
         }
 
-        if (isSelectionMode) {
-            OutfitScreenFooter(
-                onDone = {
-                    val selectedItems = categoryItems.filter {
-                        selectedItemKeys.contains(it.id to it.itemType)
-                    }
-                    viewModel.addSelectedItems(selectedItems)
-                    navController.navigate(Routes.CreateOutfitScreen.Default)
-                },
-                isDoneEnabled = selectedItemKeys.isNotEmpty()
-            )
-        }
+        OutfitScreenFooter(
+            onDone = {
+                val selectedItems = categoryItems.filter {
+                    selectedItemKeys.contains(it.id to it.itemType)
+                }
+                viewModel.addSelectedItems(selectedItems)
+                navController.navigate(Routes.CreateOutfitScreen)
+            },
+            isDoneEnabled = true
+        )
+
     }
 } /* end of CategoryItemsScreen */
 
@@ -528,11 +535,6 @@ fun CategoryItem(
     onItemSelected: (ClothingItem) -> Unit, // For selection mode
     onItemClicked: (ClothingItem) -> Unit // For detail mode
 ) {
-
-    // Log the isSelected state for debugging
-    println("CategoryItem: ${item.name}, isSelected: $isSelected")
-
-
     Box(
         modifier = Modifier
             .padding(4.dp)
@@ -743,57 +745,4 @@ fun OutfitScreenFooter(
             enabled = isDoneEnabled
         ) { Text("Done") }
     }
-}
-
-
-@Composable
-fun CreateNewOutfit() {
-
-    // message pop - if the user would like to save or discard the outfit
-
-    // if save - show the save screen
-
-    // if discard - discard the outfit and show the create outfit screen again
-}
-
-@Preview
-@Composable
-fun OutfitItemsOptions()
-{
-
-}
-
-@Preview
-@Composable
-fun OutfitCollageArea()
-{
-
-}
-
-@Preview
-@Composable
-fun DoneButton()
-{
-
-}
-
-@Preview
-@Composable
-fun GoBackButton()
-{
-
-}
-
-@Preview
-@Composable
-fun SaveButton()
-{
-    // save created outfit in a repo - "Friday Looks", "Business Casuals" etc.
-}
-
-@Preview
-@Composable
-fun AddToCalendarButton()
-{
-
 }
