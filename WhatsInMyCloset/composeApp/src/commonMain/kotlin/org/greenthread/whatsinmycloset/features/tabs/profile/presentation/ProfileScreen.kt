@@ -386,6 +386,7 @@ fun ProfileActions(
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.state.collectAsState()
+
     Row(modifier = modifier) {
         when (state.friendshipStatus) {
             FriendshipStatus.NOT_FRIENDS -> {

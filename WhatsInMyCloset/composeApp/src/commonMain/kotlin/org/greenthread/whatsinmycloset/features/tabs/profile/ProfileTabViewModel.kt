@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.greenthread.whatsinmycloset.core.domain.models.Friend
 import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.domain.onError
@@ -30,9 +31,6 @@ class ProfileTabViewModel(
 
     private val _error = MutableStateFlow<String?>(null)
     val error = _error.asStateFlow()
-
-    private val _friendRequestStatus = MutableStateFlow<FriendshipStatus>(FriendshipStatus.NOT_FRIENDS)
-    val friendRequestStatus = _friendRequestStatus.asStateFlow()
 
     // Track the specific friend request for the current profile
     private val _currentProfileRequest = MutableStateFlow<FriendRequest?>(null)
@@ -83,20 +81,28 @@ class ProfileTabViewModel(
     private suspend fun checkFriendRequestStatus(targetUserId: Int) {
         val currentUserId = currentUser.value?.id ?: return
 
-        // Check sent requests
-        userRepository.getSentFriendRequests(currentUserId).onSuccess { sentRequests ->
-            if (sentRequests.any { it.receiverId == targetUserId }) {
-                _state.update { it.copy(friendshipStatus = FriendshipStatus.PENDING) }
+        // Check if already friends
+        userRepository.getFriendsByUserId(currentUserId).onSuccess { friends ->
+            if (friends.any { it.id == targetUserId }) {
+                _state.update { it.copy(friendshipStatus = FriendshipStatus.FRIENDS) }
                 return@onSuccess
             }
 
-            // Check received requests
-            userRepository.getReceivedFriendRequests(currentUserId).onSuccess { receivedRequests ->
-                receivedRequests.firstOrNull { it.senderId == targetUserId }?.let { request ->
-                    _currentProfileRequest.value = request.toDomain()
-                    _state.update { it.copy(friendshipStatus = FriendshipStatus.REQUEST_RECEIVED) }
-                } ?: run {
-                    _state.update { it.copy(friendshipStatus = FriendshipStatus.NOT_FRIENDS) }
+            // Check sent requests
+            userRepository.getSentFriendRequests(currentUserId).onSuccess { sentRequests ->
+                if (sentRequests.any { it.receiverId == targetUserId }) {
+                    _state.update { it.copy(friendshipStatus = FriendshipStatus.PENDING) }
+                    return@onSuccess
+                }
+
+                // Check received requests
+                userRepository.getReceivedFriendRequests(currentUserId).onSuccess { receivedRequests ->
+                    receivedRequests.firstOrNull { it.senderId == targetUserId }?.let { request ->
+                        _currentProfileRequest.value = request.toDomain()
+                        _state.update { it.copy(friendshipStatus = FriendshipStatus.REQUEST_RECEIVED) }
+                    } ?: run {
+                        _state.update { it.copy(friendshipStatus = FriendshipStatus.NOT_FRIENDS) }
+                    }
                 }
             }
         }
@@ -142,7 +148,9 @@ class ProfileTabViewModel(
 
             userRepository.sendFriendRequest(senderId, receiverId)
                 .onSuccess {
-                    _friendRequestStatus.value = FriendshipStatus.PENDING // Update status
+                    _state.update {
+                        it.copy(friendshipStatus = FriendshipStatus.PENDING)
+                    }
                     _error.value = null
                 }
                 .onError { error ->
@@ -156,9 +164,10 @@ class ProfileTabViewModel(
     // Respond to friendship request
     fun respondToRequest(accept: Boolean) {
         val request = _currentProfileRequest.value ?: return
+        val currentState = _state.value
 
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
+            _state.update { it.copy(isLoading = true, error = null) }
 
             // Convert boolean to RequestStatus
             val status = when {
@@ -168,18 +177,65 @@ class ProfileTabViewModel(
 
             userRepository.respondToFriendRequest(request.id, status)
                 .onSuccess {
-                    _state.update {
-                        it.copy(
-                            friendshipStatus = if (accept) FriendshipStatus.FRIENDS
-                            else FriendshipStatus.NOT_FRIENDS
-                        )
+                    if (accept) {
+                        // Fetch sender's details to create a proper Friend object
+                        userRepository.getUserById(request.senderId).onSuccess { senderUser ->
+                            val newFriend = Friend(
+                                id = senderUser.id,
+                                username = senderUser.username,
+                                name = senderUser.name,
+                                profilePicture = senderUser.profilePicture
+                            )
+
+                            // Update friends list
+                            val updatedUser = currentState.user?.copy(
+                                friends = currentState.user.friends.orEmpty() + newFriend
+                            )
+
+                            _state.update {
+                                it.copy(
+                                    user = updatedUser,
+                                    friendshipStatus = FriendshipStatus.FRIENDS,
+                                    isLoading = false
+                                )
+                            }
+
+                            // Also update current user in UserManager
+                            currentUser.value?.let { user ->
+                                userManager.updateUser(
+                                    user.copy(
+                                        friends = user.friends.orEmpty() + newFriend
+                                    )
+                                )
+                            }
+                        }.onError { error ->
+                            _state.update {
+                                it.copy(
+                                    error = "Failed to fetch user details: $error",
+                                    isLoading = false
+                                )
+                            }
+                        }
+                    } else {
+                        // Just update status if declined
+                        _state.update {
+                            it.copy(
+                                friendshipStatus = FriendshipStatus.NOT_FRIENDS,
+                                isLoading = false
+                            )
+                        }
                     }
                 }
                 .onError { error ->
-                    _state.update { it.copy(error = error.toString()) }
+                    _state.update {
+                        it.copy(
+                            error = "Failed to respond to request: $error",
+                            isLoading = false
+                        )
+                    }
                 }
 
-            _state.update { it.copy(isLoading = false) }
+
         }
     }
 
@@ -187,39 +243,42 @@ class ProfileTabViewModel(
     fun removeFriend(friendId: Int) {
         viewModelScope.launch {
             val currentUserId = currentUser.value?.id ?: return@launch
-            _state.update { it.copy(isLoading = true) }
+            _state.update { it.copy(isLoading = true, error = null) }
 
             userRepository.removeFriend(currentUserId, friendId)
                 .onSuccess {
-                    // Convert to DTO and back to safely update friends list
-                    val updatedUser = state.value.user?.toDto()?.let { dto ->
-                        dto.copy(friends = dto.friends?.filter { it.id != friendId })
-                    }?.toModel()
+                    // Update the current user's friends list
+                    val updatedUser = state.value.user?.copy(
+                        friends = state.value.user?.friends?.filter { it.id != friendId }
+                    )
+
+                    // Update UserManager
+                    currentUser.value?.let { user ->
+                        userManager.updateUser(
+                            user.copy(friends = user.friends?.filter { it.id != friendId })
+                        )
+                    }
 
                     // Update state
                     _state.update {
                         it.copy(
+                            user = updatedUser,
                             friendshipStatus = FriendshipStatus.NOT_FRIENDS,
-                            user = updatedUser
-                        )
-                    }
-
-                    // Update UserManager
-                    currentUser.value?.toDto()?.let { dto ->
-                        userManager.updateUser(
-                            dto.copy(friends = dto.friends?.filter { it.id != friendId })
-                                .toModel()
+                            isLoading = false
                         )
                     }
                 }
                 .onError { error ->
-                    _state.update { it.copy(error = error.toString()) }
+                    _state.update { it.copy(
+                        error = "Failed to remove friend: $error",
+                        isLoading = false
+                    ) }
                 }
 
-            _state.update { it.copy(isLoading = false) }
         }
     }
 
+    // Cancel sent request
     fun cancelRequest(receiverId: Int) {
         viewModelScope.launch {
             val senderId = currentUser.value?.id ?: return@launch
@@ -239,3 +298,5 @@ class ProfileTabViewModel(
         }
     }
 }
+
+

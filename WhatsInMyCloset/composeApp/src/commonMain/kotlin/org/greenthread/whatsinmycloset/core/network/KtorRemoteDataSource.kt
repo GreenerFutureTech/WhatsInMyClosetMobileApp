@@ -472,6 +472,14 @@ class KtorRemoteDataSource(
             )
         }
     }
+
+    override suspend fun getFriendsByUserId(userId: Int): Result<List<UserDto>, DataError.Remote> {
+        return safeCall {
+            httpClient.get(
+                urlString = "$BASE_URL/users/$userId/friends"
+            )
+        }
+    }
 }
 
 
