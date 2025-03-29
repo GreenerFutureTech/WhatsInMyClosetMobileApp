@@ -16,21 +16,13 @@ object DateUtils {
 
     fun millisToLocalDate(millis: Long): LocalDate {
         return Instant.fromEpochMilliseconds(millis)
-            .toLocalDateTime(TimeZone.UTC) // Use UTC to avoid timezone shifts
+            .toLocalDateTime(TimeZone.currentSystemDefault())
             .date
     }
 
-    fun CovertDateToString(date: LocalDate)
-    {
-
-    }
 
     fun getCurrentLocalDate(): LocalDate {
         return Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
-    }
-
-    fun getCurrentDate(): String {
-        return getCurrentLocalDate().toString()
     }
 
     fun formatDateString(dateString: String?): String {

@@ -111,7 +111,8 @@ fun OutfitDetailScreen(
                     outfitId != null -> {
                         PostDetailScreen(
                             outfitId = outfitId!!,
-                            viewModel = postViewModel
+                            viewModel = postViewModel,
+                            navController = navController
                         )
                     }
 

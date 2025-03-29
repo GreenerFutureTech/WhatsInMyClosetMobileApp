@@ -24,6 +24,7 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import org.greenthread.whatsinmycloset.app.Routes
 import org.greenthread.whatsinmycloset.core.utilities.DateUtils
+import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.OutfitViewModel
 
 
@@ -32,6 +33,7 @@ import org.greenthread.whatsinmycloset.core.viewmodels.OutfitViewModel
 fun OutfitDatePicker(
     onDismiss: () -> Unit,
     outfitViewModel: OutfitViewModel,
+    clothingItemViewModel: ClothingItemViewModel,
     selectedTags: Set<String>,
     navController: NavController,
     onSuccess: () -> Unit = {}
@@ -88,12 +90,8 @@ fun OutfitDatePicker(
                         addToCalendar = true,
                         date = selectedDate
                     )
-
-                    if (success) {
-                        showConfirmation = true
-                        onSuccess()
-                    }
                     showOutfitNameDialog = false
+                    showConfirmation = true
                 }
             }
         )
@@ -105,6 +103,9 @@ fun OutfitDatePicker(
 
             message = "$outfitName added to date $selectedDate",
             onDismiss = {
+                // clear outfit state for next outfit
+                outfitViewModel.clearOutfitState()
+                clothingItemViewModel.clearClothingItemState()
                 showConfirmation = false
                 navController.navigate(Routes.HomeTab){
                     popUpTo(Routes.HomeTab) { inclusive = true }

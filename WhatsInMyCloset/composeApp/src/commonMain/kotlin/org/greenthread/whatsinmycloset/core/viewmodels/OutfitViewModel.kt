@@ -46,6 +46,9 @@ open class OutfitViewModel(
     private val _filteredItems = MutableStateFlow<List<ClothingItem>>(emptyList())
     val filteredItems: StateFlow<List<ClothingItem>> = _filteredItems.asStateFlow()
 
+    private val _outfitName = MutableStateFlow<String>("NewOutfit")
+    val outfitName: StateFlow<String> = _outfitName.asStateFlow()
+
     // Filter states
     private val _selectedCategory = mutableStateOf<String?>(null)
 
@@ -110,6 +113,7 @@ open class OutfitViewModel(
         addToCalendar: Boolean = false,
         date: String? = null
     ): Boolean {
+        _outfitName.value = outfitName  // Store the outfit name
         val currentOutfit = _currentOutfit.value ?: return false
         val userId = currentUser.value?.id ?: return false
 
@@ -136,6 +140,7 @@ open class OutfitViewModel(
             if (!success) return false
         }
 
+        _isOutfitSaved.value = true
         return true
     }
 
@@ -180,6 +185,7 @@ open class OutfitViewModel(
         _calendarEvents.value = emptyList()
         _isPublic.value = false
         _isOutfitSaved.value = false
+        _outfitName.value = ""
     }
 
     // Public visibility toggle

@@ -62,7 +62,7 @@ fun OutfitSaveScreen(
 
         // retrieve the current outfit user wants to save
         val currentOutfit by outfitViewModel.currentOutfit.collectAsState()
-        var outfitName by remember { mutableStateOf("") }
+        val outfitName by outfitViewModel.outfitName.collectAsState()
 
         var showCreateTagDialog by remember { mutableStateOf(false) }
         var showCalendarDialog by remember { mutableStateOf(false) }
@@ -172,7 +172,6 @@ fun OutfitSaveScreen(
                             )
                         }
                         showOutfitNameDialog = false
-                        onDone()
                     }
                 )
             }
@@ -223,11 +222,10 @@ fun OutfitSaveScreen(
                 OutfitDatePicker(
                     onDismiss = { showCalendarDialog = false },
                     outfitViewModel = outfitViewModel,
+                    clothingItemViewModel = clothingItemViewModel,
                     selectedTags = selectedTags,
                     navController = navController
                 )
-
-                // if no, get name for the outfit and save it
             }
 
             // Show discard confirmation dialog when "x" is clicked
