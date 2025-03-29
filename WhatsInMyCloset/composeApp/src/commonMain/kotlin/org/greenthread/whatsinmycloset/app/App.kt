@@ -503,8 +503,8 @@ fun App(
                         val swapViewModel: SwapViewModel = koinViewModel()
                         val selectedSwapViewModel = backStackEntry.sharedKoinViewModel<SelectedSwapViewModel>(navController)
 
-                        LaunchedEffect(true) {
-                            selectedSwapViewModel.onSelectSwap(null)
+                        LaunchedEffect(args.userId) {
+                            viewModel.loadProfile(args.userId)
                         }
 
                         ProfileScreen(
