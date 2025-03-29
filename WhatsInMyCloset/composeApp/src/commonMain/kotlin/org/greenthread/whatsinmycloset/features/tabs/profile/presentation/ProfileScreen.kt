@@ -258,7 +258,7 @@ private fun ProfileHeader(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        ProfilePicture(user)
+        ProfilePicture(user.profilePicture)
         Username(user.name ?: "No username found", user.username ?: "No username found")
     }
 }

@@ -542,7 +542,9 @@ fun App(
                     }
                     composable<Routes.SocialDetailsScreen> {
                         val args = it.toRoute<Routes.SocialDetailsScreen>()
-                        PostDetailScreen(outfitId = args.outfitId)
+                        val viewModel: PostViewModel = koinViewModel()
+
+                        PostDetailScreen(viewModel = viewModel, navController = navController, outfitId = args.outfitId)
                     }
                 }
 

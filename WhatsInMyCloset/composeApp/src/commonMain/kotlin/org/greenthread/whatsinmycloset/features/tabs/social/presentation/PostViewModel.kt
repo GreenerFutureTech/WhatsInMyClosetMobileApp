@@ -44,9 +44,12 @@ open class PostViewModel(
                                 name = outfit.name,
                                 itemIds = outfit.itemIds,
                                 isLoading = true,
-                                username = outfit.creator?.username
+                                username = outfit.creator?.username,
+                                profilePicture = outfit.creator?.profilePicture,
                             )
                         }
+                        println("OUTFIT LIST: $outfitsList")
+
                         _state.update {
                             it.copy(
                                 outfits = outfitsList,
@@ -105,7 +108,9 @@ open class PostViewModel(
                             outfitId = outfitId,
                             name = "",
                             itemIds = emptyList(),
-                            isLoading = true
+                            isLoading = true,
+                            username = "",
+                            profilePicture = ""
                         )
                     )
                 }
@@ -113,16 +118,25 @@ open class PostViewModel(
 
             itemRepository.getOutfitById(outfitId)
                 .onSuccess { outfitDto ->
+
                     _state.update {state ->
                         val updatedOutfits = state.outfits.map { outfit ->
                             if (outfit.outfitId == outfitId) {
-                                outfit.copy(
+                                val updatedOutfit = outfit.copy(
                                     name = outfitDto.name,
                                     itemIds = outfitDto.itemIds,
                                     tags = outfitDto.tags,
                                     createdAt = outfitDto.createdAt,
                                     isLoading = false
                                 )
+
+                                // Explicitly set the username and profilePicture
+                                val finalOutfit = updatedOutfit.copy(
+                                    username = outfitDto.creator?.username,
+                                    profilePicture = outfitDto.creator?.profilePicture
+                                )
+
+                                finalOutfit
                             } else {
                                 outfit
                             }

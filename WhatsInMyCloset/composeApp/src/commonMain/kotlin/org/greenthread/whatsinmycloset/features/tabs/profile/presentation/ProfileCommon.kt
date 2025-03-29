@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,9 +43,9 @@ import whatsinmycloset.composeapp.generated.resources.no_items_found
 import whatsinmycloset.composeapp.generated.resources.swaps_count_label
 
 @Composable
-fun ProfilePicture(user: User) {
+fun ProfilePicture(profilePicture: String?) {
     AsyncImage(
-        model = user.profilePicture ?: "",
+        model = profilePicture?: "",
         contentDescription = stringResource(Res.string.content_description_user_avatar),
         modifier = Modifier
             .size(60.dp)
