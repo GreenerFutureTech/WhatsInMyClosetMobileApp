@@ -31,5 +31,5 @@ interface CalendarDao {
         INNER JOIN calendar ON outfits.outfitId = calendar.outfitId
         WHERE calendar.date = :date AND calendar.userId = :userId
     """)
-    fun getOutfitsForDate(userId: String, date: String): Flow<List<OutfitEntity>>
+    fun getOutfitForDate(userId: String, date: String): Flow<List<OutfitEntity>>
 }

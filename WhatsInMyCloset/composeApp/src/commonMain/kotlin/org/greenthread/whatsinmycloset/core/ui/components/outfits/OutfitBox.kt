@@ -20,12 +20,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.utilities.CoordinateNormalizer
-import org.greenthread.whatsinmycloset.core.utilities.CoordinateNormalizer.STANDARD_CANVAS_HEIGHT
-import org.greenthread.whatsinmycloset.core.utilities.CoordinateNormalizer.STANDARD_CANVAS_WIDTH
 import org.greenthread.whatsinmycloset.features.tabs.social.data.OutfitState
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
