@@ -2,7 +2,9 @@ package org.greenthread.whatsinmycloset.features.tabs.home.presentation
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -38,18 +40,17 @@ fun ItemDetailScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp),
+                .padding(8.dp)
+                .verticalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Spacer(modifier = Modifier.height(10.dp))
 
-
             Box(
                 modifier = Modifier
                     .padding(20.dp)
                     .fillMaxSize()
-
             ) {
                 Column(
                     modifier = Modifier
