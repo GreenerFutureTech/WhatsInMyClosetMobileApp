@@ -222,7 +222,7 @@ fun ProfileRowSection(
                 .padding(8.dp)
                 .height(100.dp)
         ) {
-            itemsIndexed(swapResults) { index, item ->
+            itemsIndexed(swapResults) { _, item ->
                 SwapImageCard(
                     onSwapClick = {
                         onAction(SwapAction.OnSwapClick(item.itemId.id))
