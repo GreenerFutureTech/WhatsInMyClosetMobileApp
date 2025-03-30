@@ -68,8 +68,6 @@ fun OutfitScreen(
         }
         val selectedItems by clothingItemViewModel.selectedItems.collectAsState()
 
-        var showExitDialog by remember { mutableStateOf(false) }
-
         // Initialize default wardrobe selection
         LaunchedEffect(wardrobes) {
             if (wardrobes.isNotEmpty() && selectedWardrobeId == null) {
@@ -147,28 +145,6 @@ fun OutfitScreen(
             ) {
                 Text("Save Outfit")
             }
-        }
-
-        // Show Exit Dialog
-        if (showExitDialog) {
-            DiscardOutfitDialog(
-                onConfirm = {
-                    showExitDialog = false
-                    // Discard the current outfit and create a new one
-                    outfitViewModel.discardCurrentOutfit()
-                    outfitViewModel.clearOutfitState() // Clear the outfit state
-                    clothingItemViewModel.clearClothingItemState() // Clear the selected items state
-                    navController.navigate(Routes.HomeTab) {
-                        popUpTo(Routes.HomeTab) { inclusive = true }
-                    }
-                },
-                // close exit dialog
-                // don't clear outfit states
-                onDismiss = {
-                    showExitDialog = false
-                    // Don't navigate - stay on current screen
-                }
-            )
         }
     }
 }   /* end of OutfitScreen */
