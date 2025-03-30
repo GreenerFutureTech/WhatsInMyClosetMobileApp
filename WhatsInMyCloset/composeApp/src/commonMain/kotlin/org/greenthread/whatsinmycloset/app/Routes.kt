@@ -1,6 +1,7 @@
 package org.greenthread.whatsinmycloset.app
 
 import kotlinx.serialization.Serializable
+import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 
 sealed interface Routes {
     @Serializable
@@ -94,7 +95,10 @@ sealed interface Routes {
     data object EditProfileScreen: Routes
 
     @Serializable
-    data class HomeCategoryItemScreen(val category: String) : Routes
+    data class HomeCategoryItemScreen(val category: String) : Routes {
+        val categoryName: String
+            get() = ClothingCategory.fromString(category).categoryName ?: category
+    }
 
     @Serializable
     data class ItemDetailScreen(val itemId: String) : Routes

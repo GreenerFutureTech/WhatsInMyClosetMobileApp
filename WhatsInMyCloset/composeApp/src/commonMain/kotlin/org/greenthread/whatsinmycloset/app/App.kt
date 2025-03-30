@@ -147,6 +147,14 @@ fun NavController.getBarVisibility(): BarVisibility {
         Routes.ProfileTab::class.simpleName -> BarVisibility.Custom(disableBack = true, title = "Profile")
         Routes.AddItemScreen::class.simpleName -> BarVisibility.Custom(onlyBack = true, bottomBar = false, title = "Add Item")
 
+        Routes.HomeCategoryItemScreen::class.simpleName -> {
+            val args = navBackStackEntry?.toRoute<Routes.HomeCategoryItemScreen>()
+            BarVisibility.Custom(
+                onlyBack = true,
+                title = args?.categoryName ?: "Category"
+            )
+        }
+
         // Outfit
         //Routes.CreateOutfitScreen::class.simpleName -> BarVisibility.Hidden
         //Routes.CategoryItemScreen::class.simpleName -> BarVisibility.Hidden

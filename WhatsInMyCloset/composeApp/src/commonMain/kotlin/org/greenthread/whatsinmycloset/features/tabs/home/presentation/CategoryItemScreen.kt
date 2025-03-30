@@ -82,12 +82,6 @@ fun CategoryItemScreen(
         modifier = Modifier
             .fillMaxWidth()
     ) {
-        Text(
-            text = category?.name?:"All",
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-
         when {
             isLoading -> {
                 Box(
@@ -109,7 +103,9 @@ fun CategoryItemScreen(
                     searchString = searchString,
                     onSearchStringChange = { searchString = it },
                     onSearch = {},
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
                 )
 
                 LazyVerticalGrid(
