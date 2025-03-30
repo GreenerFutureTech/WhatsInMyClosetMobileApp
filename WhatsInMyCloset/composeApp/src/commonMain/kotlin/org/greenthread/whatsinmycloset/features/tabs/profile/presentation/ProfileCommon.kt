@@ -15,10 +15,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,9 +29,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.SwapImageCard
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.SeeAllButton
+import org.greenthread.whatsinmycloset.features.tabs.profile.ConfirmationType
+import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.Action.SwapAction
 import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
 import org.greenthread.whatsinmycloset.theme.outlineVariantLight
@@ -36,10 +40,18 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import whatsinmycloset.composeapp.generated.resources.Res
+import whatsinmycloset.composeapp.generated.resources.cancel
+import whatsinmycloset.composeapp.generated.resources.cancel_request_button
+import whatsinmycloset.composeapp.generated.resources.cancel_request_dialog
+import whatsinmycloset.composeapp.generated.resources.confirm
 import whatsinmycloset.composeapp.generated.resources.content_description_user_avatar
+import whatsinmycloset.composeapp.generated.resources.decline_request_dialog
+import whatsinmycloset.composeapp.generated.resources.decline_request_type
 import whatsinmycloset.composeapp.generated.resources.defaultUser
 import whatsinmycloset.composeapp.generated.resources.friends_count_label
 import whatsinmycloset.composeapp.generated.resources.no_items_found
+import whatsinmycloset.composeapp.generated.resources.remove_friend_button
+import whatsinmycloset.composeapp.generated.resources.remove_friend_dialog
 import whatsinmycloset.composeapp.generated.resources.swaps_count_label
 
 @Composable
@@ -202,4 +214,43 @@ fun ProfileRowSection(
             }
         }
     }
+}
+
+@Composable
+fun FriendActionConfirmationDialog(
+    viewModel: ProfileTabViewModel
+) {
+    val (type, userId) = viewModel.showConfirmationDialog.collectAsState().value ?: return
+
+    val (title, message) = when (type) {
+        ConfirmationType.RemoveFriend ->
+            stringResource(Res.string.remove_friend_button) to stringResource(Res.string.remove_friend_dialog)
+        ConfirmationType.CancelRequest ->
+            stringResource(Res.string.cancel_request_button) to stringResource(Res.string.cancel_request_dialog)
+        ConfirmationType.DeclineRequest ->
+            stringResource(Res.string.decline_request_type) to stringResource(Res.string.decline_request_dialog)
+    }
+
+    AlertDialog(
+        onDismissRequest = viewModel::dismissConfirmation,
+        title = { Text(title) },
+        text = { Text(message) },
+        confirmButton = {
+            Button(onClick = {
+                when (type) {
+                    ConfirmationType.RemoveFriend -> viewModel.removeFriend(userId)
+                    ConfirmationType.CancelRequest -> viewModel.cancelRequest(userId)
+                    ConfirmationType.DeclineRequest -> viewModel.respondToRequest(false)
+                }
+                viewModel.dismissConfirmation()
+            }) {
+                Text(stringResource(Res.string.confirm))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = viewModel::dismissConfirmation) {
+                Text(stringResource(Res.string.cancel))
+            }
+        }
+    )
 }
