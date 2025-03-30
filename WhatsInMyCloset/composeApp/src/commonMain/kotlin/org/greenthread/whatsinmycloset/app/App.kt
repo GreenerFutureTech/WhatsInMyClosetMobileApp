@@ -117,7 +117,8 @@ sealed class BarVisibility {
         val bottomBar: Boolean = true,
         val onlyBack: Boolean = false,
         val disableBack: Boolean = false,
-        val title: String = ""
+        val title: String = "",
+        val onBackClick: (() -> Unit)? = null,
     ) : BarVisibility()
 }
 
@@ -157,9 +158,10 @@ fun NavController.getBarVisibility(): BarVisibility {
         }
 
         // Outfit
-        //Routes.CreateOutfitScreen::class.simpleName -> BarVisibility.Hidden
-        //Routes.CategoryItemScreen::class.simpleName -> BarVisibility.Hidden
-        //Routes.OutfitSaveScreen::class.simpleName -> BarVisibility.Hidden
+        Routes.CreateOutfitScreen::class.simpleName -> BarVisibility.Hidden
+        Routes.CategoryItemScreen::class.simpleName -> BarVisibility.Hidden
+        Routes.OutfitSaveScreen::class.simpleName -> BarVisibility.Hidden
+        Routes.CategoryItemDetailScreen::class.simpleName -> BarVisibility.Custom(onlyBack = true)
 
         // Misc
         Routes.SettingsScreen::class.simpleName -> BarVisibility.Custom(onlyBack = true, title = "Settings")
@@ -208,7 +210,8 @@ fun App(
                         onlyBackButton = barVisibility is BarVisibility.Custom &&
                                 barVisibility.onlyBack,
                         disableBack = barVisibility is BarVisibility.Custom &&
-                                barVisibility.disableBack
+                                barVisibility.disableBack,
+                        onBackClick = {navController.popBackStack()}
                     )
                 }
             },
@@ -676,7 +679,8 @@ fun AppTopBar(
     title: String,
     navController: NavController,
     onlyBackButton: Boolean = false,
-    disableBack: Boolean = false
+    disableBack: Boolean = false,
+    onBackClick: (() -> Unit)? = null
 ) {
     val hasNewNotifications by NotificationEventBus.hasNewNotifications.collectAsState()
     val newMessages by SwapEventBus.hasNewNotifications.collectAsState()
@@ -691,7 +695,9 @@ fun AppTopBar(
         navigationIcon = {
             if (!disableBack)
             {
-                IconButton(onClick = { navController.popBackStack() }) {
+                IconButton(onClick = {
+                    onBackClick?.invoke() ?: navController.popBackStack()
+                }) {
                     Icon(
                         Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back"

@@ -51,12 +51,19 @@ import kotlin.coroutines.resume
 import whatsinmycloset.composeapp.generated.resources.profile_button
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import androidx.activity.compose.BackHandler
+
 
 class AndroidPlatform : Platform {
     override val name: String = "Android"
 }
 
 actual fun getPlatform(): Platform = AndroidPlatform()
+
+@Composable
+actual fun BackHandler(enabled: Boolean, onBackPressed: () -> Unit) {
+    BackHandler(enabled, onBackPressed)
+}
 
 actual class CameraManager(private val context: Context) {
     private var onPhotoTakenCallback: ((ByteArray) -> Unit)? = null

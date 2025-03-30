@@ -164,6 +164,9 @@ open class OutfitViewModel(
             )
 
             _currentOutfit.value = outfit.toEntity()
+
+            _temporaryPositions.value = emptyMap()
+
             onSuccess()
         }
     }

@@ -37,6 +37,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
+import kotlinx.coroutines.flow.MutableSharedFlow
+import org.greenthread.whatsinmycloset.BackHandler
+import org.greenthread.whatsinmycloset.app.AppTopBar
 import org.greenthread.whatsinmycloset.app.Routes
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
@@ -51,13 +54,18 @@ import org.jetbrains.compose.resources.painterResource
 import whatsinmycloset.composeapp.generated.resources.Res
 import whatsinmycloset.composeapp.generated.resources.wardrobe
 
-
 @Composable
 fun OutfitScreen(
     navController: NavController,
     clothingItemViewModel: ClothingItemViewModel,
     outfitViewModel: OutfitViewModel
 ) {
+
+    // Handles android back
+    var showDiscardDialog by remember { mutableStateOf(false) }
+    BackHandler(enabled = true) {
+        showDiscardDialog = true
+    }
 
     WhatsInMyClosetTheme {
 
@@ -79,18 +87,23 @@ fun OutfitScreen(
         val onPositionUpdate = { itemId: String, newPosition: OffsetData ->
             outfitViewModel.updateItemPosition(itemId, newPosition)
         }
+
+        val temporaryPositions by outfitViewModel.temporaryPositions.collectAsState()
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(2.dp)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         )
         {
-            Spacer(Modifier.height(10.dp))
-            // Header
-            OutfitScreenHeader(
-                title = "Create Your Outfit"
+            AppTopBar(
+                title = "Create Your Outfit",
+                onBackClick = {
+                    showDiscardDialog = true
+                },
+                navController = navController,
+                onlyBackButton = true,
             )
 
             Spacer(Modifier.height(16.dp))
@@ -98,7 +111,11 @@ fun OutfitScreen(
             // Outfit collage area will show the selectedClothingItems
             OutfitCollageArea(
                 selectedClothingItems = selectedItems,
-                onPositionUpdate = onPositionUpdate
+                onPositionUpdate = { itemId, newPosition ->
+                    // Delegate position updates to ViewModel
+                    outfitViewModel.updateItemPosition(itemId, newPosition)
+                },
+                temporaryPositions = temporaryPositions
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -147,8 +164,45 @@ fun OutfitScreen(
                 Text("Save Outfit")
             }
         }
+
+        if (showDiscardDialog) {
+            DiscardOutfitDialog(
+                onConfirm = {
+                    // Clear outfit state and navigate back
+                    outfitViewModel.discardCurrentOutfit()
+                    outfitViewModel.clearOutfitState()
+                    clothingItemViewModel.clearClothingItemState()
+                    navController.navigate(Routes.HomeGraph)
+                    showDiscardDialog = false
+                },
+                onDismiss = {
+                    showDiscardDialog = false
+                }
+            )
+        }
     }
 }   /* end of OutfitScreen */
+
+
+@Composable
+fun DiscardOutfitDialog(
+        onConfirm: () -> Unit,
+        onDismiss: () -> Unit
+    ) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text("Cancel creating outfit") },
+            text = { Text("Are you sure you want to cancel the outfit?") },
+            confirmButton = {
+                TextButton(onClick = onConfirm) {
+                    Text("Yes")
+                } },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text("No")
+                } }
+        )
+}   /* end of DiscardOutfitDialog */
 
 // select a wardrobe to choose items from
 @Composable
@@ -188,6 +242,7 @@ fun WardrobeDropdown(
 // show the items user selected to create an outfit
 @Composable
 fun OutfitCollageArea(
+    temporaryPositions: Map<String, OffsetData>,
     selectedClothingItems: List<ClothingItem>,
     onPositionUpdate: (String, OffsetData) -> Unit)
 {
@@ -214,33 +269,25 @@ fun OutfitCollageArea(
             )
             .clip(RoundedCornerShape(12.dp))
     ) {
-
-        // Track positions by item ID instead of index
-        val itemPositions = remember { mutableStateMapOf<String, OffsetData>() }
-
-        // Initialize positions for new items
-        LaunchedEffect(selectedClothingItems) {
-            selectedClothingItems.forEach { item ->
-                if (!itemPositions.containsKey(item.id)) {
-                    // Calculate initial position (you can adjust this logic)
-                    val x = (itemPositions.size * (dynamicItemWidth * 1.5f)).coerceIn(0f, canvasWidth - dynamicItemWidth)
-                    val y = (itemPositions.size * (dynamicItemHeight * 1.5f)).coerceIn(0f, canvasHeight - dynamicItemHeight)
-
-                    val (normalizedX, normalizedY) = CoordinateNormalizer.normalizeCoordinates(
-                        x, y, canvasWidth, canvasHeight
-                    )
-
-                    itemPositions[item.id] = OffsetData(normalizedX, normalizedY)
-                    onPositionUpdate(item.id, OffsetData(normalizedX, normalizedY))
-                }
-            }
-        }
-
         // Loop through selectedClothingItems and display them
         selectedClothingItems.forEach { clothingItem ->
+
+            // Get normalized position from ViewModel (0-1 range)
+            val normalizedPosition = temporaryPositions[clothingItem.id] ?: OffsetData(0f, 0f)
+
+            // DENORMALIZE: Convert normalized position back to actual canvas coordinates
+            val (denormalizedX, denormalizedY) = CoordinateNormalizer.denormalizeCoordinates(
+                normalizedPosition.x,
+                normalizedPosition.y,
+                canvasWidth,
+                canvasHeight,
+                dynamicItemWidth,
+                dynamicItemHeight
+            )
+
             DraggableClothingItem(
                 clothingItem = clothingItem,
-                initialPosition = itemPositions[clothingItem.id] ?: OffsetData(0f, 0f),
+                initialPosition = OffsetData(denormalizedX, denormalizedY), // Use denormalized coords
                 canvasWidth = canvasWidth,
                 canvasHeight = canvasHeight,
                 dynamicItemWidth = dynamicItemWidth,
@@ -250,7 +297,6 @@ fun OutfitCollageArea(
                         newPosition.x, newPosition.y, canvasWidth, canvasHeight
                     )
 
-                    itemPositions[clothingItem.id] = OffsetData(normalizedX, normalizedY)
                     onPositionUpdate(clothingItem.id, OffsetData(normalizedX, normalizedY))
                 }
             )
@@ -307,7 +353,7 @@ fun DraggableClothingItem(
                 }
             }
             .size(100.dp) // Define the size of the clothing item
-            .border(1.dp, secondaryLight, RoundedCornerShape(12.dp))
+            //.border(1.dp, secondaryLight, RoundedCornerShape(12.dp))
     ) {
 
         // Display the item image
