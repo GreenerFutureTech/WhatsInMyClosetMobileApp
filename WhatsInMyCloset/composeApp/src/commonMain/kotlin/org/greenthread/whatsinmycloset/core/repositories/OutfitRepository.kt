@@ -46,7 +46,8 @@ open class OutfitRepository(
                         name = serverOutfit.name,
                         creatorId = serverOutfit.userId.toInt(),
                         items = json.encodeToString(outfit.items),
-                        tags = json.encodeToString(outfit.tags)
+                        tags = json.encodeToString(outfit.tags),
+                        createdAt = serverOutfit.createdAt
                     )
                     outfitDao.insertOutfit(entity)
                     serverOutfit.id // Return the server-generated ID

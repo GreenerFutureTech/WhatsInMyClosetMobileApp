@@ -32,8 +32,7 @@ data class OutfitEntity(
     val items: String, // JSON string of Map<String, OffsetData>
     val tags: String = "[]", // Default empty list JSON
     val calendarDates: String = "[]", // Default empty list JSON
-    val createdAt: String = Clock.System.now().toLocalDateTime(
-        TimeZone.currentSystemDefault()).toString()
+    val createdAt: String = ""  // get this from backend
 ) {
 
     companion object {
@@ -63,9 +62,6 @@ data class OutfitEntity(
 
     fun getTags(): List<String> =
         json.decodeFromString(tags) ?: emptyList()
-
-    fun getCalendarDates(): List<String> =
-        json.decodeFromString(calendarDates) ?: emptyList()
 }
 
 @Serializable
