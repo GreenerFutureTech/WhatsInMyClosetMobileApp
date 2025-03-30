@@ -70,6 +70,10 @@
     <string name="cancel_request_button">Cancel Request</string>
     <string name="accept_button">Accept</string>
     <string name="decline_button">Decline</string>
-
-
+    <string name="remove_friend_dialog">Are you sure you want to remove this friend?</string>
+    <string name="cancel_request_dialog">Are you sure you want to cancel this friend request?</string>
+    <string name="decline_request_dialog">Are you sure you want to decline this friend request?</string>
+    <string name="decline_request_type">Decline Request</string>
+    <string name="cancel">Cancel</string>
+    <string name="confirm">Confirm</string>
 </resources>

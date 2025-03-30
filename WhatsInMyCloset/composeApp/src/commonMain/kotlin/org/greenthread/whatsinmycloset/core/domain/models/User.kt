@@ -59,6 +59,36 @@ class User(
         )
     }
 
+    fun copy(
+        id: Int? = this.id,
+        username: String = this.username,
+        email: String = this.email,
+        name: String = this.name,
+        firebaseUuid: String? = this.firebaseUuid,
+        fcmToken: String? = this.fcmToken,
+        profilePicture: String? = this.profilePicture,
+        type: String? = this.type,
+        registeredAt: String = this.registeredAt,
+        updatedAt: String = this.updatedAt,
+        lastLogin: String = this.lastLogin,
+        friends: List<Friend>? = this.friends
+    ): User {
+        return User(
+            id = id,
+            username = username,
+            email = email,
+            name = name,
+            firebaseUuid = firebaseUuid,
+            fcmToken = fcmToken,
+            profilePicture = profilePicture,
+            type = type,
+            registeredAt = registeredAt,
+            updatedAt = updatedAt,
+            lastLogin = lastLogin,
+            friends = friends
+        )
+    }
+
     fun addOutfit(outfit: Outfit, selectedTags: List<String>) {
         outfits[outfit.id] = outfit
         outfitTags[outfit.id] = selectedTags.toMutableSet()
