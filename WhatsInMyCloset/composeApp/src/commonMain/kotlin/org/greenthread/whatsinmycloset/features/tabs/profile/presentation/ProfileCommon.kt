@@ -108,7 +108,7 @@ fun FriendsCount(
                 fontWeight = FontWeight.Bold,
             )
             Text(
-                text = "Friends",
+                text = stringResource(Res.string.friends_count_label),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(8.dp)
             )
