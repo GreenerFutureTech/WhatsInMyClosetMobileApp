@@ -172,7 +172,16 @@ fun NavController.getBarVisibility(): BarVisibility {
         // Profile
         Routes.UserSearchScreen::class.simpleName -> BarVisibility.Custom(onlyBack = true, title = "Search Users")
         Routes.UserFriendsScreen::class.simpleName -> BarVisibility.Custom(onlyBack = true, title = "Friends")
-        Routes.ProfileDetailsScreen::class.simpleName -> BarVisibility.Custom(disableBack = true, title = "Profile")
+        //Routes.ProfileDetailsScreen::class.simpleName -> BarVisibility.Custom(disableBack = true, title = "Profile")
+
+        Routes.ProfileDetailsScreen::class.simpleName -> {
+            val args = navBackStackEntry?.toRoute<Routes.ProfileDetailsScreen>()
+            if (args?.isCurrentUser == true) {
+                BarVisibility.Custom(disableBack = true, title = "Profile")
+            } else {
+                BarVisibility.Custom(onlyBack = true, title = "Profile")
+            }
+        }
 
         // Add more specific route configurations as needed
         else -> BarVisibility.Visible
