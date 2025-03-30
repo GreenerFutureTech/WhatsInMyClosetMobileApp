@@ -162,6 +162,8 @@ fun NavController.getBarVisibility(): BarVisibility {
         Routes.CategoryItemScreen::class.simpleName -> BarVisibility.Hidden
         Routes.OutfitSaveScreen::class.simpleName -> BarVisibility.Hidden
         Routes.CategoryItemDetailScreen::class.simpleName -> BarVisibility.Custom(onlyBack = true)
+        Routes.OutfitOfTheDay::class.simpleName -> BarVisibility.Custom(onlyBack = true, bottomBar = false)
+        Routes.OutfitDetailScreen::class.simpleName -> BarVisibility.Custom(onlyBack = true, bottomBar = false)
 
         // Misc
         Routes.SettingsScreen::class.simpleName -> BarVisibility.Custom(onlyBack = true, title = "Settings")
