@@ -137,6 +137,7 @@ open class OutfitViewModel(
                     date = date
                 )
             )
+            // if outfit already exists for the selected date
             if (!success) return false
         }
 
@@ -163,6 +164,9 @@ open class OutfitViewModel(
             )
 
             _currentOutfit.value = outfit.toEntity()
+
+            _temporaryPositions.value = emptyMap()
+
             onSuccess()
         }
     }

@@ -20,6 +20,11 @@ class IOSPlatform: Platform {
 
 actual fun getPlatform(): Platform = IOSPlatform()
 
+@Composable
+actual fun BackHandler(enabled: Boolean, onBackPressed: () -> Unit) {
+
+}
+
 actual class CameraManager {
     @Composable
     actual fun TakePhotoButton(onPhotoTaken: (ByteArray) -> Unit) {

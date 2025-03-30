@@ -12,6 +12,9 @@ interface Platform {
 
 expect fun getPlatform(): Platform
 
+@Composable
+expect fun BackHandler(enabled: Boolean, onBackPressed: () -> Unit)
+
 expect class CameraManager {
     @Composable
     fun TakePhotoButton(onPhotoTaken: (ByteArray) -> Unit)

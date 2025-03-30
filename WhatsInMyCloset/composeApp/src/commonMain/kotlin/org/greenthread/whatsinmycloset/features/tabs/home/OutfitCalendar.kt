@@ -38,14 +38,17 @@ fun OutfitDatePicker(
     navController: NavController,
     onSuccess: () -> Unit = {}
 ) {
-    val dateToday = Clock.System.now().toEpochMilliseconds()
+    val currentDate = remember { DateUtils.getCurrentLocalDate() }
+    val initialMillis = remember { DateUtils.localDateToMillis(currentDate) }
 
-    // State for the DatePicker
-    val datePickerState = rememberDatePickerState(initialSelectedDateMillis = dateToday)
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = initialMillis
+    )
     var showConfirmation by remember { mutableStateOf(false) } // Track confirmation dialog
     var showDiscardDialog by remember { mutableStateOf(false) } // Track discard dialog
     var showOutfitNameDialog by remember { mutableStateOf(false) }
     var outfitName by remember { mutableStateOf("") }
+    var showDateErrorDialog by remember { mutableStateOf(false) }
 
     var selectedDate by remember { mutableStateOf("") }
 
@@ -56,8 +59,8 @@ fun OutfitDatePicker(
         confirmButton = {
             TextButton(onClick = {
                 datePickerState.selectedDateMillis?.let { millis ->
-                    selectedDate = DateUtils.millisToLocalDateString(millis)
-                    // pop up to get outfit name from user
+                    selectedDate = DateUtils.convertDate(millis = millis).second.toString()
+                    // Now selectedDate will exactly match what was shown in the picker
                     showOutfitNameDialog = true
                 }
             }) {
@@ -90,8 +93,32 @@ fun OutfitDatePicker(
                         addToCalendar = true,
                         date = selectedDate
                     )
+
+                    if(!success)
+                    {
+                        // alert user to select a different for outfit
+                        // as an outfit exists for the selected date
+                        showDateErrorDialog = true
+                        showOutfitNameDialog = false
+                    }
                     showOutfitNameDialog = false
                     showConfirmation = true
+                }
+            }
+        )
+    }
+
+    // Show error dialog when outfit exists for selected date
+    if (showDateErrorDialog) {
+        AlertDialog(
+            onDismissRequest = { showDateErrorDialog = false },
+            title = { Text("Date Conflict") },
+            text = { Text("An outfit already exists for the selected date. Please choose a different date.") },
+            confirmButton = {
+                TextButton(
+                    onClick = { showDateErrorDialog = false }
+                ) {
+                    Text("OK")
                 }
             }
         )
