@@ -184,28 +184,6 @@ fun WardrobeDropdown(
     }
 }
 
-@Composable
-fun DiscardOutfitDialog(
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Cancel creating outfit") },
-        text = { Text("Are you sure you want to cancel the outfit?") },
-        confirmButton = {
-            TextButton(onClick = onConfirm) {
-                Text("Yes")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("No")
-            }
-        }
-    )
-}   /* end of DiscardOutfitDialog */
-
 // show the items user selected to create an outfit
 @Composable
 fun OutfitCollageArea(

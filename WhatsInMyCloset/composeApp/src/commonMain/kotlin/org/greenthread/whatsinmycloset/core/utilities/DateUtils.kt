@@ -51,21 +51,23 @@ object DateUtils {
         if (dateString.isNullOrEmpty()) return "Unknown date"
 
         return try {
-            // First try to parse as LocalDate directly (for "yyyy-MM-dd" format)
-            if (dateString.matches(Regex("\\d{4}-\\d{2}-\\d{2}"))) {
+            // First try to parse as ISO instant (UTC)
+            val instant = Instant.parse(dateString)
+            val utcDate = instant.toLocalDateTime(TimeZone.UTC).date
+
+            // Format as "Month Day, Year"
+            "${utcDate.month.name.lowercase().replaceFirstChar { it.uppercase() }} " +
+                    "${utcDate.dayOfMonth}, ${utcDate.year}"
+
+        } catch (e: Exception) {
+            // Fallback for non-ISO formats (assuming they're already UTC)
+            try {
                 val localDate = LocalDate.parse(dateString)
                 "${localDate.month.name.lowercase().replaceFirstChar { it.uppercase() }} " +
                         "${localDate.dayOfMonth}, ${localDate.year}"
+            } catch (e: Exception) {
+                "Invalid date"
             }
-            // Fall back to Instant parsing if needed
-            else {
-                val instant = Instant.parse(dateString)
-                val localDate = instant.toLocalDateTime(TimeZone.UTC).date
-                "${localDate.month.name.lowercase().replaceFirstChar { it.uppercase() }} " +
-                        "${localDate.dayOfMonth}, ${localDate.year}"
-            }
-        } catch (e: Exception) {
-            "Invalid date"
         }
     }
 }
