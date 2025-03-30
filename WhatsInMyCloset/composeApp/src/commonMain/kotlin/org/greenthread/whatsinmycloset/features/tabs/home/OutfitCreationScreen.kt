@@ -88,7 +88,8 @@ fun OutfitScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(2.dp),
+                .padding(2.dp)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         )
         {
