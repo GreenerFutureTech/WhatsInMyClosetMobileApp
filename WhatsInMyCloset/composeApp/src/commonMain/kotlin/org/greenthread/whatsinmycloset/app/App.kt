@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.ShoppingCart
+import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -603,7 +604,7 @@ fun BottomNavigationBar(navController: NavController) {
     val tabs = listOf(
         Routes.HomeTab to Icons.Rounded.Home,
         Routes.SwapTab to Icons.Rounded.ShoppingCart,
-        Routes.SocialTab to Icons.Rounded.Person,
+        Routes.SocialTab to Icons.Rounded.Group,
         Routes.ProfileTab to Icons.Rounded.Person
         )
 
