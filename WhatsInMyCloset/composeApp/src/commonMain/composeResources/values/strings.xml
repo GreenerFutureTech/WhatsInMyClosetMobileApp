@@ -44,6 +44,7 @@
     <string name="add_new_item_button">Add New Item</string>
     <string name="no_item_category">No items in this category</string>
     <string name="item_name">NAME</string>
+    <string name="recent_outfits_title">Recent Outfits</string>
 
     <!-- Settings string -->
     <string name="email_text">Email</string>
