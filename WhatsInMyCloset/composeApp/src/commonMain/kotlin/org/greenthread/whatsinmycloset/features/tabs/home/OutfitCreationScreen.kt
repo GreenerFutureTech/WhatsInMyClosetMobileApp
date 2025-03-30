@@ -45,11 +45,9 @@ import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.OutfitViewModel
 import org.greenthread.whatsinmycloset.features.tabs.social.presentation.TagsSection
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
-import org.greenthread.whatsinmycloset.theme.backgroundLight
 import org.greenthread.whatsinmycloset.theme.outlineVariantLight
 import org.greenthread.whatsinmycloset.theme.secondaryLight
 import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.resources.stringResource
 import whatsinmycloset.composeapp.generated.resources.Res
 import whatsinmycloset.composeapp.generated.resources.wardrobe
 
@@ -160,9 +158,16 @@ fun OutfitScreen(
                     outfitViewModel.discardCurrentOutfit()
                     outfitViewModel.clearOutfitState() // Clear the outfit state
                     clothingItemViewModel.clearClothingItemState() // Clear the selected items state
-                    navController.navigate(Routes.HomeTab) // Navigate to Home Tab
+                    navController.navigate(Routes.HomeTab) {
+                        popUpTo(Routes.HomeTab) { inclusive = true }
+                    }
                 },
-                onDismiss = { showExitDialog = false }
+                // close exit dialog
+                // don't clear outfit states
+                onDismiss = {
+                    showExitDialog = false
+                    // Don't navigate - stay on current screen
+                }
             )
         }
     }
@@ -404,9 +409,6 @@ fun ClothingCategorySelection(onSelectCategory: (ClothingCategory) -> Unit) {
 fun CategoryItemsScreen(
     navController: NavController,
     category: String,
-    onBack: () -> Unit,
-    onDone: () -> Unit,
-    outfitViewModel: OutfitViewModel,
     clothingItemViewModel: ClothingItemViewModel
 ) {
     val categoryEnum = ClothingCategory.fromString(category)
@@ -427,7 +429,6 @@ fun CategoryItemsScreen(
 
     var selectedItemKeys by remember { mutableStateOf(setOf<Pair<String, ClothingCategory>>()) }
     var isSelectionMode by remember { mutableStateOf(false) }
-    var showExitDialog by remember { mutableStateOf(false) }
     var checked by remember { mutableStateOf(false) }
 
     Column(
@@ -533,33 +534,6 @@ fun CategoryItemsScreen(
             },
             isDoneEnabled = true
         )
-
-        if (isSelectionMode) {
-            OutfitScreenFooter(
-                onDone = {
-                    val selectedItems = categoryItems.filter {
-                        selectedItemKeys.contains(it.id to it.itemType)
-                    }
-                    clothingItemViewModel.addSelectedItems(selectedItems)
-                    navController.navigate(Routes.CreateOutfitScreen.Default)
-                },
-                isDoneEnabled = selectedItemKeys.isNotEmpty()
-            )
-        }
-    }
-    // Show Exit Dialog
-    if (showExitDialog) {
-        DiscardOutfitDialog(
-            onConfirm = {
-                showExitDialog = false
-                // Discard the current outfit and create a new one
-                outfitViewModel.discardCurrentOutfit()
-                outfitViewModel.clearOutfitState() // Clear the outfit state
-                clothingItemViewModel.clearClothingItemState() // Clear the selected items state
-                navController.navigate(Routes.HomeTab) // Navigate to Home Tab
-            },
-            onDismiss = { showExitDialog = false }
-        )
     }
 }/* end of CategoryItemsScreen */
 
@@ -621,24 +595,20 @@ fun CategoryItem(
 // when user clicks on an item, a new screen opens showing picture and details of the item
 @Composable
 fun CategoryItemDetailScreen(
-    navController: NavController,
     wardrobeId: String,
     itemId: String,
     category: ClothingCategory,
     onBack: () -> Unit,
-    viewModel: ClothingItemViewModel
-    outfitViewModel: OutfitViewModel,
     clothingItemViewModel: ClothingItemViewModel // Inject the ClothingItemViewModel
 
 ) {
     var selectedItem by remember { mutableStateOf<ClothingItem?>(null) }
     var wardrobeName by remember { mutableStateOf("Unknown Wardrobe") }
-    var showExitDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(wardrobeId, itemId, category) {
-        val item = viewModel.getItemDetail(itemId)
+        val item = clothingItemViewModel.getItemDetail(itemId)
         selectedItem = item
-        wardrobeName = viewModel.selectedWardrobe.value?.wardrobeName ?: "Unknown Wardrobe"
+        wardrobeName = clothingItemViewModel.selectedWardrobe.value?.wardrobeName ?: "Unknown Wardrobe"
     }
 
     if (selectedItem == null) {
@@ -745,22 +715,8 @@ fun CategoryItemDetailScreen(
             )
         }
     }
-
-    // Show Exit Dialog
-    if (showExitDialog) {
-        DiscardOutfitDialog(
-            onConfirm = {
-                showExitDialog = false
-                // Discard the current outfit and create a new one
-                outfitViewModel.discardCurrentOutfit()
-                outfitViewModel.clearOutfitState() // Clear the outfit state
-                clothingItemViewModel.clearClothingItemState() // Clear the selected items state
-                navController.navigate(Routes.HomeTab) // Navigate to Home Tab
-            },
-            onDismiss = { showExitDialog = false }
-        )
-    }
 }
+
 @Composable
 fun OutfitScreenHeader(
     title: String

@@ -340,10 +340,7 @@ fun App(
                             CategoryItemsScreen(
                                 navController = navController,
                                 category = categoryEnum.categoryName,
-                                onBack = { navController.popBackStack() },
-                                onDone = {Routes.CreateOutfitScreen},
-                                clothingItemViewModel = sharedClothingItemViewModel,
-                                outfitViewModel = sharedOutfitViewModel
+                                clothingItemViewModel = sharedClothingItemViewModel
                             )
                         } else {
                             // Handle invalid category (e.g., show an error message)
@@ -367,13 +364,11 @@ fun App(
 
                         if (category != null) {
                             CategoryItemDetailScreen(
-                                navController = navController,
                                 wardrobeId = wardrobeId,
                                 itemId = itemId,
                                 category = category,
                                 onBack = { navController.popBackStack() },
-                                clothingItemViewModel = sharedClothingItemViewModel,
-                                outfitViewModel = sharedOutfitViewModel
+                                clothingItemViewModel = sharedClothingItemViewModel
                             )
                         }
                     }
