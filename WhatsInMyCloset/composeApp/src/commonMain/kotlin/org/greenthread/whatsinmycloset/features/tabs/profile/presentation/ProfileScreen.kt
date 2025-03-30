@@ -42,7 +42,6 @@ import org.greenthread.whatsinmycloset.core.dto.MessageUserDto
 import org.greenthread.whatsinmycloset.core.dto.OtherSwapDto
 import org.greenthread.whatsinmycloset.core.dto.UserDto
 import org.greenthread.whatsinmycloset.core.dto.toOtherSwapDto
-import org.greenthread.whatsinmycloset.core.ui.components.controls.SearchBar
 import org.greenthread.whatsinmycloset.features.tabs.profile.ConfirmationType
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabViewModel
 import org.greenthread.whatsinmycloset.features.tabs.profile.data.FriendshipStatus
@@ -61,7 +60,6 @@ import whatsinmycloset.composeapp.generated.resources.content_description_user_a
 import whatsinmycloset.composeapp.generated.resources.decline_button
 import whatsinmycloset.composeapp.generated.resources.defaultUser
 import whatsinmycloset.composeapp.generated.resources.error_no_user_data
-import whatsinmycloset.composeapp.generated.resources.my_outfits_title
 import whatsinmycloset.composeapp.generated.resources.remove_friend_button
 
 @Composable
@@ -127,7 +125,6 @@ private fun ProfileContent(
     modifier: Modifier = Modifier
 ) {
     Column(modifier
-        .verticalScroll(rememberScrollState())
         .fillMaxWidth()
         .padding(16.dp)
     ) {
@@ -200,7 +197,10 @@ private fun ProfileContent(
             onSeeAll = onAllSwapClick
         )
 
-        OutfitSectionTitle(Res.string.my_outfits_title)
+        PostsSection(
+            userId = user.id,
+            navController = navController,
+        )
 
     }
 }

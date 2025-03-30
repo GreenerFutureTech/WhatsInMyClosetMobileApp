@@ -132,7 +132,7 @@ fun PostsGrid(
 }
 
 @Composable
-private fun EmptyState() {
+fun EmptyState() {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,

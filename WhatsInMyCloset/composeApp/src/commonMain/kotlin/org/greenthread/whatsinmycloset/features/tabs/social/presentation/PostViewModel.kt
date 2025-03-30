@@ -163,4 +163,41 @@ open class PostViewModel(
 
         }
     }
+
+    fun fetchUserOutfits(userId: Int) {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
+
+            itemRepository.getAllOutfitsForUser(userId)
+                .onSuccess { outfits ->
+                    val outfitsList = outfits.map { outfit ->
+                        OutfitState(
+                            outfitId = outfit.id,
+                            name = outfit.name,
+                            itemIds = outfit.itemIds,
+                            isLoading = true,
+                            username = outfit.creator?.username,
+                            profilePicture = outfit.creator?.profilePicture,
+                            userId = outfit.userId
+                        )
+                    }
+
+                    _state.update {
+                        it.copy(
+                            outfits = outfitsList,
+                            isLoading = false
+                        )
+                    }
+
+                    // Load items for each outfit
+                    outfitsList.forEach { outfit ->
+                        fetchItemsForOutfit(outfit.outfitId)
+                    }
+                }
+                .onError { error ->
+                    _state.update { it.copy(isLoading = false) }
+                    println("Error fetching user outfits: $error")
+                }
+        }
+    }
 }
