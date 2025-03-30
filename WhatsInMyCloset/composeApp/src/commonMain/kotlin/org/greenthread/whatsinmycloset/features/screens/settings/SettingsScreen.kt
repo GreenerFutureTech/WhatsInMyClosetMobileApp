@@ -68,29 +68,29 @@ fun SettingsScreen(navController: NavController, loginViewModel: LoginViewModel)
             rightIcon = Icons.Default.PlayArrow
         )
 
-        // Toggle
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-                .background(MaterialTheme.colorScheme.background),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(
-                Icons.Default.Notifications,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Text(
-                text = "Notifications",
-                fontSize = 18.sp,
-                modifier = Modifier.weight(1f)
-            )
-            Switch(checked = isToggleOn, onCheckedChange = { isToggleOn = it })
-        }
-
-        Divider()
+        // Toggle for notifications NOT implemented
+//        Row(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .padding(vertical = 8.dp)
+//                .background(MaterialTheme.colorScheme.background),
+//            verticalAlignment = Alignment.CenterVertically,
+//        ) {
+//            Icon(
+//                Icons.Default.Notifications,
+//                contentDescription = null,
+//                tint = MaterialTheme.colorScheme.primary
+//            )
+//            Spacer(modifier = Modifier.width(16.dp))
+//            Text(
+//                text = "Notifications",
+//                fontSize = 18.sp,
+//                modifier = Modifier.weight(1f)
+//            )
+//            Switch(checked = isToggleOn, onCheckedChange = { isToggleOn = it })
+//        }
+//
+//        Divider()
 
         // Actions with Confirmation Dialog
         SettingsItem(
