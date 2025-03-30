@@ -82,6 +82,7 @@ fun ProfileScreen(
     )
 
      LaunchedEffect(userId) {
+         println("Profile Screen User Id $userId")
         profileViewModel.loadProfile(userId)
     }
 

@@ -1,6 +1,7 @@
 package org.greenthread.whatsinmycloset.app
 
 import kotlinx.serialization.Serializable
+import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 
 sealed interface Routes {
     @Serializable
@@ -25,19 +26,14 @@ sealed interface Routes {
 
     // Routes for outfit creation screens
     @Serializable
-    data class CreateOutfitScreen(val date: String? = null) : Routes {
-        companion object {
-            // Default route without date
-            val Default = CreateOutfitScreen()
-        }
-    }
+    data object CreateOutfitScreen: Routes
+
     @Serializable
     data object OutfitOfTheDay: Routes
     @Serializable
     data class OutfitDetailScreen(val outfitId: String): Routes
     @Serializable
-    data class CategoryItemScreen(
-        val category: String) : Routes    // shows all items in that category, for example "Tops"
+    data class CategoryItemScreen(val category: String) : Routes    // shows all items in that category, for example "Tops"
     @Serializable
     data object OutfitSaveScreen: Routes
     @Serializable
@@ -99,7 +95,10 @@ sealed interface Routes {
     data object EditProfileScreen: Routes
 
     @Serializable
-    data class HomeCategoryItemScreen(val category: String) : Routes
+    data class HomeCategoryItemScreen(val category: String) : Routes {
+        val categoryName: String
+            get() = ClothingCategory.fromString(category).categoryName ?: category
+    }
 
     @Serializable
     data class ItemDetailScreen(val itemId: String) : Routes

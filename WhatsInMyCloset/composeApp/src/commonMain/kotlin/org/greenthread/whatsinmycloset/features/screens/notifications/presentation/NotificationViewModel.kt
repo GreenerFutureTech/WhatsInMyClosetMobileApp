@@ -100,13 +100,22 @@ class NotificationsViewModel(
         when(notification.type) {
             NotificationType.FRIEND_REQUEST -> {
 
-                val userId = notification.extraData?.get("userId")
+                val userId = notification.extraData?.get("senderId")
 
-                userId?.let {
+                userId?.let { id ->
+                    // Clear back stack to prevent circular navigation
+                    navController.navigate(Routes.ProfileDetailsScreen(id.toInt())) {
+                        // Clear the back stack up to the profile screen
+                        popUpTo(Routes.ProfileTab) {
+                            inclusive = false
+                        }
+                        // Avoid multiple copies of the same screen
+                        launchSingleTop = true
+                    }
+                } ?: run {
+                    // Fallback navigation
                     navController.navigate(Routes.ProfileTab)
                 }
-
-                navController.navigate(Routes.ProfileTab)
             }
             NotificationType.SWAP_REQUEST -> {
                 navController.navigate(Routes.SwapTab)

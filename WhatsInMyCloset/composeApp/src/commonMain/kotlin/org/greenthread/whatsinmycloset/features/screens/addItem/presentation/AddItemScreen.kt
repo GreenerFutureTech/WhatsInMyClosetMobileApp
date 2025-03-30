@@ -1,7 +1,9 @@
 package org.greenthread.whatsinmycloset.features.screens.addItem.presentation
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,10 +14,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -32,7 +36,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.Clock
 import org.greenthread.whatsinmycloset.CameraManager
@@ -52,281 +59,383 @@ fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManage
     var itemCondition by remember { mutableStateOf("") }
 
     var itemImage by remember { mutableStateOf<ByteArray?>(null) }
-    var selectedCategory by remember { mutableStateOf<String?>("Tops") }
+    var selectedCategory by remember { mutableStateOf<String?>(null) }
     var selectedWardrobe by remember { mutableStateOf<Wardrobe?>(null) }
-
     var bitmap by remember { mutableStateOf<ImageBitmap?>(null) }
-    var bitmapFile: Any? = null
-
-    var hasSegmented by remember { mutableStateOf(false) } // Prevent re-segmentation
 
     val cachedWardrobes by viewModel.cachedWardrobes.collectAsState()
-    if (cachedWardrobes.isNotEmpty()) {
-        selectedWardrobe = cachedWardrobes.getOrNull(0)
+    if (cachedWardrobes.isNotEmpty() && selectedWardrobe == null) {
+        selectedWardrobe = cachedWardrobes[0]
     }
 
-    LaunchedEffect(itemImage) {
-        //
-        //
-        //To enable image segmentation
-        //
-        //
-/*        itemImage?.let { imageBytes ->
-            println("Segmentation part 1")
-
-            bitmap = imageBytes.toImageBitmap()
-            bitmapFile = imageBytes.toBitmap()
-
-            if (!hasSegmented) {  // Only run segmentation once
-                hasSegmented = true
-                subjectSegmentation(imageBytes) { result ->
-                    if (result != null) {
-                        println("Segmentation successful!")
-                        itemImage = result
-                        bitmap = result.toImageBitmap()  // ✅ Triggers recomposition once
-                    } else {
-                        println("Segmentation failed!")
-                    }
-                }
-            }
-        }*/
-    }
+    val categories = ClothingCategory.entries
+        .filterNot { it == ClothingCategory.ALL }
+        .map { it.categoryName }
+    val contentWidth = 280.dp
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Top
     ) {
-
-        val categories =
-            listOf("Choose a Category!") + ClothingCategory.entries.map { it.categoryName }
-
+        // Wardrobe Dropdown
         WardrobeDropdown(
             wardrobes = cachedWardrobes,
-            onWardrobeSelected = { selectedWardrobe = it })
+            onWardrobeSelected = { selectedWardrobe = it },
+            modifier = Modifier.width(contentWidth)
+        )
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Pass selectedCategory and a setter function to update it
+        // Category Dropdown
         CategoryDropdown(
             categories = categories,
-            selectedCategory = selectedCategory ?: "Choose a Category!",
-            onCategorySelected = { selectedCategory = it }
+            selectedCategory = selectedCategory,
+            onCategorySelected = { selectedCategory = it },
+            modifier = Modifier.width(contentWidth)
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        // TextField for Name
-        OutlinedTextField(
-            value = itemName,
-            onValueChange = { itemName = it },
-            label = { Text("Item Name") },
-            singleLine = true
-        )
-        Spacer(modifier = Modifier.height(8.dp))
+        Column(
+            modifier = Modifier.width(contentWidth),
+            horizontalAlignment = Alignment.Start
+        ) {
+            Text(
+                text = "Item Name",
+                style = MaterialTheme.typography.labelLarge,
+                color = Color.Gray,
+                modifier = Modifier.padding(start = 4.dp)
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            OutlinedTextField(
+                value = itemName,
+                onValueChange = { itemName = it },
+                modifier = Modifier
+                    .fillMaxWidth(),
+                singleLine = true
+            )
+        }
 
-        // TextField for Tags
-        OutlinedTextField(
-            value = itemTags,
-            onValueChange = { itemTags = it },
-            label = { Text("Tags (comma-separated)") },
-            singleLine = true
-        )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
-        // TextField for Brand
-        OutlinedTextField(
-            value = itemBrand,
-            onValueChange = { itemBrand = it },
-            label = { Text("Brand") },
-            singleLine = true
-        )
-        Spacer(modifier = Modifier.height(8.dp))
+        Column(
+            modifier = Modifier.width(contentWidth),
+            horizontalAlignment = Alignment.Start
+        ) {
+            Text(
+                text = "Brand",
+                style = MaterialTheme.typography.labelLarge,
+                color = Color.Gray,
+                modifier = Modifier.padding(start = 4.dp)
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            OutlinedTextField(
+                value = itemBrand,
+                onValueChange = { itemBrand = it },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+        }
 
-        // TextField for Size
-        OutlinedTextField(
-            value = itemSize,
-            onValueChange = { itemSize = it },
-            label = { Text("Size") },
-            singleLine = true
-        )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
-        // TextField for Size
-        OutlinedTextField(
-            value = itemCondition,
-            onValueChange = { itemCondition = it },
-            label = { Text("Condition") },
-            singleLine = true
-        )
-        Spacer(modifier = Modifier.height(16.dp))
+        // Size and Condition in one row
+        Row(
+            modifier = Modifier.width(contentWidth),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = Alignment.Start
+            ) {
+                Text(
+                    text = "Size",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(start = 4.dp)
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                OutlinedTextField(
+                    value = itemSize,
+                    onValueChange = { itemSize = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    singleLine = true
+                )
+            }
+            Column(
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = Alignment.Start
+            ) {
+                Text(
+                    text = "Condition",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(start = 4.dp)
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                OutlinedTextField(
+                    value = itemCondition,
+                    onValueChange = { itemCondition = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    singleLine = true
+                )
+            }
+        }
 
-        // Use the TakePhotoButton composable
-        cameraManager.TakePhotoButton { imageBytes ->
-            itemImage = imageBytes
-            bitmap = imageBytes.toImageBitmap()
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Column(
+            modifier = Modifier.width(contentWidth),
+            horizontalAlignment = Alignment.Start
+        ) {
+            Text(
+                text = "Tags (comma-separated)",
+                style = MaterialTheme.typography.labelLarge,
+                color = Color.Gray,
+                modifier = Modifier.padding(start = 4.dp)
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            OutlinedTextField(
+                value = itemTags,
+                onValueChange = { itemTags = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                singleLine = true
+            )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Camera Button
+        cameraManager.TakePhotoButton(
+            onPhotoTaken = { imageBytes ->
+                itemImage = imageBytes
+                bitmap = imageBytes.toImageBitmap()
+            }
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Image Preview
         bitmap?.let { img ->
             Image(
                 bitmap = img,
                 contentDescription = "Captured Image",
-                modifier = Modifier.size(225.dp)
+                modifier = Modifier
+                    .size(225.dp)
             )
+            Spacer(modifier = Modifier.height(8.dp))
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        // Add Item Button
+        Button(
+            onClick = {
+                val item = ItemDto(
+                    id = Random.nextLong().toString(),
+                    name = itemName,
+                    wardrobeId = selectedWardrobe?.id ?: "",
+                    itemType = selectedCategory ?: "",
+                    mediaUrl = null.toString(),
+                    tags = itemTags.split(",").map { it.trim() },
+                    condition = itemCondition,
+                    brand = itemBrand,
+                    size = itemSize,
+                    createdAt = Clock.System.now().toString()
+                )
 
-        Button(onClick = {
-            val item = ItemDto(
-                id = "Commemorative ID",
-                name = itemName,
-                wardrobeId = selectedWardrobe?.id ?: "null",
-                itemType = selectedCategory ?: "null",
-                mediaUrl = null.toString(), // Will be set after uploading image
-                tags = itemTags.split(",").map { it.trim() },
-                condition = itemCondition, // Consider adding UI input for this
-                brand = itemBrand,
-                size = itemSize,
-                createdAt = Clock.System.now().toString()
-            )
+                viewModel.addItem(item, itemImage) { success, error ->
+                    if (success) onBack()
+                }
+            },
+            modifier = Modifier.width(contentWidth),
+            enabled = itemName.isNotBlank() && selectedWardrobe != null && selectedCategory != null
+        ) {
+            Text("Add Item", style = MaterialTheme.typography.labelLarge)
+        }
+    }
+}
 
-            viewModel.addItem(item, itemImage) { success, error ->
-                if (success) {
-                    onBack()
-                } else {
-                    //TODO: show dialogue , no connection.
+@Composable
+fun CategoryDropdown(
+    categories: List<String>,
+    selectedCategory: String?,
+    onCategorySelected: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        // Category Label (위에 배치)
+        Text(
+            text = "Category",
+            style = MaterialTheme.typography.labelLarge,
+            color = Color.Gray, // 회색 텍스트
+            modifier = Modifier.padding(start = 4.dp)
+        )
+
+        // Dropdown Button
+        Box(modifier = Modifier.fillMaxWidth()) {
+            OutlinedButton(
+                onClick = { expanded = true },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(4.dp), // 아주 살짝 둥근 모서리
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colorScheme.onSurface,
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                border = BorderStroke(
+                    1.dp,
+                    MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+                )
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = selectedCategory ?: "Select Category",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = if (selectedCategory == null) {
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        } else {
+                            MaterialTheme.colorScheme.onSurface
+                        },
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Icon(
+                        Icons.Filled.ArrowDropDown,
+                        contentDescription = "Category Dropdown",
+                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        modifier = Modifier.size(24.dp)
+                    )
                 }
             }
-        }) {
-            Text("Add Item")
-        }
-    }
-}
 
-/*
-fun ImageBitmap.Companion.imageFromBytes(bytes: ByteArray): ImageBitmap {
-    val bitmap = BitMap.decodeByteArray(bytes, 0, bytes.size)
-    return bitmap.asImageBitmap()
-}
-
-
-// Helper function to convert ByteArray to ImageBitmap
-fun ImageBitmap.Companion.imageFromBytes(bytes: ByteArray): ImageBitmap {
-    val inputStream = ByteArrayInputStream(bytes)
-    val bufferedImage = ImageIO.read(inputStream)
-    val raster = bufferedImage.raster
-    val width = bufferedImage.width
-    val height = bufferedImage.height
-    val bitmap = ImageBitmap(width, height)
-    val buffer = IntArray(width * height)
-    raster.getPixels(0, 0, width, height, buffer)
-    bitmap.readPixels(buffer)
-
-    return ImageBitmap(100,100)
-}
-*/
-
-@Composable
-fun CategoryDropdown(categories: List<String>,
-                     selectedCategory: String,
-                     onCategorySelected: (String) -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
-
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally // Center the dropdown
-    ) {
-        OutlinedButton(
-            onClick = { expanded = true },
-            modifier = Modifier.width(200.dp) // Adjust width as needed
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
+            // Dropdown Menu
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier.fillMaxWidth(0.9f)
             ) {
-                Text(
-                    text = selectedCategory,
-                    style = MaterialTheme.typography.headlineSmall, // Larger font size
-                    modifier = Modifier.weight(1f) // Allows text to take available space
-                )
-                Icon(Icons.Filled.ArrowDropDown, contentDescription = "Dropdown")
-            }
-        }
-
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier.width(200.dp) // Match width to the OutlinedButton
-        ) {
-            categories.filter { category -> category != "Choose a Category!" }.forEach { category ->
-                DropdownMenuItem(
-                    onClick = {
-                        onCategorySelected(category)
-                        expanded = false
-                    },
-                    text = {
-                        Text(
-                            text = category,
-                            style = MaterialTheme.typography.headlineSmall // Match font size in dropdown items
-                        )
-                    }
-                )
+                categories.filter { it != "Choose a Category!" }.forEach { category ->
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = category,
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier.fillMaxWidth(),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        },
+                        onClick = {
+                            onCategorySelected(category)
+                            expanded = false
+                        }
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-fun WardrobeDropdown(wardrobes: List<Wardrobe>,
-                     onWardrobeSelected: (Wardrobe) -> Unit) {
+fun WardrobeDropdown(
+    wardrobes: List<Wardrobe>,
+    onWardrobeSelected: (Wardrobe) -> Unit,
+    modifier: Modifier = Modifier
+) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedWardrobe by remember { mutableStateOf(wardrobes.firstOrNull()) } // Default to the first category if available
+    var selectedWardrobe by remember { mutableStateOf(wardrobes.firstOrNull()) }
 
     Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally // Center the dropdown
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        OutlinedButton(
-            onClick = { expanded = true },
-            modifier = Modifier.width(200.dp) // Adjust width as needed
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = selectedWardrobe?.wardrobeName ?: "Choose a Wardrobe!",
-                    style = MaterialTheme.typography.headlineSmall, // Larger font size
-                    modifier = Modifier.weight(1f) // Allows text to take available space
-                )
-                Icon(Icons.Filled.ArrowDropDown, contentDescription = "Dropdown")
-            }
-        }
+        Text(
+            text = "Wardrobe",
+            style = MaterialTheme.typography.labelLarge,
+            color = Color.Gray,
+            modifier = Modifier.padding(start = 4.dp)
+        )
 
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier.width(300.dp) // Match width to the OutlinedButton
-        ) {
-            wardrobes.forEach { wardrobe ->
-                DropdownMenuItem(
-                    onClick = {
-                        onWardrobeSelected(wardrobe)
-                        expanded = false
-                    },
-                    text = {
-                        Text(
-                            text = wardrobe.wardrobeName,
-                            style = MaterialTheme.typography.headlineMedium // Match font size in dropdown items
-                        )
-                    }
+        // Dropdown Button
+        Box(modifier = Modifier.fillMaxWidth()) {
+            OutlinedButton(
+                onClick = { expanded = true },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(4.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colorScheme.onSurface,
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                border = BorderStroke(
+                    1.dp,
+                    MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
                 )
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = selectedWardrobe?.wardrobeName ?: "Select Wardrobe",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = if (selectedWardrobe == null) {
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        } else {
+                            MaterialTheme.colorScheme.onSurface
+                        },
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Icon(
+                        Icons.Filled.ArrowDropDown,
+                        contentDescription = "Wardrobe Dropdown",
+                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
+
+            // Dropdown Menu
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier.fillMaxWidth(0.6f)
+            ) {
+                wardrobes.forEach { wardrobe ->
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = wardrobe.wardrobeName,
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier.fillMaxWidth(),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        },
+                        onClick = {
+                            selectedWardrobe = wardrobe
+                            onWardrobeSelected(wardrobe)
+                            expanded = false
+                        }
+                    )
+                }
             }
         }
     }

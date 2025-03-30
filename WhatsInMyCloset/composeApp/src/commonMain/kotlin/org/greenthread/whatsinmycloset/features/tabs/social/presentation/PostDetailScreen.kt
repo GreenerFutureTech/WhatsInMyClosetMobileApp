@@ -133,7 +133,7 @@ private fun UserInfoSection(username: String?, profilePicture: String?) {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun TagsSection(tags: List<String>) {
+fun TagsSection(tags: List<String>) {
     Column(modifier = Modifier.fillMaxWidth()) {
         FlowRow(
             modifier = Modifier.fillMaxWidth(),
