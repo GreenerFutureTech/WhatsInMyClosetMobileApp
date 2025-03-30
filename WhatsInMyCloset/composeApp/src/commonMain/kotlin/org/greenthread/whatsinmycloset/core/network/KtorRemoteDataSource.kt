@@ -451,7 +451,7 @@ class KtorRemoteDataSource(
         }
     }
 
-    override suspend fun getSentFriendRequests(userId: Int): Result<List<FriendRequestDto>, DataError.Remote> {
+    override suspend fun getSentFriendRequests(userId: Int, forceRefresh: Boolean): Result<List<FriendRequestDto>, DataError.Remote> {
         return safeCall {
             httpClient.get(
                 urlString = "$BASE_URL/users/$userId/friend-requests/sent"
@@ -459,7 +459,7 @@ class KtorRemoteDataSource(
         }
     }
 
-    override suspend fun getReceivedFriendRequests(userId: Int): Result<List<FriendRequestDto>, DataError.Remote> {
+    override suspend fun getReceivedFriendRequests(userId: Int, forceRefresh: Boolean): Result<List<FriendRequestDto>, DataError.Remote> {
         return safeCall {
             httpClient.get(
                 urlString = "$BASE_URL/users/$userId/friend-requests"
@@ -487,6 +487,14 @@ class KtorRemoteDataSource(
         return safeCall {
             httpClient.delete(
                 urlString = "$BASE_URL/users/friend-request/$senderId/$receiverId"
+            )
+        }
+    }
+
+    override suspend fun getFriendsByUserId(userId: Int, forceRefresh: Boolean): Result<List<UserDto>, DataError.Remote> {
+        return safeCall {
+            httpClient.get(
+                urlString = "$BASE_URL/users/$userId/friends"
             )
         }
     }

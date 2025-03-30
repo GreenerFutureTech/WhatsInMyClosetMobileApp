@@ -123,37 +123,51 @@ sealed class BarVisibility {
 @Composable
 fun NavController.getBarVisibility(): BarVisibility {
     val navBackStackEntry by currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route?.substringAfterLast(".")?.substringBefore("/")?.substringBefore("?")
 
-    return when (navBackStackEntry?.destination?.route?.substringAfterLast(".")) {
-
+    return when (currentRoute) {
         // Login
-        Routes.LoginTab.toString() -> BarVisibility.Hidden
-        Routes.SignUpTab.toString() -> BarVisibility.Hidden
+        Routes.LoginTab::class.simpleName -> BarVisibility.Hidden
+        Routes.SignUpTab::class.simpleName -> BarVisibility.Hidden
 
         // Notification Screen
-        Routes.NotificationsScreen.toString() -> BarVisibility.Custom(bottomBar = false, onlyBack = true, title = "Notifications")
+        Routes.NotificationsScreen::class.simpleName -> BarVisibility.Custom(bottomBar = false, onlyBack = true, title = "Notifications")
 
         // Swaps
-        Routes.AddSwapScreen.toString() -> BarVisibility.Custom(onlyBack = true, title = "Wardrobes")
-        Routes.AddSwapItemScreen.toString() -> BarVisibility.Custom(onlyBack = true,  title = "Add To Swap")
-        Routes.ChatScreen.toString() -> BarVisibility.Custom(bottomBar = false, onlyBack = true, title = "Chat")
-        Routes.MessageListScreen.toString() -> BarVisibility.Custom(title = "Messages", onlyBack = true)
-        Routes.AllSwapScreen.toString() -> BarVisibility.Custom(title = "All Swaps", onlyBack = true)
+        Routes.AddSwapScreen::class.simpleName -> BarVisibility.Custom(onlyBack = true, title = "Wardrobes")
+        Routes.AddSwapItemScreen::class.simpleName -> BarVisibility.Custom(onlyBack = true, title = "Add To Swap")
+        Routes.ChatScreen::class.simpleName -> BarVisibility.Custom(bottomBar = false, onlyBack = true, title = "Chat")
+        Routes.MessageListScreen::class.simpleName -> BarVisibility.Custom(title = "Messages", onlyBack = true)
+        Routes.AllSwapScreen::class.simpleName -> BarVisibility.Custom(title = "All Swaps", onlyBack = true)
 
         // Main Tabs
-        Routes.HomeTab.toString() -> BarVisibility.Custom(disableBack = true, title = "Home")
-        Routes.SwapTab.toString() -> BarVisibility.Custom(disableBack = true, title = "Swaps")
-        Routes.SocialTab.toString() -> BarVisibility.Custom(disableBack = true, title = "Social")
-        Routes.ProfileTab.toString() -> BarVisibility.Custom(disableBack = true, title = "Profile")
-        Routes.AddItemScreen.toString() -> BarVisibility.Custom(onlyBack = true, bottomBar = false)
+        Routes.HomeTab::class.simpleName -> BarVisibility.Custom(disableBack = true, title = "Home")
+        Routes.SwapTab::class.simpleName -> BarVisibility.Custom(disableBack = true, title = "Swaps")
+        Routes.SocialTab::class.simpleName -> BarVisibility.Custom(disableBack = true, title = "Social")
+        Routes.ProfileTab::class.simpleName -> BarVisibility.Custom(disableBack = true, title = "Profile")
+        Routes.AddItemScreen::class.simpleName -> BarVisibility.Custom(onlyBack = true, bottomBar = false, title = "Add Item")
+
+        Routes.HomeCategoryItemScreen::class.simpleName -> {
+            val args = navBackStackEntry?.toRoute<Routes.HomeCategoryItemScreen>()
+            BarVisibility.Custom(
+                onlyBack = true,
+                title = args?.categoryName ?: "Category"
+            )
+        }
+
+        // Outfit
+        //Routes.CreateOutfitScreen::class.simpleName -> BarVisibility.Hidden
+        //Routes.CategoryItemScreen::class.simpleName -> BarVisibility.Hidden
+        //Routes.OutfitSaveScreen::class.simpleName -> BarVisibility.Hidden
 
         // Misc
-        Routes.SettingsScreen.toString() -> BarVisibility.Custom(onlyBack = true, title = "Settings")
-        Routes.EditProfileScreen.toString() -> BarVisibility.Custom(onlyBack = true, title = "Edit Profile")
+        Routes.SettingsScreen::class.simpleName -> BarVisibility.Custom(onlyBack = true, title = "Settings")
+        Routes.EditProfileScreen::class.simpleName -> BarVisibility.Custom(onlyBack = true, title = "Edit Profile")
 
         // Profile
-        Routes.UserSearchScreen.toString() -> BarVisibility.Custom(onlyBack = true, title = "Search Users")
-        Routes.UserFriendsScreen.toString() -> BarVisibility.Custom(onlyBack = true, title = "Friends")
+        Routes.UserSearchScreen::class.simpleName -> BarVisibility.Custom(onlyBack = true, title = "Search Users")
+        Routes.UserFriendsScreen::class.simpleName -> BarVisibility.Custom(onlyBack = true, title = "Friends")
+        Routes.ProfileDetailsScreen::class.simpleName -> BarVisibility.Custom(disableBack = true, title = "Profile")
 
         // Add more specific route configurations as needed
         else -> BarVisibility.Visible
@@ -232,7 +246,7 @@ fun App(
                             onCreateOutfitClick =
                             {
                                 if (navController.currentBackStackEntry != null) {
-                                    navController.navigate(Routes.CreateOutfitScreen.Default)
+                                    navController.navigate(Routes.CreateOutfitScreen)
                                 }
                             }
                         )
@@ -327,7 +341,7 @@ fun App(
                                 navController = navController,
                                 category = categoryEnum.categoryName,
                                 onBack = { navController.popBackStack() },
-                                onDone = {Routes.CreateOutfitScreen.Default},
+                                onDone = {Routes.CreateOutfitScreen},
                                 clothingItemViewModel = sharedClothingItemViewModel,
                                 outfitViewModel = sharedOutfitViewModel
                             )
@@ -499,8 +513,8 @@ fun App(
                         val swapViewModel: SwapViewModel = koinViewModel()
                         val selectedSwapViewModel = backStackEntry.sharedKoinViewModel<SelectedSwapViewModel>(navController)
 
-                        LaunchedEffect(true) {
-                            selectedSwapViewModel.onSelectSwap(null)
+                        LaunchedEffect(args.userId) {
+                            viewModel.loadProfile(args.userId)
                         }
 
                         ProfileScreen(

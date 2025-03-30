@@ -126,7 +126,7 @@ fun SwapScreen(
         val query = searchString.lowercase()
         swap.swap.itemId.brand.lowercase().contains(query) ||
                 swap.swap.itemId.itemType.lowercase().contains(query) ||
-                swap.swap.itemId.tags.any { it.lowercase().contains(query) }
+                swap.swap.itemId.name.lowercase().contains(query)
     }
 
     Column(

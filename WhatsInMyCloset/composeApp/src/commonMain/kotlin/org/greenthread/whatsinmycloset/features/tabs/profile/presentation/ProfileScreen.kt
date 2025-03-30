@@ -43,6 +43,7 @@ import org.greenthread.whatsinmycloset.core.dto.OtherSwapDto
 import org.greenthread.whatsinmycloset.core.dto.UserDto
 import org.greenthread.whatsinmycloset.core.dto.toOtherSwapDto
 import org.greenthread.whatsinmycloset.core.ui.components.controls.SearchBar
+import org.greenthread.whatsinmycloset.features.tabs.profile.ConfirmationType
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabViewModel
 import org.greenthread.whatsinmycloset.features.tabs.profile.data.FriendshipStatus
 import org.greenthread.whatsinmycloset.features.tabs.swap.Action.SwapAction
@@ -81,6 +82,7 @@ fun ProfileScreen(
     )
 
      LaunchedEffect(userId) {
+         println("Profile Screen User Id $userId")
         profileViewModel.loadProfile(userId)
     }
 
@@ -107,6 +109,9 @@ fun ProfileScreen(
             )
             else -> Text(stringResource(Res.string.error_no_user_data)) // Fallback UI
         }
+
+        // Confirmation dialog for destructive actions
+        FriendActionConfirmationDialog(profileViewModel)
     }
 }
 
@@ -322,6 +327,7 @@ fun ProfileActions(
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.state.collectAsState()
+
     Row(modifier = modifier) {
         when (state.friendshipStatus) {
             FriendshipStatus.NOT_FRIENDS -> {
@@ -337,7 +343,7 @@ fun ProfileActions(
 
             FriendshipStatus.PENDING -> {
                 TextButton(
-                    onClick = { targetUserId?.let { viewModel.cancelRequest(it) } },
+                    onClick = { targetUserId?.let { viewModel.showConfirmation(ConfirmationType.CancelRequest, it) } },
                     enabled = !state.isLoading && targetUserId != null,
                     colors = ButtonDefaults.textButtonColors(
                         disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
@@ -365,7 +371,7 @@ fun ProfileActions(
                     }
 
                     OutlinedButton(
-                        onClick = { viewModel.respondToRequest(false) },
+                        onClick = { viewModel.showConfirmation(ConfirmationType.DeclineRequest, targetUserId!!) },
                         enabled = !state.isLoading
                     ) {
                         Text(stringResource(Res.string.decline_button))
@@ -376,7 +382,7 @@ fun ProfileActions(
             FriendshipStatus.FRIENDS -> {
                 OutlinedButton(
                     onClick = {
-                        targetUserId?.let { viewModel.removeFriend(it) }
+                        targetUserId?.let { viewModel.showConfirmation(ConfirmationType.RemoveFriend, it) }
                     },
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = MaterialTheme.colorScheme.errorContainer,

@@ -7,9 +7,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -34,13 +31,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import org.greenthread.whatsinmycloset.app.Routes
-import org.greenthread.whatsinmycloset.core.utilities.DateUtils
 import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.OutfitViewModel
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
@@ -99,7 +90,6 @@ fun OutfitSaveScreen(
                 item {
                     // Heading for the screen
                     OutfitScreenHeader(
-                        onExit = { showDiscardDialog = true },
                         title = "Select Tags"
                     )
                 }
@@ -124,6 +114,16 @@ fun OutfitSaveScreen(
                 item {
                     Spacer(modifier = Modifier.height(10.dp))
 
+                    // Button to open the "Create New Tag" dialog
+                    OutlinedButton(
+                        onClick = { showCreateTagDialog = true},
+                        modifier = Modifier.width(210.dp)
+                    ) {
+                        Text("Create New Outfit Tag")
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
                     // Calculate if the Done button should be enabled
                     val isDoneEnabled = selectedTags.isNotEmpty() || isPublic
 
@@ -144,16 +144,6 @@ fun OutfitSaveScreen(
                         },
                         isDoneEnabled = isDoneEnabled
                     )
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    // Button to open the "Create New Tag" dialog
-                    Button(
-                        onClick = { showCreateTagDialog = true},
-                        modifier = Modifier.width(210.dp)
-                    ) {
-                        Text("Create New Outfit Tag")
-                    }
                 }
             }   // end of Lazy Column
 

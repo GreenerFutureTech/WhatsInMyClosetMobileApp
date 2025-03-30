@@ -16,6 +16,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -59,6 +60,7 @@ import whatsinmycloset.composeapp.generated.resources.delete_swap_dialog_title
 import whatsinmycloset.composeapp.generated.resources.item_size
 import whatsinmycloset.composeapp.generated.resources.item_condition
 import whatsinmycloset.composeapp.generated.resources.item_brand
+import whatsinmycloset.composeapp.generated.resources.item_name
 
 @Composable
 fun SwapDetailScreen(
@@ -110,8 +112,7 @@ fun SwapDetailScreen(
         ) {
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
+                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -230,7 +231,6 @@ fun SwapDetailScreen(
 
             Box(
                 modifier = Modifier
-                    .padding(20.dp)
                     .fillMaxSize()
 
             ) {
@@ -274,7 +274,7 @@ fun SwapDetailScreen(
                         modifier = Modifier
                             .size(300.dp)
                             .clip(RoundedCornerShape(12.dp))
-                            .border(2.dp, Color.Black, RoundedCornerShape(12.dp))
+                            .border(2.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
                             .padding(2.dp)
                             .align(Alignment.CenterHorizontally),
                     ) {
@@ -293,7 +293,29 @@ fun SwapDetailScreen(
                             .fillMaxWidth()
                             .padding(vertical = 16.dp)
                     ) {
-                        Column(modifier = Modifier.padding(bottom = 8.dp)) {
+                        Column(modifier = Modifier.padding(bottom = 4.dp)) {
+                            Text(
+                                text = stringResource(Res.string.item_name),
+                                fontSize = 12.sp,
+                                color = Color.Gray,
+                                modifier = Modifier.padding(bottom = 4.dp)
+                            )
+                            Text(
+                                text = swapItem.itemId.name,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(bottom = 2.dp)
+                            )
+
+                        }
+
+                        HorizontalDivider(
+                            modifier = Modifier.padding(vertical = 4.dp),
+                            thickness = 1.dp,
+                            color = outlineVariantLight
+                        )
+
+                        Column(modifier = Modifier.padding(bottom = 4.dp)) {
                             Text(
                                 text = stringResource(Res.string.item_brand),
                                 fontSize = 12.sp,
@@ -304,23 +326,23 @@ fun SwapDetailScreen(
                                 text = swapItem.itemId.brand,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(bottom = 8.dp)
+                                modifier = Modifier.padding(bottom = 2.dp)
                             )
 
                         }
 
                         HorizontalDivider(
-                            modifier = Modifier.padding(vertical = 8.dp),
+                            modifier = Modifier.padding(vertical = 4.dp),
                             thickness = 1.dp,
                             color = outlineVariantLight
                         )
 
-                        Column(modifier = Modifier.padding(bottom = 8.dp)) {
+                        Column(modifier = Modifier.padding(bottom = 4.dp)) {
                             Text(
                                 text = stringResource(Res.string.item_size),
                                 fontSize = 12.sp,
                                 color = Color.Gray,
-                                modifier = Modifier.padding(bottom = 4.dp)
+                                modifier = Modifier.padding(bottom = 2.dp)
                             )
                             Text(
                                 text = swapItem.itemId.size,
@@ -330,17 +352,17 @@ fun SwapDetailScreen(
                         }
 
                         HorizontalDivider(
-                            modifier = Modifier.padding(vertical = 8.dp),
+                            modifier = Modifier.padding(vertical = 4.dp),
                             thickness = 1.dp,
                             color = outlineVariantLight
                         )
 
-                        Column(modifier = Modifier.padding(top = 8.dp)) {
+                        Column(modifier = Modifier.padding(top = 4.dp)) {
                             Text(
                                 text = stringResource(Res.string.item_condition),
                                 fontSize = 12.sp,
                                 color = Color.Gray,
-                                modifier = Modifier.padding(bottom = 4.dp)
+                                modifier = Modifier.padding(bottom = 2.dp)
                             )
                             Text(
                                 text = swapItem.itemId.condition,

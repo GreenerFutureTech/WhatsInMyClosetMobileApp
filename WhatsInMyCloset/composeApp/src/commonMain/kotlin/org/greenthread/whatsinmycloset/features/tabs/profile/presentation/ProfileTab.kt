@@ -65,8 +65,6 @@ fun ProfileScreenRoot(
         }
     }
 
-
-
     if (state.isLoading) {
         FullScreenLoading()
     } else if (state.error != null) {
