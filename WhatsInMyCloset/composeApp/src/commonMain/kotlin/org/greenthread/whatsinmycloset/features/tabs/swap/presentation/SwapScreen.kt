@@ -180,7 +180,7 @@ fun SwapScreen(
                     }
                 }
 
-                // 1-3. "Friends Items" 헤더 + 검색바
+                
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
