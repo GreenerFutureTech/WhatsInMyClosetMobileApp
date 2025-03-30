@@ -328,7 +328,8 @@ fun App(
                                 category = categoryEnum.categoryName,
                                 onBack = { navController.popBackStack() },
                                 onDone = {Routes.CreateOutfitScreen.Default},
-                                viewModel = sharedClothingItemViewModel
+                                clothingItemViewModel = sharedClothingItemViewModel,
+                                outfitViewModel = sharedOutfitViewModel
                             )
                         } else {
                             // Handle invalid category (e.g., show an error message)
@@ -357,7 +358,8 @@ fun App(
                                 itemId = itemId,
                                 category = category,
                                 onBack = { navController.popBackStack() },
-                                viewModel = sharedClothingItemViewModel
+                                clothingItemViewModel = sharedClothingItemViewModel,
+                                outfitViewModel = sharedOutfitViewModel
                             )
                         }
                     }

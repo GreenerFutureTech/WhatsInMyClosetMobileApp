@@ -67,8 +67,6 @@ fun OutfitScreen(
             derivedStateOf { outfitViewModel.selectedWardrobe.value }
         }
         val selectedItems by clothingItemViewModel.selectedItems.collectAsState()
-        val isCreateNewOutfit by outfitViewModel.isCreateNewOutfit.collectAsState()
-        val isOutfitSaved by outfitViewModel.isOutfitSaved.collectAsState()
 
         var showExitDialog by remember { mutableStateOf(false) }
 
@@ -403,20 +401,21 @@ fun CategoryItemsScreen(
     category: String,
     onBack: () -> Unit,
     onDone: () -> Unit,
-    viewModel: ClothingItemViewModel
+    outfitViewModel: OutfitViewModel,
+    clothingItemViewModel: ClothingItemViewModel
 ) {
     val categoryEnum = ClothingCategory.fromString(category)
     LaunchedEffect(categoryEnum) {
-        viewModel.setCategoryFilter(categoryEnum)
+        clothingItemViewModel.setCategoryFilter(categoryEnum)
     }
 
-    val categoryItems by viewModel.filteredItems.collectAsState()
-    val selectedWardrobe by viewModel.selectedWardrobe.collectAsState()
-    val wardrobes by viewModel.cachedWardrobes.collectAsState()
+    val categoryItems by clothingItemViewModel.filteredItems.collectAsState()
+    val selectedWardrobe by clothingItemViewModel.selectedWardrobe.collectAsState()
+    val wardrobes by clothingItemViewModel.cachedWardrobes.collectAsState()
 
     var selectedItemKeys by remember { mutableStateOf(setOf<Pair<String, ClothingCategory>>()) }
     var isSelectionMode by remember { mutableStateOf(false) }
-    var expanded by remember { mutableStateOf(false) }
+    var showExitDialog by remember { mutableStateOf(false) }
     var checked by remember { mutableStateOf(false) }
 
     Column(
@@ -427,7 +426,7 @@ fun CategoryItemsScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         OutfitScreenHeader(
-            onExit = { navController.navigate(Routes.HomeTab) },
+            onExit = { showExitDialog = true },
             title = "Select $category"
         )
 
@@ -456,7 +455,7 @@ fun CategoryItemsScreen(
                 wardrobes = wardrobes,
                 selectedWardrobe = selectedWardrobe,
                 onWardrobeSelected = { wardrobe ->
-                    viewModel.setWardrobeFilter(wardrobe)
+                    clothingItemViewModel.setWardrobeFilter(wardrobe)
                 }
             )
 
@@ -510,13 +509,29 @@ fun CategoryItemsScreen(
                     val selectedItems = categoryItems.filter {
                         selectedItemKeys.contains(it.id to it.itemType)
                     }
-                    viewModel.addSelectedItems(selectedItems)
+                    clothingItemViewModel.addSelectedItems(selectedItems)
                     navController.navigate(Routes.CreateOutfitScreen.Default)
                 },
                 isDoneEnabled = selectedItemKeys.isNotEmpty()
             )
         }
     }
+
+    // Show Exit Dialog
+    if (showExitDialog) {
+        DiscardOutfitDialog(
+            onConfirm = {
+                showExitDialog = false
+                // Discard the current outfit and create a new one
+                outfitViewModel.discardCurrentOutfit()
+                outfitViewModel.clearOutfitState() // Clear the outfit state
+                clothingItemViewModel.clearClothingItemState() // Clear the selected items state
+                navController.navigate(Routes.HomeTab) // Navigate to Home Tab
+            },
+            onDismiss = { showExitDialog = false }
+        )
+    }
+
 } /* end of CategoryItemsScreen */
 
 // this function displays all items in the selected category on screen
@@ -580,7 +595,8 @@ fun CategoryItemDetailScreen(
     itemId: String,
     category: ClothingCategory,
     onBack: () -> Unit,
-    viewModel: ClothingItemViewModel // Inject the ClothingItemViewModel
+    outfitViewModel: OutfitViewModel,
+    clothingItemViewModel: ClothingItemViewModel // Inject the ClothingItemViewModel
 
 ) {
 
@@ -589,15 +605,16 @@ fun CategoryItemDetailScreen(
 
     // State to hold the wardrobe name
     var wardrobeName by remember { mutableStateOf("Unknown Wardrobe") }
+    var showExitDialog by remember { mutableStateOf(false) }
 
     // Fetch the item details when the screen is first launched
     LaunchedEffect(wardrobeId, itemId, category) {
         //val item = viewModel.getItemDetail(wardrobeId, itemId, category)
-        val item = viewModel.getItemDetail(itemId)
+        val item = clothingItemViewModel.getItemDetail(itemId)
         selectedItem = item
 
         // Fetch the wardrobe name using the wardrobeId from the selected item
-        wardrobeName = viewModel.selectedWardrobe.value?.wardrobeName ?: "Unknown Wardrobe"
+        wardrobeName = clothingItemViewModel.selectedWardrobe.value?.wardrobeName ?: "Unknown Wardrobe"
     }
 
     /*println("DEBUG, CategoryItemDetailScreen -> " +
@@ -631,7 +648,7 @@ fun CategoryItemDetailScreen(
 
         // Heading for the selected category
         OutfitScreenHeader(
-            onExit = {navController.navigate(Routes.HomeTab)},
+            onExit = {showExitDialog = true},
             title = selectedItem!!.name
         )
 
@@ -683,6 +700,21 @@ fun CategoryItemDetailScreen(
                 color = Color.Gray
             )
         }
+    }
+
+    // Show Exit Dialog
+    if (showExitDialog) {
+        DiscardOutfitDialog(
+            onConfirm = {
+                showExitDialog = false
+                // Discard the current outfit and create a new one
+                outfitViewModel.discardCurrentOutfit()
+                outfitViewModel.clearOutfitState() // Clear the outfit state
+                clothingItemViewModel.clearClothingItemState() // Clear the selected items state
+                navController.navigate(Routes.HomeTab) // Navigate to Home Tab
+            },
+            onDismiss = { showExitDialog = false }
+        )
     }
 }
 
