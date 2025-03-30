@@ -69,7 +69,7 @@ kotlin {
             implementation(libs.bundles.ktor)
             implementation(libs.bundles.coil)
             implementation(libs.firebase.auth)
-
+            implementation(compose.materialIconsExtended)
             implementation(libs.kotlinx.datetime)
             implementation(libs.image.loader) // KMP image loader
         }

@@ -5,14 +5,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MailOutline
-import androidx.compose.material3.Icon
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
@@ -26,8 +25,6 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import io.ktor.client.network.sockets.ConnectTimeoutException
-import org.greenthread.whatsinmycloset.app.Routes
-import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.dto.MessageUserDto
 import org.greenthread.whatsinmycloset.core.dto.OtherSwapDto
 import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
@@ -129,126 +126,108 @@ fun SwapScreen(
                 swap.swap.itemId.name.lowercase().contains(query)
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(3),
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(8.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                modifier = Modifier,
-                fontSize = 17.sp,
-                fontWeight = FontWeight.Bold,
-                text = stringResource(Res.string.my_swap_item)
-            )
+        item(span = { GridItemSpan(3) }) {
+            Column {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.Bold,
+                        text = stringResource(Res.string.my_swap_item)
+                    )
+                    TextButton(onClick = onAllSwapClick) {
+                        Text(
+                            text = stringResource(Res.string.see_all_button),
+                            fontSize = 15.sp
+                        )
+                    }
+                }
 
-            TextButton(
-                onClick = { onAllSwapClick() },
-                modifier = Modifier
-            ) {
-                Text(
-                    text = stringResource(Res.string.see_all_button),
-                    fontSize = 15.sp
-                )
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(120.dp)
+                ) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .width(80.dp)
+                                .height(95.dp)
+                                .border(1.dp, onSurfaceLight, RoundedCornerShape(8.dp))
+                                .clickable(onClick = onAddSwapClick),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("+", fontSize = 30.sp, color = outlineVariantLight)
+                        }
+                    }
+                    itemsIndexed(state.getUserSwapResults) { _, item ->
+                        SwapImageCard(
+                            onSwapClick = { onAction(SwapAction.OnSwapClick(item.itemId.id)) },
+                            imageUrl = item.itemId.mediaUrl
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                    }
+                }
+
+                
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
+                ) {
+                    Text(
+                        modifier = Modifier.height(30.dp),
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.Bold,
+                        text = stringResource(Res.string.friends_items)
+                    )
+                    SearchBar(
+                        searchString = searchString,
+                        onSearchStringChange = { searchString = it },
+                        onSearch = {},
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
         }
 
-        LazyRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-                .height(120.dp)
-        ) {
-            item {
+        if (matchingSwaps.isEmpty() && searchString.isNotEmpty()) {
+            item(span = { GridItemSpan(3) }) {
                 Box(
                     modifier = Modifier
-                        .padding(8.dp)
-                        .width(80.dp)
-                        .height(95.dp)
-                        .border(1.dp, onSurfaceLight, RoundedCornerShape(8.dp))
-                        .clickable { onAddSwapClick() },
+                        .fillMaxWidth()
+                        .height(300.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        "+",
-                        fontSize = 30.sp,
-                        fontWeight = FontWeight.SemiBold,
+                        text = stringResource(Res.string.no_items_found),
+                        fontSize = 18.sp,
                         color = outlineVariantLight
                     )
                 }
             }
-            itemsIndexed(state.getUserSwapResults) { index, item ->
-                SwapImageCard(
-                    onSwapClick = {
-                        onAction(SwapAction.OnSwapClick(item.itemId.id))
-                    },
-                    imageUrl = item.itemId.mediaUrl
-                )
-                Spacer(modifier = Modifier.width(10.dp))
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-        ) {
-            Text(
-                modifier = Modifier.height(30.dp),
-                fontSize = 17.sp,
-                fontWeight = FontWeight.Bold,
-                text = stringResource(Res.string.friends_items)
-            )
-
-            SearchBar(
-                searchString = searchString,
-                onSearchStringChange = { searchString = it },
-                onSearch = {},
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        if (state.getOtherUserSwapResults.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(300.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = stringResource(Res.string.no_items_found),
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = outlineVariantLight
-                )
-            }
         } else {
-            val displayedSwaps = if (searchString.isEmpty()) state.getOtherUserSwapResults else matchingSwaps
+            val displayedSwaps = if (searchString.isEmpty())
+                state.getOtherUserSwapResults else matchingSwaps
 
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(3),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                itemsIndexed(displayedSwaps) { index, item ->
-                    SwapOtherImageCard(
-                        onSwapClick = {
-                            onAction(SwapAction.OnSwapClick(item.swap.itemId.id))
-                        },
-                        imageUrl = item.swap.itemId.mediaUrl,
-                        user = item.user
-                    )
-                }
+            itemsIndexed(displayedSwaps) { _, item ->
+                SwapOtherImageCard(
+                    onSwapClick = { onAction(SwapAction.OnSwapClick(item.swap.itemId.id)) },
+                    imageUrl = item.swap.itemId.mediaUrl,
+                    user = item.user
+                )
             }
         }
     }
 }
-

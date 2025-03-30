@@ -2,7 +2,9 @@ package org.greenthread.whatsinmycloset.features.tabs.home.presentation
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -20,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
+import org.greenthread.whatsinmycloset.features.tabs.social.presentation.TagsSection
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 import org.greenthread.whatsinmycloset.theme.outlineVariantLight
 import org.jetbrains.compose.resources.ExperimentalResourceApi
@@ -37,18 +40,17 @@ fun ItemDetailScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp),
+                .padding(8.dp)
+                .verticalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Spacer(modifier = Modifier.height(10.dp))
 
-
             Box(
                 modifier = Modifier
                     .padding(20.dp)
                     .fillMaxSize()
-
             ) {
                 Column(
                     modifier = Modifier
@@ -72,6 +74,12 @@ fun ItemDetailScreen(
                             onError = { imageLoadFailed = true }
                         )
                     }
+
+                    if (item.tags.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        TagsSection(tags = item.tags)
+                    }
+
 
                     Column(
                         modifier = Modifier

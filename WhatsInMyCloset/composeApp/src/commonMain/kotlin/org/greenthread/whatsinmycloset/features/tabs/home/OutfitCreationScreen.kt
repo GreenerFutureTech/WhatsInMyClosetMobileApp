@@ -82,7 +82,8 @@ fun OutfitScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(2.dp),
+                .padding(2.dp)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         )
         {
@@ -619,10 +620,8 @@ fun CategoryItemDetailScreen(
 
         // Tags Section
         if (selectedItem!!.tags.isNotEmpty()) {
-            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                TagsSection(tags = selectedItem!!.tags)
-                Spacer(modifier = Modifier.height(16.dp))
-            }
+            TagsSection(tags = selectedItem!!.tags)
+            Spacer(modifier = Modifier.height(16.dp))
         }
 
         Column(
