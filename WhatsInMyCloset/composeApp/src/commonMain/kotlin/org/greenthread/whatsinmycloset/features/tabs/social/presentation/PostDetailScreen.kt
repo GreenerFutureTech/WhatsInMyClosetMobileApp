@@ -35,8 +35,6 @@ import androidx.navigation.NavController
 import org.greenthread.whatsinmycloset.core.ui.components.outfits.OutfitBox
 import org.greenthread.whatsinmycloset.core.utilities.DateUtils.formatDateString
 import org.greenthread.whatsinmycloset.features.tabs.profile.presentation.ProfilePicture
-import org.greenthread.whatsinmycloset.features.tabs.social.data.OutfitState
-import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun PostDetailScreen(
@@ -82,7 +80,7 @@ fun PostDetailScreen(
                         color = MaterialTheme.colorScheme.outlineVariant,
                         shape = RoundedCornerShape(12.dp)
                     )
-                    .padding(4.dp) // Optional inner padding
+                    .padding(4.dp)
             ) {
                 OutfitBox(
                     state = outfit,

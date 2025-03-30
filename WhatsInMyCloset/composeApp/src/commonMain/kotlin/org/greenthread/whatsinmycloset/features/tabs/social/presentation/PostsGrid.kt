@@ -108,7 +108,6 @@ fun PostsGrid(
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(2),
                         modifier = Modifier.fillMaxWidth(),
-                        contentPadding = PaddingValues(8.dp)
                     ) {
                         items(state.outfits) { outfit ->
                             PostCard(

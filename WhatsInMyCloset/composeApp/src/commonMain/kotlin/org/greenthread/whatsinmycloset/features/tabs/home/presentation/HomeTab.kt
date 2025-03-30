@@ -482,16 +482,6 @@ fun SmallPostCard(
                 state = outfit,
                 modifier = Modifier.fillMaxWidth()
             )
-            Spacer(modifier = Modifier.height(12.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start
-            ) {
-                Text(
-                    text = outfit.name,
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
         }
     }
 }

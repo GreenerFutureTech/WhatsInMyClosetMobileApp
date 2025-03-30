@@ -43,18 +43,14 @@ fun PostCard(
             Spacer(modifier = Modifier.height(12.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.Start
             ) {
                 outfit.username?.let {
                     Text(
-                        text = outfit.username,
+                        text = "@${outfit.username}",
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
-                Text(
-                    text = outfit.name,
-                    style = MaterialTheme.typography.bodySmall
-                )
             }
         }
     }

@@ -295,8 +295,6 @@ fun PostsSection(
     }
 
     Column(modifier = modifier.fillMaxWidth()) {
-        OutfitSectionTitle(Res.string.my_outfits_title)
-
         Box(
             modifier = modifier
                 .fillMaxWidth()
@@ -328,7 +326,6 @@ fun PostsSection(
                         LazyVerticalGrid(
                             columns = GridCells.Fixed(2),
                             modifier = Modifier.fillMaxWidth(),
-                            contentPadding = PaddingValues(8.dp)
                         ) {
                             items(state.outfits) { outfit ->
                                 PostCard(
@@ -348,7 +345,6 @@ fun PostsSection(
                     }
                 }
             }
-
         }
     }
 }
