@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
+import org.greenthread.whatsinmycloset.features.tabs.social.presentation.TagsSection
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 import org.greenthread.whatsinmycloset.theme.outlineVariantLight
 import org.jetbrains.compose.resources.ExperimentalResourceApi
@@ -72,6 +73,12 @@ fun ItemDetailScreen(
                             onError = { imageLoadFailed = true }
                         )
                     }
+
+                    if (item.tags.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        TagsSection(tags = item.tags)
+                    }
+
 
                     Column(
                         modifier = Modifier

@@ -664,10 +664,8 @@ fun CategoryItemDetailScreen(
 
         // Tags Section
         if (selectedItem!!.tags.isNotEmpty()) {
-            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                TagsSection(tags = selectedItem!!.tags)
-                Spacer(modifier = Modifier.height(16.dp))
-            }
+            TagsSection(tags = selectedItem!!.tags)
+            Spacer(modifier = Modifier.height(16.dp))
         }
 
         Column(
