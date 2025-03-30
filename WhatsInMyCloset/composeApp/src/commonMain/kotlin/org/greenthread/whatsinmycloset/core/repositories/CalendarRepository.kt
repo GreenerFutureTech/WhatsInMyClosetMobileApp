@@ -29,9 +29,6 @@ open class CalendarRepository(
     val remoteSource: KtorRemoteDataSource
 ) {
 
-    private var lastSyncTime: Long = 0
-    private val syncCooldownMs = 5 * 60 * 1000 // 5 minutes
-
     suspend fun saveOutfitToCalendar(calendarEntry: CalendarEntry): Boolean {
         return try {
             // Convert to DTO matching server requirements
