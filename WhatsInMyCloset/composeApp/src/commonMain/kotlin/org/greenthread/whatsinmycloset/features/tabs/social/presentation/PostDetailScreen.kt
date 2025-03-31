@@ -2,6 +2,7 @@ package org.greenthread.whatsinmycloset.features.tabs.social.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,6 +33,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import org.greenthread.whatsinmycloset.app.Routes
 import kotlinx.coroutines.flow.update
 import org.greenthread.whatsinmycloset.core.ui.components.outfits.OutfitBox
 import org.greenthread.whatsinmycloset.core.utilities.DateUtils.formatDateString
@@ -84,8 +86,7 @@ fun PostDetailScreen(
             // Fetch from API if not in cache or state
             viewModel.fetchOutfitById(outfitId)
         } else if (outfit.items.isEmpty()) {
-            // Fetch items if they're missing
-            viewModel.fetchItemsForOutfit(outfitId)
+            viewModel.fetchItemsForOutfit(outfitId, outfit.userId)
         }
     }
 
@@ -109,7 +110,15 @@ fun PostDetailScreen(
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
-            UserInfoSection(outfit.username, outfit.profilePicture)
+            UserInfoSection(
+                outfit.username,
+                outfit.profilePicture
+            ) {
+                outfit.userId?.let { it ->
+                    navController.navigate(Routes.ProfileDetailsScreen(it))
+                }
+            }
+
             Spacer(modifier = Modifier.height(16.dp))
 
             Box(
@@ -140,9 +149,15 @@ fun PostDetailScreen(
     }
 }
 @Composable
-private fun UserInfoSection(username: String?, profilePicture: String?) {
+private fun UserInfoSection(
+    username: String?,
+    profilePicture: String?,
+    onClick: () -> Unit
+) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically
     ) {
 
