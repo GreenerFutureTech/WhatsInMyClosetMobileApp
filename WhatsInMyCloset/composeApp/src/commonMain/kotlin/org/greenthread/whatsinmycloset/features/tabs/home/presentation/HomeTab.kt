@@ -37,7 +37,6 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,24 +48,15 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.update
 import org.greenthread.whatsinmycloset.app.Routes
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
-import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
-import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
 import org.greenthread.whatsinmycloset.core.ui.components.outfits.OutfitBox
 import org.greenthread.whatsinmycloset.features.tabs.home.OutfitOfTheDayCalendar
-import org.greenthread.whatsinmycloset.features.tabs.profile.presentation.getCachedOutfits
 import org.greenthread.whatsinmycloset.features.tabs.social.data.OutfitState
-import org.greenthread.whatsinmycloset.features.tabs.social.data.PostState
-import org.greenthread.whatsinmycloset.features.tabs.social.data.toOutfitState
-import org.greenthread.whatsinmycloset.features.tabs.social.presentation.PostViewModel
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
@@ -115,14 +105,6 @@ fun HomeTabScreen(
     navController: NavController,
 ){
     var showCalendar by remember { mutableStateOf(false) }
-
-    val state by viewModel!!.state.collectAsStateWithLifecycle()
-
-    LaunchedEffect(Unit) {
-        viewModel!!.cachedOutfits.collectLatest {
-            viewModel.refreshOutfits()
-        }
-    }
 
     var wardrobe: Wardrobe? = null
 
@@ -481,9 +463,9 @@ fun RecentPosts(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    val recentPosts = state.outfits
-            .sortedByDescending { it.createdAt }
-            .take(3)
+    val recentPosts = remember(state.outfits) {
+        state.outfits.sortedByDescending { it.createdAt }.take(3)
+    }
 
     Column (
       modifier = modifier

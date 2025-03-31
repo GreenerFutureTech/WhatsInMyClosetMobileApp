@@ -13,10 +13,10 @@ import kotlinx.coroutines.withContext
 import org.greenthread.whatsinmycloset.core.domain.DataError
 import org.greenthread.whatsinmycloset.core.domain.Result
 import org.greenthread.whatsinmycloset.core.domain.getOrNull
-import org.greenthread.whatsinmycloset.core.domain.models.OffsetData
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.domain.onError
+import org.greenthread.whatsinmycloset.core.dto.OutfitDto
 import org.greenthread.whatsinmycloset.core.persistence.OutfitItems
 import org.greenthread.whatsinmycloset.core.repositories.OutfitRepository
 
@@ -111,14 +111,14 @@ open class OutfitManager(
         )
     }
 
-    suspend fun saveOutfit(outfit: Outfit): String? {
+    suspend fun saveOutfit(outfit: Outfit): OutfitDto? {
         return try {
-            val serverOutfitId = outfitRepository.saveOutfit(outfit)    // use this for saving outfit in calendar
-            if (serverOutfitId != null) {
-                _cachedOutfits.update { it + outfit.copy(id = serverOutfitId) }
-                println("Outfit saved successfully: $serverOutfitId")
+            val outfitDto = outfitRepository.saveOutfit(outfit)    // use this for saving outfit in calendar
+            if (outfitDto != null) {
+                _cachedOutfits.update { it + outfit.copy(id = outfitDto.id, createdAt = outfitDto.createdAt) }
+                println("Outfit saved successfully: $outfitDto")
             }
-            serverOutfitId
+            outfitDto
         } catch (e: Exception) {
             println("Outfit save failure: ${e.message}")
             null

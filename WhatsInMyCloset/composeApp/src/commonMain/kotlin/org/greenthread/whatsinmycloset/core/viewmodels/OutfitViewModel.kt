@@ -6,17 +6,13 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.datetime.LocalDate
 import org.greenthread.whatsinmycloset.core.domain.models.CalendarEntry
-import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.domain.models.OffsetData
 import org.greenthread.whatsinmycloset.core.managers.OutfitManager
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
-import org.greenthread.whatsinmycloset.core.domain.models.toEntity
 import org.greenthread.whatsinmycloset.core.managers.CalendarManager
 import org.greenthread.whatsinmycloset.core.managers.WardrobeManager
 import org.greenthread.whatsinmycloset.core.persistence.OutfitEntity
@@ -130,12 +126,12 @@ open class OutfitViewModel(
             tags = selectedTags
         )
 
-        val outfitId = outfitManager.saveOutfit(outfit) ?: return false
+        val outfitDto = outfitManager.saveOutfit(outfit) ?: return false
 
         if (addToCalendar && date != null) {
             val success = calendarManager.saveOutfitToCalendar(
                 CalendarEntry(
-                    outfitId = outfitId,    // outfitId returned by server
+                    outfitId = outfitDto.id,    // outfitId returned by server
                     userId = userId,
                     date = date
                 )

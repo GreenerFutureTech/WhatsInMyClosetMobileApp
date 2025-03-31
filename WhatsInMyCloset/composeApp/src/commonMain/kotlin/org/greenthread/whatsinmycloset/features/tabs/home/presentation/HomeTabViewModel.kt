@@ -2,6 +2,9 @@ package org.greenthread.whatsinmycloset.features.tabs.home.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -37,6 +40,12 @@ class HomeTabViewModel(
                 Pair(outfits, items)
             }.collectLatest { (outfits, items) ->
                 updateOutfitsState(outfits, items)
+            }
+
+            CoroutineScope(Dispatchers.IO).launch {
+                cachedOutfits.collectLatest {
+                    refreshOutfits()
+                }
             }
         }
     }

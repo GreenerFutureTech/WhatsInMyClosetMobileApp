@@ -2,10 +2,7 @@ package org.greenthread.whatsinmycloset.core.repositories
 
 import androidx.sqlite.SQLiteException
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import org.greenthread.whatsinmycloset.core.data.daos.OutfitDao
 import org.greenthread.whatsinmycloset.core.domain.DataError
 import org.greenthread.whatsinmycloset.core.domain.EmptyResult
@@ -14,7 +11,7 @@ import org.greenthread.whatsinmycloset.core.domain.getOrNull
 import org.greenthread.whatsinmycloset.core.domain.isSuccess
 import org.greenthread.whatsinmycloset.core.domain.map
 import org.greenthread.whatsinmycloset.core.domain.models.Outfit
-import org.greenthread.whatsinmycloset.core.domain.models.toDomain
+import org.greenthread.whatsinmycloset.core.dto.OutfitDto
 import org.greenthread.whatsinmycloset.core.dto.toOutfit
 import org.greenthread.whatsinmycloset.core.network.KtorRemoteDataSource
 import org.greenthread.whatsinmycloset.core.persistence.OutfitEntity
@@ -37,15 +34,14 @@ open class OutfitRepository(
         outfits.forEach { outfitDao.insertOutfit(it) }
     }
 
-    suspend fun saveOutfit(outfit: Outfit): String? {
+    suspend fun saveOutfit(outfit: Outfit): OutfitDto? {
         return try {
             val remoteResult = remoteSource.postOutfitForUser(outfit.toDto())
             println("Server response: $remoteResult")
 
             if (remoteResult.isSuccess()) {
-                remoteResult.getOrNull()?.let { dto ->
+                remoteResult.getOrNull()?.also { dto ->
                     outfitDao.insertOutfit(OutfitEntity.fromDto(dto))
-                    dto.id
                 }
             } else {
                 null
