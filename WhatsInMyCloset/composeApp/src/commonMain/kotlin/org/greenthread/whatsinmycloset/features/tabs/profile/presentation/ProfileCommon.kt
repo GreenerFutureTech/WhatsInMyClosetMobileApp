@@ -325,7 +325,8 @@ fun PostsSection(
                     else -> {
                         LazyVerticalGrid(
                             columns = GridCells.Fixed(2),
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth().height(400.dp),
+                            contentPadding = PaddingValues(4.dp)
                         ) {
                             items(state.outfits) { outfit ->
                                 PostCard(

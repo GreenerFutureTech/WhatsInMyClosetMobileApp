@@ -45,11 +45,18 @@ fun PostCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Start
             ) {
-                outfit.username?.let {
+                if (outfit.username == currentUser?.username) {
                     Text(
-                        text = "@${outfit.username}",
+                        text = outfit.name,
                         style = MaterialTheme.typography.bodyMedium
                     )
+                } else {
+                    outfit.username?.let {
+                        Text(
+                            text = "@${outfit.username}",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
                 }
             }
         }
