@@ -80,29 +80,31 @@ fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManage
     val contentWidth = 280.dp
 
     LaunchedEffect(itemImage) {
-        //
-        //
-        //To enable image segmentation
-        //
-        //
           itemImage?.let { imageBytes ->
-            println("Segmentation part 1")
+              try{
+                  println("Segmentation part 1")
 
-           bitmap = imageBytes.toImageBitmap()
-           bitmapFile = imageBytes.toBitmap()
+                  bitmap = imageBytes.toImageBitmap()
+                  bitmapFile = imageBytes.toBitmap()
 
-           if (!hasSegmented) {  // Only run segmentation once
-                subjectSegmentation(imageBytes) { result ->
-                    if (result != null) {
-                        println("Segmentation successful!")
-                        itemImage = result
-                        bitmap = result.toImageBitmap()  // ✅ Triggers recomposition once
-                        hasSegmented = true
-                    } else {
-                        println("Segmentation failed!")
-                    }
-                }
-           }
+                  if (!hasSegmented) {  // Only run segmentation once
+                      subjectSegmentation(imageBytes) { result ->
+                          if (result != null) {
+                              println("Segmentation successful!")
+                              itemImage = result
+                              bitmap = result.toImageBitmap()  // ✅ Triggers recomposition once
+                              hasSegmented = true
+                          } else {
+                              println("Segmentation failed!")
+                          }
+                      }
+                  }
+              }
+              catch (e: Exception)
+              {
+                  println("Out of memory error: ${e.message}")
+                  hasSegmented = false // Allow retry
+              }
         }
     }
 

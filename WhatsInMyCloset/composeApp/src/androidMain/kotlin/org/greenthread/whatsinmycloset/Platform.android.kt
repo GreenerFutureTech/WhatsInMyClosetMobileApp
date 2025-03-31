@@ -70,7 +70,19 @@ actual class CameraManager(private val context: Context) {
     private var onPhotoTakenCallback: ((ByteArray) -> Unit)? = null
 
     fun getRotatedBitmap(imagePath: String): Bitmap {
-        val bitmap = BitmapFactory.decodeFile(imagePath)
+
+        val options = BitmapFactory.Options().apply {
+            inJustDecodeBounds = true
+        }
+
+        BitmapFactory.decodeFile(imagePath, options)
+
+        options.inSampleSize = calculateInSampleSize(options, 1024, 1024)
+        options.inJustDecodeBounds = false
+        options.inPreferredConfig = Bitmap.Config.RGB_565
+
+        val bitmap = BitmapFactory.decodeFile(imagePath, options)
+
         val exif = ExifInterface(imagePath)
 
         val rotation = when (exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)) {
@@ -86,6 +98,22 @@ actual class CameraManager(private val context: Context) {
         } else {
             bitmap
         }
+    }
+
+    private fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
+        val (height, width) = options.outHeight to options.outWidth
+        var inSampleSize = 1
+
+        if (height > reqHeight || width > reqWidth) {
+            val halfHeight = height / 2
+            val halfWidth = width / 2
+
+            while (halfHeight / inSampleSize >= reqHeight &&
+                halfWidth / inSampleSize >= reqWidth) {
+                inSampleSize *= 2
+            }
+        }
+        return inSampleSize
     }
 
     @Composable
@@ -260,37 +288,80 @@ fun byteArrayToBitmap(byteArray: ByteArray): Bitmap? {
 }
 
 actual fun subjectSegmentation(byteArray: ByteArray, onResult: (ByteArray?) -> Unit) {
+    // First decode with options to reduce memory usage
+    val options = BitmapFactory.Options().apply {
+        inSampleSize = 4 // Reduce image dimensions by factor of 4
+        inPreferredConfig = Bitmap.Config.RGB_565 // Use less memory per pixel
+    }
 
-    val bitmap = byteArrayToBitmap(byteArray)
+    val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size, options)
     if (bitmap == null) {
         println("Failed to decode ByteArray into a Bitmap.")
+        onResult(null)
         return
     }
 
+    // Further resize if needed
+    val maxDimension = 1024 // Keep maximum dimension at 1024px
+    val scale = maxDimension.toFloat() / maxOf(bitmap.width, bitmap.height)
+    if (scale < 1.0f) {
+        val scaledWidth = (bitmap.width * scale).toInt()
+        val scaledHeight = (bitmap.height * scale).toInt()
+        val scaledBitmap = Bitmap.createScaledBitmap(bitmap, scaledWidth, scaledHeight, true)
+        bitmap.recycle() // Free the original bitmap memory
+        processSegmentation(scaledBitmap, onResult)
+    } else {
+        processSegmentation(bitmap, onResult)
+    }
+}
+
+private fun processSegmentation(bitmap: Bitmap, onResult: (ByteArray?) -> Unit) {
     val image = InputImage.fromBitmap(bitmap, 0)
-    println("byteArray size: ${byteArray.size}")
+    println("Processing bitmap with dimensions: ${bitmap.width}x${bitmap.height}")
 
     val options = SubjectSegmenterOptions.Builder()
         .enableForegroundBitmap()
         .build()
 
     val segmenter = SubjectSegmentation.getClient(options)
-    var foregroundBitmap: Bitmap? = null
 
     segmenter.process(image)
         .addOnSuccessListener { result ->
-            foregroundBitmap = result.foregroundBitmap
-             val segmentedByteArray = foregroundBitmap?.let { bmp ->
-                val size = bmp.rowBytes * bmp.height
-                val byteBuffer = ByteBuffer.allocate(size)
-                bmp.copyPixelsToBuffer(byteBuffer)
-                byteBuffer.array()
-            }
-            onResult(bitmapToByteArray(foregroundBitmap)) // Pass the result to the callback
+            val foregroundBitmap = result.foregroundBitmap
+            val segmentedByteArray = bitmapToByteArray(foregroundBitmap)
+            foregroundBitmap?.recycle() // Free memory
+            onResult(segmentedByteArray)
         }
         .addOnFailureListener {
-            onResult(null) // Pass null on failure
+            bitmap.recycle() // Free memory on failure
+            onResult(null)
         }
+}
+
+fun ByteArray.toImageBitmap(maxDimension: Int = -1): ImageBitmap {
+    val options = BitmapFactory.Options().apply {
+        inSampleSize = if (maxDimension > 0) 2 else 1
+        inPreferredConfig = Bitmap.Config.RGB_565
+    }
+
+    var bitmap = BitmapFactory.decodeByteArray(this, 0, size, options)
+
+    // Further downscale if needed
+    if (maxDimension > 0) {
+        val scale = maxDimension.toFloat() / maxOf(bitmap.width, bitmap.height)
+        if (scale < 1.0f) {
+            val scaledBitmap = Bitmap.createScaledBitmap(
+                bitmap,
+                (bitmap.width * scale).toInt(),
+                (bitmap.height * scale).toInt(),
+                true
+            )
+            bitmap.recycle()
+            bitmap = scaledBitmap
+        }
+    }
+
+    return bitmap.asImageBitmap()
 }
 
 actual fun bitmapToByteArray(bitmap: Any?): ByteArray {
