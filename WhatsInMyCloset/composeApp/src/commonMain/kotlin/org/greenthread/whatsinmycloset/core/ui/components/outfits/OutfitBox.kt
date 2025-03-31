@@ -71,7 +71,7 @@ fun OutfitBox(
                             )
 
                             LoadImage(
-                                imageUrl = item.mediaUrl,
+                                imageUrl = item.mediaUrl!!,
                                 contentDescription = "Clothing item",
                                 x = scaledX.coerceIn(0f, boxWidth - dynamicItemWidth), // Limit x coordinate
                                 y = scaledY.coerceIn(0f, boxHeight - dynamicItemHeight), // Limit y coordinate

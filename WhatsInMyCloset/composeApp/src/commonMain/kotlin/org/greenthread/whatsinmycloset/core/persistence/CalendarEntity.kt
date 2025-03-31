@@ -13,7 +13,7 @@ import kotlinx.datetime.toLocalDateTime
     foreignKeys = [
         ForeignKey(
             entity = OutfitEntity::class,
-            parentColumns = ["outfitId"], // Primary key in OutfitEntity
+            parentColumns = ["id"], // Primary key in OutfitEntity
             childColumns = ["outfitId"], // Foreign key in CalendarEntity
             onUpdate = ForeignKey.CASCADE
         )

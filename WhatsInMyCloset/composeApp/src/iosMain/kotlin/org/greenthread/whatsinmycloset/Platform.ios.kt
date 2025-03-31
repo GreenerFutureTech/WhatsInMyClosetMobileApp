@@ -3,6 +3,7 @@ package org.greenthread.whatsinmycloset
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -27,7 +28,7 @@ actual fun BackHandler(enabled: Boolean, onBackPressed: () -> Unit) {
 
 actual class CameraManager {
     @Composable
-    actual fun TakePhotoButton(onPhotoTaken: (ByteArray) -> Unit) {
+    actual fun TakePhotoButton(buttonText: MutableState<String>, onPhotoTaken: (ByteArray) -> Unit) {
         Button(onClick = {
 
             // Use Swift/Objective-C interop to open the camera and capture the photo

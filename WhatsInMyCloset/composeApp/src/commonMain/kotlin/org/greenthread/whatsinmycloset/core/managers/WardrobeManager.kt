@@ -17,6 +17,8 @@ import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.domain.models.toEntity
 import org.greenthread.whatsinmycloset.core.domain.onError
+import org.greenthread.whatsinmycloset.core.dto.ItemDto
+import org.greenthread.whatsinmycloset.core.persistence.OutfitItems
 import org.greenthread.whatsinmycloset.core.persistence.WardrobeEntity
 import org.greenthread.whatsinmycloset.core.persistence.toWardrobeEntity
 import org.greenthread.whatsinmycloset.core.repositories.WardrobeRepository
@@ -62,6 +64,13 @@ open class WardrobeManager(
 
     fun getItems(): List<ClothingItem> {
         return cachedItems.value
+    }
+
+    fun getItemsInOutfit(outfitItems: List<OutfitItems>): List<ClothingItem> {
+        val itemIds = outfitItems.map { it.id ?: "" } // Extract all IDs
+        return cachedItems.value.filter { clothingItem ->
+            clothingItem.id in itemIds
+        }
     }
 
     fun getItemsByCategory(category: ClothingCategory): List<ClothingItem> {

@@ -1,7 +1,6 @@
 package org.greenthread.whatsinmycloset.core.network
 
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
 import io.ktor.client.request.delete
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
@@ -28,7 +27,6 @@ import org.greenthread.whatsinmycloset.core.dto.ItemDto
 import org.greenthread.whatsinmycloset.core.dto.MessageDto
 import org.greenthread.whatsinmycloset.core.dto.OtherSwapDto
 import org.greenthread.whatsinmycloset.core.dto.OutfitDto
-import org.greenthread.whatsinmycloset.core.dto.OutfitResponse
 import org.greenthread.whatsinmycloset.core.dto.SendMessageRequest
 import org.greenthread.whatsinmycloset.core.dto.SwapDto
 import org.greenthread.whatsinmycloset.core.dto.SwapStatusDto
@@ -407,7 +405,7 @@ class KtorRemoteDataSource(
     }
 
     // outfits -- post outfits
-    override suspend fun postOutfitForUser(outfit: OutfitDto): Result<OutfitResponse, DataError.Remote> {
+    override suspend fun postOutfitForUser(outfit: OutfitDto): Result<OutfitDto, DataError.Remote> {
         return safeCall {
             httpClient.post("$BASE_URL/outfits") {
                     contentType(ContentType.Application.Json)

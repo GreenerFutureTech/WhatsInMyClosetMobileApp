@@ -10,7 +10,6 @@ import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.domain.models.toCalendarEntry
 import org.greenthread.whatsinmycloset.core.repositories.CalendarRepository
-import org.greenthread.whatsinmycloset.core.domain.models.toOutfit
 import org.greenthread.whatsinmycloset.core.persistence.Converters
 
 open class CalendarManager(

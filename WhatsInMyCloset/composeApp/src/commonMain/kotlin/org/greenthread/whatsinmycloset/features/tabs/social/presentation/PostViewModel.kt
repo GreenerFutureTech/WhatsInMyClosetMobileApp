@@ -1,5 +1,8 @@
 package org.greenthread.whatsinmycloset.features.tabs.social.presentation
 
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -8,20 +11,31 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.greenthread.whatsinmycloset.core.domain.getOrNull
+import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
+import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.domain.onError
 import org.greenthread.whatsinmycloset.core.domain.onSuccess
+import org.greenthread.whatsinmycloset.core.dto.toClothingItem
+import org.greenthread.whatsinmycloset.core.managers.OutfitManager
+import org.greenthread.whatsinmycloset.core.managers.WardrobeManager
 import org.greenthread.whatsinmycloset.core.repository.DefaultClosetRepository
 import org.greenthread.whatsinmycloset.features.tabs.social.data.OutfitState
 import org.greenthread.whatsinmycloset.features.tabs.social.data.PostState
+import org.koin.compose.koinInject
 
 open class PostViewModel(
     private val itemRepository: DefaultClosetRepository,
-    private val userManager: UserManager
+    private val userManager: UserManager,
+    private val outfitManager: OutfitManager,
+    private val wardrobeManager: WardrobeManager
 ) : ViewModel() {
     val currentUser = userManager.currentUser
     private val _state = MutableStateFlow(PostState())
     val state = _state
+
+    val cachedOutfits: StateFlow<List<Outfit>> = outfitManager.cachedOutfits
+    val cachedItems: StateFlow<List<ClothingItem>> = wardrobeManager.cachedItems
 
     // holds the refreshing state for UI updates when refreshing
     private val _isRefreshing = MutableStateFlow(false)
@@ -35,7 +49,7 @@ open class PostViewModel(
         viewModelScope.launch {
             _state.update{ it.copy( isLoading = true) }
 
-            currentUser.value?.id?.let {
+            currentUser.value?.id?.let { it ->
                 itemRepository.getFriendsOutfits(it)
                     .onSuccess { outfits ->
                         val outfitsList = outfits.map { outfit ->
@@ -46,8 +60,9 @@ open class PostViewModel(
                                 isLoading = true,
                                 username = outfit.creator?.username,
                                 profilePicture = outfit.creator?.profilePicture,
+                                createdAt = outfit.createdAt
                             )
-                        }
+                        }.sortedByDescending { it.createdAt }
                         println("OUTFIT LIST: $outfitsList")
 
                         _state.update {
@@ -58,7 +73,7 @@ open class PostViewModel(
                         }
                         // Load items for each outfit
                         outfitsList.forEach { outfit ->
-                            fetchItemsForOutfit(outfit.outfitId)
+                            fetchItemsForOutfit(outfit.outfitId, outfit.userId)
                         }
                     }
                     .onError { error ->
@@ -69,19 +84,27 @@ open class PostViewModel(
         }
     }
 
-    fun fetchItemsForOutfit(outfitId: String) {
+    fun fetchItemsForOutfit(outfitId: String, userId: Int?) {
         viewModelScope.launch {
             val outfit = _state.value.outfits.find { it.outfitId == outfitId } ?: return@launch
             // Mark as loading while fetching items from outfit
             loadOutfit(outfitId) { it.copy(isLoading = true) }
             val results = outfit.itemIds.mapNotNull { itemId ->
-                itemId.id?.let { itemRepository.getItemById(it).getOrNull() }
+                itemId.id?.let { id ->
+                    try {
+                        itemRepository.getItemById(id).getOrNull()?.toClothingItem()
+                    } catch (e: Exception) {
+                        // Log conversion error but continue with other items
+                        println("Error converting item $id: ${e.message}")
+                        null
+                    }
+                }
             }
-            // Update OutfitState with items
             loadOutfit(outfitId) {
                 it.copy(
                     items = results,
-                    isLoading = false
+                    isLoading = false,
+                    userId = userId ?: it.userId
                 )
             }
         }
@@ -110,7 +133,8 @@ open class PostViewModel(
                             itemIds = emptyList(),
                             isLoading = true,
                             username = "",
-                            profilePicture = ""
+                            profilePicture = "",
+                            createdAt = ""
                         )
                     )
                 }
@@ -145,7 +169,7 @@ open class PostViewModel(
                     }
 
                     // Fetch items separately
-                    fetchItemsForOutfit(outfitId)
+                    fetchItemsForOutfit(outfitId, outfitDto.userId)
                 }
                 .onError { error ->
                     _state.update { state ->
@@ -178,9 +202,10 @@ open class PostViewModel(
                             isLoading = true,
                             username = outfit.creator?.username,
                             profilePicture = outfit.creator?.profilePicture,
-                            userId = outfit.userId
+                            userId = outfit.userId,
+                            createdAt = outfit.createdAt
                         )
-                    }
+                    }.sortedByDescending { it.createdAt }
 
                     _state.update {
                         it.copy(
@@ -191,7 +216,7 @@ open class PostViewModel(
 
                     // Load items for each outfit
                     outfitsList.forEach { outfit ->
-                        fetchItemsForOutfit(outfit.outfitId)
+                        fetchItemsForOutfit(outfit.outfitId, outfit.userId)
                     }
                 }
                 .onError { error ->

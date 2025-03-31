@@ -58,6 +58,7 @@ import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.dto.MessageUserDto
 import org.greenthread.whatsinmycloset.core.dto.toOtherSwapDto
 import org.greenthread.whatsinmycloset.core.managers.CalendarManager
+import org.greenthread.whatsinmycloset.core.managers.OutfitManager
 import org.greenthread.whatsinmycloset.core.managers.WardrobeManager
 import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
 import org.greenthread.whatsinmycloset.core.viewmodels.OutfitViewModel
@@ -161,7 +162,7 @@ fun NavController.getBarVisibility(): BarVisibility {
         // Outfit
         Routes.CreateOutfitScreen::class.simpleName -> BarVisibility.Hidden
         Routes.CategoryItemScreen::class.simpleName -> BarVisibility.Hidden
-        Routes.OutfitSaveScreen::class.simpleName -> BarVisibility.Hidden
+        Routes.OutfitSaveScreen::class.simpleName -> BarVisibility.Custom(onlyBack = true, bottomBar = false)
         Routes.CategoryItemDetailScreen::class.simpleName -> BarVisibility.Custom(onlyBack = true)
         Routes.OutfitOfTheDay::class.simpleName -> BarVisibility.Custom(onlyBack = true, bottomBar = false)
         Routes.OutfitDetailScreen::class.simpleName -> BarVisibility.Custom(onlyBack = true, bottomBar = false)
@@ -195,6 +196,7 @@ fun App(
     photoManager: PhotoManager?
 ) {
     val wardrobeManager = koinInject<WardrobeManager>()
+    val outfitManager = koinInject<OutfitManager>()
     val userManager = koinInject<UserManager>()
     val calendarManager = koinInject<CalendarManager>()
     val navController = rememberNavController()

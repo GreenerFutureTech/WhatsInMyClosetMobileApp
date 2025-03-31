@@ -25,7 +25,7 @@ interface CalendarDao {
     @Transaction
     @Query("""
         SELECT outfits.* FROM outfits
-        INNER JOIN calendar ON outfits.outfitId = calendar.outfitId
+        INNER JOIN calendar ON outfits.id = calendar.outfitId
         WHERE calendar.date = :date AND calendar.userId = :userId
     """)
     fun getOutfitForDate(userId: String, date: String): Flow<OutfitEntity?>
@@ -36,15 +36,15 @@ interface CalendarDao {
             calendar.outfitId AS calendarOutfitId,
             calendar.userId,
             calendar.date,
-            outfits.outfitId,
+            outfits.id,
             outfits.name,
-            outfits.creatorId,
-            outfits.items,
+            outfits.userId,
+            outfits.itemIds,
             outfits.tags,
-            outfits.calendarDates,
-            outfits.createdAt
+            outfits.createdAt,
+            outfits.creator
         FROM calendar
-        INNER JOIN outfits ON calendar.outfitId = outfits.outfitId
+        INNER JOIN outfits ON calendar.outfitId = outfits.id
         WHERE calendar.userId = :userId
     """)
     fun getCalendarEntriesWithOutfits(userId: String): Flow<List<CalendarWithOutfit>>

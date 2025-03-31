@@ -38,10 +38,12 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.selects.select
 import org.greenthread.whatsinmycloset.BackHandler
 import org.greenthread.whatsinmycloset.app.AppTopBar
 import org.greenthread.whatsinmycloset.app.Routes
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
+import org.greenthread.whatsinmycloset.core.persistence.OutfitItems
 import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
 import org.greenthread.whatsinmycloset.core.utilities.CoordinateNormalizer
 import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
@@ -51,7 +53,11 @@ import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 import org.greenthread.whatsinmycloset.theme.outlineVariantLight
 import org.greenthread.whatsinmycloset.theme.secondaryLight
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import whatsinmycloset.composeapp.generated.resources.Res
+import whatsinmycloset.composeapp.generated.resources.item_brand
+import whatsinmycloset.composeapp.generated.resources.item_name
+import whatsinmycloset.composeapp.generated.resources.item_size
 import whatsinmycloset.composeapp.generated.resources.wardrobe
 
 @Composable
@@ -242,7 +248,7 @@ fun WardrobeDropdown(
 // show the items user selected to create an outfit
 @Composable
 fun OutfitCollageArea(
-    temporaryPositions: Map<String, OffsetData>,
+    temporaryPositions: List<OutfitItems>,
     selectedClothingItems: List<ClothingItem>,
     onPositionUpdate: (String, OffsetData) -> Unit)
 {
@@ -253,6 +259,17 @@ fun OutfitCollageArea(
         canvasWidth,
         canvasHeight
     )
+
+    // Ensures they are in the outfit
+    LaunchedEffect(selectedClothingItems) {
+        selectedClothingItems.forEach { item ->
+            if (temporaryPositions.none { it.id == item.id }) {
+                val defaultX = 0.5f
+                val defaultY = 0.5f
+                onPositionUpdate(item.id, OffsetData(defaultX, defaultY))
+            }
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -273,12 +290,15 @@ fun OutfitCollageArea(
         selectedClothingItems.forEach { clothingItem ->
 
             // Get normalized position from ViewModel (0-1 range)
-            val normalizedPosition = temporaryPositions[clothingItem.id] ?: OffsetData(0f, 0f)
+            val outfitItem  = temporaryPositions.find { it.id == clothingItem.id }
+
+            val x = outfitItem?.x ?: 0f
+            val y = outfitItem?.y ?: 0f
 
             // DENORMALIZE: Convert normalized position back to actual canvas coordinates
             val (denormalizedX, denormalizedY) = CoordinateNormalizer.denormalizeCoordinates(
-                normalizedPosition.x,
-                normalizedPosition.y,
+                x,
+                y,
                 canvasWidth,
                 canvasHeight,
                 dynamicItemWidth,
@@ -633,14 +653,8 @@ fun CategoryItemDetailScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 24.dp)
+            .verticalScroll(rememberScrollState())
     ) {
-        // Header
-        OutfitScreenHeader(
-            title = selectedItem!!.name
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
         // Image Section
         Box(
             modifier = Modifier
@@ -671,18 +685,21 @@ fun CategoryItemDetailScreen(
         }
 
         Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp)
         ){
-            Column() {
+            Column(modifier = Modifier.padding(top = 8.dp)) {
                 Text(
-                    text = "WARDROBE",
+                    text = stringResource(Res.string.item_name),
                     fontSize = 12.sp,
                     color = Color.Gray,
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
                 Text(
-                    text = wardrobeName,
+                    text = selectedItem!!.name ?: "",
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.SemiBold
                 )
             }
 
@@ -692,18 +709,40 @@ fun CategoryItemDetailScreen(
                 color = outlineVariantLight
             )
 
-            // Category Info
-            Column(modifier = Modifier.padding(bottom = 8.dp)) {
+
+            Column(modifier = Modifier.padding(top = 8.dp)) {
                 Text(
-                    text = "CATEGORY",
+                    text = stringResource(Res.string.item_brand),
                     fontSize = 12.sp,
                     color = Color.Gray,
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
                 Text(
-                    text = "${selectedItem!!.itemType}",
+                    text = selectedItem!!.brand ?: "",
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+            }
+
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 8.dp),
+                thickness = 1.dp,
+                color = outlineVariantLight
+            )
+
+            Column(modifier = Modifier.padding(bottom = 8.dp)) {
+                Text(
+                    text = stringResource(Res.string.item_size),
+                    fontSize = 12.sp,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                Text(
+                    text = selectedItem!!.size ?: "",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
 

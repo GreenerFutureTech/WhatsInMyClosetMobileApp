@@ -1,4 +1,5 @@
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +19,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -40,6 +42,7 @@ import org.greenthread.whatsinmycloset.features.tabs.swap.presentation.AddSwap.A
 import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
 import org.greenthread.whatsinmycloset.theme.inversePrimaryLight
 import org.greenthread.whatsinmycloset.theme.onSurfaceLight
+import org.greenthread.whatsinmycloset.theme.secondaryLight
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.koin.compose.viewmodel.koinViewModel
 import whatsinmycloset.composeapp.generated.resources.Res
@@ -162,10 +165,11 @@ fun ItemImageCard(
                 .clickable { onItemClick() }
                 .border(
                     width = if (isSelected) 2.dp else 1.dp,
-                    color = if (isSelected) inversePrimaryLight else onSurfaceLight,
+                    color = if (isSelected) inversePrimaryLight else secondaryLight,
                     shape = RoundedCornerShape(8.dp)
                 )
-        ) {
+                .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp)),
+            ) {
             @OptIn(ExperimentalResourceApi::class)
             AsyncImage(
                 model = if (loadFailed) Res.getUri("drawable/noImage.png") else imageUrl,

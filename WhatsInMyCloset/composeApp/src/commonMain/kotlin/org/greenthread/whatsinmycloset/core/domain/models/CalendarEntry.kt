@@ -30,12 +30,3 @@ fun CalendarEntity.toCalendarEntry(): CalendarEntry = CalendarEntry(
     date = date
 )
 
-fun CalendarEntry.toOutfit(): Outfit {
-    return Outfit(
-        id = outfitId,
-        name = "Outfit $outfitId", // Placeholder, replace with actual lookup
-        creatorId = userId.toInt(),
-        createdAt = date
-    )
-}
-

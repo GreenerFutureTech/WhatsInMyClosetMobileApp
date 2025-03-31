@@ -46,6 +46,8 @@ import org.greenthread.whatsinmycloset.CameraManager
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.dto.ItemDto
 import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
+import org.greenthread.whatsinmycloset.subjectSegmentation
+import org.greenthread.whatsinmycloset.toBitmap
 import org.greenthread.whatsinmycloset.toImageBitmap
 
 import kotlin.random.Random
@@ -65,6 +67,7 @@ fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManage
     var bitmapFile: Any? = null
 
     var hasSegmented by remember { mutableStateOf(false) } // Prevent re-segmentation
+    val buttonText = remember { mutableStateOf("Take Photo") } // <-- Track button text
 
     val cachedWardrobes by viewModel.cachedWardrobes.collectAsState()
     if (cachedWardrobes.isNotEmpty()) {
@@ -77,30 +80,32 @@ fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManage
     val contentWidth = 280.dp
 
     LaunchedEffect(itemImage) {
-        //
-        //
-        //To enable image segmentation
-        //
-        //
-/*          itemImage?.let { imageBytes ->
-            println("Segmentation part 1")
+          itemImage?.let { imageBytes ->
+              try{
+                  println("Segmentation part 1")
 
-           bitmap = imageBytes.toImageBitmap()
-           bitmapFile = imageBytes.toBitmap()
+                  bitmap = imageBytes.toImageBitmap()
+                  bitmapFile = imageBytes.toBitmap()
 
-           if (!hasSegmented) {  // Only run segmentation once
-                hasSegmented = true
-                subjectSegmentation(imageBytes) { result ->
-                    if (result != null) {
-                        println("Segmentation successful!")
-                        itemImage = result
-                        bitmap = result.toImageBitmap()  // ✅ Triggers recomposition once
-                    } else {
-                        println("Segmentation failed!")
-                    }
-                }
-           }
-        }*/
+                  if (!hasSegmented) {  // Only run segmentation once
+                      subjectSegmentation(imageBytes) { result ->
+                          if (result != null) {
+                              println("Segmentation successful!")
+                              itemImage = result
+                              bitmap = result.toImageBitmap()  // ✅ Triggers recomposition once
+                              hasSegmented = true
+                          } else {
+                              println("Segmentation failed!")
+                          }
+                      }
+                  }
+              }
+              catch (e: Exception)
+              {
+                  println("Out of memory error: ${e.message}")
+                  hasSegmented = false // Allow retry
+              }
+        }
     }
 
     Column(
@@ -243,11 +248,12 @@ fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManage
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Camera Button
-        cameraManager.TakePhotoButton(
+        cameraManager.TakePhotoButton(buttonText = buttonText,
             onPhotoTaken = { imageBytes ->
                 itemImage = imageBytes
                 bitmap = imageBytes.toImageBitmap()
+                buttonText.value = "Replace Photo" // <-- Change button text on photo taken
+                hasSegmented = false
             }
         )
         Spacer(modifier = Modifier.height(16.dp))

@@ -2,6 +2,7 @@ package org.greenthread.whatsinmycloset.features.tabs.social.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,10 +33,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import org.greenthread.whatsinmycloset.app.Routes
+import kotlinx.coroutines.flow.update
 import org.greenthread.whatsinmycloset.core.ui.components.outfits.OutfitBox
 import org.greenthread.whatsinmycloset.core.utilities.DateUtils.formatDateString
 import org.greenthread.whatsinmycloset.features.tabs.home.OutfitScreenHeader
 import org.greenthread.whatsinmycloset.features.tabs.profile.presentation.ProfilePicture
+import org.greenthread.whatsinmycloset.features.tabs.social.data.OutfitState
 
 @Composable
 fun PostDetailScreen(
@@ -43,14 +47,46 @@ fun PostDetailScreen(
     viewModel: PostViewModel,
     navController: NavController
 ) {
+    val currentUser by viewModel.currentUser.collectAsState()
+    val cachedOutfits by viewModel.cachedOutfits.collectAsState()
+    val cachedItems by viewModel.cachedItems.collectAsState()
     val state by viewModel.state.collectAsState()
-    val outfit = state.outfits.find { it.outfitId == outfitId }
+
+    // Check if the outfit exists in the cache
+    val cachedOutfit = cachedOutfits.find { it.id == outfitId }
+    val cachedOutfitItems = if (cachedOutfit != null) {
+        cachedItems.filter { item ->
+            cachedOutfit.itemIds.any { outfitItem -> outfitItem.id == item.id }
+        }
+    } else {
+        emptyList()
+    }
+
+    // Use cached data if available, otherwise fetch from API
+    val outfit = if (cachedOutfit != null && cachedOutfitItems.isNotEmpty()) {
+        println("CACHED POST!!")
+        OutfitState(
+            outfitId = cachedOutfit.id,
+            name = cachedOutfit.name,
+            itemIds = cachedOutfit.itemIds,
+            items = cachedOutfitItems,
+            tags = cachedOutfit.tags,
+            createdAt = cachedOutfit.createdAt,
+            isLoading = false,
+            username = currentUser?.username ?: "Unknown User",
+            profilePicture = currentUser?.profilePicture,
+            userId = cachedOutfit.userId
+        )
+    } else {
+        state.outfits.find { it.outfitId == outfitId }
+    }
 
     LaunchedEffect(outfitId) {
         if (outfit == null) {
+            // Fetch from API if not in cache or state
             viewModel.fetchOutfitById(outfitId)
         } else if (outfit.items.isEmpty()) {
-            viewModel.fetchItemsForOutfit(outfitId)
+            viewModel.fetchItemsForOutfit(outfitId, outfit.userId)
         }
     }
 
@@ -68,21 +104,23 @@ fun PostDetailScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
-
-            // Only show header if we have an outfit name
-            outfit.name.let { name ->
-                OutfitScreenHeader(
-                    title = name
-                )
+            // Rest of the UI code remains the same
+            outfit.name?.let { name ->
+                OutfitScreenHeader(title = name)
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
-            UserInfoSection(outfit.username, outfit.profilePicture)
+            UserInfoSection(
+                outfit.username,
+                outfit.profilePicture
+            ) {
+                outfit.userId?.let { it ->
+                    navController.navigate(Routes.ProfileDetailsScreen(it))
+                }
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-
-            // Outfit box
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -101,22 +139,25 @@ fun PostDetailScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Tags list (if available)
             if (outfit.tags.isNotEmpty()) {
                 TagsSection(tags = outfit.tags)
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
-            // Creation date
             CreationDateSection(date = outfit.createdAt)
         }
     }
 }
-
 @Composable
-private fun UserInfoSection(username: String?, profilePicture: String?) {
+private fun UserInfoSection(
+    username: String?,
+    profilePicture: String?,
+    onClick: () -> Unit
+) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically
     ) {
 

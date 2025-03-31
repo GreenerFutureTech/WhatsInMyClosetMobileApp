@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -39,14 +40,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import org.greenthread.whatsinmycloset.app.Routes
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.SwapImageCard
 import org.greenthread.whatsinmycloset.core.ui.components.posts.PostCard
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.SeeAllButton
 import org.greenthread.whatsinmycloset.features.tabs.profile.ConfirmationType
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabViewModel
+import org.greenthread.whatsinmycloset.features.tabs.social.data.OutfitState
 import org.greenthread.whatsinmycloset.features.tabs.social.data.PostState
 import org.greenthread.whatsinmycloset.features.tabs.social.presentation.EmptyState
 import org.greenthread.whatsinmycloset.features.tabs.social.presentation.PostViewModel
@@ -160,15 +165,14 @@ fun SwapsCount(
 fun OutfitSectionTitle(title: StringResource) {
     Row(
         Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
+            .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = stringResource(title),
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Bold
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
         )
     }
 }
@@ -274,6 +278,40 @@ fun FriendActionConfirmationDialog(
     )
 }
 
+fun getCachedOutfits(
+    viewModel: PostViewModel,
+) {
+    viewModel.state.update { it.copy(isLoading = true) }
+
+    // Create OutfitState list from cached data
+    val outfitsList = viewModel.cachedOutfits.value.map { outfit ->
+        // Find items that belong to this outfit
+        val outfitItems = viewModel.cachedItems.value.filter { item ->
+            outfit.itemIds.any { outfitItem -> outfitItem.id == item.id }
+        }
+
+        OutfitState(
+            outfitId = outfit.id,
+            name = outfit.name,
+            itemIds = outfit.itemIds,
+            items = outfitItems,
+            tags = outfit.tags,
+            createdAt = outfit.createdAt,
+            isLoading = false,
+            username = outfit.creator?.username,
+            profilePicture = outfit.creator?.profilePicture,
+            userId = outfit.userId
+        )
+    }
+
+    viewModel.state.update {
+        it.copy(
+            outfits = outfitsList,
+            isLoading = false
+        )
+    }
+}
+
 @Composable
 fun PostsSection(
     userId: Int?,
@@ -288,13 +326,32 @@ fun PostsSection(
         lifecycle = lifecycle
     )
 
+    val cachedOutfits by viewModel.cachedOutfits.collectAsState()
+    val cachedItems by viewModel.cachedItems.collectAsState()
+
     LaunchedEffect(userId) {
         if (userId != null) {
-            viewModel.fetchUserOutfits(userId)
+            if (userId == currentUser!!.id)
+            {
+                getCachedOutfits(viewModel)
+            }
+            else
+            {
+                viewModel.fetchUserOutfits(userId)
+            }
         }
     }
 
-    Column(modifier = modifier.fillMaxWidth()) {
+    val sortedOutfits = state.outfits.sortedByDescending { it.createdAt }
+
+    Column(modifier = modifier
+        .fillMaxWidth()
+        .background(
+            color = MaterialTheme.colorScheme.inverseOnSurface,
+            shape = RoundedCornerShape(12.dp)
+        )
+    )
+    {
         Box(
             modifier = modifier
                 .fillMaxWidth()
@@ -328,7 +385,7 @@ fun PostsSection(
                             modifier = Modifier.fillMaxWidth().height(400.dp),
                             contentPadding = PaddingValues(4.dp)
                         ) {
-                            items(state.outfits) { outfit ->
+                            items(sortedOutfits) { outfit ->
                                 PostCard(
                                     outfit = outfit,
                                     currentUser = currentUser,
