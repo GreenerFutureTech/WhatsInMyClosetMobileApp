@@ -400,7 +400,7 @@ class KtorRemoteDataSource(
     }
 
     // outfits -- get outfits
-    override suspend fun getAllOutfitsForUser(userId: String): Result<List<OutfitDto>, DataError.Remote> {
+    override suspend fun getAllOutfitsForUser(userId: Int): Result<List<OutfitDto>, DataError.Remote> {
         return safeCall {
             httpClient.get("$BASE_URL/outfits/user/$userId")
         }

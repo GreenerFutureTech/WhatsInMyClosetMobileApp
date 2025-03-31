@@ -61,7 +61,11 @@ fun ProfileScreenRoot(
     LaunchedEffect(state.user) {
         // When user data is loaded, navigate to details screen
         if (state.user != null && !state.isLoading) {
-            navController.navigate(Routes.ProfileDetailsScreen(state.user!!.id!!))
+            val isCurrentUser = state.user!!.id == viewModel.currentUser.value?.id
+            navController.navigate(Routes.ProfileDetailsScreen(
+                userId = state.user!!.id!!,
+                isCurrentUser = isCurrentUser
+            ))
         }
     }
 

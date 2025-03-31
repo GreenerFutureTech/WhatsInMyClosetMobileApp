@@ -5,8 +5,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -18,24 +21,24 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.rounded.Build
 import androidx.compose.material.icons.rounded.DateRange
-import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,22 +48,25 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import org.greenthread.whatsinmycloset.app.Routes
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
-import org.greenthread.whatsinmycloset.core.domain.models.User
-import org.greenthread.whatsinmycloset.core.ui.components.listItems.LazyGridColourBox
-import org.greenthread.whatsinmycloset.core.ui.components.listItems.LazyRowColourBox
-import org.greenthread.whatsinmycloset.core.ui.components.listItems.generateRandomItems
+import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
-import org.greenthread.whatsinmycloset.theme.WhatsInMyClosetTheme
+import org.greenthread.whatsinmycloset.core.ui.components.outfits.OutfitBox
+import org.greenthread.whatsinmycloset.features.tabs.home.OutfitOfTheDayCalendar
+import org.greenthread.whatsinmycloset.features.tabs.social.data.OutfitState
+import org.greenthread.whatsinmycloset.features.tabs.social.presentation.PostViewModel
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 import whatsinmycloset.composeapp.generated.resources.Res
 import whatsinmycloset.composeapp.generated.resources.bottom
 import whatsinmycloset.composeapp.generated.resources.categories_section_title
@@ -69,13 +75,13 @@ import whatsinmycloset.composeapp.generated.resources.category_label_bottoms
 import whatsinmycloset.composeapp.generated.resources.category_label_footwear
 import whatsinmycloset.composeapp.generated.resources.category_label_tops
 import whatsinmycloset.composeapp.generated.resources.create_outfit_button
-import whatsinmycloset.composeapp.generated.resources.favourite_section_title
 import whatsinmycloset.composeapp.generated.resources.glasses
 import whatsinmycloset.composeapp.generated.resources.no_wardrobe_found
 import whatsinmycloset.composeapp.generated.resources.outfit_calendar
+import whatsinmycloset.composeapp.generated.resources.recent_outfits_title
 import whatsinmycloset.composeapp.generated.resources.see_all_button
-import whatsinmycloset.composeapp.generated.resources.top
 import whatsinmycloset.composeapp.generated.resources.shoe
+import whatsinmycloset.composeapp.generated.resources.top
 
 
 @Composable
@@ -102,6 +108,8 @@ fun HomeTabScreen(
     viewModel: HomeTabViewModel?,
     navController: NavController,
 ){
+    var showCalendar by remember { mutableStateOf(false) }
+
     var wardrobe: Wardrobe? = null
     val cachedWardrobes by viewModel!!.cachedWardrobes.collectAsState()
     val cachedItems by viewModel!!.cachedItems.collectAsState()
@@ -110,29 +118,68 @@ fun HomeTabScreen(
         wardrobe = cachedWardrobes.getOrNull(0)
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .verticalScroll(rememberScrollState()) // Enable vertical scrolling
-    ) {
-        WardrobeHeader(itemCount = cachedItems.count() ?: 0)
-        HomeSection(title = Res.string.categories_section_title, navController = navController) {
-            CategoriesSection({category ->  navController.navigate(Routes.HomeCategoryItemScreen(category.name))
-            })
-        }
-        DropdownMenuLeading(wardrobe?.wardrobeName ?: stringResource(Res.string.no_wardrobe_found))
-        HomeSection(title = Res.string.favourite_section_title, navController = navController) {
-            FavouriteRow()
-        }
-        HomeSection(
-            title = null,
-            showSeeAll = false,
-            navController = navController
+    val userManager = koinInject<UserManager>()
+    val currentUser by userManager.currentUser.collectAsStateWithLifecycle()
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState()) // Enable vertical scrolling
         ) {
-            BottomButtonsRow(
+            WardrobeHeader(itemCount = cachedItems.count() ?: 0)
+
+            HomeSection(
+                title = Res.string.categories_section_title,
                 navController = navController
+            ) {
+                CategoriesSection({ category ->
+                    navController.navigate(Routes.HomeCategoryItemScreen(category.name))
+                })
+            }
+
+            DropdownMenuLeading(
+                wardrobe?.wardrobeName ?: stringResource(Res.string.no_wardrobe_found)
+            )
+
+            Spacer(Modifier.height(16.dp))
+
+            HomeSection(
+                title = Res.string.recent_outfits_title,
+                showSeeAll = false,
+                navController = navController
+            ) {
+                currentUser?.id?.let {
+                    RecentPosts(
+                        userId = it,
+                        navController = navController,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(16.dp))
+
+            HomeSection(
+                title = null,
+                showSeeAll = false,
+                navController = navController
+            ) {
+                BottomButtonsRow(
+                    navController = navController,
+                    onCalendarClick = {showCalendar = true}
+                )
+            }
+        }
+
+        if (showCalendar) {
+            OutfitOfTheDayCalendar(
+                navController = navController,
+                outfitViewModel = koinViewModel(),
+                onDismiss = { showCalendar = false }
             )
         }
+
     }
 }
 
@@ -182,13 +229,6 @@ fun WardrobeHeader(itemCount: Int) {
     }
 }
 
-@Composable
-fun FavouriteRow() {
-    // TODO Replace to display outfit
-    val randomItems = generateRandomItems(6) // Generate random items for the preview
-    LazyRowColourBox(items = randomItems)
-}
-
 data class ImageVectorStringPair(
     val icon: ImageVector,
     val text: StringResource
@@ -227,44 +267,60 @@ fun ActionButtonItem(
     icon: ImageVector,
     text: StringResource,
     onClick: () -> Unit
-){
-    ElevatedButton(onClick = onClick) {
-        Row {
-            Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(24.dp))
+) {
+    ElevatedButton(
+        onClick = onClick,
+        modifier = Modifier
+            .padding(horizontal = 4.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp)
+            )
             Spacer(modifier = Modifier.width(8.dp))
-            Text(stringResource(text))
+            Text(
+                text = stringResource(text),
+                maxLines = 1
+            )
         }
     }
 }
 
 @Composable
 fun BottomButtonsRow(
-    navController: NavController
+    navController: NavController,
+    onCalendarClick: () -> Unit
 ) {
-    Row(
+    val buttons = listOf(
+        Pair(Icons.Rounded.Build, Res.string.create_outfit_button) to {
+            navController.navigate(Routes.CreateOutfitScreen)
+        },
+        Pair(Icons.Rounded.DateRange, Res.string.outfit_calendar) to onCalendarClick
+
+    )
+
+    LazyRow(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.SpaceAround
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(
+            space = 16.dp,
+            alignment = Alignment.CenterHorizontally
+        ),
+        contentPadding = PaddingValues(horizontal = 16.dp)
     ) {
-        ActionButtonItem(
-            icon = Icons.Rounded.Build,
-            text = Res.string.create_outfit_button,
-            onClick = {
-                if (navController.currentBackStackEntry != null) {
-                    navController.navigate(Routes.CreateOutfitScreen)
-                }
-            }
-        )
-
-        //TODO Add action to show calendar
-        ActionButtonItem(
-            icon = Icons.Rounded.DateRange,
-            text = Res.string.outfit_calendar,
-            onClick = { if (navController.currentBackStackEntry != null) {
-                navController.navigate(Routes.OutfitOfTheDay)
-            } }
-        )
+        items(buttons) { (iconTextPair, onClick) ->
+            ActionButtonItem(
+                icon = iconTextPair.first,
+                text = iconTextPair.second,
+                onClick = onClick
+            )
+        }
     }
 }
 
@@ -399,6 +455,74 @@ fun DropdownMenuLeading(text: String) {
                     // TODO Handle "Create New" action
                     expanded = false
                 }
+            )
+        }
+    }
+}
+
+@Composable
+fun RecentPosts(
+    userId: Int,
+    navController: NavController,
+    modifier: Modifier = Modifier
+) {
+    val viewModel: PostViewModel = koinViewModel()
+
+    LaunchedEffect(userId) {
+        viewModel.fetchUserOutfits(userId)
+    }
+
+    val state by viewModel.state.collectAsState()
+
+    // Take first 3 outfits sorted by date (newest first)
+    val recentPosts = remember(state.outfits) {
+        state.outfits
+            .sortedByDescending { it.createdAt }
+            .take(3)
+    }
+    Column (
+      modifier = modifier
+          .fillMaxWidth()
+    ) {
+        if (recentPosts.isNotEmpty()) {
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.CenterHorizontally)
+            ) {
+                items(recentPosts) { outfit ->
+                    SmallPostCard(
+                        outfit = outfit,
+                        onClick = { navController.navigate(Routes.SocialDetailsScreen(outfit.outfitId)) },
+                    )
+                }
+            }
+        } else if (state.isLoading) {
+            CircularProgressIndicator()
+        } else {
+            Text("No outfits yet. Create your first outfit!")
+        }
+    }
+}
+
+@Composable
+fun SmallPostCard(
+    outfit: OutfitState,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    OutlinedCard(
+        onClick = onClick,
+        modifier = modifier.size(120.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+        ) {
+            OutfitBox(
+                state = outfit,
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }

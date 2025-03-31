@@ -14,29 +14,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import kotlinx.datetime.Clock
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
-import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.ui.components.outfits.OutfitBox
 import org.greenthread.whatsinmycloset.features.tabs.social.data.OutfitState
 
-data class Post(
-    val postID: String,
-    val creator: User,
-    val outfit: Outfit,
-    val createdAt: LocalDate
-)
-fun getCurrentDate(): LocalDate {
-    // Get current Instant
-    val currentInstant = Clock.System.now()
-    // Convert it to LocalDateTime
-    val localDateTime = currentInstant.toLocalDateTime(TimeZone.currentSystemDefault())
-    // Extract and return the date only
-    return localDateTime.date
-}
 @Composable
 fun PostCard(
     outfit: OutfitState,
@@ -62,18 +43,21 @@ fun PostCard(
             Spacer(modifier = Modifier.height(12.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.Start
             ) {
-                outfit.username?.let {
+                if (outfit.username == currentUser?.username) {
                     Text(
-                        text = outfit.username,
+                        text = outfit.name,
                         style = MaterialTheme.typography.bodyMedium
                     )
+                } else {
+                    outfit.username?.let {
+                        Text(
+                            text = "@${outfit.username}",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
                 }
-                Text(
-                    text = outfit.name,
-                    style = MaterialTheme.typography.bodySmall
-                )
             }
         }
     }

@@ -62,16 +62,46 @@ fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManage
     var selectedCategory by remember { mutableStateOf<String?>(null) }
     var selectedWardrobe by remember { mutableStateOf<Wardrobe?>(null) }
     var bitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+    var bitmapFile: Any? = null
+
+    var hasSegmented by remember { mutableStateOf(false) } // Prevent re-segmentation
 
     val cachedWardrobes by viewModel.cachedWardrobes.collectAsState()
-    if (cachedWardrobes.isNotEmpty() && selectedWardrobe == null) {
-        selectedWardrobe = cachedWardrobes[0]
+    if (cachedWardrobes.isNotEmpty()) {
+        selectedWardrobe = cachedWardrobes.getOrNull(0)
     }
 
     val categories = ClothingCategory.entries
         .filterNot { it == ClothingCategory.ALL }
         .map { it.categoryName }
     val contentWidth = 280.dp
+
+    LaunchedEffect(itemImage) {
+        //
+        //
+        //To enable image segmentation
+        //
+        //
+/*          itemImage?.let { imageBytes ->
+            println("Segmentation part 1")
+
+           bitmap = imageBytes.toImageBitmap()
+           bitmapFile = imageBytes.toBitmap()
+
+           if (!hasSegmented) {  // Only run segmentation once
+                hasSegmented = true
+                subjectSegmentation(imageBytes) { result ->
+                    if (result != null) {
+                        println("Segmentation successful!")
+                        itemImage = result
+                        bitmap = result.toImageBitmap()  // ✅ Triggers recomposition once
+                    } else {
+                        println("Segmentation failed!")
+                    }
+                }
+           }
+        }*/
+    }
 
     Column(
         modifier = Modifier
@@ -395,7 +425,7 @@ fun WardrobeDropdown(
                         text = selectedWardrobe?.wardrobeName ?: "Select Wardrobe",
                         style = MaterialTheme.typography.bodyLarge,
                         color = if (selectedWardrobe == null) {
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                            MaterialTheme.colorScheme.onSurface.copy()
                         } else {
                             MaterialTheme.colorScheme.onSurface
                         },
@@ -406,7 +436,7 @@ fun WardrobeDropdown(
                     Icon(
                         Icons.Filled.ArrowDropDown,
                         contentDescription = "Wardrobe Dropdown",
-                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        tint = MaterialTheme.colorScheme.onSurface.copy(),
                         modifier = Modifier.size(24.dp)
                     )
                 }

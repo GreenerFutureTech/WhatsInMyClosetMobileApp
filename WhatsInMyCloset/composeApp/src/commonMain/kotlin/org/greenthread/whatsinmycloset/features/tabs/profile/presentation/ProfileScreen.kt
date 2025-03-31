@@ -1,5 +1,6 @@
 package org.greenthread.whatsinmycloset.features.tabs.profile.presentation
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -42,7 +44,6 @@ import org.greenthread.whatsinmycloset.core.dto.MessageUserDto
 import org.greenthread.whatsinmycloset.core.dto.OtherSwapDto
 import org.greenthread.whatsinmycloset.core.dto.UserDto
 import org.greenthread.whatsinmycloset.core.dto.toOtherSwapDto
-import org.greenthread.whatsinmycloset.core.ui.components.controls.SearchBar
 import org.greenthread.whatsinmycloset.features.tabs.profile.ConfirmationType
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabViewModel
 import org.greenthread.whatsinmycloset.features.tabs.profile.data.FriendshipStatus
@@ -115,6 +116,7 @@ fun ProfileScreen(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ProfileContent(
     user: User,
@@ -126,82 +128,90 @@ private fun ProfileContent(
     navController: NavController,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier
-        .verticalScroll(rememberScrollState())
-        .fillMaxWidth()
-        .padding(16.dp)
+    LazyColumn(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(16.dp)
     ) {
-        ProfileHeader(user)
+        item {
+            ProfileHeader(user)
 
-        Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(8.dp))
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            SwapStats(
-                user = user,
-                isOwnProfile = isOwnProfile,
-                modifier = Modifier.weight(1f)
-            )
-
-            if (isOwnProfile) {
-                FriendsCount(
-                    friendsCount = user.friends?.size ?: 0,
-                    onClick = {
-                        navController.navigate(Routes.UserFriendsScreen)
-                    },
-                    modifier = Modifier.wrapContentWidth(Alignment.CenterHorizontally)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                SwapStats(
+                    user = user,
+                    isOwnProfile = isOwnProfile,
+                    modifier = Modifier.weight(1f)
                 )
 
-                Button(onClick = {
-                    navController.navigate(Routes.UserSearchScreen)
-                }) {
-                    Text("Find Users")
-                }
-            } else {
-                ProfileActions(
-                    viewModel = viewModel,
-                    targetUserId = user.id,
-                    modifier = Modifier.wrapContentWidth(Alignment.CenterHorizontally)
-                )
+                    if (isOwnProfile) {
+                        FriendsCount(
+                            friendsCount = user.friends?.size ?: 0,
+                            onClick = {
+                                navController.navigate(Routes.UserFriendsScreen)
+                            },
+                            modifier = Modifier.wrapContentWidth(Alignment.CenterHorizontally))
+
+                        Button(onClick = {
+                            navController.navigate(Routes.UserSearchScreen)
+                        }) {
+                            Text("Find Users")
+                        }
+                    } else {
+                        ProfileActions(
+                            viewModel = viewModel,
+                            targetUserId = user.id,
+                            modifier = Modifier.wrapContentWidth(Alignment.CenterHorizontally))
+                    }
             }
-        }
 
-        Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(16.dp))
 
-        ProfileRowSection(
-            isOwnProfile = isOwnProfile,
-            title = Res.string.available_swap_title,
-            state = swapState,
-            onAction = { action ->
-                when (action) {
-                    is SwapAction.OnSwapClick -> {
-                        val isCurrentUserItem = swapState.getUserSwapResults.any { it.itemId.id == action.itemId }
+            ProfileRowSection(
+                isOwnProfile = isOwnProfile,
+                title = Res.string.available_swap_title,
+                state = swapState,
+                onAction = { action ->
+                    when (action) {
+                        is SwapAction.OnSwapClick -> {
+                            val isCurrentUserItem = swapState.getUserSwapResults.any { it.itemId.id == action.itemId }
 
-                        if (isCurrentUserItem) {
-                            val selectedItem = swapState.getUserSwapResults.find { it.itemId.id == action.itemId }
-                            if (selectedItem != null) {
-                                val currentUserDto = MessageUserDto()
-                                onSwapClick(selectedItem.toOtherSwapDto(user = currentUserDto))
-                            }
-                        } else {
-                            val selectedItem = swapState.getSearchedUserSwapResults.find { it.itemId.id == action.itemId }
-                            if (selectedItem != null && user.id != null) {
-                                onSwapClick(selectedItem.toOtherSwapDto(user = MessageUserDto(id = user.id, name = user.name, profilePicture = user.profilePicture)))
+                            if (isCurrentUserItem) {
+                                val selectedItem = swapState.getUserSwapResults.find { it.itemId.id == action.itemId }
+                                if (selectedItem != null) {
+                                    val currentUserDto = MessageUserDto()
+                                    onSwapClick(selectedItem.toOtherSwapDto(user = currentUserDto))
+                                }
+                            } else {
+                                val selectedItem = swapState.getSearchedUserSwapResults.find { it.itemId.id == action.itemId }
+                                if (selectedItem != null && user.id != null) {
+                                    onSwapClick(selectedItem.toOtherSwapDto(user = MessageUserDto(id = user.id, name = user.name, profilePicture = user.profilePicture)))
+                                }
                             }
                         }
+                        else -> Unit
                     }
-                    else -> Unit
-                }
-            },
-            onSeeAll = onAllSwapClick
-        )
+                },
+                onSeeAll = onAllSwapClick
+            )
+        }
 
-        OutfitSectionTitle(Res.string.my_outfits_title)
+        stickyHeader {
+            OutfitSectionTitle(Res.string.my_outfits_title)
+        }
 
+        item {
+            PostsSection(
+                userId = user.id,
+                navController = navController,
+            )
+        }
     }
 }
 

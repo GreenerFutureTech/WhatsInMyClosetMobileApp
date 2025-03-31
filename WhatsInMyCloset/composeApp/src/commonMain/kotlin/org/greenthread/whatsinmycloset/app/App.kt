@@ -148,6 +148,7 @@ fun NavController.getBarVisibility(): BarVisibility {
         Routes.SocialTab::class.simpleName -> BarVisibility.Custom(disableBack = true, title = "Social")
         Routes.ProfileTab::class.simpleName -> BarVisibility.Custom(disableBack = true, title = "Profile")
         Routes.AddItemScreen::class.simpleName -> BarVisibility.Custom(onlyBack = true, bottomBar = false, title = "Add Item")
+        Routes.ItemDetailScreen::class.simpleName -> BarVisibility.Custom(onlyBack = true, bottomBar = false)
 
         Routes.HomeCategoryItemScreen::class.simpleName -> {
             val args = navBackStackEntry?.toRoute<Routes.HomeCategoryItemScreen>()
@@ -172,7 +173,15 @@ fun NavController.getBarVisibility(): BarVisibility {
         // Profile
         Routes.UserSearchScreen::class.simpleName -> BarVisibility.Custom(onlyBack = true, title = "Search Users")
         Routes.UserFriendsScreen::class.simpleName -> BarVisibility.Custom(onlyBack = true, title = "Friends")
-        Routes.ProfileDetailsScreen::class.simpleName -> BarVisibility.Custom(disableBack = true, title = "Profile")
+
+        Routes.ProfileDetailsScreen::class.simpleName -> {
+            val args = navBackStackEntry?.toRoute<Routes.ProfileDetailsScreen>()
+            if (args?.isCurrentUser == true) {
+                BarVisibility.Custom(disableBack = true, title = "Profile")
+            } else {
+                BarVisibility.Custom(onlyBack = true, title = "Profile")
+            }
+        }
 
         // Add more specific route configurations as needed
         else -> BarVisibility.Visible
@@ -291,16 +300,6 @@ fun App(
                     composable<Routes.WardrobeItemsScreen> {
                         Text("Made it to wardrobe items screen")
                         //WardrobeItemsScreen()
-                    }
-
-                    // -- Create Outfit Screens Routes below -- //
-
-                    composable<Routes.OutfitOfTheDay> {
-
-                        OutfitOfTheDayCalendar(
-                            navController = navController,
-                            outfitViewModel = sharedOutfitViewModel
-                        )
                     }
 
                     composable<Routes.OutfitDetailScreen> { backStackEntry ->

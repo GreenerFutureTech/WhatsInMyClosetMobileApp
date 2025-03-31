@@ -34,9 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.greenthread.whatsinmycloset.core.ui.components.outfits.OutfitBox
 import org.greenthread.whatsinmycloset.core.utilities.DateUtils.formatDateString
+import org.greenthread.whatsinmycloset.features.tabs.home.OutfitScreenHeader
 import org.greenthread.whatsinmycloset.features.tabs.profile.presentation.ProfilePicture
-import org.greenthread.whatsinmycloset.features.tabs.social.data.OutfitState
-import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun PostDetailScreen(
@@ -69,9 +68,19 @@ fun PostDetailScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
+
+            // Only show header if we have an outfit name
+            outfit.name.let { name ->
+                OutfitScreenHeader(
+                    title = name
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
             UserInfoSection(outfit.username, outfit.profilePicture)
 
             Spacer(modifier = Modifier.height(16.dp))
+
 
             // Outfit box
             Box(
@@ -82,7 +91,7 @@ fun PostDetailScreen(
                         color = MaterialTheme.colorScheme.outlineVariant,
                         shape = RoundedCornerShape(12.dp)
                     )
-                    .padding(4.dp) // Optional inner padding
+                    .padding(4.dp)
             ) {
                 OutfitBox(
                     state = outfit,
@@ -160,7 +169,7 @@ fun TagsSection(tags: List<String>) {
 @Composable
 private fun CreationDateSection(date: String?) {
     Text(
-        text = "Posted on: ${formatDateString(date)}",
+        text = "Created on: ${formatDateString(date)}",
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
     )

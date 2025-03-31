@@ -31,29 +31,11 @@ fun SocialTabScreen(
     val currentUser = viewModel.currentUser
     var showContent by remember { mutableStateOf(false) }
     Scaffold {
-        FriendsOutfitsTitle()
         PostsGrid(
             viewModel = viewModel,
             navController = navController,
             onPostClick = { navController.navigate(Routes.SocialDetailsScreen) },
             modifier = Modifier
-        )
-    }
-}
-
-@Composable
-fun FriendsOutfitsTitle() {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = "Friends' Outfits",
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold
         )
     }
 }
