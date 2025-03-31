@@ -49,7 +49,7 @@ open class PostViewModel(
         viewModelScope.launch {
             _state.update{ it.copy( isLoading = true) }
 
-            currentUser.value?.id?.let {
+            currentUser.value?.id?.let { it ->
                 itemRepository.getFriendsOutfits(it)
                     .onSuccess { outfits ->
                         val outfitsList = outfits.map { outfit ->
@@ -60,8 +60,9 @@ open class PostViewModel(
                                 isLoading = true,
                                 username = outfit.creator?.username,
                                 profilePicture = outfit.creator?.profilePicture,
+                                createdAt = outfit.createdAt
                             )
-                        }
+                        }.sortedByDescending { it.createdAt }
                         println("OUTFIT LIST: $outfitsList")
 
                         _state.update {
@@ -131,7 +132,8 @@ open class PostViewModel(
                             itemIds = emptyList(),
                             isLoading = true,
                             username = "",
-                            profilePicture = ""
+                            profilePicture = "",
+                            createdAt = ""
                         )
                     )
                 }
@@ -199,9 +201,10 @@ open class PostViewModel(
                             isLoading = true,
                             username = outfit.creator?.username,
                             profilePicture = outfit.creator?.profilePicture,
-                            userId = outfit.userId
+                            userId = outfit.userId,
+                            createdAt = outfit.createdAt
                         )
-                    }
+                    }.sortedByDescending { it.createdAt }
 
                     _state.update {
                         it.copy(

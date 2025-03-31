@@ -69,6 +69,10 @@ fun PostsGrid(
         }
     }
 
+    val sortedOutfits = state.outfits.sortedByDescending { it.createdAt }
+
+    println("SORTED OUTFITS: $sortedOutfits")
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -109,7 +113,7 @@ fun PostsGrid(
                         columns = GridCells.Fixed(2),
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        items(state.outfits) { outfit ->
+                        items(sortedOutfits) { outfit ->
                             PostCard(
                                 outfit = outfit,
                                 currentUser = currentUser,

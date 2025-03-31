@@ -342,6 +342,8 @@ fun PostsSection(
         }
     }
 
+    val sortedOutfits = state.outfits.sortedByDescending { it.createdAt }
+
     Column(modifier = modifier
         .fillMaxWidth()
         .background(
@@ -383,7 +385,7 @@ fun PostsSection(
                             modifier = Modifier.fillMaxWidth().height(400.dp),
                             contentPadding = PaddingValues(4.dp)
                         ) {
-                            items(state.outfits) { outfit ->
+                            items(sortedOutfits) { outfit ->
                                 PostCard(
                                     outfit = outfit,
                                     currentUser = currentUser,

@@ -46,6 +46,8 @@ import org.greenthread.whatsinmycloset.CameraManager
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.dto.ItemDto
 import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
+import org.greenthread.whatsinmycloset.subjectSegmentation
+import org.greenthread.whatsinmycloset.toBitmap
 import org.greenthread.whatsinmycloset.toImageBitmap
 
 import kotlin.random.Random
@@ -82,7 +84,7 @@ fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManage
         //To enable image segmentation
         //
         //
-/*          itemImage?.let { imageBytes ->
+          itemImage?.let { imageBytes ->
             println("Segmentation part 1")
 
            bitmap = imageBytes.toImageBitmap()
@@ -100,7 +102,7 @@ fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManage
                     }
                 }
            }
-        }*/
+        }
     }
 
     Column(
