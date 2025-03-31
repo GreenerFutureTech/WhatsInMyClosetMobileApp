@@ -102,6 +102,10 @@ open class OutfitViewModel(
         outfitTags.addTag(tagName)
     }
 
+    fun setOutfitName(name: String) {
+        _outfitName.value = name
+    }
+
     fun removeTag(tagName: String) {
         _selectedTags.value = _selectedTags.value - tagName
         outfitTags.removeTag(tagName)
@@ -125,10 +129,8 @@ open class OutfitViewModel(
             tags = selectedTags
         )
 
-        // 1. Always save to outfit table first
         val outfitId = outfitManager.saveOutfit(outfit) ?: return false
 
-        // 2. If calendar save was requested, save to calendar
         if (addToCalendar && date != null) {
             val success = calendarManager.saveOutfitToCalendar(
                 CalendarEntry(
@@ -137,7 +139,6 @@ open class OutfitViewModel(
                     date = date
                 )
             )
-            // if outfit already exists for the selected date
             if (!success) return false
         }
 

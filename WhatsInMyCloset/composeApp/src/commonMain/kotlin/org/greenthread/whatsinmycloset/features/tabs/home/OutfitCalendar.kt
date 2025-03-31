@@ -35,20 +35,16 @@ fun OutfitDatePicker(
     outfitViewModel: OutfitViewModel,
     clothingItemViewModel: ClothingItemViewModel,
     selectedTags: Set<String>,
-    navController: NavController,
-    onSuccess: () -> Unit = {}
+    navController: NavController
 ) {
     val currentDate = remember { DateUtils.getCurrentLocalDate() }
     val initialMillis = remember { DateUtils.localDateToMillis(currentDate) }
-
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = initialMillis
     )
-    var showConfirmation by remember { mutableStateOf(false) } // Track confirmation dialog
-    var showOutfitNameDialog by remember { mutableStateOf(false) }
-    var outfitName by remember { mutableStateOf("") }
-    var showDateErrorDialog by remember { mutableStateOf(false) }
 
+    val outfitName by outfitViewModel.outfitName.collectAsState()
+    var showDateErrorDialog by remember { mutableStateOf(false) }
     var selectedDate by remember { mutableStateOf("") }
 
     // DatePickerDialog layout
@@ -59,8 +55,19 @@ fun OutfitDatePicker(
             TextButton(onClick = {
                 datePickerState.selectedDateMillis?.let { millis ->
                     selectedDate = DateUtils.convertDate(millis = millis).second.toString()
-                    // Now selectedDate will exactly match what was shown in the picker
-                    showOutfitNameDialog = true
+                    outfitViewModel.viewModelScope.launch {
+                        val success = outfitViewModel.saveOutfit(
+                            selectedTags = selectedTags.toList(),
+                            outfitName = outfitName,
+                            addToCalendar = true,
+                            date = selectedDate
+                        )
+                        if (!success) {
+                            showDateErrorDialog = true
+                        } else {
+                            onDismiss()
+                        }
+                    }
                 }
             }) {
                 Text("OK")
@@ -75,36 +82,6 @@ fun OutfitDatePicker(
         DatePicker(state = datePickerState)
     }
 
-    // Get outfit name from user adding it to calendar
-    if (showOutfitNameDialog) {
-        OutfitNameDialog(
-            showDialog = showOutfitNameDialog,
-            onDismiss = {
-                showOutfitNameDialog = false
-                onDismiss()
-            },
-            onSave = { name ->
-                outfitName = name
-                outfitViewModel.viewModelScope.launch {
-                    val success = outfitViewModel.saveOutfit(
-                        selectedTags = selectedTags.toList(),
-                        outfitName = name,
-                        addToCalendar = true,
-                        date = selectedDate
-                    )
-
-                    if(!success)
-                    {
-                        showDateErrorDialog = true
-                        showOutfitNameDialog = false
-                    }
-                    showOutfitNameDialog = false
-                    showConfirmation = true
-                }
-            }
-        )
-    }
-
     // Show error dialog when outfit exists for selected date
     if (showDateErrorDialog) {
         AlertDialog(
@@ -116,22 +93,6 @@ fun OutfitDatePicker(
                     onClick = { showDateErrorDialog = false }
                 ) {
                     Text("OK")
-                }
-            }
-        )
-    }
-
-    // Show confirmation dialog when outfit is added
-    if (showConfirmation) {
-        ConfirmationDialog(
-            message = "$outfitName added to date $selectedDate",
-            onDismiss = {
-                // clear outfit state for next outfit
-                outfitViewModel.clearOutfitState()
-                clothingItemViewModel.clearClothingItemState()
-                showConfirmation = false
-                navController.navigate(Routes.HomeTab){
-                    popUpTo(Routes.HomeTab) { inclusive = true }
                 }
             }
         )

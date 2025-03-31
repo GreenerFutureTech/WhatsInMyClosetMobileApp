@@ -1,6 +1,7 @@
 package org.greenthread.whatsinmycloset.features.tabs.profile.presentation
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -203,7 +204,14 @@ private fun ProfileContent(
         }
 
         stickyHeader {
-            OutfitSectionTitle(Res.string.my_outfits_title)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(horizontal = 16.dp)
+            ) {
+                OutfitSectionTitle(Res.string.my_outfits_title)
+            }
         }
 
         item {
