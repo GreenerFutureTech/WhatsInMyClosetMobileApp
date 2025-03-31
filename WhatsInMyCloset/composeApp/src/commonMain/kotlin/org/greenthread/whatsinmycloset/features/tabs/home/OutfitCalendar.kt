@@ -86,8 +86,8 @@ fun OutfitDatePicker(
     if (showDateErrorDialog) {
         AlertDialog(
             onDismissRequest = { showDateErrorDialog = false },
-            title = { Text("Date Conflict") },
-            text = { Text("An outfit already exists for the selected date. Please choose a different date.") },
+            title = { Text("Calendar Error") },
+            text = { Text("There was an error saving the calendar... Please try again") },
             confirmButton = {
                 TextButton(
                     onClick = { showDateErrorDialog = false }
@@ -99,20 +99,6 @@ fun OutfitDatePicker(
     }
 }
 
-
-@Composable
-fun ConfirmationDialog(message: String, onDismiss: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Success") },
-        text = { Text(message) },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text("OK")
-            }
-        }
-    )
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

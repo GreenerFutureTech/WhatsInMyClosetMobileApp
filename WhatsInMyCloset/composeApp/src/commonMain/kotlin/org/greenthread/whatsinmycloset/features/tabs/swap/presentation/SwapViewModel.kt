@@ -30,7 +30,6 @@ class SwapViewModel(
 
     fun fetchAllSwapData() {
         viewModelScope.launch {
-            println("FETCHALLSWAP : Fetching All Swap data")
             _state.update {
                 it.copy(
                     isLoading = true
@@ -39,7 +38,6 @@ class SwapViewModel(
             swapRepository
                 .getAllSwaps()
                 .onSuccess { getResults ->
-                    println("FETCHALLSWAP API success: $getResults")
                     _state.update {
                         it.copy(
                             isLoading = false,
@@ -60,7 +58,6 @@ class SwapViewModel(
     }
     fun fetchSwapData(userId: String) {
         viewModelScope.launch {
-            println("FETCHSWAP : Fetching data for user: $userId")
             _state.update {
                 it.copy(
                     isLoading = true
@@ -69,7 +66,6 @@ class SwapViewModel(
             swapRepository
                 .getSwaps(userId)
                 .onSuccess { getResults ->
-                    println("FETCHSWAP API success: $getResults")
                     _state.update {
                         if (userId == currentUser.value?.id.toString()) {
                             it.copy(
@@ -105,7 +101,6 @@ class SwapViewModel(
 
     fun fetchFriendsSwapData(userId: String) {
         viewModelScope.launch {
-            println("FETCHOTHERSWAP : Fetching other users' swap data for user: $userId")
             _state.update {
                 it.copy(
                     isLoading = true
@@ -114,7 +109,6 @@ class SwapViewModel(
             swapRepository
                 .getFriendsSwaps(userId)
                 .onSuccess { getResults ->
-                    println("FETCHOTHERSWAP API success: $getResults")
                     _state.update {
                         it.copy(
                             isLoading = false,

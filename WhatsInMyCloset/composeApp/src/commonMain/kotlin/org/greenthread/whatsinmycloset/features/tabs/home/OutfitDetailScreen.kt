@@ -67,7 +67,6 @@ fun OutfitDetailScreen(
             }
         }
 
-
         Column(
             modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())
         ) {

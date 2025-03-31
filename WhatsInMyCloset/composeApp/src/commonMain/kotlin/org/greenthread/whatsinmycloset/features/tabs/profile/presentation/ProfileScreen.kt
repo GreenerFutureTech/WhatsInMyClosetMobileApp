@@ -38,7 +38,6 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
-import io.ktor.client.network.sockets.ConnectTimeoutException
 import org.greenthread.whatsinmycloset.app.Routes
 import org.greenthread.whatsinmycloset.core.domain.models.User
 import org.greenthread.whatsinmycloset.core.dto.MessageUserDto
@@ -53,7 +52,6 @@ import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
 import org.greenthread.whatsinmycloset.features.tabs.swap.viewmodel.SwapViewModel
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
 import whatsinmycloset.composeapp.generated.resources.Res
 import whatsinmycloset.composeapp.generated.resources.accept_button
 import whatsinmycloset.composeapp.generated.resources.add_friend_button
@@ -75,17 +73,21 @@ fun ProfileScreen(
     onAllSwapClick: () -> Unit,
     onSwapClick: (OtherSwapDto) -> Unit
 ) {
-    val state by profileViewModel.state.collectAsStateWithLifecycle()
-
     val lifecycle = LocalLifecycleOwner.current.lifecycle
+
+    val state by profileViewModel.state.collectAsStateWithLifecycle()
     val swapState by swapViewModel.state.collectAsStateWithLifecycle(
         initialValue = SwapListState(),
         lifecycle = lifecycle
     )
 
-     LaunchedEffect(userId) {
+    LaunchedEffect(userId) {
          println("Profile Screen User Id $userId")
-        profileViewModel.loadProfile(userId)
+         profileViewModel.loadProfile(userId)
+         if (swapState.getSearchedUserSwapResults.isEmpty() ||
+             swapState.searchedUserInfo?.id != userId) {
+             swapViewModel.fetchSwapData(userId.toString())
+         }
     }
 
     // Clear search results when leaving the screen
@@ -148,7 +150,8 @@ private fun ProfileContent(
                 SwapStats(
                     user = user,
                     isOwnProfile = isOwnProfile,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    swapState = swapState
                 )
 
                     if (isOwnProfile) {
@@ -186,7 +189,12 @@ private fun ProfileContent(
                             if (isCurrentUserItem) {
                                 val selectedItem = swapState.getUserSwapResults.find { it.itemId.id == action.itemId }
                                 if (selectedItem != null) {
-                                    val currentUserDto = MessageUserDto()
+                                    val currentUserDto = MessageUserDto(
+                                        id = user.id!!,
+                                        name = user.name,
+                                        username = user.name,
+                                        profilePicture = user.profilePicture
+                                    )
                                     onSwapClick(selectedItem.toOtherSwapDto(user = currentUserDto))
                                 }
                             } else {
@@ -290,52 +298,19 @@ private fun ProfileHeader(
 private fun SwapStats(
     user: User,
     isOwnProfile: Boolean,
-    modifier: Modifier
+    modifier: Modifier,
+    swapState: SwapListState
 ) {
-    val swapViewModel: SwapViewModel = koinViewModel()
-    val profileViewModel: ProfileTabViewModel = koinViewModel()
+    val swapCount = if (isOwnProfile) {
+        swapState.getUserSwapResults.size
+    } else {
+        swapState.getSearchedUserSwapResults.size
+    }
 
-    val state by profileViewModel.state.collectAsStateWithLifecycle()
-
-    val lifecycle = LocalLifecycleOwner.current.lifecycle
-    val swapState by swapViewModel.state.collectAsStateWithLifecycle(
-        initialValue = SwapListState(),
-        lifecycle = lifecycle
+    SwapsCount(
+        swapsCount = swapCount,
+        modifier = modifier
     )
-
-    val userSwapItemCount = swapState.getUserSwapResults.size
-    val searchedUserSwapItemCount = swapState.getSearchedUserSwapResults.size
-
-    LaunchedEffect(state) {
-        if(!isOwnProfile)
-        {
-            try {
-                if (swapState.getSearchedUserSwapResults.isEmpty()) {
-                    swapViewModel.fetchSwapData(user.id.toString())
-                }
-            } catch (e: ConnectTimeoutException) {
-                println("Connection timeout occurred (could not hit backend?): ${e.message}")
-            } catch (e: Exception) {
-                println("An error occurred: ${e.message}")
-            }
-        }
-    }
-
-    if(!isOwnProfile)
-    {
-        SwapsCount(
-            swapsCount = searchedUserSwapItemCount,
-            modifier = Modifier
-                .wrapContentWidth(Alignment.CenterHorizontally)
-        )
-    }else {
-        SwapsCount(
-            swapsCount = userSwapItemCount,
-            modifier = Modifier
-                .wrapContentWidth(Alignment.CenterHorizontally)
-        )
-    }
-
 }
 
 @Composable
