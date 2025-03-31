@@ -1,6 +1,7 @@
 package org.greenthread.whatsinmycloset
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
@@ -17,7 +18,7 @@ expect fun BackHandler(enabled: Boolean, onBackPressed: () -> Unit)
 
 expect class CameraManager {
     @Composable
-    fun TakePhotoButton(onPhotoTaken: (ByteArray) -> Unit)
+    fun TakePhotoButton(buttonText: MutableState<String>, onPhotoTaken: (ByteArray) -> Unit)
 }
 
 expect class PhotoManager {

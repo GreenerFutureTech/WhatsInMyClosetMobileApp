@@ -89,12 +89,12 @@ fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManage
            bitmapFile = imageBytes.toBitmap()
 
            if (!hasSegmented) {  // Only run segmentation once
-                hasSegmented = true
                 subjectSegmentation(imageBytes) { result ->
                     if (result != null) {
                         println("Segmentation successful!")
                         itemImage = result
                         bitmap = result.toImageBitmap()  // ✅ Triggers recomposition once
+                        hasSegmented = true
                     } else {
                         println("Segmentation failed!")
                     }
@@ -243,11 +243,12 @@ fun AddItemScreen(viewModel: AddItemScreenViewModel, cameraManager: CameraManage
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Camera Button
-        cameraManager.TakePhotoButton(
+        cameraManager.TakePhotoButton(buttonText = buttonText,
             onPhotoTaken = { imageBytes ->
                 itemImage = imageBytes
                 bitmap = imageBytes.toImageBitmap()
+                buttonText.value = "Replace Photo" // <-- Change button text on photo taken
+                hasSegmented = false
             }
         )
         Spacer(modifier = Modifier.height(16.dp))
