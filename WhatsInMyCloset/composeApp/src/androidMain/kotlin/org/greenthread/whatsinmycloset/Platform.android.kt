@@ -52,6 +52,7 @@ import whatsinmycloset.composeapp.generated.resources.profile_button
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import androidx.activity.compose.BackHandler
+import androidx.compose.runtime.MutableState
 
 
 class AndroidPlatform : Platform {
@@ -88,7 +89,7 @@ actual class CameraManager(private val context: Context) {
     }
 
     @Composable
-    actual fun TakePhotoButton(onPhotoTaken: (ByteArray) -> Unit) {
+    actual fun TakePhotoButton(buttonText: MutableState<String>, onPhotoTaken: (ByteArray) -> Unit) {
         val context = LocalContext.current
         val cacheDir = context.cacheDir
         var photoFile: File? = null
@@ -101,6 +102,8 @@ actual class CameraManager(private val context: Context) {
                 val stream = ByteArrayOutputStream()
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
                 onPhotoTaken(stream.toByteArray())
+
+                buttonText.value = "Replace Photo" // <-- Change text after photo is taken
             }
         }
 
@@ -131,7 +134,7 @@ actual class CameraManager(private val context: Context) {
                 permissionLauncher.launch(Manifest.permission.CAMERA)
             }
         }) {
-            Text("Take Photo")
+            Text(buttonText.value)
         }
     }
 }
