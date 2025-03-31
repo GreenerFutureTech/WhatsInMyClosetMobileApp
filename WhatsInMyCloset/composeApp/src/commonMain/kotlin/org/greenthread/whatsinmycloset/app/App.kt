@@ -302,16 +302,6 @@ fun App(
                         //WardrobeItemsScreen()
                     }
 
-                    // -- Create Outfit Screens Routes below -- //
-
-                    composable<Routes.OutfitOfTheDay> {
-
-                        OutfitOfTheDayCalendar(
-                            navController = navController,
-                            outfitViewModel = sharedOutfitViewModel
-                        )
-                    }
-
                     composable<Routes.OutfitDetailScreen> { backStackEntry ->
                         val outfitId = backStackEntry.arguments?.getString("outfitId")
                         val postViewModel: PostViewModel = koinViewModel()

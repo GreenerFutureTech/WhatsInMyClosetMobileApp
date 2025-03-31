@@ -5,8 +5,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -45,6 +48,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -54,6 +58,7 @@ import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
 import org.greenthread.whatsinmycloset.core.ui.components.outfits.OutfitBox
+import org.greenthread.whatsinmycloset.features.tabs.home.OutfitOfTheDayCalendar
 import org.greenthread.whatsinmycloset.features.tabs.social.data.OutfitState
 import org.greenthread.whatsinmycloset.features.tabs.social.presentation.PostViewModel
 import org.jetbrains.compose.resources.DrawableResource
@@ -103,6 +108,8 @@ fun HomeTabScreen(
     viewModel: HomeTabViewModel?,
     navController: NavController,
 ){
+    var showCalendar by remember { mutableStateOf(false) }
+
     var wardrobe: Wardrobe? = null
     val cachedWardrobes by viewModel!!.cachedWardrobes.collectAsState()
     val cachedItems by viewModel!!.cachedItems.collectAsState()
@@ -114,47 +121,65 @@ fun HomeTabScreen(
     val userManager = koinInject<UserManager>()
     val currentUser by userManager.currentUser.collectAsStateWithLifecycle()
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .verticalScroll(rememberScrollState()) // Enable vertical scrolling
-    ) {
-        WardrobeHeader(itemCount = cachedItems.count() ?: 0)
-
-        HomeSection(title = Res.string.categories_section_title, navController = navController) {
-            CategoriesSection({category ->  navController.navigate(Routes.HomeCategoryItemScreen(category.name))
-            })
-        }
-
-        DropdownMenuLeading(wardrobe?.wardrobeName ?: stringResource(Res.string.no_wardrobe_found))
-
-        Spacer(Modifier.height(16.dp))
-
-        HomeSection(
-            title = Res.string.recent_outfits_title,
-            showSeeAll = false,
-            navController = navController
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState()) // Enable vertical scrolling
         ) {
-            currentUser?.id?.let {
-                RecentPosts(
-                    userId = it,
+            WardrobeHeader(itemCount = cachedItems.count() ?: 0)
+
+            HomeSection(
+                title = Res.string.categories_section_title,
+                navController = navController
+            ) {
+                CategoriesSection({ category ->
+                    navController.navigate(Routes.HomeCategoryItemScreen(category.name))
+                })
+            }
+
+            DropdownMenuLeading(
+                wardrobe?.wardrobeName ?: stringResource(Res.string.no_wardrobe_found)
+            )
+
+            Spacer(Modifier.height(16.dp))
+
+            HomeSection(
+                title = Res.string.recent_outfits_title,
+                showSeeAll = false,
+                navController = navController
+            ) {
+                currentUser?.id?.let {
+                    RecentPosts(
+                        userId = it,
+                        navController = navController,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(16.dp))
+
+            HomeSection(
+                title = null,
+                showSeeAll = false,
+                navController = navController
+            ) {
+                BottomButtonsRow(
                     navController = navController,
-                    modifier = Modifier.fillMaxWidth()
+                    onCalendarClick = {showCalendar = true}
                 )
             }
         }
 
-        Spacer(Modifier.height(16.dp))
-
-        HomeSection(
-            title = null,
-            showSeeAll = false,
-            navController = navController
-        ) {
-            BottomButtonsRow(
-                navController = navController
+        if (showCalendar) {
+            OutfitOfTheDayCalendar(
+                navController = navController,
+                outfitViewModel = koinViewModel(),
+                onDismiss = { showCalendar = false }
             )
         }
+
     }
 }
 
@@ -242,43 +267,60 @@ fun ActionButtonItem(
     icon: ImageVector,
     text: StringResource,
     onClick: () -> Unit
-){
-    ElevatedButton(onClick = onClick) {
-        Row {
-            Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(24.dp))
+) {
+    ElevatedButton(
+        onClick = onClick,
+        modifier = Modifier
+            .padding(horizontal = 4.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp)
+            )
             Spacer(modifier = Modifier.width(8.dp))
-            Text(stringResource(text))
+            Text(
+                text = stringResource(text),
+                maxLines = 1
+            )
         }
     }
 }
 
 @Composable
 fun BottomButtonsRow(
-    navController: NavController
+    navController: NavController,
+    onCalendarClick: () -> Unit
 ) {
-    Row(
+    val buttons = listOf(
+        Pair(Icons.Rounded.Build, Res.string.create_outfit_button) to {
+            navController.navigate(Routes.CreateOutfitScreen)
+        },
+        Pair(Icons.Rounded.DateRange, Res.string.outfit_calendar) to onCalendarClick
+
+    )
+
+    LazyRow(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.SpaceAround
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(
+            space = 16.dp,
+            alignment = Alignment.CenterHorizontally
+        ),
+        contentPadding = PaddingValues(horizontal = 16.dp)
     ) {
-        ActionButtonItem(
-            icon = Icons.Rounded.Build,
-            text = Res.string.create_outfit_button,
-            onClick = {
-                if (navController.currentBackStackEntry != null) {
-                    navController.navigate(Routes.CreateOutfitScreen)
-                }
-            }
-        )
-
-        ActionButtonItem(
-            icon = Icons.Rounded.DateRange,
-            text = Res.string.outfit_calendar,
-            onClick = { if (navController.currentBackStackEntry != null) {
-                navController.navigate(Routes.OutfitOfTheDay)
-            } }
-        )
+        items(buttons) { (iconTextPair, onClick) ->
+            ActionButtonItem(
+                icon = iconTextPair.first,
+                text = iconTextPair.second,
+                onClick = onClick
+            )
+        }
     }
 }
 

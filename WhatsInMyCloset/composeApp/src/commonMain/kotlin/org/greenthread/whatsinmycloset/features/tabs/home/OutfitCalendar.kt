@@ -45,7 +45,6 @@ fun OutfitDatePicker(
         initialSelectedDateMillis = initialMillis
     )
     var showConfirmation by remember { mutableStateOf(false) } // Track confirmation dialog
-    var showDiscardDialog by remember { mutableStateOf(false) } // Track discard dialog
     var showOutfitNameDialog by remember { mutableStateOf(false) }
     var outfitName by remember { mutableStateOf("") }
     var showDateErrorDialog by remember { mutableStateOf(false) }
@@ -68,13 +67,13 @@ fun OutfitDatePicker(
             }
         },
         dismissButton = {
-            TextButton(onClick = { showDiscardDialog = true }) {
+            TextButton(onClick = onDismiss) {
                 Text("Cancel")
             }
         })
-        {
-            DatePicker(state = datePickerState)
-        }
+    {
+        DatePicker(state = datePickerState)
+    }
 
     // Get outfit name from user adding it to calendar
     if (showOutfitNameDialog) {
@@ -96,8 +95,6 @@ fun OutfitDatePicker(
 
                     if(!success)
                     {
-                        // alert user to select a different for outfit
-                        // as an outfit exists for the selected date
                         showDateErrorDialog = true
                         showOutfitNameDialog = false
                     }
@@ -127,7 +124,6 @@ fun OutfitDatePicker(
     // Show confirmation dialog when outfit is added
     if (showConfirmation) {
         ConfirmationDialog(
-
             message = "$outfitName added to date $selectedDate",
             onDismiss = {
                 // clear outfit state for next outfit
@@ -138,17 +134,6 @@ fun OutfitDatePicker(
                     popUpTo(Routes.HomeTab) { inclusive = true }
                 }
             }
-        )
-    }
-
-    // Show discard confirmation dialog when cancel is clicked
-    if (showDiscardDialog) {
-        DiscardConfirmationDialog(
-            onConfirm = {
-                showDiscardDialog = false
-                onDismiss()
-            },
-            onDismiss = { showDiscardDialog = false }
         )
     }
 }
@@ -168,33 +153,12 @@ fun ConfirmationDialog(message: String, onDismiss: () -> Unit) {
     )
 }
 
-@Composable
-fun DiscardConfirmationDialog(
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Cancel adding outfit to calendar") },
-        text = { Text("Are you sure you want to cancel?") },
-        confirmButton = {
-            TextButton(onClick = onConfirm) {
-                Text("Yes")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("No")
-            }
-        }
-    )
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OutfitOfTheDayCalendar(
     navController: NavController,
-    outfitViewModel: OutfitViewModel
+    outfitViewModel: OutfitViewModel,
+    onDismiss: () -> Unit
 ) {
     val calendarEvents by outfitViewModel.calendarEvents.collectAsState()
     var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
@@ -203,13 +167,10 @@ fun OutfitOfTheDayCalendar(
 
     // State for the DatePicker
     val datePickerState = rememberDatePickerState(initialSelectedDateMillis = dateToday)
-    var showConfirmation by remember { mutableStateOf(false) } // Track confirmation dialog
-    var showDiscardDialog by remember { mutableStateOf(false) } // Track discard dialog
-
 
     // DatePickerDialog layout
     DatePickerDialog(
-        onDismissRequest = { showDiscardDialog = true },
+        onDismissRequest = onDismiss,
         modifier = Modifier.fillMaxHeight().fillMaxWidth(),
         confirmButton = {
             TextButton(
@@ -220,6 +181,7 @@ fun OutfitOfTheDayCalendar(
                             Routes.OutfitDetailScreen(
                                 selectedDate.toString())
                         )
+                        onDismiss()
                     }
                 }
             ) {
@@ -227,33 +189,11 @@ fun OutfitOfTheDayCalendar(
             }
         },
         dismissButton = {
-            TextButton(onClick = { showDiscardDialog = true }) {
+            TextButton(onClick = { navController.navigate(Routes.HomeTab) }) {
                 Text("Cancel")
             }
         })
     {
         DatePicker(state = datePickerState)
-    }
-
-    // Close the calendar
-    if (showDiscardDialog) {
-        AlertDialog(
-            onDismissRequest = { showDiscardDialog = false },
-            title = { Text("Close Outfit Calendar?") },
-            text = { Text("Are you sure you want to close the calendar?") },
-            confirmButton = {
-                TextButton(onClick = {
-                    showDiscardDialog = false
-                    navController.navigate(Routes.HomeTab)  // Only navigate after user confirms
-                }) {
-                    Text("Yes")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDiscardDialog = false }) {
-                    Text("No")
-                }
-            }
-        )
     }
 }
