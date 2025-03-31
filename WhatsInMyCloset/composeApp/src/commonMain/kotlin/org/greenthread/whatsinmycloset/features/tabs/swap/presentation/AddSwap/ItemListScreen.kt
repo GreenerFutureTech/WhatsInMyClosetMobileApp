@@ -1,17 +1,22 @@
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,6 +44,7 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.koin.compose.viewmodel.koinViewModel
 import whatsinmycloset.composeapp.generated.resources.Res
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AddSwapItemRoot(
     viewModel: AddSwapViewModel = koinViewModel(),
@@ -61,68 +67,79 @@ fun AddSwapItemRoot(
     }
 
     WhatsInMyClosetTheme {
-        Column(
+        LazyColumn(
             modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Selected ${selectedItems.size} Item(s)",
-                    textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.SemiBold
-                )
-
-                Button(
-                    onClick = {
-                        val selectedItemIds = selectedItems.toList()
-                        viewModel.createSwap(selectedItemIds)
-                        onAddClick()
-                    },
-                    enabled = selectedItems.isNotEmpty()
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Add")
+                    Text(
+                        text = "Selected ${selectedItems.size} Item(s)",
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.SemiBold
+                    )
+
+                    Button(
+                        onClick = {
+                            val selectedItemIds = selectedItems.toList()
+                            viewModel.createSwap(selectedItemIds)
+                            onAddClick()
+                        },
+                        enabled = selectedItems.isNotEmpty()
+                    ) {
+                        Text("Add")
+                    }
+                }
+
+                CategoriesSection { category ->
+                    selectedCategory = if (selectedCategory == category) {
+                        null
+                    } else {
+                        category
+                    }
                 }
             }
 
-            CategoriesSection { category ->
-                selectedCategory = category
+            stickyHeader {
+                SearchBar(
+                    searchString = searchString,
+                    onSearchStringChange = { searchString = it },
+                    onSearch = {},
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                )
             }
 
-            SearchBar(
-                searchString = searchString,
-                onSearchStringChange = { searchString = it },
-                onSearch = {},
-                modifier = Modifier.fillMaxWidth()
-            )
+            item {
+                Spacer(Modifier.height(12.dp))
 
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(3),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                items(filteredItems) { item ->
-                    ItemImageCard(
-                        imageUrl = item.mediaUrl ?: "",
-                        isSelected = selectedItems.contains(item.id),
-                        onItemClick = {
-                            selectedItems = if (selectedItems.contains(item.id)) {
-                                selectedItems - item.id
-                            } else {
-                                selectedItems + item.id
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3),
+                    modifier = Modifier.fillMaxWidth().padding(4.dp).height(500.dp)
+                ) {
+                    items(filteredItems) { item ->
+                        ItemImageCard(
+                            imageUrl = item.mediaUrl ?: "",
+                            isSelected = selectedItems.contains(item.id),
+                            onItemClick = {
+                                selectedItems = if (selectedItems.contains(item.id)) {
+                                    selectedItems - item.id
+                                } else {
+                                    selectedItems + item.id
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
         }
     }
 }
-
 
 @Composable
 fun ItemImageCard(
