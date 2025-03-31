@@ -27,31 +27,12 @@ fun OutfitDto.toOutfit(): Outfit {
     )
 }
 
+fun List<OutfitDto>.toOutfitList(): List<Outfit> {
+    return this.map { it.toOutfit() }
+}
+
 @Serializable
 data class CreatorDto(
     val username: String,
     val profilePicture: String? = "",
 )
-
-@Serializable
-data class OutfitResponse(
-    val name: String,
-    val userId: Int,
-    val itemIds: List<OutfitItems>,
-    val tags: List<String>,
-    val id: String,
-    val createdAt: String,
-    val creator: CreatorDto? = null
-) {
-    fun toOutfit(): Outfit {
-        return Outfit(
-            id = id,
-            name = name,
-            itemIds = itemIds,
-            userId = userId,
-            tags = tags,
-            createdAt = createdAt,
-            creator = creator
-        )
-    }
-}
