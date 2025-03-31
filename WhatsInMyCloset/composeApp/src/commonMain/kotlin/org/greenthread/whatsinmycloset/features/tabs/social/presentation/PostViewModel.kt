@@ -58,7 +58,7 @@ open class PostViewModel(
                         }
                         // Load items for each outfit
                         outfitsList.forEach { outfit ->
-                            fetchItemsForOutfit(outfit.outfitId)
+                            fetchItemsForOutfit(outfit.outfitId, outfit.userId)
                         }
                     }
                     .onError { error ->
@@ -69,7 +69,7 @@ open class PostViewModel(
         }
     }
 
-    fun fetchItemsForOutfit(outfitId: String) {
+    fun fetchItemsForOutfit(outfitId: String, userId: Int?) {
         viewModelScope.launch {
             val outfit = _state.value.outfits.find { it.outfitId == outfitId } ?: return@launch
             // Mark as loading while fetching items from outfit
@@ -81,7 +81,8 @@ open class PostViewModel(
             loadOutfit(outfitId) {
                 it.copy(
                     items = results,
-                    isLoading = false
+                    isLoading = false,
+                    userId = userId ?: it.userId
                 )
             }
         }
@@ -145,7 +146,7 @@ open class PostViewModel(
                     }
 
                     // Fetch items separately
-                    fetchItemsForOutfit(outfitId)
+                    fetchItemsForOutfit(outfitId, outfitDto.userId)
                 }
                 .onError { error ->
                     _state.update { state ->
@@ -191,7 +192,7 @@ open class PostViewModel(
 
                     // Load items for each outfit
                     outfitsList.forEach { outfit ->
-                        fetchItemsForOutfit(outfit.outfitId)
+                        fetchItemsForOutfit(outfit.outfitId, outfit.userId)
                     }
                 }
                 .onError { error ->
