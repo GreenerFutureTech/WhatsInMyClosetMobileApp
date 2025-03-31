@@ -42,6 +42,7 @@ import org.greenthread.whatsinmycloset.BackHandler
 import org.greenthread.whatsinmycloset.app.AppTopBar
 import org.greenthread.whatsinmycloset.app.Routes
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
+import org.greenthread.whatsinmycloset.core.persistence.OutfitItems
 import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
 import org.greenthread.whatsinmycloset.core.utilities.CoordinateNormalizer
 import org.greenthread.whatsinmycloset.core.viewmodels.ClothingItemViewModel
@@ -242,7 +243,7 @@ fun WardrobeDropdown(
 // show the items user selected to create an outfit
 @Composable
 fun OutfitCollageArea(
-    temporaryPositions: Map<String, OffsetData>,
+    temporaryPositions: List<OutfitItems>,
     selectedClothingItems: List<ClothingItem>,
     onPositionUpdate: (String, OffsetData) -> Unit)
 {
@@ -253,6 +254,17 @@ fun OutfitCollageArea(
         canvasWidth,
         canvasHeight
     )
+
+    // Ensures they are in the outfit
+    LaunchedEffect(selectedClothingItems) {
+        selectedClothingItems.forEach { item ->
+            if (temporaryPositions.none { it.id == item.id }) {
+                val defaultX = 0.5f
+                val defaultY = 0.5f
+                onPositionUpdate(item.id, OffsetData(defaultX, defaultY))
+            }
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -273,12 +285,15 @@ fun OutfitCollageArea(
         selectedClothingItems.forEach { clothingItem ->
 
             // Get normalized position from ViewModel (0-1 range)
-            val normalizedPosition = temporaryPositions[clothingItem.id] ?: OffsetData(0f, 0f)
+            val outfitItem  = temporaryPositions.find { it.id == clothingItem.id }
+
+            val x = outfitItem?.x ?: 0f
+            val y = outfitItem?.y ?: 0f
 
             // DENORMALIZE: Convert normalized position back to actual canvas coordinates
             val (denormalizedX, denormalizedY) = CoordinateNormalizer.denormalizeCoordinates(
-                normalizedPosition.x,
-                normalizedPosition.y,
+                x,
+                y,
                 canvasWidth,
                 canvasHeight,
                 dynamicItemWidth,

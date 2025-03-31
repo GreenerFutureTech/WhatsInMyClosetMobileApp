@@ -26,8 +26,8 @@ fun CalendarDto.toOutfit(): Outfit {
     return Outfit(
         id = outfitId,
         name = "Outfit $date", // Default name based on date
-        creatorId = userId,
-        items = emptyMap(), // Will be populated separately
+        userId = userId,
+        itemIds = emptyList(), // Will be populated separately
         tags = emptyList(), // Will be populated separately
         createdAt = date // Using calendar date as creation date
     )
@@ -50,8 +50,8 @@ data class CalendarResponse(
         return Outfit(
             id = outfitId,
             name = "Outfit for $date",
-            creatorId = userId,
-            items = emptyMap(),
+            userId = userId,
+            itemIds = emptyList(),
             tags = emptyList(),
             createdAt = date
         )
@@ -64,12 +64,10 @@ data class CalendarWithOutfit(
     val userId: Int,
     val date: String,
 
-    val outfitId: String,
+    val id: String,
     val name: String,
-    val creatorId: Int,
-    val items: String,
+    val itemIds: String,
     val tags: String,
-    val calendarDates: String,
     val createdAt: String
 ) {
     fun toCalendarEntry(): CalendarEntry = CalendarEntry(
@@ -81,12 +79,13 @@ data class CalendarWithOutfit(
     fun toOutfit(): Outfit {
         val json = Json { ignoreUnknownKeys = true }
         return Outfit(
-            id = outfitId,
+            id = id,
             name = name,
-            creatorId = creatorId,
-            items = json.decodeFromString(items) ?: emptyMap(),
-            tags = json.decodeFromString(tags) ?: emptyList(),
-            createdAt = createdAt
+            userId = userId,
+            itemIds = json.decodeFromString(itemIds),
+            tags = json.decodeFromString(tags),
+            createdAt = createdAt,
+            creator = null
         )
     }
 }

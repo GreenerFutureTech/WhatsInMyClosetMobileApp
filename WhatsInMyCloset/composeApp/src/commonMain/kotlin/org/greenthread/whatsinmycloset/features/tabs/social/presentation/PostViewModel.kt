@@ -1,5 +1,8 @@
 package org.greenthread.whatsinmycloset.features.tabs.social.presentation
 
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -8,20 +11,31 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.greenthread.whatsinmycloset.core.domain.getOrNull
+import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
+import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.domain.onError
 import org.greenthread.whatsinmycloset.core.domain.onSuccess
+import org.greenthread.whatsinmycloset.core.dto.toClothingItem
+import org.greenthread.whatsinmycloset.core.managers.OutfitManager
+import org.greenthread.whatsinmycloset.core.managers.WardrobeManager
 import org.greenthread.whatsinmycloset.core.repository.DefaultClosetRepository
 import org.greenthread.whatsinmycloset.features.tabs.social.data.OutfitState
 import org.greenthread.whatsinmycloset.features.tabs.social.data.PostState
+import org.koin.compose.koinInject
 
 open class PostViewModel(
     private val itemRepository: DefaultClosetRepository,
-    private val userManager: UserManager
+    private val userManager: UserManager,
+    private val outfitManager: OutfitManager,
+    private val wardrobeManager: WardrobeManager
 ) : ViewModel() {
     val currentUser = userManager.currentUser
     private val _state = MutableStateFlow(PostState())
     val state = _state
+
+    val cachedOutfits: StateFlow<List<Outfit>> = outfitManager.cachedOutfits
+    val cachedItems: StateFlow<List<ClothingItem>> = wardrobeManager.cachedItems
 
     // holds the refreshing state for UI updates when refreshing
     private val _isRefreshing = MutableStateFlow(false)
@@ -75,9 +89,16 @@ open class PostViewModel(
             // Mark as loading while fetching items from outfit
             loadOutfit(outfitId) { it.copy(isLoading = true) }
             val results = outfit.itemIds.mapNotNull { itemId ->
-                itemId.id?.let { itemRepository.getItemById(it).getOrNull() }
+                itemId.id?.let { id ->
+                    try {
+                        itemRepository.getItemById(id).getOrNull()?.toClothingItem()
+                    } catch (e: Exception) {
+                        // Log conversion error but continue with other items
+                        println("Error converting item $id: ${e.message}")
+                        null
+                    }
+                }
             }
-            // Update OutfitState with items
             loadOutfit(outfitId) {
                 it.copy(
                     items = results,

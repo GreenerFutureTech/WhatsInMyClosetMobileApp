@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -48,18 +47,25 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.update
 import org.greenthread.whatsinmycloset.app.Routes
 import org.greenthread.whatsinmycloset.core.domain.models.ClothingCategory
+import org.greenthread.whatsinmycloset.core.domain.models.ClothingItem
+import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
 import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
 import org.greenthread.whatsinmycloset.core.ui.components.outfits.OutfitBox
 import org.greenthread.whatsinmycloset.features.tabs.home.OutfitOfTheDayCalendar
+import org.greenthread.whatsinmycloset.features.tabs.profile.presentation.getCachedOutfits
 import org.greenthread.whatsinmycloset.features.tabs.social.data.OutfitState
+import org.greenthread.whatsinmycloset.features.tabs.social.data.PostState
+import org.greenthread.whatsinmycloset.features.tabs.social.data.toOutfitState
 import org.greenthread.whatsinmycloset.features.tabs.social.presentation.PostViewModel
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.StringResource
@@ -110,7 +116,16 @@ fun HomeTabScreen(
 ){
     var showCalendar by remember { mutableStateOf(false) }
 
+    val state by viewModel!!.state.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel!!.cachedOutfits.collectLatest {
+            viewModel.refreshOutfits()
+        }
+    }
+
     var wardrobe: Wardrobe? = null
+
     val cachedWardrobes by viewModel!!.cachedWardrobes.collectAsState()
     val cachedItems by viewModel!!.cachedItems.collectAsState()
 
@@ -149,13 +164,11 @@ fun HomeTabScreen(
                 showSeeAll = false,
                 navController = navController
             ) {
-                currentUser?.id?.let {
-                    RecentPosts(
-                        userId = it,
-                        navController = navController,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
+                RecentPosts(
+                    navController = navController,
+                    viewModel = viewModel!!,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
 
             Spacer(Modifier.height(16.dp))
@@ -462,46 +475,41 @@ fun DropdownMenuLeading(text: String) {
 
 @Composable
 fun RecentPosts(
-    userId: Int,
     navController: NavController,
+    viewModel: HomeTabViewModel,
     modifier: Modifier = Modifier
 ) {
-    val viewModel: PostViewModel = koinViewModel()
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
-    LaunchedEffect(userId) {
-        viewModel.fetchUserOutfits(userId)
-    }
-
-    val state by viewModel.state.collectAsState()
-
-    // Take first 3 outfits sorted by date (newest first)
-    val recentPosts = remember(state.outfits) {
-        state.outfits
+    val recentPosts = state.outfits
             .sortedByDescending { it.createdAt }
             .take(3)
-    }
+
     Column (
       modifier = modifier
           .fillMaxWidth()
     ) {
-        if (recentPosts.isNotEmpty()) {
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.CenterHorizontally)
-            ) {
-                items(recentPosts) { outfit ->
-                    SmallPostCard(
-                        outfit = outfit,
-                        onClick = { navController.navigate(Routes.SocialDetailsScreen(outfit.outfitId)) },
-                    )
+        if (state.isLoading) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+        }
+        else {
+            if (recentPosts.isNotEmpty()) {
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.CenterHorizontally)
+                ) {
+                    items(recentPosts) { outfit ->
+                        SmallPostCard(
+                            outfit = outfit,
+                            onClick = { navController.navigate(Routes.SocialDetailsScreen(outfit.outfitId)) },
+                        )
+                    }
                 }
+            } else {
+                Text("No outfits yet. Create your first outfit!")
             }
-        } else if (state.isLoading) {
-            CircularProgressIndicator()
-        } else {
-            Text("No outfits yet. Create your first outfit!")
         }
     }
 }

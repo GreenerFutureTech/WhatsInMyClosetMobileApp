@@ -40,14 +40,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import org.greenthread.whatsinmycloset.app.Routes
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.SwapImageCard
 import org.greenthread.whatsinmycloset.core.ui.components.posts.PostCard
 import org.greenthread.whatsinmycloset.features.tabs.home.presentation.SeeAllButton
 import org.greenthread.whatsinmycloset.features.tabs.profile.ConfirmationType
 import org.greenthread.whatsinmycloset.features.tabs.profile.ProfileTabViewModel
+import org.greenthread.whatsinmycloset.features.tabs.social.data.OutfitState
 import org.greenthread.whatsinmycloset.features.tabs.social.data.PostState
 import org.greenthread.whatsinmycloset.features.tabs.social.presentation.EmptyState
 import org.greenthread.whatsinmycloset.features.tabs.social.presentation.PostViewModel
@@ -274,6 +278,40 @@ fun FriendActionConfirmationDialog(
     )
 }
 
+fun getCachedOutfits(
+    viewModel: PostViewModel,
+) {
+    viewModel.state.update { it.copy(isLoading = true) }
+
+    // Create OutfitState list from cached data
+    val outfitsList = viewModel.cachedOutfits.value.map { outfit ->
+        // Find items that belong to this outfit
+        val outfitItems = viewModel.cachedItems.value.filter { item ->
+            outfit.itemIds.any { outfitItem -> outfitItem.id == item.id }
+        }
+
+        OutfitState(
+            outfitId = outfit.id,
+            name = outfit.name,
+            itemIds = outfit.itemIds,
+            items = outfitItems,
+            tags = outfit.tags,
+            createdAt = outfit.createdAt,
+            isLoading = false,
+            username = outfit.creator?.username,
+            profilePicture = outfit.creator?.profilePicture,
+            userId = outfit.userId
+        )
+    }
+
+    viewModel.state.update {
+        it.copy(
+            outfits = outfitsList,
+            isLoading = false
+        )
+    }
+}
+
 @Composable
 fun PostsSection(
     userId: Int?,
@@ -288,9 +326,19 @@ fun PostsSection(
         lifecycle = lifecycle
     )
 
+    val cachedOutfits by viewModel.cachedOutfits.collectAsState()
+    val cachedItems by viewModel.cachedItems.collectAsState()
+
     LaunchedEffect(userId) {
         if (userId != null) {
-            viewModel.fetchUserOutfits(userId)
+            if (userId == currentUser!!.id)
+            {
+                getCachedOutfits(viewModel)
+            }
+            else
+            {
+                viewModel.fetchUserOutfits(userId)
+            }
         }
     }
 

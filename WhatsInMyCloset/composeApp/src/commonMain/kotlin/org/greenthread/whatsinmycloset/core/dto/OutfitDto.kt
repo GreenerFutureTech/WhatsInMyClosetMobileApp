@@ -1,14 +1,8 @@
 package org.greenthread.whatsinmycloset.core.dto
 
 import kotlinx.serialization.Serializable
+import org.greenthread.whatsinmycloset.core.domain.models.Outfit
 import org.greenthread.whatsinmycloset.core.persistence.OutfitItems
-
-/*
-*   Represents the data transfer object (DTO) for Outfit
-*   used in API communication and serialization.
-*
-*   Maps between the domain model (Outfit) and the persistence model (OutfitEntity).
-* */
 
 @Serializable
 data class OutfitDto(
@@ -20,6 +14,18 @@ data class OutfitDto(
     val createdAt: String? = null,
     val creator: CreatorDto? = null
 )
+
+fun OutfitDto.toOutfit(): Outfit {
+    return Outfit(
+        id = id,
+        name = name,
+        itemIds = itemIds,
+        userId = userId,
+        tags = tags,
+        createdAt = createdAt,
+        creator = creator
+    )
+}
 
 @Serializable
 data class CreatorDto(
@@ -36,5 +42,16 @@ data class OutfitResponse(
     val id: String,
     val createdAt: String,
     val creator: CreatorDto? = null
-)
-
+) {
+    fun toOutfit(): Outfit {
+        return Outfit(
+            id = id,
+            name = name,
+            itemIds = itemIds,
+            userId = userId,
+            tags = tags,
+            createdAt = createdAt,
+            creator = creator
+        )
+    }
+}

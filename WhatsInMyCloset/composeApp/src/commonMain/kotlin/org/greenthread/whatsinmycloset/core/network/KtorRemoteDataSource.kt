@@ -407,7 +407,7 @@ class KtorRemoteDataSource(
     }
 
     // outfits -- post outfits
-    override suspend fun postOutfitForUser(outfit: OutfitDto): Result<OutfitResponse, DataError.Remote> {
+    override suspend fun postOutfitForUser(outfit: OutfitDto): Result<OutfitDto, DataError.Remote> {
         return safeCall {
             httpClient.post("$BASE_URL/outfits") {
                     contentType(ContentType.Application.Json)

@@ -30,9 +30,6 @@ fun FullScreenLoading() {
     }
 }
 
-// TODO add try-catch for search
-// TODO change design for search result
-
 @Composable
 fun ProfileScreenRoot(
     viewModel: ProfileTabViewModel,

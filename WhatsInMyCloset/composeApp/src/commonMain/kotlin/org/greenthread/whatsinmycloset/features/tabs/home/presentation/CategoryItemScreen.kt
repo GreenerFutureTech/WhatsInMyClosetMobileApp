@@ -1,3 +1,4 @@
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -13,6 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -148,7 +150,8 @@ fun CategoryItemCard(
                     color = secondaryLight,
                     shape = RoundedCornerShape(8.dp)
                 )
-        ) {
+                .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp))
+            ) {
             @OptIn(ExperimentalResourceApi::class)
             AsyncImage(
                 model = if (loadFailed) Res.getUri("drawable/noImage.png") else imageUrl,
