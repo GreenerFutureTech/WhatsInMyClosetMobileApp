@@ -450,7 +450,7 @@ fun CategoryItemsScreen(
 
     var selectedItemKeys by remember { mutableStateOf(setOf<Pair<String, ClothingCategory>>()) }
     var isSelectionMode by remember { mutableStateOf(false) }
-    var checked by remember { mutableStateOf(false) }
+    var checked by remember { mutableStateOf(true) }
 
     Column(
         modifier = Modifier
