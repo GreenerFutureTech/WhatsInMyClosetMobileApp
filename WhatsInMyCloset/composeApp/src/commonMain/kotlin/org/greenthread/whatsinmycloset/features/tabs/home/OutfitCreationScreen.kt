@@ -449,7 +449,7 @@ fun CategoryItemsScreen(
     val wardrobes by clothingItemViewModel.cachedWardrobes.collectAsState()
 
     var selectedItemKeys by remember { mutableStateOf(setOf<Pair<String, ClothingCategory>>()) }
-    var isSelectionMode by remember { mutableStateOf(false) }
+    var isSelectionMode by remember { mutableStateOf(true) }
     var checked by remember { mutableStateOf(true) }
 
     Column(
