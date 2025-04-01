@@ -56,9 +56,9 @@ open class OutfitRepository(
         outfitDao.deleteOutfit(outfit.id)
     }
 
-    fun getOutfits(): Flow<List<Outfit>> {
+    fun getOutfits(userId: Int): Flow<List<Outfit>> {
         return outfitDao
-            .getOutfits()
+            .getOutfits(userId)
             .map { outfitEntities ->
                 outfitEntities.map { it.toDto().toOutfit() }
             }

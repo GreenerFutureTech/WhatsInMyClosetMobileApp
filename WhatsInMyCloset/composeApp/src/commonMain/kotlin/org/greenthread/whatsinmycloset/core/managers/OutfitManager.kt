@@ -40,6 +40,10 @@ open class OutfitManager(
 
                     getOutfitsFromRepository()
                 }
+                else {
+                    updateOutfits(emptyList())
+                }
+
             }
         }
     }
@@ -52,9 +56,9 @@ open class OutfitManager(
         return cachedOutfits.value
     }
 
-    suspend fun getOutfitsFromDB(): List<Outfit> {
+    suspend fun getOutfitsFromDB(userId: Int): List<Outfit> {
         return withContext(Dispatchers.IO) {
-            outfitRepository.getOutfits().first()
+            outfitRepository.getOutfits(userId).first()
         }
     }
 
@@ -67,7 +71,7 @@ open class OutfitManager(
     suspend fun getOutfitsFromRepository() {
         val userId = userManager.currentUser.value?.id
         if (getOutfits().isEmpty()) {
-            updateOutfits(getOutfitsFromDB())
+            userId?.let { getOutfitsFromDB(it) }?.let { updateOutfits(it) }
             println("GreenThread checking for outfits in Room")
         }
 

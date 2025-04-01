@@ -25,8 +25,8 @@ interface OutfitDao {
     suspend fun deleteOutfit(outfitId: String)
 
     // Fetch all outfits
-    @Query("SELECT * FROM outfits")
-    fun getOutfits(): Flow<List<OutfitEntity>>
+    @Query("SELECT * FROM outfits WHERE userId = :userId")
+    fun getOutfits(userId: Int): Flow<List<OutfitEntity>>
 
     // Fetch outfits by user ID
     @Query("SELECT * FROM outfits WHERE userId = :userId")

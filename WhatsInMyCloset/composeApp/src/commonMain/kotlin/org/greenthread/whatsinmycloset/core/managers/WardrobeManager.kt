@@ -46,6 +46,11 @@ open class WardrobeManager(
                     getWardrobesFromRepository()
                     getItemsFromRepository()
                 }
+                else
+                {
+                    updateWardrobes(emptyList())
+                    updateItems(emptyList())
+                }
             }
         }
     }

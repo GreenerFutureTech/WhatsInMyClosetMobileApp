@@ -2,8 +2,12 @@ package org.greenthread.whatsinmycloset.features.tabs.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.greenthread.whatsinmycloset.core.domain.models.UserManager
@@ -51,6 +55,18 @@ class ProfileTabViewModel(
     // Confirmation dialog state
     private val _showConfirmationDialog = MutableStateFlow<Pair<ConfirmationType, Int>?>(null)
     val showConfirmationDialog = _showConfirmationDialog.asStateFlow()
+
+    init {
+        // Start a coroutine to observe changes in the current user
+        CoroutineScope(Dispatchers.IO).launch {
+            userManager.currentUser.collectLatest { user ->
+                if (user != null) {
+
+                    _state.value = ProfileState()
+                }
+            }
+        }
+    }
 
     // Load profile
     fun loadProfile(userId: Int) {
@@ -223,7 +239,8 @@ class ProfileTabViewModel(
                 .onSuccess {
                     if (accept) {
                         // Refresh both users' data
-                        refreshBothUsers(request.senderId, request.receiverId)
+
+
                     } else {
                         // Just update status if declined
                         _state.update {
