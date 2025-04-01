@@ -115,8 +115,13 @@ open class OutfitManager(
         return try {
             val outfitDto = outfitRepository.saveOutfit(outfit)    // use this for saving outfit in calendar
             if (outfitDto != null) {
-                _cachedOutfits.update { it + outfit.copy(id = outfitDto.id, createdAt = outfitDto.createdAt) }
-                println("Outfit saved successfully: $outfitDto")
+                val savedOutfit = outfit.copy(
+                    id = outfitDto.id,
+                    createdAt = outfitDto.createdAt,
+                    name = outfit.name
+                )
+                _cachedOutfits.update { it + savedOutfit }
+                println("Outfit saved successfully: $savedOutfit")
             }
             outfitDto
         } catch (e: Exception) {
