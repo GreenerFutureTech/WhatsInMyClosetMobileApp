@@ -326,10 +326,7 @@ class ProfileTabViewModel(
             // Update UserManager
             userManager.updateUser(updatedUser)
 
-            // Force refresh the friend's profile if we're viewing it
-            if (state.value.user?.id == receiverId || state.value.user?.id == senderId) {
-                loadProfile(state.value.user?.id ?: return@onSuccess)
-            }
+            loadProfile(currentUserId)
         }.onError { error ->
             _state.update {
                 it.copy(
