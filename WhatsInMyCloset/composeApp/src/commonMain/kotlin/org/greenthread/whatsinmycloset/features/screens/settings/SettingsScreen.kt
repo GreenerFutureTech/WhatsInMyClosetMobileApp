@@ -112,8 +112,10 @@ fun SettingsScreen(navController: NavController, loginViewModel: LoginViewModel)
                     showDialogLogout = false
                     loginViewModel.logout()
                     navController.navigate(Routes.LoginTab) {
-                        popUpTo(Routes.HomeTab) { inclusive = true }
-                    }                },
+                        popUpTo(0) { inclusive = true } // Clears entire back stack
+                        launchSingleTop = true
+                    }
+                },
                 onDismiss = { showDialogLogout = false }
             )
         }
@@ -126,7 +128,8 @@ fun SettingsScreen(navController: NavController, loginViewModel: LoginViewModel)
                     showDialogDeleteAccount = false
                     loginViewModel.logout()
                     navController.navigate(Routes.LoginTab) {
-                        popUpTo(Routes.HomeTab) { inclusive = true }
+                        popUpTo(0) { inclusive = true } // Clears entire back stack
+                        launchSingleTop = true
                     }
                 },
                 onDismiss = { showDialogDeleteAccount = false }
