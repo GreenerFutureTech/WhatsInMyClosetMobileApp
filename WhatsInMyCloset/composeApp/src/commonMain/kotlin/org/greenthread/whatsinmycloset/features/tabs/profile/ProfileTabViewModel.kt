@@ -239,7 +239,8 @@ class ProfileTabViewModel(
                 .onSuccess {
                     if (accept) {
                         // Refresh both users' data
-
+                        val currentUserId = currentUser.value?.id ?: 0
+                        loadProfile(currentUserId)
 
                     } else {
                         // Just update status if declined

@@ -48,38 +48,10 @@ fun PostDetailScreen(
     navController: NavController
 ) {
     val currentUser by viewModel.currentUser.collectAsState()
-    val cachedOutfits by viewModel.cachedOutfits.collectAsState()
     val cachedItems by viewModel.cachedItems.collectAsState()
     val state by viewModel.state.collectAsState()
 
-    // Check if the outfit exists in the cache
-    val cachedOutfit = cachedOutfits.find { it.id == outfitId }
-    val cachedOutfitItems = if (cachedOutfit != null) {
-        cachedItems.filter { item ->
-            cachedOutfit.itemIds.any { outfitItem -> outfitItem.id == item.id }
-        }
-    } else {
-        emptyList()
-    }
-
-    // Use cached data if available, otherwise fetch from API
-    val outfit = if (cachedOutfit != null && cachedOutfitItems.isNotEmpty()) {
-        println("CACHED POST!!")
-        OutfitState(
-            outfitId = cachedOutfit.id,
-            name = cachedOutfit.name,
-            itemIds = cachedOutfit.itemIds,
-            items = cachedOutfitItems,
-            tags = cachedOutfit.tags,
-            createdAt = cachedOutfit.createdAt,
-            isLoading = false,
-            username = currentUser?.username ?: "Unknown User",
-            profilePicture = currentUser?.profilePicture,
-            userId = cachedOutfit.userId
-        )
-    } else {
-        state.outfits.find { it.outfitId == outfitId }
-    }
+    val outfit = state.outfits.find { it.outfitId == outfitId }
 
     LaunchedEffect(outfitId) {
         if (outfit == null) {

@@ -1,5 +1,6 @@
 package org.greenthread.whatsinmycloset.core.persistence
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
@@ -13,6 +14,7 @@ data class WardrobeEntity(
     val wardrobeName: String,
     val createdAt: String,
     val lastUpdate: String,
+    @ColumnInfo(name = "user_data")
     val user: UserDto // Foreign key reference to User
 )
 

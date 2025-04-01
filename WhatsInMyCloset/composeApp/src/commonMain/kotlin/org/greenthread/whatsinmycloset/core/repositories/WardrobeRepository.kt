@@ -33,9 +33,9 @@ class WardrobeRepository(
         }
     }
 
-    fun getWardrobes(): Flow<List<Wardrobe>> {
+    fun getWardrobes(userId:Int): Flow<List<Wardrobe>> {
         return wardrobeDao
-            .getWardrobes()
+            .getWardrobes(userId)
             .map { wardrobeEntities ->
                 wardrobeEntities.map { it.toWardrobe() }
             }
