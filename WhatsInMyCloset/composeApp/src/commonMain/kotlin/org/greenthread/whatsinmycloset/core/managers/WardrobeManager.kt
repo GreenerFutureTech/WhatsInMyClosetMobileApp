@@ -46,6 +46,11 @@ open class WardrobeManager(
                     getWardrobesFromRepository()
                     getItemsFromRepository()
                 }
+                else
+                {
+                    updateWardrobes(emptyList())
+                    updateItems(emptyList())
+                }
             }
         }
     }
@@ -82,7 +87,7 @@ open class WardrobeManager(
         val userId = userManager.currentUser.value?.id
         if (getWardrobes().isEmpty()) {
             // Try loading from local database (Room)
-            updateWardrobes(getWardrobesFromDB())
+            updateWardrobes(getWardrobesFromDB(userId!!))
             println("GreenThread checking for wardrobes in Room")
         }
 
@@ -116,11 +121,11 @@ open class WardrobeManager(
     }
 
     // Function to simulate fetching wardrobes from local DB (Room)
-    suspend fun getWardrobesFromDB(): List<Wardrobe> {
+    suspend fun getWardrobesFromDB(userId: Int): List<Wardrobe> {
         return withContext(Dispatchers.IO) {
             // Your DB fetching logic here
             // This is just an example and should be replaced with your actual DB fetch logic
-            wardrobeRepository.getWardrobes().first()
+            wardrobeRepository.getWardrobes(userId).first()
         }
     }
 

@@ -116,7 +116,7 @@ fun OutfitSaveScreen(
                             showOutfitNameDialog = true
                         }
                     },
-                    isDoneEnabled = isDoneEnabled
+                    isDoneEnabled = true
                 )
             }
         }

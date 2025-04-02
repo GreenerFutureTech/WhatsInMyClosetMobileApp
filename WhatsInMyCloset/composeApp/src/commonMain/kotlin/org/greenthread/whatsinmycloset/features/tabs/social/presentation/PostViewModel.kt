@@ -5,9 +5,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.greenthread.whatsinmycloset.core.domain.getOrNull
@@ -40,6 +44,18 @@ open class PostViewModel(
     // holds the refreshing state for UI updates when refreshing
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
+
+    init {
+        // Start a coroutine to observe changes in the current user
+        CoroutineScope(Dispatchers.IO).launch {
+            userManager.currentUser.collectLatest { user ->
+                if (user != null) {
+
+                    _state.value = PostState()
+                }
+            }
+        }
+    }
 
     fun refresh() {
         fetchAllOutfitData()

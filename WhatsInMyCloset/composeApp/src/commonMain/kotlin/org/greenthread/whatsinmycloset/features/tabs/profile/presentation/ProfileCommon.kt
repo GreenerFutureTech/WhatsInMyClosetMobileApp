@@ -326,11 +326,12 @@ fun PostsSection(
         lifecycle = lifecycle
     )
 
-    val cachedOutfits by viewModel.cachedOutfits.collectAsState()
-    val cachedItems by viewModel.cachedItems.collectAsState()
+    //val cachedOutfits by viewModel.cachedOutfits.collectAsState()
+    //val cachedItems by viewModel.cachedItems.collectAsState()
 
     LaunchedEffect(userId) {
         if (userId != null) {
+            /*
             if (userId == currentUser!!.id)
             {
                 getCachedOutfits(viewModel)
@@ -339,6 +340,9 @@ fun PostsSection(
             {
                 viewModel.fetchUserOutfits(userId)
             }
+            */
+
+            viewModel.fetchUserOutfits(userId)
         }
     }
 
