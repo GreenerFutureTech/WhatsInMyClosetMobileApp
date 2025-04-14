@@ -44,11 +44,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.PopupProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -59,6 +61,8 @@ import org.greenthread.whatsinmycloset.core.ui.components.models.Wardrobe
 import org.greenthread.whatsinmycloset.core.ui.components.outfits.OutfitBox
 import org.greenthread.whatsinmycloset.features.tabs.home.OutfitOfTheDayCalendar
 import org.greenthread.whatsinmycloset.features.tabs.social.data.OutfitState
+import org.greenthread.whatsinmycloset.features.tabs.social.presentation.EmptyState
+import org.greenthread.whatsinmycloset.theme.outlineVariantLight
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
@@ -74,6 +78,7 @@ import whatsinmycloset.composeapp.generated.resources.category_label_footwear
 import whatsinmycloset.composeapp.generated.resources.category_label_tops
 import whatsinmycloset.composeapp.generated.resources.create_outfit_button
 import whatsinmycloset.composeapp.generated.resources.glasses
+import whatsinmycloset.composeapp.generated.resources.no_items_found
 import whatsinmycloset.composeapp.generated.resources.no_wardrobe_found
 import whatsinmycloset.composeapp.generated.resources.outfit_calendar
 import whatsinmycloset.composeapp.generated.resources.recent_outfits_title
@@ -492,11 +497,25 @@ fun RecentPosts(
                     }
                 }
             } else {
-                Text(
-                    text = "Your style story begins here! Create your first outfit.",
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center
-                )
+                Box(
+                    modifier = Modifier
+                        .padding(16.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "Your style story begins here! Create your first outfit.",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.alpha(0.5f)
+                        )
+                    }
+                }
             }
         }
     }

@@ -150,7 +150,7 @@ fun CategoryItemCard(
                     color = secondaryLight,
                     shape = RoundedCornerShape(8.dp)
                 )
-                .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp))
+                .background(MaterialTheme.colorScheme.surfaceContainer, RoundedCornerShape(8.dp))
             ) {
             @OptIn(ExperimentalResourceApi::class)
             AsyncImage(

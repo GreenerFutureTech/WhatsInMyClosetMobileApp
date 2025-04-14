@@ -13,9 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -131,8 +129,7 @@ private fun ProfileContent(
     navController: NavController,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(
-        modifier = modifier
+    LazyColumn(modifier
             .fillMaxWidth()
             .padding(16.dp)
     ) {
@@ -143,14 +140,15 @@ private fun ProfileContent(
 
             Row(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 SwapStats(
                     user = user,
                     isOwnProfile = isOwnProfile,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier,
                     swapState = swapState
                 )
 
