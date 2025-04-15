@@ -1,6 +1,5 @@
 package org.greenthread.whatsinmycloset.features.tabs.profile.presentation
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,7 +8,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -40,11 +38,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import org.greenthread.whatsinmycloset.app.Routes
 import org.greenthread.whatsinmycloset.core.ui.components.listItems.SwapImageCard
 import org.greenthread.whatsinmycloset.core.ui.components.posts.PostCard
@@ -57,7 +53,6 @@ import org.greenthread.whatsinmycloset.features.tabs.social.presentation.EmptySt
 import org.greenthread.whatsinmycloset.features.tabs.social.presentation.PostViewModel
 import org.greenthread.whatsinmycloset.features.tabs.swap.Action.SwapAction
 import org.greenthread.whatsinmycloset.features.tabs.swap.State.SwapListState
-import org.greenthread.whatsinmycloset.theme.outlineVariantLight
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -72,8 +67,6 @@ import whatsinmycloset.composeapp.generated.resources.decline_request_dialog
 import whatsinmycloset.composeapp.generated.resources.decline_request_type
 import whatsinmycloset.composeapp.generated.resources.defaultUser
 import whatsinmycloset.composeapp.generated.resources.friends_count_label
-import whatsinmycloset.composeapp.generated.resources.my_outfits_title
-import whatsinmycloset.composeapp.generated.resources.no_items_found
 import whatsinmycloset.composeapp.generated.resources.remove_friend_button
 import whatsinmycloset.composeapp.generated.resources.remove_friend_dialog
 import whatsinmycloset.composeapp.generated.resources.swaps_count_label
@@ -212,13 +205,9 @@ fun ProfileRowSection(
             modifier = Modifier
                 .padding(16.dp)
         ) {
-            Text(
-                text = stringResource(Res.string.no_items_found),
-                fontWeight = FontWeight.Medium,
-                color = outlineVariantLight
-            )
-
+            EmptyState()
         }
+
     } else {
         LazyRow(
             modifier = Modifier
@@ -348,62 +337,43 @@ fun PostsSection(
 
     val sortedOutfits = state.outfits.sortedByDescending { it.createdAt }
 
-    Column(modifier = modifier
-        .fillMaxWidth()
-        .background(
-            color = MaterialTheme.colorScheme.inverseOnSurface,
-            shape = RoundedCornerShape(12.dp)
-        )
-    )
-    {
-        Box(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(4.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        color = MaterialTheme.colorScheme.surface,
-                        shape = RoundedCornerShape(12.dp)
-                    )
-                    .clip(RoundedCornerShape(12.dp))
-                    .padding(8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                when {
-                    state.isLoading -> {
-                        CircularProgressIndicator(
-                            modifier = Modifier.padding(16.dp)
-                        )
-                    }
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .padding(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        when {
+            state.isLoading -> {
+                CircularProgressIndicator(
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
 
-                    state.outfits.isEmpty() -> {
-                        EmptyState()
-                    }
+            state.outfits.isEmpty() -> {
+                EmptyState()
+            }
 
-                    else -> {
-                        LazyVerticalGrid(
-                            columns = GridCells.Fixed(2),
-                            modifier = Modifier.fillMaxWidth().height(400.dp),
-                            contentPadding = PaddingValues(4.dp)
-                        ) {
-                            items(sortedOutfits) { outfit ->
-                                PostCard(
-                                    outfit = outfit,
-                                    currentUser = currentUser,
-                                    modifier = Modifier.padding(4.dp),
-                                    onPostClick = {
-                                        navController.navigate(
-                                            Routes.SocialDetailsScreen(
-                                                outfit.outfitId
-                                            )
-                                        )
-                                    }
+            else -> {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    modifier = Modifier.fillMaxWidth().height(400.dp),
+                    contentPadding = PaddingValues(4.dp)
+                ) {
+                    items(sortedOutfits) { outfit ->
+                        PostCard(
+                            outfit = outfit,
+                            currentUser = currentUser,
+                            modifier = Modifier.padding(4.dp),
+                            onPostClick = {
+                                navController.navigate(
+                                    Routes.SocialDetailsScreen(
+                                        outfit.outfitId
+                                    )
                                 )
                             }
-                        }
+                        )
                     }
                 }
             }
