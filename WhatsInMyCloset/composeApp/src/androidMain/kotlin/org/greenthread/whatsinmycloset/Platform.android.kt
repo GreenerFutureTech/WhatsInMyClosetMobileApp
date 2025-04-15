@@ -194,8 +194,7 @@ actual class PhotoManager(private val context: Context) {
             if (isGranted) {
                 galleryLauncher.launch("image/*")
             } else {
-                Toast.makeText(context, "Need permission to access photos", Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(context, "Need permission to access photos", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -208,11 +207,7 @@ actual class PhotoManager(private val context: Context) {
                         Manifest.permission.READ_EXTERNAL_STORAGE
                     }
 
-                if (ContextCompat.checkSelfPermission(
-                        context,
-                        permission
-                    ) == PackageManager.PERMISSION_GRANTED
-                ) {
+                if (ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED) {
                     galleryLauncher.launch("image/*")
                 } else {
                     permissionLauncher.launch(permission)
@@ -220,9 +215,7 @@ actual class PhotoManager(private val context: Context) {
             },
             modifier = Modifier.padding(8.dp)
         ) {
-            Text(
-                text = stringResource(Res.string.profile_button)
-            )
+            Text(text = stringResource(Res.string.profile_button))
         }
     }
 }

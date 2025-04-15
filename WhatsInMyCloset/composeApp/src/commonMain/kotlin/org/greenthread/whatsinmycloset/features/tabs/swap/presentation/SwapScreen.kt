@@ -221,7 +221,7 @@ fun SwapScreen(
             val displayedSwaps = if (searchString.isEmpty())
                 state.getOtherUserSwapResults else matchingSwaps
 
-            itemsIndexed(displayedSwaps) { _, item ->
+            itemsIndexed(displayedSwaps.sortedByDescending { it.swap.registeredAt }) { _, item ->
                 SwapOtherImageCard(
                     onSwapClick = { onAction(SwapAction.OnSwapClick(item.swap.itemId.id)) },
                     imageUrl = item.swap.itemId.mediaUrl,
