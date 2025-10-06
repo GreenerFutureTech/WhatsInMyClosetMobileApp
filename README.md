@@ -26,8 +26,9 @@ Organize wardrobe items by:
 This is a mobile app created using Kotlin Multiplatform to target Android as well as iOS.
 This project uses a Node.JS back end utilizing the Nest.JS framework.
 <img width="1751" height="1169" alt="image" src="https://github.com/user-attachments/assets/b09160b9-c137-4502-ab14-bdaf9b4dc4d0" />
-<img width="846" height="721" alt="image" src="https://github.com/user-attachments/assets/9204e2b5-b4ca-429c-8def-5c60a452dd31" />
-<img width="909" height="647" alt="image" src="https://github.com/user-attachments/assets/e1348acc-69f9-4510-9fa7-42954f6c255d" />
+<img width="1302" height="715" alt="image" src="https://github.com/user-attachments/assets/6eb489b2-8e75-418d-8c16-01357c26ee47" />
+<img width="1351" height="656" alt="image" src="https://github.com/user-attachments/assets/2978008a-702b-4a2e-b910-2afe4490d1f8" />
+
 
 
 
